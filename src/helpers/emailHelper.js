@@ -10,5 +10,5 @@ module.exports={
             console.log(error)
             throw new Error('Error saving email : ',error);
         }
-    }
-}
+    } 
+} 

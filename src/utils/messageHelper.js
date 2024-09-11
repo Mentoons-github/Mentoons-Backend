@@ -3,4 +3,4 @@ module.exports = {
     BAD_REQUEST: 'Bad Request',
     NEWSLETTER_SUBSCRIBED: 'Subscribed to newsletter succesfully',
     FREE_DOWNLOAD_CLAIMED: 'You have successfully claimed your free gift'
-}
+} 

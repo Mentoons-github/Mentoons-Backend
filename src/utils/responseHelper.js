@@ -17,4 +17,4 @@ module.exports ={
         error.statusCode = statusCode;
         return error;
     },
-}
+} 

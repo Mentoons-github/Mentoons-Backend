@@ -73,4 +73,4 @@ module.exports = {
         await sendEmail(adminOptions);
         return successResponse(res, 200, messageHelper.FREE_DOWNLOAD_CLAIMED);
     })
-}
+} 

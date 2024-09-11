@@ -7,4 +7,4 @@ router.post('/sendNewsLetter',subscribeNewsletter)
 router.post('/freeDownloads',freeDownloads)
 
 
-module.exports = router;
+module.exports = router; 
