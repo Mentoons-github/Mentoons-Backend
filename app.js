@@ -3,6 +3,7 @@ const cors = require('cors')
 const dbConnection = require("./src/config/dbConfig");
 const errorHandler = require("./src/middlewares/errorHandler");
 const emailRoutes = require('./src/routes/email')
+const productRoutes = require('./src/routes/products')
 
 
 const app = express()
@@ -11,7 +12,8 @@ const PORT = process.env.PORT || 4000
 
 app.use(express.json())
 app.use(cors())
-app.use('/email', emailRoutes)
+app.use('/api/v1/email', emailRoutes)
+app.use('/api/v1/products',productRoutes)
 
 app.use('*', (req, res, next) => {
     const url = req.originalUrl
