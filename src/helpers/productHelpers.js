@@ -64,6 +64,11 @@ module.exports = {
     getOneProductFromDB: async (productId) => {
         try {
             const objectId = new mongoose.Types.ObjectId(productId);
+            await Product.findByIdAndUpdate(
+                objectId,
+                { $inc: { viewsCount: 1 } },
+                { new: true, runValidators: true }
+            );
             const product = await Product.aggregate([
                 { $match: { _id: objectId } },
                 {
@@ -75,11 +80,16 @@ module.exports = {
                         productPrice: 1,
                         rewardPoints: 1,
                         productThumbnail: 1,
-                        productSample: 1
+                        productSample: 1,
+                        viewsCount:1,
                     }
                 },
             ])
-            return product
+            if (product.length === 0) {
+                return null
+            }
+    
+            return product[0];
         } catch (error) {
             console.log(error)
             throw new Error("Error fetching products from database")
@@ -87,7 +97,7 @@ module.exports = {
     },
     editProductFromDB: async (productTitle, productDescription, productCategory, productPrice, rewardPoints, productThumbnail, productSample, productId) => {
         try {
-            const updateData={
+            const updateData = {
                 productTitle,
                 productDescription,
                 productPrice,
@@ -110,5 +120,18 @@ module.exports = {
             console.log(error)
             throw new Error("Error fetching products from database")
         }
+    },
+    deleteProductFromDB: async (productId) => {
+        try {
+            const objectId = new mongoose.Types.ObjectId(productId);
+            const deletedProduct = await Product.findByIdAndDelete(objectId);
+            if (!deletedProduct) {
+                return null
+            }
+            return deletedProduct;
+        } catch (error) {
+            console.log(error);
+            throw new Error("Error deleting product from database");
+        }
     }
-}    
+}; 

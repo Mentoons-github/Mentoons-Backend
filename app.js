@@ -3,7 +3,8 @@ const cors = require('cors')
 const dbConnection = require("./src/config/dbConfig");
 const errorHandler = require("./src/middlewares/errorHandler");
 const emailRoutes = require('./src/routes/email')
-const productRoutes = require('./src/routes/products')
+const productRoutes = require('./src/routes/products');
+const otpRoutes = require('./src/routes/otp');
 
 
 const app = express()
@@ -14,6 +15,7 @@ app.use(express.json())
 app.use(cors())
 app.use('/api/v1/email', emailRoutes)
 app.use('/api/v1/products',productRoutes)
+app.use('/api/v1/otp',otpRoutes)
 
 app.use('*', (req, res, next) => {
     const url = req.originalUrl
@@ -22,13 +24,11 @@ app.use('*', (req, res, next) => {
     })
 })
 
-
 app.use(errorHandler)
-
 
 dbConnection()
 
 
-app.listen(PORT, () => {
+app.listen(PORT, async() => {
     console.log(`server running in http://localhost:${PORT}`)
 })
