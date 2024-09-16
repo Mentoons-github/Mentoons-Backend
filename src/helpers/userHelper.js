@@ -38,6 +38,7 @@ module.exports = {
     const user = await User.findOne({ email: data.email });
 
     let accessToken = data?.token;
+    console.log("accessToken: ", accessToken);
     if (!user) {
       const error = new Error("Invalid credentials");
       error.code = "INVALID_CREDENTIALS";
