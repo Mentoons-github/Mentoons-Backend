@@ -1,10 +1,11 @@
 const express = require('express')
-const { subscribeNewsletter, freeDownloads, getLeadData } = require('../controllers/emailController')
+const { subscribeNewsletter, getLeadData, freeDownloadsRequest, freeDownloadsVerifyOtp } = require('../controllers/emailController')
 
 const router = express.Router()
 
 router.post('/subscribeToNewsletter',subscribeNewsletter)
-router.post('/freeDownloads',freeDownloads)
+router.post('/freeDownloadsReq',freeDownloadsRequest)
+router.post('/freeDownloadsVerify',freeDownloadsVerifyOtp)
 router.get('/getLeadData',getLeadData)
 
 

@@ -32,7 +32,15 @@ const productSchema = new mongoose.Schema({
     productSample: {
         type: String,
         required: [true, 'Product Sample is required']
+    },
+    viewsCount: {
+        type: Number,
+        default: 0
     }
+},
+{ 
+    timestamps: true,
+
 })
 
 const Product = mongoose.model('Products',productSchema)

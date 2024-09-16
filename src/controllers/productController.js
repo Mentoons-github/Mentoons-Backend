@@ -16,12 +16,18 @@ module.exports = {
     getAllProducts: asyncHandler(async (req, res, next) => {
         const { productTitle, productCategory, sortField, sortDirection, page, limit } = req.query
         const allproducts = await productHelpers.getAllProductsFromDB(productTitle, productCategory, sortField, sortDirection, page, limit)
+        if (!allproducts) {
+            return errorResponse(res, 404, messageHelper.PRODUCT_NOT_FOUND)
+          }
         successResponse(res, 200, messageHelper.PRODUCTS_FETCHED, allproducts)
     }),
 
     getProduct: asyncHandler(async (req, res, next) => {
         const { productId } = req.params
         const product = await productHelpers.getOneProductFromDB(productId)
+        if (!product) {
+           return errorResponse(res, 404, messageHelper.PRODUCT_NOT_FOUND)
+        }
         successResponse(res, 200, messageHelper.PRODUCTS_FETCHED, product)
     }),
 
@@ -29,6 +35,17 @@ module.exports = {
         const { productId } = req.params
         const { productTitle, productDescription, productCategory, productPrice, rewardPoints, productThumbnail, productSample } = req.body
         const updatedProduct = await productHelpers.editProductFromDB(productTitle, productDescription, productCategory, productPrice, rewardPoints, productThumbnail, productSample, productId)
-        successResponse(res,200,messageHelper.PRODUCT_UPDATED,updatedProduct)
+        if (!editProduct) {
+            return errorResponse(res, 404, messageHelper.PRODUCT_NOT_FOUND)
+          }
+        successResponse(res, 200, messageHelper.PRODUCT_UPDATED, updatedProduct)
+    }),
+    deleteProduct: asyncHandler(async (req, res, next) => {
+        const { productId } = req.params
+        const deletedProduct = await productHelpers.deleteProductFromDB(productId)
+        if (!deletedProduct) {
+          return errorResponse(res, 404, messageHelper.PRODUCT_NOT_FOUND)
+        }
+        successResponse(res, 200, messageHelper.PRODUCT_DELETED, deletedProduct)
     })
 }

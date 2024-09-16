@@ -1,6 +1,9 @@
 const mongoose = require('mongoose')
 const validator = require('validator')
 
+const phoneRegex = /^\d{10,15}$/; 
+const countryCodeRegex = /^\+[1-9]{1}[0-9]{1,3}$/;
+
 const emailSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -18,17 +21,32 @@ const emailSchema = new mongoose.Schema({
     },
     phone: {
         type: String,
-        required: [true, 'Phone Number is required'],
-        validator: function (value) {
-            return validator.isMobilePhone(value, 'en-IN');
-        },
-        message: 'Please provide a valid phone number'
+        required: [true, 'Phone number is required'],
+        validate: {
+            validator: function(phone) {
+                return phoneRegex.test(phone); 
+            },
+            message: props => `${props.value} is not a valid phone number!`
+        }
+    },
+    countryCode: {
+        type: String,
+        required: [true, 'Country code is required'],
+        validate: {
+            validator: function(cc) {
+                return countryCodeRegex.test(cc);             },
+            message: props => `${props.value} is not a valid country code!`
+        }
     },
     message: {
         type: String,
         maxlength: [500, 'Message cannot be more than 500 characters'],
 
     },
+},
+{ 
+    timestamps: true,
+
 })
 
 
