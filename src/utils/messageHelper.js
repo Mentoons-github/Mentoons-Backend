@@ -11,5 +11,9 @@ module.exports = {
     OTP_SENT_SUCCESSFULLY:'OTP sent successfully',
     OTP_VERIFIED:"OTP verified successfully",
     INVALID_OTP:"Invalid OTP",
-    OTP_NOT_FOUND:"OTP not found"
+    OTP_NOT_FOUND:"OTP not found",
+    QUESTION_LIMIT:"A quiz must have between 2 and 5 questions.",
+    ANSWER_LIMIT:"A answer must have 5 additional details",
+    QUIZ_CREATED:'Quiz created sucessfully',
+    FORM_SUBMITTED:"Form submitted successfully",
 } 

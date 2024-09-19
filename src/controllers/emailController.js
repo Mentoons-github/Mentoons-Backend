@@ -12,7 +12,7 @@ const { createOtp, hashData } = require("../utils/functions")
 
 module.exports = {
     subscribeNewsletter: asyncHandler(async (req, res, next) => {
-        const { name, email, phone, message } = req.body
+        const { name, email,countryCode, phone, message } = req.body
 
         if (!name && !email && !phone) {
             errorResponse(res, 404, messageHelper.BAD_REQUEST)
@@ -37,7 +37,7 @@ module.exports = {
 
         };
 
-        await emailHelper.saveEmailToDB({ name, email, phone, message });
+        await emailHelper.saveEmailToDB({ name, email,countryCode, phone, message });
         await sendEmail(userOptions);
         await sendEmail(adminOptions);
         return successResponse(res, 200, messageHelper.NEWSLETTER_SUBSCRIBED);
@@ -102,7 +102,7 @@ module.exports = {
         }
         const adminOptions = {
             from: process.env.EMAIL_USER,
-            to: email,
+            to: process.env.ADMIN_EMAIL,
             subject: 'New free download claimed',
             text: `You have a new free download claimed.\n\nDetails:\nName: ${name}\nEmail: ${email}\nPhone: ${phone}`,
         };
