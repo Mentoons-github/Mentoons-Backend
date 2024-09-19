@@ -6,7 +6,8 @@ const emailRoutes = require("./src/routes/email");
 const userRoutes = require("./src/routes/user.js");
 const productRoutes = require('./src/routes/products');
 const otpRoutes = require('./src/routes/otp');
-
+const quizRoutes = require('./src/routes/quiz')
+const workshopRoutes = require('./src/routes/workshop')
 
 const app = express()
 const PORT = process.env.PORT || 4000
@@ -17,6 +18,8 @@ app.use(cors())
 app.use('/api/v1/email', emailRoutes)
 app.use('/api/v1/products',productRoutes)
 app.use('/api/v1/otp', otpRoutes)
+app.use('/api/v1/quiz',quizRoutes)
+app.use('/api/v1/workshop',workshopRoutes)
 app.use('/api/v1/user', userRoutes)
 
 app.use('*', (req, res, next) => {
