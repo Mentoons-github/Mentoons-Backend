@@ -7,15 +7,15 @@ const workshopSchema = mongoose.Schema({
    },
    guardianName:{
     type:String,
-    required:[true,"Father's name is required"]
+    required:[true,"Guardian's name is required"]
    },
    guardianContact:{
     type:String,
-    required:[true,"Father's phone no is required"]
+    required:[true,"Guardian's phone no is required"]
    },
    city:{
     type:String,
-    required:[true,"Mother's phone no is required"]
+    required:[true,"City is required"]
    },
    message:{
     type:String,

@@ -8,6 +8,7 @@ module.exports = {
         message,
         appliedWorkshop,
         age) => {
+            console.log(appliedWorkshop,'0po0po0')
         try {
             const newWorkshopForm = new WorkshopData({
                 name,
