@@ -17,5 +17,5 @@ module.exports = {
   USER_UNAUTHORIZE: "User with this email does not exist",
   INCORRECT_PASSWORD: "Incorrect Password",
   SUCCESSFULLY_REGISTERED_USER: "Successfully Register user",
-  SUCCESSFULLY_LOGGED_USER: "Successfully logged in.",
+  SUCCESSFULLY_LOGGED_IN_USER: "Successfully Logged in user.",
 };

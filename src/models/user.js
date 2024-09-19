@@ -3,24 +3,38 @@ const validator = require("validator");
 const UserSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: [true, "Name is required"],
+    // required: [true, "Name is required"],
     minlength: [3, "Name should be more than 3 characters"],
     maxlength: [50, "Name should be more than 50 characters"],
   },
   email: {
     type: String,
-    required: [true, "Email is Requied"],
+    // required: [true, "Email is Requied"],
     validate: {
       validator: validator.isEmail,
       message: "Use a valid email",
     },
   },
+  countryCode: {
+    type: String,
+  },
   mobileNumber: {
+    type: String,
+
+    unique: true,
+  },
+  otp: {
+    type: String,
+  },
+  otpExpiresAt: {
+    type: Date,
+  },
+  refreshToken: {
     type: String,
   },
   password: {
     type: String,
-    required: [true, "Password is required"],
+    // required: [true, "Password is required"],
     validate: {
       validator: function (value) {
         const errors = [];
@@ -44,6 +58,10 @@ const UserSchema = new mongoose.Schema({
       message: (props) => props.reason.message,
     },
   },
+  aga: {
+    type: String,
+  },
+
   coins: {
     type: String,
   },
