@@ -22,7 +22,7 @@ module.exports = {
             guardianContact,
             city,
             message,
-            appliedWorkshop,
+            appliedWorkshop.toUpperCase(),
             age)
         if(!newForm){
             return errorResponse(res,404,messageHelper.INTERNAL_SERVER_ERROR)
