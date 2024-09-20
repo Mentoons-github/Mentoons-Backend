@@ -7,11 +7,10 @@ const { createOtp, hashData } = require("../utils/functions");
 
 module.exports = {
   register: async (data) => {
-    const { mobileNumber, countryCode } = data;
+    const { phoneNumber } = data;
 
     const existingUser = await User.findOne({
-      countryCode: countryCode,
-      mobileNumber: mobileNumber,
+      phoneNumber: phoneNumber,
     });
     if (existingUser) {
       const error = new Error("Phone number is already registered.");
@@ -19,26 +18,27 @@ module.exports = {
       throw error;
     }
 
-    const phoneNumber = `${countryCode}${mobileNumber}`;
-    const otp = await createOtp();
-    const hashedOtp = await hashData(otp);
+    const mobileNumber = `${phoneNumber}`;
+    // const otp = await createOtp();
+    const otp = "1234"
     const otpExpiresAt = Date.now() + 10 * 60 * 1000;
+    const hashedOtp = await hashData(otp);
 
     const newUser = await User.create({
-      mobileNumber: mobileNumber,
-      countryCode: countryCode,
+      phoneNumber: phoneNumber,
       otp: hashedOtp,
       otpExpiresAt: otpExpiresAt,
     });
 
-    whatsappMessage(`Your 6 digit OTP is: ${otp}`, phoneNumber);
+    whatsappMessage(`Your 4 digit OTP is: ${otp}`, mobileNumber);
     return newUser;
   },
 
   //verify route
-  verifyUserRegistration: async (otp, mobileNumber) => {
+  verifyUserRegistration: async (otp, phoneNumber) => {
     console.log(otp);
-    const user = await User.findOne({ mobileNumber: mobileNumber });
+    console.log(phoneNumber)
+    const user = await User.findOne({ phoneNumber: phoneNumber });
     console.log(user);
 
     if (!user || Date.now() > user.otpExpiresAt) {
@@ -55,7 +55,7 @@ module.exports = {
     }
 
     const refreshtoken = Auth.createRefreshToken(
-    mobileNumber,
+      phoneNumber,
       process.env.REFRESH_TOKEN_SECRET
     );
 
@@ -65,11 +65,10 @@ module.exports = {
   },
 
   login: async (data) => {
-    const { mobileNumber, countryCode } = data;
+    const { phoneNumber } = data;
 
     const existingUser = await User.findOne({
-      countryCode: countryCode,
-      mobileNumber: mobileNumber,
+      phoneNumber: phoneNumber,
     });
     if (!existingUser) {
       const error = new Error("Phone number is Not registered.");
@@ -77,50 +76,51 @@ module.exports = {
       throw error;
     }
 
-    const phoneNo = `${countryCode}${mobileNumber}`;
-    const otp = await createOtp();
-    const hashedOtp = await hashData(otp);
+    const mobileNumber = `${phoneNumber}`;
+    // const otp = await createOtp();
+    const otp = "1234";
     const otpExpiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
+    const hashedOtp = await hashData(otp);
 
     existingUser.otp = hashedOtp;
     existingUser.otpExpiresAt = otpExpiresAt;
 
-    whatsappMessage(`Your 6 digit OTP is: ${otp}`, phoneNo);
+    whatsappMessage(`Your 6 digit OTP is: ${otp}`, mobileNumber);
 
     await existingUser.save();
 
-    return existingUser;
+    return true;
   },
-  verifyUserLogin: async (mobileNumber,otp, token) => {
-    const user = await User.findOne({ mobileNumber:mobileNumber});
+  verifyUserLogin: async (phoneNumber, otp, token) => {
+    const user = await User.findOne({ phoneNumber: phoneNumber });
 
     let userDetails = {};
 
-     if (!user || Date.now() > user.otpExpiresAt) {
-       const error = new Error("Invalid or expired OTP");
-       error.code = "400";
-       throw error;
-     }
+    if (!user || Date.now() > user.otpExpiresAt) {
+      const error = new Error("Invalid or expired OTP");
+      error.code = "400";
+      throw error;
+    }
 
-     const isOtpValid = await bcrypt.compare(otp, user.otp);
-     if (!isOtpValid) {
-       const error = new Error("Invalid OTP");
-       error.code = "400";
-       throw error;
-     }
+    const isOtpValid = await bcrypt.compare(otp, user.otp);
+    if (!isOtpValid) {
+      const error = new Error("Invalid OTP");
+      error.code = "400";
+      throw error;
+    }
     if (token) {
       const verifyToken = await Auth.verifyToken(token);
       if (verifyToken) {
-        userDetails.mobileNumber = user.mobileNumber;
+        userDetails.phoneNumber = user.phoneNumber;
         userDetails.accessToken = token;
       }
     } else {
       const accessToken = Auth.createAccessToken(
-        { mobileNumber: user.mobileNumber },
+        { phoneNumber: user.phoneNumber },
         user.refreshToken
       );
 
-      userDetails.mobileNumber = user.mobileNumber;
+      userDetails.phoneNumber = user.phoneNumber;
       userDetails.accessToken = accessToken;
     }
 
@@ -129,7 +129,7 @@ module.exports = {
   logout: async (token) => {
     const verifyToken = Auth.verifyToken(token);
     console.log(verifyToken);
-    const user = await User.findOne({ mobileNumber: verifyToken.mobileNumber });
+    const user = await User.findOne({ phoneNumber: verifyToken.phoneNumber });
     return user;
   },
 };

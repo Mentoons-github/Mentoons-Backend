@@ -18,6 +18,7 @@ module.exports = {
   INCORRECT_PASSWORD: "Incorrect Password",
   SUCCESSFULLY_REGISTERED_USER: "Successfully Register user",
   SUCCESSFULLY_LOGGED_IN_USER: "Successfully Logged in user.",
+  SUCCESSFULLY_LOGOUT_USER: "Successfully logged out.",
   QUESTION_LIMIT: "A quiz must have between 2 and 5 questions.",
   ANSWER_LIMIT: "A answer must have 5 additional details",
   QUIZ_CREATED: "Quiz created sucessfully",

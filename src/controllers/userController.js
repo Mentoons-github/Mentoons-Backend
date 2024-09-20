@@ -5,49 +5,65 @@ const userHelper = require("../helpers/userHelper");
 
 module.exports = {
   registerController: asyncHandler(async (req, res) => {
-    const { mobileNumber, countryCode } = req.body;
+    const { phoneNumber  } = req.body;
 
     // Validate required fields
-    if (!mobileNumber || !countryCode) {
+    if (!phoneNumber ) {
       errorResponse(res, 400, messageHelper.MISSING_REQUIRED_FIELDS);
     }
 
     const result = await userHelper.register(req.body);
-    console.log("Register result", result);
-    successResponse(res, 200, messageHelper.OTP_SENT_SUCCESSFULLY);
+    if (!result) {
+      errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR);
+    }
+    successResponse(res, 200, messageHelper.OTP_SENT_SUCCESSFULLY,result);
   }),
   loginController: asyncHandler(async (req, res) => {
-    const { mobileNumber, countryCode } = req.body;
+    const { phoneNumber } = req.body;
     const token = req.headers.authorization?.split(" ")[1];
     console.log("token", token);
 
-    if (!mobileNumber || !countryCode) {
+    if (!phoneNumber ) {
       errorResponse(res, 400, messageHelper.MISSING_REQUIRED_FIELDS);
     }
 
-    const result = await userHelper.login({ mobileNumber, countryCode });
+    const result = await userHelper.login({ phoneNumber });
+    if (!result) {
+      errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR);
+    }
     console.log("Login result", result);
-    successResponse(res, 200, messageHelper.OTP_SENT_SUCCESSFULLY);
+    successResponse(res, 200, messageHelper.OTP_SENT_SUCCESSFULLY,result);
   }),
 
   verifyUserRegistrationController: asyncHandler(async (req, res) => {
-    const { otp, mobileNumber } = req.body;
+    const { otp, phoneNumber } = req.body;
     if (!otp) {
       errorResponse(res, 400, messageHelper.MISSING_REQUIRED_FIELDS);
     }
-    const result = await userHelper.verifyUserRegistration(otp, mobileNumber);
+    const result = await userHelper.verifyUserRegistration(otp, phoneNumber);
+    if (!result) {
+      errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR);
+    }
     console.log("otp varification result", result);
-    successResponse(res, 200, messageHelper.SUCCESSFULLY_REGISTERED_USER, result);
+    successResponse(
+      res,
+      200,
+      messageHelper.SUCCESSFULLY_REGISTERED_USER,
+      result
+    );
   }),
 
   verifyUserLoginController: asyncHandler(async (req, res) => {
-    const { otp, mobileNumber } = req.body;
+    const { otp, phoneNumber } = req.body;
     const token = req.headers.authorization?.split(" ")[1];
 
     if (!otp) {
       errorResponse(res, 400, messageHelper.MISSING_REQUIRED_FIELDS);
     }
-    const result = await userHelper.verifyUserLogin(mobileNumber, otp, token);
+    const result = await userHelper.verifyUserLogin(phoneNumber, otp, token);
+    if (!result) {
+      errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR);
+    }
     console.log("otp varification result", result);
     successResponse(res, 200, messageHelper.SUCCESSFULLY_LOGGED_USER, result);
   }),
@@ -59,7 +75,10 @@ module.exports = {
     }
 
     const result = await userHelper.logout(token);
+    if (!result) {
+      errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR);
+    }
     console.log("logoutResult", result);
-    successResponse(res, 200, messageHelper.SUCCESSFULLY_LOGOUT_USER);
+    successResponse(res, 200, messageHelper.SUCCESSFULLY_LOGOUT_USER, result);
   }),
 };

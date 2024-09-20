@@ -15,12 +15,8 @@ const UserSchema = new mongoose.Schema({
       message: "Use a valid email",
     },
   },
-  countryCode: {
+  phoneNumber: {
     type: String,
-  },
-  mobileNumber: {
-    type: String,
-
     unique: true,
   },
   otp: {
