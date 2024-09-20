@@ -18,6 +18,8 @@ const createAccessToken = (input, secret) => {
 };
 
 const createRefreshToken = (input, secret) => {
+  console.log(secret,'qwertyuiop');
+  
   try {
     return jwt.sign(input, secret);
   } catch (error) {

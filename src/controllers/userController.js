@@ -37,6 +37,7 @@ module.exports = {
 
   verifyUserRegistrationController: asyncHandler(async (req, res) => {
     const { otp, phoneNumber } = req.body;
+    console.log(otp,'popooppo')
     if (!otp) {
       errorResponse(res, 400, messageHelper.MISSING_REQUIRED_FIELDS);
     }
