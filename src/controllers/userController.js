@@ -70,12 +70,15 @@ module.exports = {
   }),
 
   logoutController: asyncHandler(async (req, res) => {
+    const {phoneNumber} = req.body
     const token = req.headers.authorization?.split(" ")[1];
+    console.log(token)
     if (!token) {
       errorResponse(res, 400, messageHelper.MISSING_REQUIRED_FIELDS);
     }
 
-    const result = await userHelper.logout(token);
+    const result = await userHelper.logout(token,phoneNumber);
+    console.log(result)
     if (!result) {
       errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR);
     }
