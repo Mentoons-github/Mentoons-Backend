@@ -54,12 +54,28 @@ const UserSchema = new mongoose.Schema({
       message: (props) => props.reason.message,
     },
   },
-  aga: {
+  age: {
     type: String,
   },
-
   coins: {
     type: String,
+  },
+  city: {
+    type: String,
+  },
+  premiumStartDate: {
+    type: Date,
+  },
+  premiumEndDate: {
+    type: Date,
+  },
+  isFirstLogin: {
+    type: Boolean,
+    default: true,
+  },
+  isPremiumUser: {
+    type: Boolean,
+    default: false,
   },
 });
 
