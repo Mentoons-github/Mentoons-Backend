@@ -96,7 +96,6 @@ module.exports = {
 
     whatsappMessage(`Your 6 digit OTP is: ${otp}`, mobileNumber);
 
-
     return true;
   },
   verifyUserLogin: async (phoneNumber, otp, token) => {
@@ -157,5 +156,41 @@ module.exports = {
       phoneNumber: user.phoneNumber,
     };
     return userDetails;
+  },
+  handlePremium: async (existingUser, name, email, city) => {
+    const currentDate = new Date();
+
+    if (existingUser.isFirstLogin) {
+      // Grant 3 days of premium
+      existingUser.isFirstLogin = false;
+      existingUser.premiumStartDate = currentDate;
+      existingUser.premiumEndDate = new Date(
+        currentDate.getTime() + 3 * 24 * 60 * 60 * 1000
+      );
+      existingUser.isPremiumUser = true;
+      existingUser.name = name;
+      existingUser.email = email;
+      existingUser.city = city;
+    } else if (existingUser.premiumEndDate < currentDate) {
+      // Premium has expired
+      return {
+        success: false,
+        message: "Your premium subscription has expired.",
+      };
+    } else {
+      // Premium is already active
+      return {
+        success: true,
+        message: "Premium already active",
+        premiumEndDate: existingUser.premiumEndDate,
+      };
+    }
+
+    await existingUser.save();
+    return {
+      success: true,
+      message: "Free 3-day premium activated",
+      premiumEndDate: existingUser.premiumEndDate,
+    };
   },
 };
