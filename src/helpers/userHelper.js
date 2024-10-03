@@ -62,17 +62,14 @@ module.exports = {
       throw error;
     }
 
-    const otp = "1234"; // For testing purposes, replace with createOtp() in production
+    // const otp = "1234"; 
+    const otp = createOtp();
     const hashedOtp = await hashData(otp);
 
     existingUser.otp = hashedOtp;
     await existingUser.save();
 
-<<<<<<< HEAD
     whatsappMessage(`Your 6 digit OTP is: ${otp}`, phoneNumber);
-=======
-    whatsappMessage(`Your 6 digit OTP is: ${otp}`, mobileNumber);
->>>>>>> 87b02b37323ebaaa3dc8e0bf06e5f1e21c91f03e
 
     return true;
   },

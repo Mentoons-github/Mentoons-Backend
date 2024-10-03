@@ -18,10 +18,7 @@ module.exports = {
       return errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR);
     }
 
-    const accessToken = Auth.createAccessToken({ phoneNumber }, process.env.ACCESS_TOKEN_SECRET);
-    const refreshToken = Auth.createRefreshToken({ phoneNumber }, process.env.REFRESH_TOKEN_SECRET);
-
-    return successResponse(res, 200, messageHelper.OTP_SENT_SUCCESSFULLY, { result, accessToken, refreshToken });
+    return successResponse(res, 200, messageHelper.OTP_SENT_SUCCESSFULLY, { result});
   }),
 
   loginController: asyncHandler(async (req, res) => {
@@ -109,43 +106,6 @@ module.exports = {
   }),
 
   premiumController: asyncHandler(async (req, res) => {
-    // const { name, email, phoneNumber, city } = req.body;
-
-    // if (!(name && email && phoneNumber && city)) {
-    //   return errorResponse(res, 400, "Missing Required Fields");
-    // }
-    // const existingUser = await User.findOne({ phoneNumber });
-    // if (!existingUser) {
-    //   return errorResponse(res, 500, "user doesn't exist");
-    // }
-    // console.log(existingUser);
-    // const currentDate = new Date();
-
-    // if (existingUser.isFirstLogin) {
-    //   existingUser.isFirstLogin = false;
-    //   existingUser.premiumStartDate = currentDate;
-    //   existingUser.premiumEndDate = new Date(
-    //     currentDate.getTime() + 3 * 24 * 60 * 60 * 1000
-    //   ); // 3 days free
-    //   existingUser.isPremiumUser = true;
-    //   existingUser.name = name;
-    //   existingUser.email = email;
-    //   existingUser.city = city;
-
-    //   await existingUser.save();
-
-    //   return successResponse(res, 200, "Free 3-day premium activated", {
-    //     existingUser,
-    //   });
-    // }
-
-    // if (existingUser.premiumEndDate < currentDate) {
-    //   return errorResponse(res, 402, "Your premium subscription has expired.");
-    // }
-
-    // return successResponse(res, 200, "Premium already active", {
-    //   premiumEndDate: existingUser.premiumEndDate,
-    // });
     const { name, email, phoneNumber, city } = req.body;
 
     if (!(name && email && phoneNumber && city)) {
