@@ -2,27 +2,27 @@ const messageHelper = require("../utils/messageHelper");
 const { errorResponse, successResponse } = require("../utils/responseHelper");
 const asyncHandler = require("../utils/asyncHandler");
 const userHelper = require("../helpers/userHelper");
-const User = require("../models/user");
+const Auth = require("../utils/auth");
 
 module.exports = {
   registerController: asyncHandler(async (req, res) => {
     const { phoneNumber } = req.body;
 
     // Validate required fields
-    if (!phoneNumber) {
-      return errorResponse(res, 400, messageHelper.MISSING_REQUIRED_FIELDS);
+    if (!phoneNumber ) {
+      errorResponse(res, 400, messageHelper.MISSING_REQUIRED_FIELDS);
     }
 
     const result = await userHelper.register(req.body);
     if (!result) {
       return errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR);
     }
-    successResponse(res, 200, messageHelper.OTP_SENT_SUCCESSFULLY, result);
+
+    return successResponse(res, 200, messageHelper.OTP_SENT_SUCCESSFULLY, { result});
   }),
+
   loginController: asyncHandler(async (req, res) => {
     const { phoneNumber } = req.body;
-    const token = req.headers.authorization?.split(" ")[1];
-    console.log("token", token);
 
     if (!phoneNumber) {
       return errorResponse(res, 400, messageHelper.MISSING_REQUIRED_FIELDS);
@@ -33,47 +33,51 @@ module.exports = {
       return errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR);
     }
     console.log("Login result", result);
-    successResponse(res, 200, messageHelper.OTP_SENT_SUCCESSFULLY, result);
+    successResponse(res, 200, messageHelper.OTP_SENT_SUCCESSFULLY,result);
   }),
 
   verifyUserRegistrationController: asyncHandler(async (req, res) => {
     const { otp, phoneNumber } = req.body;
-    console.log(otp, "popooppo");
+    console.log(otp,'popooppo')
     if (!otp) {
       return errorResponse(res, 400, messageHelper.MISSING_REQUIRED_FIELDS);
     }
+
     const result = await userHelper.verifyUserRegistration(otp, phoneNumber);
     if (!result) {
       return errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR);
     }
-    console.log("otp varification result", result);
-    successResponse(
-      res,
-      200,
-      messageHelper.SUCCESSFULLY_REGISTERED_USER,
-      result
-    );
+
+    const accessToken = Auth.createAccessToken({ phoneNumber }, process.env.ACCESS_TOKEN_SECRET);
+    const refreshToken = Auth.createRefreshToken({ phoneNumber }, process.env.REFRESH_TOKEN_SECRET);
+
+    return successResponse(res, 200, messageHelper.SUCCESSFULLY_REGISTERED_USER, { result, accessToken, refreshToken });
   }),
 
   verifyUserLoginController: asyncHandler(async (req, res) => {
     const { otp, phoneNumber } = req.body;
     const token = req.headers.authorization?.split(" ")[1];
 
+
     if (!otp) {
-      errorResponse(res, 400, messageHelper.MISSING_REQUIRED_FIELDS);
+      return errorResponse(res, 400, messageHelper.MISSING_REQUIRED_FIELDS);
     }
+
     const result = await userHelper.verifyUserLogin(phoneNumber, otp, token);
     if (!result) {
-      errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR);
+      return errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR);
     }
-    console.log("otp varification result", result);
-    successResponse(res, 200, messageHelper.SUCCESSFULLY_LOGGED_USER, result);
-  }),
 
+    const accessToken = Auth.createAccessToken({ phoneNumber }, process.env.ACCESS_TOKEN_SECRET);
+    const refreshToken = Auth.createRefreshToken({ phoneNumber }, process.env.REFRESH_TOKEN_SECRET);
+
+    return successResponse(res, 200, messageHelper.SUCCESSFULLY_LOGGED_USER, { result, accessToken, refreshToken });
+  }),
+ 
   logoutController: asyncHandler(async (req, res) => {
-    const { phoneNumber } = req.body;
+    const {phoneNumber} = req.body
     const token = req.headers.authorization?.split(" ")[1];
-    console.log(token);
+    console.log(token)
     if (!token) {
       return errorResponse(res, 400, messageHelper.MISSING_REQUIRED_FIELDS);
     }
@@ -83,48 +87,25 @@ module.exports = {
     if (!result) {
       return errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR);
     }
-    console.log("logoutResult", result);
-    successResponse(res, 200, messageHelper.SUCCESSFULLY_LOGOUT_USER, result);
+    return successResponse(res, 200, messageHelper.SUCCESSFULLY_LOGOUT_USER, result);
+  }),
+
+  refreshTokenController: asyncHandler(async (req, res) => {
+    const { refreshToken } = req.body;
+    if (!refreshToken) {
+      return errorResponse(res, 400, messageHelper.MISSING_REQUIRED_FIELDS);
+    }
+
+    try {
+      const decoded = Auth.verifyToken(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+      const accessToken = Auth.createAccessToken({ phoneNumber: decoded.phoneNumber }, process.env.ACCESS_TOKEN_SECRET);
+      return successResponse(res, 200, messageHelper.TOKEN_REFRESHED, { accessToken });
+    } catch (error) {
+      return errorResponse(res, 401, messageHelper.INVALID_REFRESH_TOKEN);
+    }
   }),
 
   premiumController: asyncHandler(async (req, res) => {
-    // const { name, email, phoneNumber, city } = req.body;
-
-    // if (!(name && email && phoneNumber && city)) {
-    //   return errorResponse(res, 400, "Missing Required Fields");
-    // }
-    // const existingUser = await User.findOne({ phoneNumber });
-    // if (!existingUser) {
-    //   return errorResponse(res, 500, "user doesn't exist");
-    // }
-    // console.log(existingUser);
-    // const currentDate = new Date();
-
-    // if (existingUser.isFirstLogin) {
-    //   existingUser.isFirstLogin = false;
-    //   existingUser.premiumStartDate = currentDate;
-    //   existingUser.premiumEndDate = new Date(
-    //     currentDate.getTime() + 3 * 24 * 60 * 60 * 1000
-    //   ); // 3 days free
-    //   existingUser.isPremiumUser = true;
-    //   existingUser.name = name;
-    //   existingUser.email = email;
-    //   existingUser.city = city;
-
-    //   await existingUser.save();
-
-    //   return successResponse(res, 200, "Free 3-day premium activated", {
-    //     existingUser,
-    //   });
-    // }
-
-    // if (existingUser.premiumEndDate < currentDate) {
-    //   return errorResponse(res, 402, "Your premium subscription has expired.");
-    // }
-
-    // return successResponse(res, 200, "Premium already active", {
-    //   premiumEndDate: existingUser.premiumEndDate,
-    // });
     const { name, email, phoneNumber, city } = req.body;
 
     if (!(name && email && phoneNumber && city)) {
