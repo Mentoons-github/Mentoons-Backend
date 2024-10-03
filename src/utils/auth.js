@@ -1,27 +1,17 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-const checkPassword = (plainPassword, encryptedPassword) => {
-  try {
-    return bcrypt.compareSync(plainPassword, encryptedPassword);
-  } catch (error) {
-    throw error;
-  }
-};
-
 const createAccessToken = (input, secret) => {
   try {
-    return jwt.sign(input, secret, { expiresIn: process.env.EXPIRES_IN });
+    return jwt.sign(input, secret, { expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN });
   } catch (error) {
     throw error;
   }
 };
 
 const createRefreshToken = (input, secret) => {
-  console.log(secret,'qwertyuiop');
-  
   try {
-    return jwt.sign(input, secret);
+    return jwt.sign(input, secret, { expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN });
   } catch (error) {
     throw error;
   }
@@ -36,7 +26,6 @@ const verifyToken = (token, secret) => {
 };
 
 module.exports = {
-  checkPassword,
   createAccessToken,
   createRefreshToken,
   verifyToken,
