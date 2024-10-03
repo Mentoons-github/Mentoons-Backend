@@ -63,6 +63,7 @@ module.exports = {
     const { otp, phoneNumber } = req.body;
     const token = req.headers.authorization?.split(" ")[1];
 
+
     if (!otp) {
       return errorResponse(res, 400, messageHelper.MISSING_REQUIRED_FIELDS);
     }
@@ -77,7 +78,7 @@ module.exports = {
 
     return successResponse(res, 200, messageHelper.SUCCESSFULLY_LOGGED_USER, { result, accessToken, refreshToken });
   }),
-
+ 
   logoutController: asyncHandler(async (req, res) => {
     const token = req.headers.authorization?.split(" ")[1];
     if (!token) {
