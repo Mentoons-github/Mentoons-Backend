@@ -8,8 +8,9 @@ module.exports = {
   registerController: asyncHandler(async (req, res) => {
     const { phoneNumber } = req.body;
 
-    if (!phoneNumber) {
-      return errorResponse(res, 400, messageHelper.MISSING_REQUIRED_FIELDS);
+    // Validate required fields
+    if (!phoneNumber ) {
+      errorResponse(res, 400, messageHelper.MISSING_REQUIRED_FIELDS);
     }
 
     const result = await userHelper.register(req.body);
@@ -34,16 +35,13 @@ module.exports = {
     if (!result) {
       return errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR);
     }
-
-    const accessToken = Auth.createAccessToken({ phoneNumber }, process.env.ACCESS_TOKEN_SECRET);
-    const refreshToken = Auth.createRefreshToken({ phoneNumber }, process.env.REFRESH_TOKEN_SECRET);
-
-    return successResponse(res, 200, messageHelper.OTP_SENT_SUCCESSFULLY, { result, accessToken, refreshToken });
+    console.log("Login result", result);
+    successResponse(res, 200, messageHelper.OTP_SENT_SUCCESSFULLY,result);
   }),
 
   verifyUserRegistrationController: asyncHandler(async (req, res) => {
     const { otp, phoneNumber } = req.body;
-
+    console.log(otp,'popooppo')
     if (!otp) {
       return errorResponse(res, 400, messageHelper.MISSING_REQUIRED_FIELDS);
     }
@@ -80,12 +78,15 @@ module.exports = {
   }),
  
   logoutController: asyncHandler(async (req, res) => {
+    const {phoneNumber} = req.body
     const token = req.headers.authorization?.split(" ")[1];
+    console.log(token)
     if (!token) {
       return errorResponse(res, 400, messageHelper.MISSING_REQUIRED_FIELDS);
     }
 
-    const result = await userHelper.logout(token);
+    const result = await userHelper.logout(token, phoneNumber);
+    console.log(result);
     if (!result) {
       return errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR);
     }
@@ -105,5 +106,70 @@ module.exports = {
     } catch (error) {
       return errorResponse(res, 401, messageHelper.INVALID_REFRESH_TOKEN);
     }
+  }),
+
+  premiumController: asyncHandler(async (req, res) => {
+    // const { name, email, phoneNumber, city } = req.body;
+
+    // if (!(name && email && phoneNumber && city)) {
+    //   return errorResponse(res, 400, "Missing Required Fields");
+    // }
+    // const existingUser = await User.findOne({ phoneNumber });
+    // if (!existingUser) {
+    //   return errorResponse(res, 500, "user doesn't exist");
+    // }
+    // console.log(existingUser);
+    // const currentDate = new Date();
+
+    // if (existingUser.isFirstLogin) {
+    //   existingUser.isFirstLogin = false;
+    //   existingUser.premiumStartDate = currentDate;
+    //   existingUser.premiumEndDate = new Date(
+    //     currentDate.getTime() + 3 * 24 * 60 * 60 * 1000
+    //   ); // 3 days free
+    //   existingUser.isPremiumUser = true;
+    //   existingUser.name = name;
+    //   existingUser.email = email;
+    //   existingUser.city = city;
+
+    //   await existingUser.save();
+
+    //   return successResponse(res, 200, "Free 3-day premium activated", {
+    //     existingUser,
+    //   });
+    // }
+
+    // if (existingUser.premiumEndDate < currentDate) {
+    //   return errorResponse(res, 402, "Your premium subscription has expired.");
+    // }
+
+    // return successResponse(res, 200, "Premium already active", {
+    //   premiumEndDate: existingUser.premiumEndDate,
+    // });
+    const { name, email, phoneNumber, city } = req.body;
+
+    if (!(name && email && phoneNumber && city)) {
+      return errorResponse(res, 400, "Missing Required Fields");
+    }
+
+    const existingUser = await User.findOne({ phoneNumber });
+    if (!existingUser) {
+      return errorResponse(res, 404, "User doesn't exist");
+    }
+
+    const premiumResult = await userHelper.handlePremium(
+      existingUser,
+      name,
+      email,
+      city
+    );
+
+    if (!premiumResult.success) {
+      return errorResponse(res, 402, premiumResult.message);
+    }
+
+    return successResponse(res, 200, premiumResult.message, {
+      premiumEndDate: premiumResult.premiumEndDate,
+    });
   }),
 };
