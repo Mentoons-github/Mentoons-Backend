@@ -54,7 +54,7 @@ module.exports = {
 
   login: async (data) => {
     const { phoneNumber } = data;
-
+    console.log(phoneNumber,'phoneNumber')
     const existingUser = await User.findOne({ phoneNumber });
     if (!existingUser) {
       const error = new Error("Phone number is not registered.");
@@ -62,8 +62,8 @@ module.exports = {
       throw error;
     }
 
-    // const otp = "1234"; 
-    const otp = createOtp();
+    const otp = "1234"; 
+    // const otp = createOtp();
     const hashedOtp = await hashData(otp);
 
     existingUser.otp = hashedOtp;

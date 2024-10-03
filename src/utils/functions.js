@@ -20,6 +20,7 @@ module.exports = {
     }
   },
   hashData: async (data) => {
+    console.log(data,'data')
     try {
       const hashedData = await bcrypt.hash(data, 10);
       return hashedData;
