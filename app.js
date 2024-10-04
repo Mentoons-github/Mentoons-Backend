@@ -8,6 +8,7 @@ const productRoutes = require("./src/routes/products");
 const otpRoutes = require("./src/routes/otp");
 const quizRoutes = require("./src/routes/quiz");
 const workshopRoutes = require("./src/routes/workshop");
+const whatsappRoutes = require("./src/routes/whatsapp.js");
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -15,6 +16,7 @@ const PORT = process.env.PORT || 4000;
 app.use(express.json());
 app.use(cors());
 app.use("/api/v1/email", emailRoutes);
+app.use("/api/v1/whatsapp", whatsappRoutes);
 app.use("/api/v1/products", productRoutes);
 app.use("/api/v1/otp", otpRoutes);
 app.use("/api/v1/quiz", quizRoutes);
