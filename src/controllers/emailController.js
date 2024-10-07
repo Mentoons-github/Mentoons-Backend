@@ -162,15 +162,10 @@ module.exports = {
   }),
 
   freeDownloadComic: asyncHandler(async (req, res, next) => {
-    const { email } = req.body;
-    const comicDetails = {
-      thumbnail:
-        "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/mini_images/1-13.jpg",
-      pdf: "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/Book+2+-+Electronic+gadgets+and+kids.pdf",
-    };
+    const { email,thumbnail,pdf } = req.body;
 
-    if (!email) {
-      throw new Error("Email is a required field");
+    if (!(email && thumbnail && pdf)) {
+      throw new Error("Email, thumbnail and pdf are required fields");
     }
 
     const adminOptions = {
@@ -188,8 +183,8 @@ module.exports = {
                   <div style="font-family: 'Futura', sans-serif; background-color: #f7bbc3; padding: 20px; border-radius: 8px; border: 2px solid #eb3f56;">
                       <h1 style="color: #eb3f56;">Thank you for subscribing!</h1>
                       <p style="color: #6c757d; font-size: 16px;">We're thrilled to have you! Click the thumbnail below to download your free PDF:</p>
-                      <a href="${comicDetails.pdf}" download style="display: inline-block; text-decoration: none;">
-                          <img src="${comicDetails.thumbnail}" alt="PDF Thumbnail" style="max-width: 50%; height: auto; border: 2px solid #eb3f56; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);" />
+                      <a href="${pdf}" download style="display: inline-block; text-decoration: none;">
+                          <img src="${thumbnail}" alt="PDF Thumbnail" style="max-width: 50%; height: auto; border: 2px solid #eb3f56; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);" />
                       </a>
                       <p style="font-size: 14px; color: #6c757d; margin-top: 10px;">Happy reading!</p>
                   </div>
