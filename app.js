@@ -9,6 +9,7 @@ const productRoutes = require("./src/routes/products");
 const otpRoutes = require("./src/routes/otp");
 const quizRoutes = require("./src/routes/quiz");
 const workshopRoutes = require("./src/routes/workshop");
+const whatsappRoutes = require("./src/routes/whatsapp.js");
 const uploadRoutes=require("./src/routes/upload.js")
 
 const app = express();
@@ -31,6 +32,7 @@ const upload = multer({ storage: storage });
 
 
 app.use("/api/v1/email", emailRoutes);
+app.use("/api/v1/whatsapp", whatsappRoutes);
 app.use("/api/v1/products", productRoutes);
 app.use("/api/v1/otp", otpRoutes);
 app.use("/api/v1/quiz", quizRoutes);
