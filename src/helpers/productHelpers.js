@@ -1,16 +1,16 @@
 const Product = require('../models/products')
 const mongoose = require('mongoose')
+
 module.exports = {
-    addProductToDB: async ({ productTitle, productDescription, productPrice, productCategory, rewardPoints, productThumbnail, productSample }) => {
+    addProductToDB: async ({ productTitle, productDescription, productCategory, productThumbnail, productSample, productFile }) => {
         try {
             const newProduct = new Product({
                 productTitle,
                 productDescription,
-                productPrice,
-                rewardPoints,
+                productCategory,
                 productThumbnail,
                 productSample,
-                productCategory
+                productFile
             })
             const saveProduct = await newProduct.save()
             return saveProduct
@@ -19,6 +19,7 @@ module.exports = {
             throw new Error(error)
         }
     },
+
     getAllProductsFromDB: async (productTitle, productCategory, sortField, sortDirection, page = 1, limit = 10) => {
         try {
             const filters = {};
@@ -45,10 +46,9 @@ module.exports = {
                         productTitle: 1,
                         productDescription: 1,
                         productCategory: 1,
-                        productPrice: 1,
-                        rewardPoints: 1,
                         productThumbnail: 1,
-                        productSample: 1
+                        productSample: 1,
+                        productFile: 1
                     }
                 },
                 { $sort: sortCriteria },
@@ -61,6 +61,7 @@ module.exports = {
             throw new Error('Error fetching products from database');
         }
     },
+
     getOneProductFromDB: async (productId) => {
         try {
             const objectId = new mongoose.Types.ObjectId(productId);
@@ -77,10 +78,9 @@ module.exports = {
                         productTitle: 1,
                         productDescription: 1,
                         productCategory: 1,
-                        productPrice: 1,
-                        rewardPoints: 1,
                         productThumbnail: 1,
                         productSample: 1,
+                        productFile: 1,
                         viewsCount:1,
                     }
                 },
@@ -95,16 +95,16 @@ module.exports = {
             throw new Error("Error fetching products from database")
         }
     },
-    editProductFromDB: async (productTitle, productDescription, productCategory, productPrice, rewardPoints, productThumbnail, productSample, productId) => {
+
+    editProductFromDB: async (productTitle, productDescription, productCategory, productThumbnail, productSample, productFile, productId) => {
         try {
             const updateData = {
                 productTitle,
                 productDescription,
-                productPrice,
                 productCategory,
-                rewardPoints,
                 productThumbnail,
                 productSample,
+                productFile,
             }
             const objectId = new mongoose.Types.ObjectId(productId)
             const updatedProduct = await Product.findByIdAndUpdate(
@@ -118,9 +118,10 @@ module.exports = {
             return updatedProduct;
         } catch (error) {
             console.log(error)
-            throw new Error("Error fetching products from database")
+            throw new Error("Error updating product in database")
         }
     },
+
     deleteProductFromDB: async (productId) => {
         try {
             const objectId = new mongoose.Types.ObjectId(productId);
@@ -134,4 +135,4 @@ module.exports = {
             throw new Error("Error deleting product from database");
         }
     }
-}; 
+};

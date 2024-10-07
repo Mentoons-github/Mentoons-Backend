@@ -34,6 +34,10 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: [true, "Product Sample is required"],
     },
+    productFile: {
+        type: String,
+        required: [true, 'Product Sample is required']
+    },
     viewsCount: {
       type: Number,
       default: 0,

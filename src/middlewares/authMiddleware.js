@@ -18,8 +18,9 @@ const authMiddleware = async (req, res, next) => {
 
     let decoded;
     try {
-      decoded = verifyToken(token, process.env.REFRESH_TOKEN_SECRET);
+      decoded = verifyToken(token, process.env.ACCESS_TOKEN_SECRET);
     } catch (error) {
+        console.log(error,'wertyus')
       return errorResponse(res, 401, 'Invalid or expired token');
     }
 

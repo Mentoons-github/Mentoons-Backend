@@ -23,4 +23,11 @@ module.exports = {
   ANSWER_LIMIT: "A answer must have 5 additional details",
   QUIZ_CREATED: "Quiz created sucessfully",
   FORM_SUBMITTED: "Form submitted successfully",
+  FILE_UPLOAD_SUCCESS: "File uploaded successfully",
+  FILE_UPLOAD_FAILED: "File upload failed",
+  NO_FILE_UPLOADED: "No file uploaded",
+  FILE_NOT_FOUND: "File not found",
+  FILE_BUFFER_MISSING: "File buffer is missing",
+  FILE_DELETED_SUCCESSFULLY: "File deleted successfully",
+  FILE_DELETION_FAILED: "File deletion failed",
 };
