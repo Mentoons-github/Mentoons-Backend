@@ -8,6 +8,8 @@ module.exports = {
     guardianContact,
     city,
     isMobileAddicted,
+    mobileUsageHours,
+    message,
     appliedWorkshop
   ) => {
     try {
@@ -18,6 +20,8 @@ module.exports = {
         guardianContact,
         city,
         isMobileAddicted,
+        mobileUsageHours,
+        message,
         appliedWorkshop,
       });
       const workshopFormData = await newWorkshopForm.save();
@@ -25,6 +29,17 @@ module.exports = {
     } catch (error) {
       console.log(error);
       throw new Error(error);
+    }
+  },
+  getDatafromDB: async (limit, skip, sort) => {
+    const parsedLimit = parseInt(limit, 10) || 0;
+
+    try {
+      const data = await WorkshopData.find({}).limit(parsedLimit);
+      return data;
+    } catch (err) {
+      console.log(err);
+      throw new Error(err);
     }
   },
 };

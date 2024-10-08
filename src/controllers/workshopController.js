@@ -1,4 +1,4 @@
-const { saveFormToDB } = require("../helpers/workshopHelper");
+const { saveFormToDB, getDatafromDB } = require("../helpers/workshopHelper");
 const asyncHandler = require("../utils/asyncHandler");
 const messageHelper = require("../utils/messageHelper");
 const { errorResponse, successResponse } = require("../utils/responseHelper");
@@ -35,6 +35,8 @@ module.exports = {
       guardianContact,
       city,
       isMobileAddicted,
+      mobileUsageHours,
+      message,
       appliedWorkshop,
     } = req.body;
 
@@ -55,6 +57,8 @@ module.exports = {
       guardianContact,
       city,
       isMobileAddicted,
+      mobileUsageHours,
+      message,
       appliedWorkshop
     );
     console.log(formData);
@@ -68,5 +72,17 @@ module.exports = {
     }
 
     successResponse(res, 200, messageHelper.FORM_SUBMITTED, formData);
+  }),
+  getWorkshopFormData: asyncHandler(async (req, res, next) => {
+    const { limit } = req.query;
+    const data = await getDatafromDB(limit, skip, sort);
+    if (!data) {
+      return errorResponse(
+        res,
+        500,
+        "Something went wrong while fetching the data"
+      );
+    }
+    successResponse(res, 200, "workshop data fetched successfully!", data);
   }),
 };
