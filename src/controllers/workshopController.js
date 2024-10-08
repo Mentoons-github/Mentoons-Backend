@@ -74,8 +74,8 @@ module.exports = {
     successResponse(res, 200, messageHelper.FORM_SUBMITTED, formData);
   }),
   getWorkshopFormData: asyncHandler(async (req, res, next) => {
-    const { limit, skip } = req.query;
-    const data = await getDatafromDB(limit, skip);
+    const { limit, skip, sort } = req.query;
+    const data = await getDatafromDB(limit, skip, sort);
     if (!data) {
       return errorResponse(
         res,

@@ -31,14 +31,15 @@ module.exports = {
       throw new Error(error);
     }
   },
-  getDatafromDB: async (limit, skip) => {
+  getDatafromDB: async (limit, skip, sort) => {
     const parsedLimit = parseInt(limit, 10) || 0;
     const parsedSkip = parseInt(skip, 10) || 0;
-    console.log(parsedSort);
+    const parsedSort = sort == "asc" ? 1 : -1;
     try {
       const data = await WorkshopData.find({})
         .limit(parsedLimit)
-        .skip(parsedSkip);
+        .skip(parsedSkip)
+        .sort({ createdAt: parsedSort });
       return data;
     } catch (err) {
       console.log(err);
