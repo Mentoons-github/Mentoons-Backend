@@ -142,11 +142,98 @@ const applyJob = async (jobId, name, email, phone, gender, portfolioLink, coverN
     }
 }
 
+const getAppliedJobs = async ( search,page = 1, limit = 10, sortOrder = -1,sortField = 'createdAt') => {
+    try {
+        const validPage = Math.max(1, parseInt(page) || 1);
+        const validLimit = Math.max(1, parseInt(limit) || 10);
+        const skip = (validPage - 1) * validLimit;
+
+        const searchRegex = new RegExp(search, 'i');
+
+        const matchStage = {
+            $or: [
+                { name: { $regex: searchRegex } },
+                { email: { $regex: searchRegex } },
+                { 'jobDetails.jobTitle': { $regex: searchRegex } },
+                { 'jobDetails.jobDescription': { $regex: searchRegex } },
+                { 'jobDetails.company': { $regex: searchRegex } }
+            ]
+        };
+
+        const jobs = await JobApplication.aggregate([
+            {
+                $lookup: {
+                    from: 'jobs',
+                    localField: 'jobId',
+                    foreignField: '_id',
+                    as: 'jobDetails'
+                }
+            },
+            {
+                $unwind: '$jobDetails'
+            },
+            {
+                $match: matchStage
+            },
+            {
+                $project: {
+                    _id: 1,
+                    name: 1,
+                    email: 1,
+                    phone: 1,
+                    gender: 1,
+                    portfolioLink: 1,
+                    coverNote: 1,
+                    coverLetter: 1,
+                    resume: 1,
+                    jobTitle: '$jobDetails.jobTitle',
+                    jobDescription: '$jobDetails.jobDescription',
+                    company: '$jobDetails.company',
+                    createdAt: 1
+                }
+            },
+            { $sort: {createdAt: sortOrder} },
+            { $skip: skip },
+            { $limit: validLimit }
+        ]);
+
+        const totalJobs = await JobApplication.aggregate([
+            {
+                $lookup: {
+                    from: 'jobs',
+                    localField: 'jobId',
+                    foreignField: '_id',
+                    as: 'jobDetails'
+                }
+            },
+            {
+                $unwind: '$jobDetails'
+            },
+            {
+                $match: matchStage
+            },
+            { $count: 'total' }
+        ]);
+
+        const totalCount = totalJobs.length > 0 ? totalJobs[0].total : 0;
+
+        return {
+            jobs,
+            currentPage: validPage,
+            totalPages: Math.ceil(totalCount / validLimit),
+            totalJobs: totalCount
+        };
+    } catch (error) {
+        throw error;
+    }
+}
+
 module.exports = {
     addJob,
     getJobs,
     getJobById,
     applyJob,
     editJob,
-    deleteJob
+    deleteJob,
+    getAppliedJobs
 }

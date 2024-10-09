@@ -1,4 +1,4 @@
-const { addJob, getJobById, getJobs, applyJob, editJob, deleteJob } = require('../helpers/careerHelper');
+const { addJob, getJobById, getJobs, applyJob, editJob, deleteJob, getAppliedJobs } = require('../helpers/careerHelper');
 const asyncHandler = require('../utils/asyncHandler');
 const messageHelper = require('../utils/messageHelper');
 const { errorResponse, successResponse } = require('../utils/responseHelper');
@@ -7,7 +7,8 @@ const { errorResponse, successResponse } = require('../utils/responseHelper');
 module.exports = {
     addJob: asyncHandler(async (req, res, next) => {{
         const {jobTitle, jobDescription, skillsRequired, location, jobType, thumbnail} = req.body;
-        if(!jobTitle || !jobDescription || !skillsRequired || !location || !jobType || !thumbnail){
+        if(!jobTitle || !jobDescription || !skillsRequired || !thumbnail){
+            console.log(req.body);
             return errorResponse(res,400, messageHelper.BAD_REQUEST);
         }
         const job = await addJob(jobTitle, jobDescription, skillsRequired, location, jobType, thumbnail);
@@ -63,6 +64,15 @@ module.exports = {
             return errorResponse(res,404, messageHelper.JOB_NOT_FOUND);    
         }
         return successResponse(res,200, messageHelper.JOB_APPLIED, job);
+    }),
+
+    getAppliedJobs: asyncHandler(async (req, res, next) => {
+        const {search, page, limit} = req.query;
+       const jobs = await getAppliedJobs(search, page, limit);
+       if(!jobs){
+        return errorResponse(res,404, messageHelper.JOB_NOT_FOUND);
+       }
+        return successResponse(res,200, messageHelper.JOB_FETCHED, jobs);
     })
     
 }
