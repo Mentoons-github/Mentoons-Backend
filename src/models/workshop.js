@@ -18,7 +18,7 @@ const workshopSchema = new mongoose.Schema(
       type: String,
       required: [true, "Guardian's phone no is required"],
     },
-    guardingEmail: {
+    guardianEmail: {
       type: String,
       required: [true, "Guardian's email is required!"],
     },
@@ -40,7 +40,7 @@ const workshopSchema = new mongoose.Schema(
     },
     primaryActivityOnMobile: {
       type: String,
-      enum: ["WATCHING_VIDEOS", "PLAYING_GAMES", "CHATTING"],
+      enum: ["WATCHING_VIDEOS", "PLAYING_GAMES", "CHATTING", "OTHERS"],
       required: [true, "Primary activity user performs on mobile is required"],
     },
     isTimeRestricted: {
@@ -49,7 +49,7 @@ const workshopSchema = new mongoose.Schema(
     },
     restrictionType: {
       type: String,
-      enum: ["TIME_LIMIT", "SPECIFIC TIME", "TYPE_OF_ACTIVITY"],
+      enum: ["TIME_LIMIT", "SPECIFIC TIME", "TYPE_OF_ACTIVITY", "OTHERS"],
     },
     concernsUser: {
       type: String,
@@ -57,25 +57,37 @@ const workshopSchema = new mongoose.Schema(
         "EXCESSIVE_SCREEN_TIME",
         "IMPACT_ON_SOCIAL_SKILLS",
         "LACK_OF_PHYSICAL_ACTIVITY",
+        "OTHERS",
       ],
       required: [true, "Concern about user is required"],
     },
     behavioralChanges: {
       type: String,
-      enum: ["CONCENTRATION", "IRRITABILITY", "SLEEPING", "LESS_INTEREST"],
+      enum: [
+        "CONCENTRATION",
+        "IRRITABILITY",
+        "SLEEPING",
+        "LESS_INTEREST",
+        "OTHERS",
+      ],
       required: [true, "Behavioral changes of user is required"],
     },
     physicalActivityHours: {
+      type: Number,
+      required: [true, "Physical Activity time is required!"],
+    },
+    physicalActivityFrequency: {
       type: String,
       // time < 1H = (Low)
       // time > 1H && time<= 2H = (Medium)
       // time > 2H = (High)
-      enum: ["Low", "Medium", "High"],
+      enum: ["LOW", "MEDIUM", "HIGH"],
       required: [true, "Physical Activity time is required!"],
     },
     confessionFrequency: {
       type: String,
       enum: ["FREQUENTLY", "OCCASIONALLY", "RARELY"],
+      required: [true, "confession frequency with user is required!"],
     },
     message: {
       type: String,

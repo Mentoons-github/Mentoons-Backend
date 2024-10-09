@@ -1,51 +1,47 @@
-const { saveFormToDB, getDatafromDB } = require("../helpers/workshopHelper");
+const { saveFormToDB, getDataFromDB } = require("../helpers/workshopHelper");
 const asyncHandler = require("../utils/asyncHandler");
 const messageHelper = require("../utils/messageHelper");
 const { errorResponse, successResponse } = require("../utils/responseHelper");
 
 module.exports = {
   submitWorkshopForm: asyncHandler(async (req, res, next) => {
-    // const { name,
-    //     guardianName,
-    //     guardianContact,
-    //     city,
-    //     message,
-    //     appliedWorkshop,
-    //     age } = req.body
-
-    // if (!name && !guardianName && !guardianContact && !city && !message && !appliedWorkshop && !age) {
-    //     return errorResponse(res, 404, messageHelper.BAD_REQUEST)
-    // }
-    // const newForm = await saveFormToDB(name,
-    //     guardianName,
-    //     guardianContact,
-    //     city,
-    //     message,
-    //     appliedWorkshop.toUpperCase(),
-    //     age)
-    // if(!newForm){
-    //     return errorResponse(res,404,messageHelper.INTERNAL_SERVER_ERROR)
-    // }
-    // successResponse(res,200,messageHelper.FORM_SUBMITTED,newForm)
-
+    console.log(req.body);
     const {
       name,
       age,
       guardianName,
       guardianContact,
+      guardianEmail,
       city,
-      isMobileAddicted,
       mobileUsageHours,
+      primaryActivityOnMobile,
+      isTimeRestricted,
+      restrictionType,
+      concernsUser,
+      behavioralChanges,
+      physicalActivityHours,
+      confessionFrequency,
       message,
       appliedWorkshop,
     } = req.body;
-
     if (
-      !(name && age && guardianName,
-      guardianContact,
-      city,
-      isMobileAddicted,
-      appliedWorkshop.toUpperCase())
+      !(
+        name &&
+        age &&
+        guardianName &&
+        guardianContact &&
+        guardianEmail &&
+        city &&
+        mobileUsageHours &&
+        primaryActivityOnMobile &&
+        isTimeRestricted &&
+        restrictionType &&
+        concernsUser &&
+        behavioralChanges &&
+        physicalActivityHours &&
+        confessionFrequency &&
+        appliedWorkshop
+      )
     ) {
       return errorResponse(res, 404, messageHelper.BAD_REQUEST);
     }
@@ -55,9 +51,16 @@ module.exports = {
       age,
       guardianName,
       guardianContact,
+      guardianEmail,
       city,
-      isMobileAddicted,
       mobileUsageHours,
+      primaryActivityOnMobile,
+      isTimeRestricted,
+      restrictionType,
+      concernsUser,
+      behavioralChanges,
+      physicalActivityHours,
+      confessionFrequency,
       message,
       appliedWorkshop
     );
@@ -74,13 +77,30 @@ module.exports = {
     successResponse(res, 200, messageHelper.FORM_SUBMITTED, formData);
   }),
   getWorkshopFormData: asyncHandler(async (req, res, next) => {
-    const { limit, skip, sort } = req.query;
-    const data = await getDatafromDB(limit, skip, sort);
+    const {
+      limit,
+      skip,
+      sort,
+      city,
+      age,
+      mobileUsageHours,
+      mobileUsageLevel,
+      physicalActivityHours,
+    } = req.query;
+    const filter = {};
+    if (city) filter.city = city;
+    if (age) filter.age = age;
+    if (mobileUsageHours) filter.mobileUsageHours = mobileUsageHours;
+    if (mobileUsageLevel) filter.mobileUsageLevel = mobileUsageLevel;
+    if (physicalActivityHours)
+      filter.physicalActivityHours = physicalActivityHours;
+
+    const data = await getDataFromDB(limit, skip, sort, filter);
     if (!data) {
       return errorResponse(
         res,
         500,
-        "Something went wrong while fetching the data"
+        "Something went wrong while retrieving the data"
       );
     }
     successResponse(res, 200, "workshop data fetched successfully!", data);
