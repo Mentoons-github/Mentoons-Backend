@@ -34,6 +34,7 @@ module.exports = {
       httpOnly: true,
       secure: true,
     };
+    user.token = accessToken;
     res.cookie("accessToken", accessToken, options);
     res.cookie("refreshToken", refreshToken, options);
     successResponse(res, 200, "user logged in successfully", user);
