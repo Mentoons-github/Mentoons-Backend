@@ -6,7 +6,7 @@ const {
   freeDownloadsVerifyOtp,
   freeDownloadComic,
 } = require("../controllers/emailController");
-const authMiddleware = require("../middlewares/authMiddleware");
+const { authMiddleware } = require("../middlewares/authMiddleware");
 const router = express.Router();
 
 router.post("/subscribeToNewsletter", subscribeNewsletter);

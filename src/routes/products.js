@@ -1,9 +1,16 @@
-const express = require('express')
-const { addProduct, getAllProducts,getProduct, editProduct, deleteProduct } = require('../controllers/productController');
-const authMiddleware = require('../middlewares/authMiddleware');
+const express = require("express");
+const {
+  addProduct,
+  getAllProducts,
+  getProduct,
+  editProduct,
+  deleteProduct,
+} = require("../controllers/productController");
+const { authMiddleware } = require("../middlewares/authMiddleware");
 
-const router = express.Router()
+const router = express.Router();
 
+router.route("/").post(authMiddleware, addProduct).get(getAllProducts);
 router
   .route('/')
   .post(addProduct)
@@ -15,4 +22,4 @@ router
     .delete(deleteProduct)
 
 
-module.exports = router
+module.exports = router;
