@@ -12,9 +12,14 @@ const router = express.Router();
 
 router.route("/").post(authMiddleware, addProduct).get(getAllProducts);
 router
-  .route("/:productId")
-  .get(authMiddleware, getProduct)
-  .patch(authMiddleware, editProduct)
-  .delete(authMiddleware, deleteProduct);
+  .route('/')
+  .post(addProduct)
+  .get(getAllProducts);
+router
+    .route('/:productId')
+    .get(getProduct)
+    .patch(editProduct)
+    .delete(deleteProduct)
+
 
 module.exports = router;
