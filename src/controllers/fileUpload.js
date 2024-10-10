@@ -12,7 +12,7 @@ const uploadFileController = asyncHandler(async (req, res, next) => {
     }
 
     const { path, mimetype, originalname } = req.file;
-    const userId = req.user.id;
+    const userId = 123;
 
     try {
         const fileBuffer = await fs.readFile(path);
