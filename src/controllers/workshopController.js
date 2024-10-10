@@ -88,7 +88,7 @@ module.exports = {
       physicalActivityHours,
     } = req.query;
     const filter = {};
-    if (city) filter.city = city;
+    if (city) filter.city = city.toLowerCase();
     if (age) filter.age = age;
     if (mobileUsageHours) filter.mobileUsageHours = mobileUsageHours;
     if (mobileUsageLevel) filter.mobileUsageLevel = mobileUsageLevel;

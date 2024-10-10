@@ -24,6 +24,7 @@ const workshopSchema = new mongoose.Schema(
     },
     city: {
       type: String,
+      lowercase: true,
       required: [true, "City is required"],
     },
     mobileUsageLevel: {
