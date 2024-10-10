@@ -6,13 +6,13 @@ const router = express.Router()
 
 router
   .route('/')
-  .post(authMiddleware,addProduct)
+  .post(addProduct)
   .get(getAllProducts);
 router
     .route('/:productId')
-    .get(authMiddleware,getProduct)
-    .patch(authMiddleware,editProduct)
-    .delete(authMiddleware,deleteProduct)
+    .get(getProduct)
+    .patch(editProduct)
+    .delete(deleteProduct)
 
 
 module.exports = router

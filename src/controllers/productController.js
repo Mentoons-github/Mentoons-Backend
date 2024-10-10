@@ -14,8 +14,8 @@ module.exports = {
     }),
 
     getAllProducts: asyncHandler(async (req, res, next) => {
-        const { productTitle, productCategory, sortField, sortDirection, page, limit } = req.query
-        const allproducts = await productHelpers.getAllProductsFromDB(productTitle, productCategory, sortField, sortDirection, page, limit)
+        const { search, page, limit } = req.query
+        const allproducts = await productHelpers.getAllProductsFromDB(search, page, limit)
         if (!allproducts) {
             return errorResponse(res, 404, messageHelper.PRODUCT_NOT_FOUND)
         }

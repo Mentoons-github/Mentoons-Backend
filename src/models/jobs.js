@@ -15,6 +15,7 @@ const jobSchema = new mongoose.Schema({
     },
     location: {
         type: String,
+        default: 'On-site'
     },
     jobType: {
         type: String,

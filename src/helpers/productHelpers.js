@@ -20,26 +20,14 @@ module.exports = {
         }
     },
 
-    getAllProductsFromDB: async (productTitle, productCategory, sortField, sortDirection, page = 1, limit = 10) => {
+    getAllProductsFromDB: async (search, page = 1, limit = 10) => {
+        
         try {
-            const filters = {};
-            const sortCriteria = {};
-            const pageSize = parseInt(limit, 10) || 10;
             const skip = (page - 1) * limit;
-            if (productTitle) {
-                filters.productTitle = { $regex: new RegExp(productTitle, 'i') };
-            }
-            if (productCategory) {
-                filters.productCategory = productCategory;
-            }
-            if (sortField && sortDirection) {
-                sortCriteria[sortField] = sortDirection === 'asc' ? 1 : -1;
-            } else {
-                sortCriteria.productPrice = 1;
-                sortCriteria.productTitle = 1;
-            }
+            const searchRegex = new RegExp(search, 'i');
+          
             const allProducts = await Product.aggregate([
-                { $match: filters },
+                { $match: { $or: [{ productTitle: { $regex: searchRegex } }, { productCategory: { $regex: searchRegex } }] } },
                 {
                     $project: {
                         _id: 1,
@@ -51,11 +39,22 @@ module.exports = {
                         productFile: 1
                     }
                 },
-                { $sort: sortCriteria },
+                { $sort: { createdAt: -1 } },
                 { $skip: skip },
-                { $limit: pageSize }
+                { $limit: Number(limit) }
             ]);
-            return allProducts;
+        const totalProducts = await Product.countDocuments({
+            $or: [
+                { productTitle: { $regex: searchRegex } },
+                { productCategory: { $regex: searchRegex } }
+            ]
+        })
+            return {
+                products: allProducts,
+                currentPage: page,
+                totalPages: Math.ceil(totalProducts / limit),
+                totalProducts
+            };
         } catch (error) {
             console.error(error);
             throw new Error('Error fetching products from database');
