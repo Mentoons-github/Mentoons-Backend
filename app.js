@@ -13,6 +13,9 @@ const whatsappRoutes = require("./src/routes/whatsapp.js");
 const adminRoutes = require("./src/routes/admin.js");
 const uploadRoutes=require("./src/routes/upload.js")
 const careerRoutes=require("./src/routes/career")
+
+
+const dashboardRoutes=require("./src/routes/dashboard")
 const app = express();
 const PORT = process.env.PORT || 4000;
 
@@ -40,6 +43,7 @@ app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/upload", upload.single("file"), uploadRoutes);
 app.use("/api/v1/career",careerRoutes)
+app.use("/api/v1/dashboard",dashboardRoutes)
 
 app.use("*", (req, res, next) => {
   const url = req.originalUrl;
