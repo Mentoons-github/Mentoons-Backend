@@ -2,17 +2,20 @@ const Admin = require("../models/admin");
 
 module.exports = {
   registerUser: async (data) => {
-    const { name, email, password, role } = data;
+    const { name, email, password, phoneNumber, role } = data;
 
-    const existingUser = await Admin.findOne({ email });
+    const existingUser = await Admin.findOne({
+      $or: [{ email }, { phoneNumber }],
+    });
     console.log(existingUser);
     if (existingUser) {
-      throw new Error("Email is already taken");
+      throw new Error("Email/PhoneNumber is already taken");
     }
 
     const user = await Admin.create({
       name,
       email,
+      phoneNumber,
       password,
       role,
     });
@@ -59,5 +62,16 @@ module.exports = {
     } catch (error) {
       throw new Error(error);
     }
-  }, 
+  },
+
+  getAllUsersFromDB: async () => {
+    try {
+      const users = await Admin.find({});
+      console.log(users);
+      return users;
+    } catch (err) {
+      console.log("something went wrong while retrieving user data");
+      throw new Error(err);
+    }
+  },
 };
