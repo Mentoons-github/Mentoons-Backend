@@ -68,4 +68,13 @@ module.exports = {
     const users = await adminHelper.getAllUsersFromDB();
     successResponse(res, 200, messageHelper.USER_FETCHED_SUCCESSFULLY, users);
   }),
+
+  getOneUserController: asyncHandler(async (req, res, next) => {
+    const { userId } = req.params;
+    const user = await adminHelper.getOneUserFromDB(userId);
+    if (!user) {
+      return errorResponse(res, 200, "User does not exist");
+    }
+    successResponse(res, 200, messageHelper.USER_FETCHED_SUCCESSFULLY, user);
+  }),
 };

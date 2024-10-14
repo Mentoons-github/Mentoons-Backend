@@ -74,4 +74,17 @@ module.exports = {
       throw new Error(err);
     }
   },
+
+  getOneUserFromDB: async (userId) => {
+    try {
+      const user = await Admin.findById(userId);
+      if (!user) {
+        return null;
+      }
+      return user;
+    } catch (err) {
+      console.log("Something went wrong while retrieving user data");
+      throw new Error(err);
+    }
+  },
 };
