@@ -1,12 +1,10 @@
-const jwt = require("jsonwebtoken");
+const Admin = require("../models/admin");
 const { verifyToken } = require("../utils/auth");
-const User = require("../models/user");
-const { errorResponse } = require("../utils/responseHelper");
 const messageHelper = require("../utils/messageHelper");
-const asyncHandler = require("../utils/asyncHandler");
+const { errorResponse } = require("../utils/responseHelper");
 
 module.exports = {
-  authMiddleware: async (req, res, next) => {
+  adminAuthMiddleware: async (req, res, next) => {
     try {
       const authHeader = req.headers.authorization;
       if (!authHeader) {
@@ -26,7 +24,7 @@ module.exports = {
         return errorResponse(res, 401, "Invalid or expired token");
       }
 
-      const user = await User.findOne({ phoneNumber: decoded.phoneNumber });
+      const user = await Admin.findOne({ phoneNumber: decoded.phoneNumber });
       if (!user) {
         return errorResponse(res, 401, "User not found");
       }
@@ -38,12 +36,4 @@ module.exports = {
       return errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR);
     }
   },
-  isAdmin: asyncHandler(async (req, res, next) => {
-    const user = req.user;
-    const fetchedUser = await User.findById(user._id);
-    if (fetchedUser.role !== "ADMIN") {
-      throw customError(401, "Unauthorized request");
-    }
-    next();
-  }),
 };

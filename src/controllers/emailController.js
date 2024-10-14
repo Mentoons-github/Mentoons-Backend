@@ -11,16 +11,16 @@ const { createOtp, hashData } = require("../utils/functions");
 
 module.exports = {
   subscribeNewsletter: asyncHandler(async (req, res, next) => {
-    const { name, email, countryCode, phone, message } = req.body;
+    const { email } = req.body;
 
-    if (!name && !email && !phone) {
+    if (!email) {
       errorResponse(res, 404, messageHelper.BAD_REQUEST);
     }
     const adminOptions = {
       from: process.env.EMAIL_USER,
       to: "metalmahesh@gmail.com",
       subject: "New Newsletter Subscription",
-      text: `You have a new newsletter subscription.\n\nDetails:\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\nMessage: ${message}`,
+      text: `You have a new newsletter subscription.\n\nDetails:\nEmail: ${email}`,
     };
 
     const userOptions = {
@@ -36,14 +36,10 @@ module.exports = {
     };
 
     await emailHelper.saveEmailToDB({
-      name,
       email,
-      countryCode,
-      phone,
-      message,
     });
     await sendEmail(userOptions);
-    await sendEmail(adminOptions);
+    // await sendEmail(adminOptions);
     return successResponse(res, 200, messageHelper.NEWSLETTER_SUBSCRIBED);
   }),
   // freeDownloads: asyncHandler(async (req, res, next) => {
@@ -162,7 +158,7 @@ module.exports = {
   }),
 
   freeDownloadComic: asyncHandler(async (req, res, next) => {
-    const { email,thumbnail,pdf } = req.body;
+    const { email, thumbnail, pdf } = req.body;
 
     if (!(email && thumbnail && pdf)) {
       throw new Error("Email, thumbnail and pdf are required fields");
