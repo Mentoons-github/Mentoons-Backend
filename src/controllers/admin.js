@@ -73,8 +73,13 @@ module.exports = {
     const { userId } = req.params;
     const user = await adminHelper.getOneUserFromDB(userId);
     if (!user) {
-      return errorResponse(res, 200, "User does not exist");
+      return errorResponse(res, 200, messageHelper.USER_DOESNT_EXISTS);
     }
     successResponse(res, 200, messageHelper.USER_FETCHED_SUCCESSFULLY, user);
   }),
+
+  // blacklistUserController: asyncHandler(async (req, res, next) => {
+  //   const { userId } = req.params;
+  //   const result = await adminHelper.blacklistUser(userId);
+  // }),
 };
