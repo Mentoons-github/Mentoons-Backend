@@ -1,14 +1,17 @@
 const { deleteUser, updateUser, createUser } = require("../helpers/userHelper");
-const User = require("../model/user");
+const { Webhook } = require("@clerk/clerk-sdk-node");
+const clerkWebhookSecret = process.env.CLERK_WEBHOOK_SECRET;
+console.log("webhookSecret: ", clerkWebhookSecret);
 
+const clerkWebhook = new Webhook(clerkWebhookSecret);
 module.exports = {
   clerkWebhookConroller: asyncHandler(async (req, res) => {
     try {
-      // Verify webhook signature and extract event
+      console.log("controller", req);
+
       const event = clerkWebhook.verify(req);
       let mongoUser = {};
 
-      // Handle different event types
       switch (event.type) {
         case "user.created":
           mongoUser = await createUser(event.data);
