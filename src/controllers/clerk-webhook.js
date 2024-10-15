@@ -9,11 +9,10 @@ module.exports = {
       console.log("controller", req);
 
       const payloadString = req.body.toString();
-      const svixHeaders = req.headersi;
+      const svixHeaders = req.headers;
       const wh = new Webhook(process.env.VITE_CLERK_WEBHOOK_SECRET_KEY);
       const evt = wh.verify(payloadString, svixHeaders);
-      const { id, ...attributes } = evt.data;
-      console.log("EventDATA", evt.data);
+
       let mongoUser = {};
 
       const eventType = evt.type;
