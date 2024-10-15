@@ -7,7 +7,6 @@ dotenv.config();
 
 router.post(
   "/clerk",
-  ClerkExpressWithAuth(process.env.VITE_CLERK_WEBHOOK_SECRET),
   clerkWebhookConroller
 );
 
