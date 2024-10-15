@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 const UserSchema = new mongoose.Schema({
+  clerkId: { type: String, required: true },
   name: {
     type: String,
     // required: [true, "Name is required"],
@@ -18,64 +19,6 @@ const UserSchema = new mongoose.Schema({
   phoneNumber: {
     type: String,
     unique: true,
-  },
-  otp: {
-    type: String,
-  },
-  otpExpiresAt: {
-    type: Date,
-  },
-  refreshToken: {
-    type: String,
-  },
-  password: {
-    type: String,
-    // required: [true, "Password is required"],
-    validate: {
-      validator: function (value) {
-        const errors = [];
-        if (!/[A-Z]/.test(value)) {
-          errors.push("Password must contain at least one uppercase letter");
-        }
-        if (!/[a-z]/.test(value)) {
-          errors.push("Password must contain at least one lowercase letter");
-        }
-        if (!/[0-9]/.test(value)) {
-          errors.push("Password must contain at least one number");
-        }
-        if (!/[!@#$%^&*(),.?":{}|<>]/.test(value)) {
-          errors.push("Password must contain at least one special character");
-        }
-        if (errors.length > 0) {
-          throw new Error(errors.join(", "));
-        }
-        return true;
-      },
-      message: (props) => props.reason.message,
-    },
-  },
-  age: {
-    type: String,
-  },
-  coins: {
-    type: String,
-  },
-  city: {
-    type: String,
-  },
-  premiumStartDate: {
-    type: Date,
-  },
-  premiumEndDate: {
-    type: Date,
-  },
-  isFirstLogin: {
-    type: Boolean,
-    default: true,
-  },
-  isPremiumUser: {
-    type: Boolean,
-    default: false,
   },
 });
 
