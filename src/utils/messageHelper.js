@@ -30,4 +30,6 @@ module.exports = {
   FILE_BUFFER_MISSING: "File buffer is missing",
   FILE_DELETED_SUCCESSFULLY: "File deleted successfully",
   FILE_DELETION_FAILED: "File deletion failed",
+  USER_FETCHED_SUCCESSFULLY: "User data fetched successfully",
+  USER_DOESNT_EXISTS: "User doesn't exists",
 };
