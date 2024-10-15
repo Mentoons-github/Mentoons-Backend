@@ -10,11 +10,10 @@ module.exports = {
 
       const payloadString = req.body.toString();
       const svixHeaders = req.headersi;
-      consoe.log("eventType", payloadString);
-      consoe.log("headers", svixHeaders);
       const wh = new Webhook(process.env.VITE_CLERK_WEBHOOK_SECRET_KEY);
       const evt = wh.verify(payloadString, svixHeaders);
       const { id, ...attributes } = evt.data;
+      console.log("EventDATA", evt.data);
       let mongoUser = {};
 
       const eventType = evt.type;
@@ -30,10 +29,10 @@ module.exports = {
           mongoUser = await deleteUser(evt.data);
           break;
         default:
-          console.log(`Unhandled event type: ${event.type}`);
+          console.log(`Unhandled event type: ${eventType}`);
       }
 
-      res.status(200).send({ success: true });
+      res.status(200).send(mongoUser);
     } catch (error) {
       console.error("Webhook verification failed:", error);
       res.status(400).send({ success: false, error: error.message });
