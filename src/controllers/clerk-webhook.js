@@ -8,6 +8,8 @@ module.exports = {
       console.log("controller", req);
 
       const { type, data } = req.body;
+      consoe.log("eventType", type);
+      consoe.log("eventDATA", data);
       let mongoUser = {};
 
       switch (type) {
