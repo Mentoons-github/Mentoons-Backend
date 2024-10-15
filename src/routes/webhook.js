@@ -5,7 +5,7 @@ const { clerkMiddleware } = require("@clerk/express");
 
 router.post(
   "/clerk",
-  clerkMiddleware({ secretKey: process.env.VITE_CLERK_WEBHOOK_SECRET }),
+  clerkMiddleware({ secretKey: process.env.VITE_CLERK_PUBLISHABLE_KEY }),
   clerkWebhookConroller
 );
 
