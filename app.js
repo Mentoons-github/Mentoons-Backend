@@ -13,8 +13,7 @@ const whatsappRoutes = require("./src/routes/whatsapp.js");
 const adminRoutes = require("./src/routes/admin.js");
 const uploadRoutes = require("./src/routes/upload.js");
 const careerRoutes = require("./src/routes/career");
-const webhookRoutes = require("./src/routes/webhook.js");
-
+const { clerkWebhookConroller } = require("./src/controllers/clerk-webhook.js");
 
 const dashboardRoutes = require("./src/routes/dashboard");
 const app = express();
@@ -23,7 +22,6 @@ const PORT = process.env.PORT || 4000;
 app.use(express.json());
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
-
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -46,7 +44,7 @@ app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/upload", upload.single("file"), uploadRoutes);
 app.use("/api/v1/career", careerRoutes);
 app.use("/api/v1/dashboard", dashboardRoutes);
-app.use("/api/v1/webhook", webhookRoutes);
+app.use("/api/v1/webhook/clerk", clerkWebhookConroller);
 app.use("*", (req, res, next) => {
   const url = req.originalUrl;
   res.json({
