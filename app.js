@@ -23,7 +23,7 @@ const PORT = process.env.PORT || 4000;
 app.use(express.json());
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
-app.use(clerkMiddleware());
+app.use(clerkMiddleware(process.env.VITE_CLERK_WEBHOOK_SECRET));
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
