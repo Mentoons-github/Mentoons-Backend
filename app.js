@@ -14,7 +14,7 @@ const adminRoutes = require("./src/routes/admin.js");
 const uploadRoutes = require("./src/routes/upload.js");
 const careerRoutes = require("./src/routes/career");
 const webhookRoutes = require("./src/routes/webhook.js");
-const { clerkMiddleware } = require("@clerk/express");
+
 
 const dashboardRoutes = require("./src/routes/dashboard");
 const app = express();
@@ -23,7 +23,7 @@ const PORT = process.env.PORT || 4000;
 app.use(express.json());
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
-app.use(clerkMiddleware());
+
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
