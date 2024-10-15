@@ -1,26 +1,33 @@
 const { deleteUser, updateUser, createUser } = require("../helpers/userHelper");
 
 const asyncHandler = require("../utils/asyncHandler");
+const { Webhook } = require("svix");
 
 module.exports = {
   clerkWebhookConroller: asyncHandler(async (req, res) => {
     try {
       console.log("controller", req);
 
-      const { type, data } = req.body;
-      consoe.log("eventType", type);
-      consoe.log("eventDATA", data);
+      const payloadString = req.body.toString();
+      const svixHeaders = req.headersi;
+      consoe.log("eventType", payloadString);
+      consoe.log("headers", svixHeaders);
+      const wh = new Webhook(process.env.VITE_CLERK_WEBHOOK_SECRET_KEY);
+      const evt = wh.verify(payloadString, svixHeaders);
+      const { id, ...attributes } = evt.data;
       let mongoUser = {};
 
-      switch (type) {
+      const eventType = evt.type;
+
+      switch (eventType) {
         case "user.created":
-          mongoUser = await createUser(data);
+          mongoUser = await createUser(evt.data);
           break;
         case "user.updated":
-          mongoUser = await updateUser(data);
+          mongoUser = await updateUser(evt.data);
           break;
         case "user.deleted":
-          mongoUser = await deleteUser(data);
+          mongoUser = await deleteUser(evt.data);
           break;
         default:
           console.log(`Unhandled event type: ${event.type}`);
