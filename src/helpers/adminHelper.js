@@ -79,7 +79,7 @@ module.exports = {
     try {
       const user = await Admin.findById(userId);
       if (!user) {
-        throw new Error("User does not exist");
+        return null;
       }
       return user;
     } catch (err) {
@@ -88,16 +88,16 @@ module.exports = {
     }
   },
 
-  // blacklistUser: async (userId) => {
-  //   try {
-  //     const user = await Admin.findById(userId);
-
-  //     if (!user) {
-  //       return null;
-  //     }
-  //   } catch (err) {
-  //     console.log("something went wrong while blacklisting a user");
-  //     throw new Error(err);
-  //   }
-  // },
+  blacklistUser: async (userId) => {
+    try {
+      const user = await Admin.findByIdAndDelete(userId);
+      if (!user) {
+        return null;
+      }
+      return user;
+    } catch (err) {
+      console.log("something went wrong while blacklisting a user");
+      throw new Error(err);
+    }
+  },
 };

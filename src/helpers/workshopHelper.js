@@ -1,3 +1,4 @@
+const { default: mongoose } = require("mongoose");
 const WorkshopData = require("../models/workshop");
 
 module.exports = {
@@ -71,6 +72,19 @@ module.exports = {
       return data;
     } catch (err) {
       console.log(err);
+      throw new Error(err);
+    }
+  },
+  getSingleDataFromDB: async (workshopId) => {
+    try {
+      const workshop = await WorkshopData.aggregate([
+        {
+          $match: { _id: new mongoose.Types.ObjectId(workshopId) },
+        },
+      ]);
+      console.log(workshop);
+    } catch (err) {
+      console.log("Something went wrong while fetching workshops");
       throw new Error(err);
     }
   },
