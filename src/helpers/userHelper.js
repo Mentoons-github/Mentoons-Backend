@@ -6,16 +6,17 @@ module.exports = {
       id,
       email_addresses,
       image_url,
-      phone_number,
+      phone_numbers,
       first_name,
       last_name,
     } = data;
+    console.log(id);
 
-    const newUser = await User.userCreated({
+    const newUser = await User.create({
       clerkId: id,
       name: `${first_name}${last_name ? ` ${last_name}` : ""}`,
-      email: email_addresses[0].email_address,
-      phoneNumber: phone_number,
+      email: email_addresses[0]?.email_address | "",
+      phoneNumber: phone_numbers[0]?.phone_number,
       picture: image_url,
     });
     await newUser.save();
@@ -29,10 +30,10 @@ module.exports = {
       first_name,
       last_name,
       phone_number,
-    } = evt.data;
-
+    } = data;
+    console.log(id);
     const updatedUser = await User.findOneAndUpdate(
-      { clerkId },
+      { clerkId: id },
       {
         name: `${first_name}${last_name ? ` ${last_name}` : ""}`,
         phoneNumber: phone_number,
@@ -46,9 +47,11 @@ module.exports = {
     return updatedUser;
   },
   deleteUser: async (data) => {
-    const { clerkId } = data;
+    const { id } = data;
 
-    const deletedUser = await User.findByIdAndDelete({ clerkId });
+    console.log(id);
+
+    const deletedUser = await User.findByIdAndDelete({ clerkId: id });
 
     if (!deletedUser) {
       throw new Error("User not found");
