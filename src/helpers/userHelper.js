@@ -17,10 +17,12 @@ module.exports = {
       clerkId: id,
       name: `${first_name}${last_name ? ` ${last_name}` : ""}`,
       email: email_addresses[0]?.email_address | "",
-      phoneNumber: phone_numbers[0]?.phone_number,
-      picture: image_url,
+      phoneNumber: phone_numbers[0]?.phone_number | "",
+      picture: image_url | "",
     });
     await newUser.save();
+    consoel.log("MongoUser", newUser);
+
     return newUser;
   },
   updateUser: async (data) => {
