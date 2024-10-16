@@ -2,6 +2,7 @@ const User = require("../models/user");
 
 module.exports = {
   createUser: async (data) => {
+    console.log("userCreated", data);
     const {
       id,
       email_addresses,
@@ -23,6 +24,7 @@ module.exports = {
     return newUser;
   },
   updateUser: async (data) => {
+    console.log("updated user", data);
     const {
       id,
       email_addresses,
@@ -47,6 +49,7 @@ module.exports = {
     return updatedUser;
   },
   deleteUser: async (data) => {
+    console.log("deleted User", data);
     const { id } = data;
 
     console.log(id);
