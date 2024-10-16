@@ -23,7 +23,7 @@ const PORT = process.env.PORT || 4000;
 app.use(bodyParser.json());
 
 // Webhook route
-app.post("/api/webhook", async (req, res) => {
+app.post("/api/webhook/clerk", async (req, res) => {
   const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
 
   if (!WEBHOOK_SECRET) {
