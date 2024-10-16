@@ -5,6 +5,6 @@ const { authMiddleware } = require("../middlewares/authMiddleware");
 const router = express.Router();
 
 // authenticate before uploading
-router.post("/file", authMiddleware, uploadFileController);
+router.post("/file", uploadFileController);
 
 module.exports = router;
