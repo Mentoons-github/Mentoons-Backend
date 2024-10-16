@@ -11,6 +11,9 @@ const UserSchema = new mongoose.Schema({
   phoneNumber: {
     type: String,
   },
+  picture: {
+    type: String,
+  },
 });
 
 const User = mongoose.model("User", UserSchema);
