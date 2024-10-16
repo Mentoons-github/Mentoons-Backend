@@ -13,12 +13,40 @@ const whatsappRoutes = require("./src/routes/whatsapp.js");
 const adminRoutes = require("./src/routes/admin.js");
 const uploadRoutes = require("./src/routes/upload.js");
 const careerRoutes = require("./src/routes/career");
-const { clerkWebhookConroller } = require("./src/controllers/clerk-webhook.js");
-
+// const webhookRoutes = require("./src/routes/webhook.js");
+const bodyParser = require("body-parser");
 const dashboardRoutes = require("./src/routes/dashboard");
 const app = express();
 const PORT = process.env.PORT || 4000;
+app.post(
+  "/api/webhook/clerk",
+  bodyParser.raw({ type: "application/json" }),
+  async function (req, res) {
+    try {
+      const payloadString = req.body.toString();
+      const svixHeaders = req.headers;
 
+      const wh = new Webhook(process.env.VITE_CLERK_WEBHOOK_SECRET_KEY);
+      const evt = wh.verify(payloadString, svixHeaders);
+      const { id, ...attributes } = evt.data;
+      // Handle the webhooks
+      const eventType = evt.type;
+      if (eventType === "user.created") {
+        console.log(`User ${id} was ${eventType}`);
+        console.log(attributes);
+      }
+      res.status(200).json({
+        success: true,
+        message: "Webhook received",
+      });
+    } catch (err) {
+      res.status(400).json({
+        success: false,
+        message: err.message,
+      });
+    }
+  }
+);
 app.use(express.json());
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
@@ -44,7 +72,7 @@ app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/upload", upload.single("file"), uploadRoutes);
 app.use("/api/v1/career", careerRoutes);
 app.use("/api/v1/dashboard", dashboardRoutes);
-app.use("/api/v1/webhook/clerk", clerkWebhookConroller);
+
 app.use("*", (req, res, next) => {
   const url = req.originalUrl;
   res.json({

@@ -10,8 +10,6 @@ const {
 } = require("../controllers/userController.js");
 
 const router = express.Router();
-
-router
 router.post("/register", registerController);
 router.post("/register/verify", verifyUserRegistrationController);
 router.post("/login", loginController);
