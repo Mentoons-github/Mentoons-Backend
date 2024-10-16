@@ -17,13 +17,18 @@ const careerRoutes = require("./src/routes/career");
 const bodyParser = require("body-parser");
 const dashboardRoutes = require("./src/routes/dashboard");
 const dotenv = require("dotenv");
+const {
+  createUser,
+  updateUser,
+  deleteUser,
+} = require("./src/helpers/userHelper.js");
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 4000;
 app.use(bodyParser.json());
 
 // Webhook route
-app.post("/api/webhook/clerk", async (req, res) => {
+app.post("/api/v1/webhook/clerk", async (req, res) => {
   const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
 
   if (!WEBHOOK_SECRET) {
@@ -63,10 +68,20 @@ app.post("/api/webhook/clerk", async (req, res) => {
     });
 
     // Webhook verified successfully
-    const { id } = evt.data;
     const eventType = evt.type;
-    console.log(`Webhook verified: ID ${id}, Type ${eventType}`);
-    console.log("Webhook body:", body);
+    switch (eventType) {
+      case "user.created":
+        await createUser(evt.data);
+        break;
+      case "user.updated":
+        await updateUser(evt.data);
+        break;
+      case "user.deleted":
+        await deleteUser(evt.data);
+        break;
+      default:
+        console.log(`Unhandled event type: ${eventType}`);
+    }
 
     res.status(200).end();
   } catch (err) {
