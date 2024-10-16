@@ -21,8 +21,6 @@ module.exports = {
       picture: image_url,
     });
     await newUser.save();
-    console.log("MongoUser", newUser);
-
     return newUser;
   },
   updateUser: async (data) => {
@@ -37,7 +35,7 @@ module.exports = {
     } = data;
     console.log(id);
     const updatedUser = await User.findOneAndUpdate(
-      { clerkId: String(id) },
+      { clerkId: id.toString() },
       {
         name: `${first_name}${last_name ? ` ${last_name}` : ""}`,
         phoneNumber: phone_numbers[0]?.phone_number,
@@ -48,6 +46,7 @@ module.exports = {
         new: true,
       }
     );
+    console.log("updatedUser", updatedUser);
     return updatedUser;
   },
   deleteUser: async (data) => {
@@ -56,11 +55,15 @@ module.exports = {
 
     console.log(id);
 
-    const deletedUser = await User.findByIdAndDelete({ clerkId: String(id) });
+    const deletedUser = await User.findOneAndDelete({
+      clerkId: id.toString(),
+    });
 
     if (!deletedUser) {
       throw new Error("User not found");
     }
+
+    console.log("deletedUser", deletedUser);
 
     return deletedUser;
   },
