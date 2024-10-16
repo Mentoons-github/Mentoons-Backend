@@ -16,37 +16,72 @@ const careerRoutes = require("./src/routes/career");
 // const webhookRoutes = require("./src/routes/webhook.js");
 const bodyParser = require("body-parser");
 const dashboardRoutes = require("./src/routes/dashboard");
+const dotenv = require("dotenv");
+dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 4000;
-app.post(
-  "/api/webhook/clerk",
-  bodyParser.raw({ type: "application/json" }),
-  async function (req, res) {
-    try {
-      const payloadString = req.body.toString();
-      const svixHeaders = req.headers;
+app.use(bodyParser.json());
 
-      const wh = new Webhook(process.env.VITE_CLERK_WEBHOOK_SECRET_KEY);
-      const evt = wh.verify(payloadString, svixHeaders);
-      const { id, ...attributes } = evt.data;
-      // Handle the webhooks
-      const eventType = evt.type;
-      if (eventType === "user.created") {
-        console.log(`User ${id} was ${eventType}`);
-        console.log(attributes);
-      }
-      res.status(200).json({
-        success: true,
-        message: "Webhook received",
-      });
-    } catch (err) {
-      res.status(400).json({
-        success: false,
-        message: err.message,
-      });
-    }
+// Webhook route
+app.post("/api/webhook", async (req, res) => {
+  const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
+
+  if (!WEBHOOK_SECRET) {
+    console.error("WEBHOOK_SECRET is not set in environment variables");
+    return res.status(500).json({ error: "Server configuration error" });
   }
-);
+
+  // Get the headers
+  const svix_id = req.headers["svix-id"];
+  const svix_timestamp = req.headers["svix-timestamp"];
+  const svix_signature = req.headers["svix-signature"];
+
+  // If there are no headers, error out
+  if (!svix_id || !svix_timestamp || !svix_signature) {
+    console.error("Missing Svix headers:", {
+      svix_id,
+      svix_timestamp,
+      svix_signature,
+    });
+    return res
+      .status(400)
+      .json({ error: "Error occurred -- missing Svix headers" });
+  }
+
+  // Get the body
+  const payload = req.body;
+  const body = JSON.stringify(payload);
+
+  // Create a new Svix instance with your secret.
+  const wh = new Webhook(WEBHOOK_SECRET);
+
+  try {
+    const evt = wh.verify(body, {
+      "svix-id": svix_id,
+      "svix-timestamp": svix_timestamp,
+      "svix-signature": svix_signature,
+    });
+
+    // Webhook verified successfully
+    const { id } = evt.data;
+    const eventType = evt.type;
+    console.log(`Webhook verified: ID ${id}, Type ${eventType}`);
+    console.log("Webhook body:", body);
+
+    res.status(200).end();
+  } catch (err) {
+    if (err instanceof WebhookVerificationError) {
+      console.error("Webhook verification failed:", err.message);
+      console.error("Received headers:", req.headers);
+      console.error("Received body:", body);
+    } else {
+      console.error("Unexpected error during webhook processing:", err);
+    }
+    res
+      .status(400)
+      .json({ error: "Webhook verification failed", details: err.message });
+  }
+});
 app.use(express.json());
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
