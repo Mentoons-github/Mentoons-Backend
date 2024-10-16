@@ -15,7 +15,7 @@ const uploadRoutes = require("./src/routes/upload.js");
 const careerRoutes = require("./src/routes/career");
 // const webhookRoutes = require("./src/routes/webhook.js");
 const { Webhook, WebhookVerificationError } = require("svix");
-const { Webhook } = require("svix");
+
 const bodyParser = require("body-parser");
 const dashboardRoutes = require("./src/routes/dashboard");
 const dotenv = require("dotenv");
