@@ -16,7 +16,7 @@ module.exports = {
     const newUser = await User.create({
       clerkId: id,
       name: `${first_name}${last_name ? ` ${last_name}` : ""}`,
-      email: email_addresses[0]?.email_address | "",
+      email: email_addresses[0]?.email_address,
       phoneNumber: phone_numbers[0]?.phone_number | "",
       picture: image_url | "",
     });
@@ -33,15 +33,15 @@ module.exports = {
       image_url,
       first_name,
       last_name,
-      phone_number,
+      phone_numbers,
     } = data;
     console.log(id);
     const updatedUser = await User.findOneAndUpdate(
-      { clerkId: id },
+      { clerkId: String(id) },
       {
         name: `${first_name}${last_name ? ` ${last_name}` : ""}`,
-        phoneNumber: phone_number,
-        email: email_addresses[0].email_address,
+        phoneNumber: phone_numbers[0]?.phone_number,
+        email: email_addresses[0]?.email_address,
         picture: image_url,
       },
       {
@@ -56,7 +56,7 @@ module.exports = {
 
     console.log(id);
 
-    const deletedUser = await User.findByIdAndDelete({ clerkId: id });
+    const deletedUser = await User.findByIdAndDelete({ clerkId: String(id) });
 
     if (!deletedUser) {
       throw new Error("User not found");
