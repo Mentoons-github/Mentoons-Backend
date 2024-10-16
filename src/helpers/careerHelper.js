@@ -123,7 +123,7 @@ const deleteJob = async (id) => {
     }
 }   
 
-const applyJob = async (jobId, name, email, phone, gender, portfolioLink, coverNote, coverLetter, resume) => {
+const applyJob = async (jobId, name, email, phone, gender, portfolioLink, coverNote, resume) => {
     try {
         const jobListing = await Job.findById(jobId);
         if (!jobListing) {
@@ -131,7 +131,7 @@ const applyJob = async (jobId, name, email, phone, gender, portfolioLink, coverN
         }
 
         const application = await JobApplication.create({
-            jobId, name, email, phone, gender, portfolioLink, coverNote, coverLetter, resume
+            jobId, name, email, phone, gender, portfolioLink, coverNote, resume
         });
         jobListing.applications.push(application._id);
         await jobListing.save();

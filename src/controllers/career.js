@@ -54,12 +54,12 @@ module.exports = {
     }),
 
     applyJob: asyncHandler(async (req, res, next) => {
-        const {name, email, phone, gender, portfolioLink, coverNote, coverLetter, resume} = req.body;
+        const {name, email, phone, gender, portfolioLink, coverNote, resume} = req.body;
         const jobId = req.params.id;
-        if(!jobId || !name || !email || !phone || !gender || !portfolioLink || !coverNote || !coverLetter || !resume){
+        if(!jobId || !name || !email || !phone || !gender || !portfolioLink || !coverNote || !resume){
             return errorResponse(res,404, messageHelper.BAD_REQUEST);
         }
-        const job = await applyJob(jobId, name, email, phone, gender, portfolioLink, coverNote, coverLetter, resume);
+        const job = await applyJob(jobId, name, email, phone, gender, portfolioLink, coverNote, resume);
         if(!job){
             return errorResponse(res,404, messageHelper.JOB_NOT_FOUND);    
         }

@@ -29,10 +29,6 @@ const jobApplicationSchema = new mongoose.Schema({
         ref: 'Job',
         required: [true, 'Please add a job id']
     },
-    coverLetter: {
-        type: String,
-        required: [true, 'Please add a cover letter']
-    },
     resume: {
         type: String,
         required: [true, 'Please add a resume']
