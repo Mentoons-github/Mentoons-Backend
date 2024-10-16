@@ -29,6 +29,7 @@ app.use(bodyParser.json());
 
 // Webhook route
 app.post("/api/v1/webhook/clerk", async (req, res) => {
+  console.log("Request", req.body);
   const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
 
   if (!WEBHOOK_SECRET) {
