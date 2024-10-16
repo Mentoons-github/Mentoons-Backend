@@ -30,7 +30,7 @@ app.use(bodyParser.json());
 // Webhook route
 app.post("/api/v1/webhook/clerk", async (req, res) => {
   console.log("Request", req.body);
-  const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
+  const WEBHOOK_SECRET = process.env.VITE_CLERK_WEBHOOK_SECRET_KEY;
 
   if (!WEBHOOK_SECRET) {
     console.error("WEBHOOK_SECRET is not set in environment variables");
