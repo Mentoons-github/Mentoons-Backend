@@ -184,11 +184,8 @@ const getAppliedJobs = async ( search,page = 1, limit = 10, sortOrder = -1,sortF
                     gender: 1,
                     portfolioLink: 1,
                     coverNote: 1,
-                    coverLetter: 1,
                     resume: 1,
                     jobTitle: '$jobDetails.jobTitle',
-                    jobDescription: '$jobDetails.jobDescription',
-                    company: '$jobDetails.company',
                     createdAt: 1
                 }
             },
