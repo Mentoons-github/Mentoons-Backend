@@ -14,7 +14,7 @@ const adminRoutes = require("./src/routes/admin.js");
 const uploadRoutes = require("./src/routes/upload.js");
 const careerRoutes = require("./src/routes/career");
 // const webhookRoutes = require("./src/routes/webhook.js");
-const { clerkMiddleware } = require("@clerk/express");
+
 const { Webhook, WebhookVerificationError } = require("svix");
 
 const bodyParser = require("body-parser");
@@ -29,7 +29,6 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 4000;
 app.use(bodyParser.json());
-app.use(clerkMiddleware());
 
 // Webhook route
 app.post("/api/v1/webhook/clerk", async (req, res) => {
