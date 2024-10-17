@@ -1,5 +1,5 @@
 const express = require("express");
-
+const { requireAuth } = require("@clerk/express");
 const {
   registerController,
   loginController,
@@ -7,7 +7,10 @@ const {
   verifyUserRegistrationController,
   verifyUserLoginController,
   premiumController,
+  getAllUsersController,
+  getUserController,
 } = require("../controllers/userController.js");
+const { isSuperAdminOrAdmin } = require("../middlewares/authMiddleware.js");
 
 const router = express.Router();
 router.post("/register", registerController);
@@ -16,5 +19,17 @@ router.post("/login", loginController);
 router.post("/login/verify", verifyUserLoginController);
 router.post("/logout", logoutController);
 router.post("/premium", premiumController);
+router.get(
+  "/all-users",
+  requireAuth({ signInUrl: "/sign-in" }),
+  isSuperAdminOrAdmin,
+  getAllUsersController
+);
 
+router.get(
+  "/user",
+  requireAuth({ signInUrl: "/sign-in" }),
+  isSuperAdminOrAdmin,
+  getUserController
+);
 module.exports = router;

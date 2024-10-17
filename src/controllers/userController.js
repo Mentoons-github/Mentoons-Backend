@@ -3,6 +3,7 @@ const { errorResponse, successResponse } = require("../utils/responseHelper");
 const asyncHandler = require("../utils/asyncHandler");
 const userHelper = require("../helpers/userHelper");
 const Auth = require("../utils/auth");
+const { getUsersController } = require("./admin");
 
 module.exports = {
   registerController: asyncHandler(async (req, res) => {
@@ -131,5 +132,37 @@ module.exports = {
     return successResponse(res, 200, premiumResult.message, {
       premiumEndDate: premiumResult.premiumEndDate,
     });
+  }), 
+  changeRoleController: asyncHandler(async (req, res) => {
+    const { superAdminUserId, userId, role } = req.body;
+    const modifiedUser = await userHelper.changeRole(superAdminUserId, userId, role)
+    if (!modifiedUser) {
+      return error(res, 500, messageHelper.INTERNAL_SERVER_ERROR)
+    }
+    return successResponse(modifiedUser, 200, "Successfully changed user role.")
   }),
+
+  getAllUsersController: asyncHandler(async (req, res) => {
+    const users = await userHelper.getAllUser();
+    if (!users) {
+      return errorResponse(users, 500, messageHelper.INTERNAL_SERVER_ERROR)
+    }
+
+    return successResponse(users, 200,"Successfully fetched all  User")
+  }),
+
+  getUserController: asyncHandler(async (req, res) => {
+    const { id } = req.body
+    if (!id) {
+      return errorResponse(id, 400,"Id is required")
+    }
+
+    const user = await userHelper.getUser(id)
+
+    if (!user) {
+      return errorResponse(user, 500, messageHelper.INTERNAL_SERVER_ERROR)
+    }
+    return successResponse(user, 200,"Successfully fetched user")
+  })
+
 };
