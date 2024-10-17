@@ -17,14 +17,14 @@ const router = express.Router();
 router.post("/sign-in", adminRegisterController);
 router.post("/login", adminLoginController);
 router.get("/create-admin", adminAuthMiddleware, makeAdmin);
-router.get(
-  "/private-content",
-  adminAuthMiddleware,
-  isAdmin,
-  (req, res, next) => {
-    return successResponse(res, 200, "Private Content");
-  }
-);
+// router.get(
+//   "/private-content",
+//   adminAuthMiddleware(),
+//   isAdmin,
+//   (req, res, next) => {
+//     return successResponse(res, 200, "Private Content");
+//   }
+// );
 router.get("/users", getUsersController);
 router.get("/users/:userId", getOneUserController);
 

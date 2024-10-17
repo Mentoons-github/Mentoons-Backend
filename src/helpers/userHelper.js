@@ -67,4 +67,39 @@ module.exports = {
 
     return deletedUser;
   },
+  changeRole: async (superAdminUserId, userId, role) => {
+    const superAdminUser = await User.findOne({
+      _id: superAdminUserId,
+      role: "super-admin",
+    });
+    if (!superAdminUser) {
+      throw new Error("Unauthorize");
+    }
+
+    const user = await User.findOne({ _id: userId });
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const modifiedUser = await User.findOneAndUpdate(
+      { _id: userId },
+      { ...user, role: role },
+      { new: true }
+    );
+    console.log("Modified User", modifiedUser)
+    return modifiedUser;
+  },
+
+  getAllUser: async () => {
+    const allUsers = await User.find();
+    console.log("ALL MONGO USER", allUsers)
+    return allUsers;
+  },
+
+  getUser: async (userId) => {
+    const user = await User.findOne({ _id: userId });
+    console.log("Mongo User",user)
+    return user;
+  },
 };

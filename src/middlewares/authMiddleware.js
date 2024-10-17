@@ -38,10 +38,10 @@ module.exports = {
       return errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR);
     }
   },
-  isAdmin: asyncHandler(async (req, res, next) => {
+  isSuperAdminOrAdmin: asyncHandler(async (req, res, next) => {
     const user = req.user;
     const fetchedUser = await User.findById(user._id);
-    if (fetchedUser.role !== "ADMIN") {
+    if (fetchedUser.role !== "admin" || fetchedUser.role !== "super-admin") {
       throw customError(401, "Unauthorized request");
     }
     next();
