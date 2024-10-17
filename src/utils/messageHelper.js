@@ -39,4 +39,8 @@ module.exports = {
   JOB_APPLICATION_FETCHED: "Job application fetched successfully",
   JOB_APPLICATION_NOT_FOUND: "Job application not found",
   JOB_APPLICATION_UPDATED: "Job application updated successfully",
+  USER_FETCHED_SUCCESSFULLY: "User data fetched successfully",
+  USER_DOESNT_EXISTS: "User doesn't exists",
+  USER_BLACKLIST: "User blacklisted successfully",
+
 };

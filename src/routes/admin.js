@@ -3,6 +3,9 @@ const {
   adminRegisterController,
   adminLoginController,
   makeAdmin,
+  getUsersController,
+  getOneUserController,
+  blacklistUserController,
 } = require("../controllers/admin.js");
 const { isAdmin } = require("../middlewares/authMiddleware.js");
 const { successResponse } = require("../utils/responseHelper");
@@ -23,5 +26,8 @@ router.get(
     return successResponse(res, 200, "Private Content");
   }
 );
+router.get("/users", getUsersController);
+router.get("/users/:userId", getOneUserController);
+router.delete("/users/:userId", blacklistUserController);
 
 module.exports = router;

@@ -1,17 +1,25 @@
 const adminHelper = require("../helpers/adminHelper");
 const Admin = require("../models/admin");
 const asyncHandler = require("../utils/asyncHandler");
+const messageHelper = require("../utils/messageHelper");
 const { errorResponse, successResponse } = require("../utils/responseHelper");
 
 module.exports = {
   adminRegisterController: asyncHandler(async (req, res, next) => {
-    const { name, email, password } = req.body;
+    const { name, email, password, phoneNumber } = req.body;
 
-    if (!(name?.trim() && email?.trim() && password?.trim())) {
+    if (
+      !(
+        name?.trim() &&
+        email?.trim() &&
+        password?.trim() &&
+        phoneNumber?.trim()
+      )
+    ) {
       return errorResponse(
         res,
         400,
-        "Name, Email, Password is a required field"
+        "Name, Email, Password & PhoneNumber is a required field"
       );
     }
 
@@ -54,5 +62,28 @@ module.exports = {
     await fetchedUser.save({ validateBeforeSave: false });
 
     return successResponse(res, 200, "User promoted to Admin");
+  }),
+
+  getUsersController: asyncHandler(async (req, res, next) => {
+    const users = await adminHelper.getAllUsersFromDB();
+    successResponse(res, 200, messageHelper.USER_FETCHED_SUCCESSFULLY, users);
+  }),
+
+  getOneUserController: asyncHandler(async (req, res, next) => {
+    const { userId } = req.params;
+    const user = await adminHelper.getOneUserFromDB(userId);
+    if (!user) {
+      return errorResponse(res, 200, messageHelper.USER_DOESNT_EXISTS);
+    }
+    successResponse(res, 200, messageHelper.USER_FETCHED_SUCCESSFULLY, user);
+  }),
+
+  blacklistUserController: asyncHandler(async (req, res, next) => {
+    const { userId } = req.params;
+    const user = await adminHelper.blacklistUser(userId);
+    if (!user) {
+      return errorResponse(res, 404, messageHelper.USER_DOESNT_EXISTS);
+    }
+    successResponse(res, 200, messageHelper.USER_BLACKLIST);
   }),
 };

@@ -1,4 +1,8 @@
-const { saveFormToDB, getDataFromDB } = require("../helpers/workshopHelper");
+const {
+  saveFormToDB,
+  getDataFromDB,
+  getSingleDataFromDB,
+} = require("../helpers/workshopHelper");
 const asyncHandler = require("../utils/asyncHandler");
 const messageHelper = require("../utils/messageHelper");
 const { errorResponse, successResponse } = require("../utils/responseHelper");
@@ -104,5 +108,12 @@ module.exports = {
       );
     }
     successResponse(res, 200, "workshop data fetched successfully!", data);
+  }),
+  getOneWorkshopData: asyncHandler(async (req, res, next) => {
+    const { workshopId } = req.params;
+    if (!workshopId) {
+      return errorResponse(res, 400, messageHelper.BAD_REQUEST);
+    }
+    const workshop = await getSingleDataFromDB();
   }),
 };

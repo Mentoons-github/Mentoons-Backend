@@ -11,6 +11,8 @@
   "author": "mentoons",
   "license": "ISC",
   "dependencies": {
+    "@clerk/clerk-sdk-node": "^5.0.50",
+    "@clerk/express": "^1.2.3",
     "aws-sdk": "^2.1691.0",
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.3",
@@ -25,6 +27,7 @@
     "nodemailer": "^6.9.15",
     "nodemon": "^3.1.4",
     "otp-generator": "^4.0.1",
+    "svix": "^1.37.0",
     "twilio": "^5.3.0",
     "validator": "^13.12.0"
   },

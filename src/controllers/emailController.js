@@ -39,7 +39,7 @@ module.exports = {
       email,
     });
     await sendEmail(userOptions);
-    // await sendEmail(adminOptions);
+    await sendEmail(adminOptions);
     return successResponse(res, 200, messageHelper.NEWSLETTER_SUBSCRIBED);
   }),
   // freeDownloads: asyncHandler(async (req, res, next) => {

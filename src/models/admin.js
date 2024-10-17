@@ -16,6 +16,7 @@ const adminSchema = new mongoose.Schema({
   },
   email: {
     type: String,
+    unique: true,
     required: [true, "email is a required field"],
     validate: {
       validator: (value) => {
@@ -49,6 +50,11 @@ const adminSchema = new mongoose.Schema({
       },
       message: (props) => props.reason.message,
     },
+  },
+  phoneNumber: {
+    type: String,
+    unique: true,
+    required: true,
   },
   picture: {
     type: String,
