@@ -30,4 +30,13 @@ module.exports = {
   FILE_BUFFER_MISSING: "File buffer is missing",
   FILE_DELETED_SUCCESSFULLY: "File deleted successfully",
   FILE_DELETION_FAILED: "File deletion failed",
+  JOB_CREATED: "Job created successfully",
+  JOB_FETCHED: "Job fetched successfully",
+  JOB_NOT_FOUND: "Job not found",
+  JOB_UPDATED: "Job updated successfully",
+  JOB_DELETED: "Job deleted successfully",
+  JOB_APPLICATION_CREATED: "Job application created successfully",
+  JOB_APPLICATION_FETCHED: "Job application fetched successfully",
+  JOB_APPLICATION_NOT_FOUND: "Job application not found",
+  JOB_APPLICATION_UPDATED: "Job application updated successfully",
 };
