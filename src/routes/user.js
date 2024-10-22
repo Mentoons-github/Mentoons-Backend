@@ -22,14 +22,12 @@ router.post("/premium", premiumController);
 router.get(
   "/all-users",
   requireAuth({ signInUrl: "/sign-in" }),
-  isSuperAdminOrAdmin,
   getAllUsersController
 );
 
 router.get(
   "/user",
   requireAuth({ signInUrl: "/sign-in" }),
-  isSuperAdminOrAdmin,
   getUserController
 );
 module.exports = router;
