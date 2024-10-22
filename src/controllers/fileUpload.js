@@ -10,9 +10,8 @@ const uploadFileController = asyncHandler(async (req, res, next) => {
     if (!req.file) {
         return errorResponse(res, 400, 'No file uploaded');
     }
-
+    const userId = req.auth.userId
     const { path, mimetype, originalname } = req.file;
-    const userId = 123;
 
     try {
         const fileBuffer = await fs.readFile(path);

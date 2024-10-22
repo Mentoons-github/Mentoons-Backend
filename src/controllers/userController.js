@@ -145,24 +145,22 @@ module.exports = {
   getAllUsersController: asyncHandler(async (req, res) => {
     const users = await userHelper.getAllUser();
     if (!users) {
-      return errorResponse(users, 500, messageHelper.INTERNAL_SERVER_ERROR)
+      return errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR)
     }
 
-    return successResponse(users, 200,"Successfully fetched all  User")
+    return successResponse(res, 200,"Successfully fetched user",users)
   }),
 
-  getUserController: asyncHandler(async (req, res) => {
+  getUserController: asyncHandler(async (req, res, next) => {
     const { id } = req.body
     if (!id) {
-      return errorResponse(id, 400,"Id is required")
+      return errorResponse(res, 400,"Id is required",id)
     }
-
     const user = await userHelper.getUser(id)
-
     if (!user) {
-      return errorResponse(user, 500, messageHelper.INTERNAL_SERVER_ERROR)
+      return errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR,user)
     }
-    return successResponse(user, 200,"Successfully fetched user")
+    return successResponse(res, 200,"Successfully fetched user",user)
   })
 
 };
