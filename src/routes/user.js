@@ -9,6 +9,7 @@ const {
   premiumController,
   getAllUsersController,
   getUserController,
+  DeleteUserClerkController,
 } = require("../controllers/userController.js");
 const { isSuperAdminOrAdmin } = require("../middlewares/authMiddleware.js");
 
@@ -29,5 +30,10 @@ router.get(
   "/user/:userId",
   requireAuth({ signInUrl: "/sign-in" }),
   getUserController
+);
+router.delete(
+  "/user/:userId",
+  requireAuth({ signInUrl: "/sign-in" }),
+  DeleteUserClerkController
 );
 module.exports = router;

@@ -1,3 +1,5 @@
+const dotenv = require("dotenv");
+dotenv.config();
 const messageHelper = require("../utils/messageHelper");
 const { errorResponse, successResponse } = require("../utils/responseHelper");
 const asyncHandler = require("../utils/asyncHandler");
@@ -176,6 +178,21 @@ module.exports = {
       return errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR,user)
     }
     return successResponse(res, 200,"Successfully fetched user",user)
+  }),
+  DeleteUserClerkController: asyncHandler(async (req, res) => {
+    const { userId } = req.params
+    const clerkSecretKey = process.env.CLERK_SECRET_KEY;
+    const response = await fetch(`https://api.clerk.com/v1/users/${userId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${clerkSecretKey}`,
+      },
+    });
+    if (!response.ok) {
+      return errorResponse(res, 500, "Failed to delete user")
+    }
+    const data = await response.json();
+    return successResponse(res, 200, "Successfully deleted user", data);
   })
-
 };
