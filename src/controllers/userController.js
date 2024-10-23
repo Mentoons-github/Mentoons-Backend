@@ -143,20 +143,35 @@ module.exports = {
   }),
 
   getAllUsersController: asyncHandler(async (req, res) => {
-    const users = await userHelper.getAllUser();
+    const { search, sortField, sortOrder, page = 1, limit = 10 } = req.query;
+    const queryOptions = {
+      search,
+      sortField,
+      sortOrder,
+      page: parseInt(page),
+      limit: parseInt(limit)
+    };
+
+    const { users, totalCount, totalPages } = await userHelper.getAllUser(queryOptions);
+    
     if (!users) {
-      return errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR)
+      return errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR);
     }
 
-    return successResponse(res, 200,"Successfully fetched user",users)
+    return successResponse(res, 200, "Successfully fetched users", {
+      users,
+      currentPage: queryOptions.page,
+      totalPages,
+      totalCount
+    });
   }),
 
   getUserController: asyncHandler(async (req, res, next) => {
-    const { id } = req.body
-    if (!id) {
-      return errorResponse(res, 400,"Id is required",id)
+    const { userId } = req.params
+    if (!userId) {
+      return errorResponse(res, 400,"Id is required",userId)
     }
-    const user = await userHelper.getUser(id)
+    const user = await userHelper.getUser(userId)
     if (!user) {
       return errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR,user)
     }

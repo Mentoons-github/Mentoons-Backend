@@ -1,3 +1,4 @@
+const { default: mongoose } = require("mongoose");
 const User = require("../models/user");
 
 module.exports = {
@@ -91,15 +92,62 @@ module.exports = {
     return modifiedUser;
   },
 
-  getAllUser: async () => {
-    const allUsers = await User.find();
-    console.log("ALL MONGO USER", allUsers)
-    return allUsers;
+  getAllUser: async ({ search, sortField, sortOrder, page = 1, limit = 10 }) => {
+    try {
+      const skip = (page - 1) * limit;
+      const searchRegex = new RegExp(search, 'i');
+      
+      const allUsers = await User.aggregate([
+        { $match: { $or: [{ name: { $regex: searchRegex } }, { email: { $regex: searchRegex } }] } },
+        {
+          $project: {
+            _id: 1,
+            clerkId: 1,
+            role: 1,
+            name: 1,
+            email: 1,
+            phoneNumber: 1,
+            picture: 1
+          }
+        },
+        { $sort: { [sortField]: sortOrder === 'asc' ? 1 : -1 } },
+        { $skip: skip },
+        { $limit: Number(limit) }
+      ]);
+
+      const totalCount = await User.countDocuments({
+        $or: [
+          { name: { $regex: searchRegex } },
+          { email: { $regex: searchRegex } }
+        ]
+      });
+
+      return {
+        users: allUsers,
+        totalCount,
+        totalPages: Math.ceil(totalCount / limit)
+      };
+    } catch (error) {
+      console.error(error);
+      throw new Error('Error fetching users from database');
+    }
   },
 
   getUser: async (userId) => {
-    const user = await User.findOne({ _id: userId });
-    console.log("Mongo User",user)
+    const [user] = await User.aggregate([
+      { $match: { _id: new mongoose.Types.ObjectId(userId) } },
+      {
+        $project: {
+          _id: 1,
+          clerkId: 1,
+          role: 1,
+          name: 1,
+          email: 1,
+          phoneNumber: 1,
+          picture: 1
+        }
+      }
+    ]);
     return user;
   },
 };
