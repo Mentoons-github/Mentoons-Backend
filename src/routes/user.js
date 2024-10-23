@@ -26,7 +26,7 @@ router.get(
 );
 
 router.get(
-  "/user",
+  "/user/:userId",
   requireAuth({ signInUrl: "/sign-in" }),
   getUserController
 );
