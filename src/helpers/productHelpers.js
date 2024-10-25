@@ -64,6 +64,7 @@ module.exports = {
     getOneProductFromDB: async (productId) => {
         try {
             const objectId = new mongoose.Types.ObjectId(productId);
+            console.log(objectId)
             await Product.findByIdAndUpdate(
                 objectId,
                 { $inc: { viewsCount: 1 } },
@@ -132,6 +133,29 @@ module.exports = {
         } catch (error) {
             console.log(error);
             throw new Error("Error deleting product from database");
+        }
+    },
+    getTrendingProductsFromDB: async () => {
+        try {
+            const trendingProducts = await Product.aggregate([
+                { $sort: { viewsCount: -1 } },
+                { $limit: 10 },
+                {
+                    $project: {
+                        _id: 1,
+                        productTitle: 1,
+                        productDescription: 1,
+                        productCategory: 1,
+                        productThumbnail: 1,
+                        productSample: 1,
+                        productFile: 1,
+                    }
+                }
+            ]);
+            return trendingProducts;
+        } catch (error) {
+            console.log(error);
+            throw new Error("Error fetching trending products from database");
         }
     }
 };
