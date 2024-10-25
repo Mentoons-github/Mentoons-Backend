@@ -18,14 +18,6 @@ const productSchema = new mongoose.Schema(
       enum: ["COMIC", "AUDIO COMIC", "PODCAST", "WORKSHOPS", "MISC"],
       default: "MISC",
     },
-    // productPrice: {
-    //   type: String,
-    //   required: [true, "Product price is required"],
-    // },
-    // rewardPoints: {
-    //   type: String,
-    //   required: [true, "Reward points is required"],
-    // },
     productThumbnail: {
       type: String,
       required: [true, "Product thumbnail is required"],

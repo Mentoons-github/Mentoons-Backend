@@ -48,5 +48,12 @@ module.exports = {
             return errorResponse(res, 404, messageHelper.PRODUCT_NOT_FOUND)
         }
         successResponse(res, 200, messageHelper.PRODUCT_DELETED, deletedProduct)
+    }),
+    getTrendingProducts: asyncHandler(async (req, res, next) => {
+        const trendingProducts = await productHelpers.getTrendingProductsFromDB()
+        if (!trendingProducts) {
+            return errorResponse(res, 404, messageHelper.PRODUCT_NOT_FOUND)
+        }
+        successResponse(res, 200, messageHelper.PRODUCTS_FETCHED, trendingProducts)
     })
 }

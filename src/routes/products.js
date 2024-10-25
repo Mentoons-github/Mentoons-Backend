@@ -5,21 +5,23 @@ const {
   getProduct,
   editProduct,
   deleteProduct,
+  getTrendingProducts,
 } = require("../controllers/productController");
 const { authMiddleware } = require("../middlewares/authMiddleware");
 
 const router = express.Router();
 
-router.route("/").post(addProduct).get(getAllProducts);
-router
-  .route('/')
-  .post(addProduct)
+router.route("/")
+  .post(authMiddleware, addProduct)
   .get(getAllProducts);
-router
-    .route('/:productId')
-    .get(getProduct)
-    .patch(editProduct)
-    .delete(deleteProduct)
+
+router.route("/trending")
+  .get(getTrendingProducts);
+
+router.route("/:productId")
+  .get(getProduct)
+  .patch(authMiddleware, editProduct)
+  .delete(authMiddleware, deleteProduct);
 
 
 module.exports = router;
