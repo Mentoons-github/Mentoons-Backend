@@ -43,4 +43,5 @@ module.exports = {
   USER_DOESNT_EXISTS: "User doesn't exists",
   USER_BLACKLIST: "User blacklisted successfully",
   EMAIL_SENT: "Email sent successfully",
+  EMAIL_NOT_SENT: "Email not sent",
 };
