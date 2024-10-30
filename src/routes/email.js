@@ -5,6 +5,7 @@ const {
   freeDownloadsRequest,
   freeDownloadsVerifyOtp,
   freeDownloadComic,
+  sendEmailToUser,
 } = require("../controllers/emailController");
 const { authMiddleware } = require("../middlewares/authMiddleware");
 const router = express.Router();
@@ -14,5 +15,6 @@ router.post("/freeDownloadsReq", freeDownloadsRequest);
 router.post("/freeDownloadClaim", freeDownloadComic);
 router.post("/freeDownloadsVerify", freeDownloadsVerifyOtp);
 router.get("/getLeadData", authMiddleware, getLeadData);
+router.post("/sendEmail", sendEmailToUser);
 
 module.exports = router;
