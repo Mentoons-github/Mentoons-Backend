@@ -42,6 +42,29 @@ module.exports = {
     await sendEmail(adminOptions);
     return successResponse(res, 200, messageHelper.NEWSLETTER_SUBSCRIBED);
   }),
+  sendEmailToUser: asyncHandler(async (req, res, next) => {
+    const { email, data } = req.body;
+    if (!email || !data) {
+      return errorResponse(res, 404, messageHelper.BAD_REQUEST);
+    }
+    const userOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: "Thank you for subscribing!",
+      html: `
+                <div style="font-family: 'Futura', sans-serif; background-color: #fff3cd; padding: 20px; border-radius: 8px; border: 2px solid #ffc107;">
+                    <h1 style="color: #ffc107;">Thank you for subscribing!</h1>
+                    <p style="color: #6c757d; font-size: 16px;">We're thrilled to have you! Click the thumbnail below to download your free PDF:</p>
+                    <a href="${data.pdf}" download style="display: inline-block; text-decoration: none;">
+                        <img src="${data.thumbnail}" alt="PDF Thumbnail" style="max-width: 50%; height: auto; border: 2px solid #ffc107; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);" />
+                    </a>
+                    <p style="font-size: 14px; color: #6c757d; margin-top: 10px;">Happy reading!</p>
+                </div>
+            `,
+    };
+    await sendEmail(userOptions);
+    return successResponse(res, 200, messageHelper.EMAIL_SENT);
+  }),
   // freeDownloads: asyncHandler(async (req, res, next) => {
   //     const { name, email, phone ,pdf,thumbnail } = req.body
 
