@@ -62,7 +62,10 @@ module.exports = {
                 </div>
             `,
     };
-    await sendEmail(userOptions);
+    const isEmailSent = await sendEmail(userOptions);
+    if (!isEmailSent) {
+      return errorResponse(res, 400, messageHelper.EMAIL_NOT_SENT);
+    }
     return successResponse(res, 200, messageHelper.EMAIL_SENT);
   }),
   // freeDownloads: asyncHandler(async (req, res, next) => {

@@ -1,91 +1,88 @@
-const { default: mongoose } = require("mongoose");
-const WorkshopData = require("../models/workshop");
-
-module.exports = {
-  saveFormToDB: async (
-    name,
-    age,
-    guardianName,
-    guardianContact,
-    guardianEmail,
-    city,
-    mobileUsageHours,
-    primaryActivityOnMobile,
-    isTimeRestricted,
-    restrictionType,
-    concernsUser,
-    behavioralChanges,
-    physicalActivityHours,
-    confessionFrequency,
-    message,
-    appliedWorkshop
-  ) => {
+const workshopEnquiries = require("../models/workshopEnquiries")
+const mongoose = require("mongoose")
+module.exports={
+  saveWorkshopEnquiriesToDB:async ({name,age,guardianName,guardianContact,guardianEmail,city,duration,workshop})=>{
     try {
-      const mobileUsageLevel =
-        mobileUsageHours < 2
-          ? "LOW"
-          : mobileUsageHours <= 4 && mobileUsageHours >= 2
-          ? "MEDIUM"
-          : "HIGH";
-      const physicalActivityFrequency =
-        physicalActivityHours < 2
-          ? "LOW"
-          : physicalActivityHours <= 4 && physicalActivityHours >= 2
-          ? "MEDIUM"
-          : "HIGH";
-      const newWorkshopForm = new WorkshopData({
-        name,
-        age,
-        guardianName,
-        guardianContact,
-        guardianEmail,
-        city,
-        mobileUsageHours,
-        mobileUsageLevel,
-        primaryActivityOnMobile,
-        isTimeRestricted,
-        restrictionType,
-        concernsUser,
-        behavioralChanges,
-        physicalActivityHours,
-        physicalActivityFrequency,
-        confessionFrequency,
-        message,
-        appliedWorkshop,
-      });
-      const workshopFormData = await newWorkshopForm.save();
-      return workshopFormData;
+       if(!name||!age||!guardianName||!guardianContact||!guardianEmail||!city||!duration||!workshop){
+         throw new Error("All fields are required to save workshop enquiry")
+       }
+       const enquiry =new workshopEnquiries({name,age,guardianName,guardianContact,guardianEmail,city,duration,workshop})
+       const savedEnquiry = await enquiry.save()
+       return savedEnquiry
     } catch (error) {
-      console.log(error);
-      throw new Error(error);
+      throw new Error(error.message)
     }
   },
-  getDataFromDB: async (limit, skip, sort, filter) => {
-    const parsedLimit = parseInt(limit, 10) || 0;
-    const parsedSkip = parseInt(skip, 10) || 0;
-    const parsedSort = sort == "asc" ? 1 : -1;
+  getWorkshopEnquiriesFromDB:async (search,page = 1,limit = 10)=>{
+  try {
+    const skip = (page - 1) * limit;
+    const searchRegex = new RegExp(search, 'i');
+    const enquiryData = await workshopEnquiries.aggregate([
+      { $match: { $or: [{ name: { $regex: searchRegex } }, { workshop: { $regex: searchRegex } }] } },
+     {
+      $project:{
+        _id:1,
+        name:1,
+        age:1,
+        guardianName:1,
+        guardianContact:1,
+        guardianEmail:1,
+        city:1,
+        duration:1,
+        workshop:1
+      }
+     },
+     {$sort:{createdAt:-1}},
+     {$skip:skip},
+     {$limit:Number(limit)}
+    ])
+    const totalEnquiries = await workshopEnquiries.countDocuments({
+      $or:[{
+        name:{
+          $regex:searchRegex
+        }
+      }]
+    })
+    console.log(enquiryData,'oooooo')
+    return {
+      enquiryData,
+      currentPage:page,
+      totalPages:Math.ceil(totalEnquiries/limit),
+      totalEnquiries
+    }
+  } catch (error) {
+    throw new Error(error.message)
+  }
+  },
+  getWorkshopEnquiriesByIdFromDB:async (workshopId)=>{
     try {
-      const data = await WorkshopData.find(filter)
-        .limit(parsedLimit)
-        .skip(parsedSkip)
-        .sort({ createdAt: parsedSort });
-      return data;
-    } catch (err) {
-      console.log(err);
-      throw new Error(err);
+    const objectId = new mongoose.Types.ObjectId(workshopId)
+    const enquiryData = await workshopEnquiries.aggregate([
+      {
+        $match:{
+          _id:objectId
+        }
+      },
+      {
+        $project:{
+          _id:1,
+          name:1,
+          age:1,
+          guardianName:1,
+          guardianContact:1,
+          guardianEmail:1,
+          city:1,
+          duration:1,
+          workshop:1
+        }
+      }
+    ])
+    if(enquiryData.length===0){
+      return null
     }
-  },
-  getSingleDataFromDB: async (workshopId) => {
-    try {
-      const workshop = await WorkshopData.aggregate([
-        {
-          $match: { _id: new mongoose.Types.ObjectId(workshopId) },
-        },
-      ]);
-      console.log(workshop);
-    } catch (err) {
-      console.log("Something went wrong while fetching workshops");
-      throw new Error(err);
+    return enquiryData[0]
+    } catch (error) {
+      throw new Error(error.message)
     }
-  },
-};
+  }
+}
