@@ -44,4 +44,7 @@ module.exports = {
   USER_BLACKLIST: "User blacklisted successfully",
   EMAIL_SENT: "Email sent successfully",
   EMAIL_NOT_SENT: "Email not sent",
+  SOMETHING_WENT_WRONG: "Something went wrong",
+  ENQUIRY_DATA_FETCHED: "Enquiry data fetched successfully",
+  ENQUIRY_NOT_FOUND: "Enquiry not found",
 };

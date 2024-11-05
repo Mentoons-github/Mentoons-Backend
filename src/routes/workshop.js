@@ -1,14 +1,14 @@
 const express = require("express");
 const {
   submitWorkshopForm,
-  getWorkshopFormData,
-  getOneWorkshopData,
+  getWorkshopEnquiries,
+  getWorkshopEnquiriesById
 } = require("../controllers/workshopController");
 
 const router = express.Router();
 
 router.route("/submit-form").post(submitWorkshopForm);
-router.route("/").get(getWorkshopFormData);
-router.route("/:workshopId").get(getOneWorkshopData);
+router.route("/").get(getWorkshopEnquiries);
+router.route("/:workshopId").get(getWorkshopEnquiriesById);
 
 module.exports = router;

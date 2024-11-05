@@ -1,119 +1,38 @@
-const {
-  saveFormToDB,
-  getDataFromDB,
-  getSingleDataFromDB,
-} = require("../helpers/workshopHelper");
 const asyncHandler = require("../utils/asyncHandler");
 const messageHelper = require("../utils/messageHelper");
 const { errorResponse, successResponse } = require("../utils/responseHelper");
+const { saveWorkshopEnquiriesToDB, getWorkshopEnquiriesFromDB, getWorkshopEnquiriesByIdFromDB } = require("../helpers/workshopHelper");
 
-module.exports = {
-  submitWorkshopForm: asyncHandler(async (req, res, next) => {
-    console.log(req.body);
-    const {
-      name,
-      age,
-      guardianName,
-      guardianContact,
-      guardianEmail,
-      city,
-      mobileUsageHours,
-      primaryActivityOnMobile,
-      isTimeRestricted,
-      restrictionType,
-      concernsUser,
-      behavioralChanges,
-      physicalActivityHours,
-      confessionFrequency,
-      message,
-      appliedWorkshop,
-    } = req.body;
-    if (
-      !(
-        name &&
-        age &&
-        guardianName &&
-        guardianContact &&
-        guardianEmail &&
-        city &&
-        mobileUsageHours &&
-        primaryActivityOnMobile &&
-        isTimeRestricted &&
-        restrictionType &&
-        concernsUser &&
-        behavioralChanges &&
-        physicalActivityHours &&
-        confessionFrequency &&
-        appliedWorkshop
-      )
-    ) {
-      return errorResponse(res, 404, messageHelper.BAD_REQUEST);
-    }
 
-    const formData = await saveFormToDB(
-      name,
-      age,
-      guardianName,
-      guardianContact,
-      guardianEmail,
-      city,
-      mobileUsageHours,
-      primaryActivityOnMobile,
-      isTimeRestricted,
-      restrictionType,
-      concernsUser,
-      behavioralChanges,
-      physicalActivityHours,
-      confessionFrequency,
-      message,
-      appliedWorkshop
-    );
-    console.log(formData);
 
-    if (!formData) {
-      errorResponse(
-        res,
-        500,
-        "Something went wrong while saving workshop form"
-      );
-    }
-
-    successResponse(res, 200, messageHelper.FORM_SUBMITTED, formData);
+module.exports={
+  submitWorkshopForm:asyncHandler(async (req,res,next)=>{
+    console.log(req.body)
+   const{name,age,guardianName,guardianContact,guardianEmail,city,duration,workshop}=req.body
+   if(!name||!age||!guardianName||!guardianContact||!guardianEmail||!city||!duration||!workshop){
+     return errorResponse(res,400,messageHelper.BAD_REQUEST)
+   }
+   const EnquiryData = await saveWorkshopEnquiriesToDB({name,age,guardianName,guardianContact,guardianEmail,city,duration,workshop})
+   if(!EnquiryData){
+     return errorResponse(res,500,messageHelper.SOMETHING_WENT_WRONG)
+   }
+   return successResponse(res,200,messageHelper.FORM_SUBMITTED)
   }),
-  getWorkshopFormData: asyncHandler(async (req, res, next) => {
-    const {
-      limit,
-      skip,
-      sort,
-      city,
-      age,
-      mobileUsageHours,
-      mobileUsageLevel,
-      physicalActivityHours,
-    } = req.query;
-    const filter = {};
-    if (city) filter.city = city.toLowerCase();
-    if (age) filter.age = age;
-    if (mobileUsageHours) filter.mobileUsageHours = mobileUsageHours;
-    if (mobileUsageLevel) filter.mobileUsageLevel = mobileUsageLevel;
-    if (physicalActivityHours)
-      filter.physicalActivityHours = physicalActivityHours;
-
-    const data = await getDataFromDB(limit, skip, sort, filter);
-    if (!data) {
-      return errorResponse(
-        res,
-        500,
-        "Something went wrong while retrieving the data"
-      );
+  getWorkshopEnquiries:asyncHandler(async(req,res,next)=>{
+    const {search,page,limit} = req.query
+    const EnquiryData = await getWorkshopEnquiriesFromDB(search,page,limit)
+    console.log(EnquiryData,'oooooo')
+    if(!EnquiryData){
+      return errorResponse(res,500,messageHelper.SOMETHING_WENT_WRONG)
     }
-    successResponse(res, 200, "workshop data fetched successfully!", data);
+    return successResponse(res,200,messageHelper.ENQUIRY_DATA_FETCHED,EnquiryData)
   }),
-  getOneWorkshopData: asyncHandler(async (req, res, next) => {
-    const { workshopId } = req.params;
-    if (!workshopId) {
-      return errorResponse(res, 400, messageHelper.BAD_REQUEST);
+  getWorkshopEnquiriesById:asyncHandler(async(req,res,next)=>{
+    const {workshopId} = req.params
+    const EnquiryData = await getWorkshopEnquiriesByIdFromDB(workshopId)
+    if(!EnquiryData){
+      return errorResponse(res,404,messageHelper.ENQUIRY_NOT_FOUND)
     }
-    const workshop = await getSingleDataFromDB();
-  }),
-};
+    return successResponse(res,200,messageHelper.ENQUIRY_DATA_FETCHED,EnquiryData)
+  })
+}
