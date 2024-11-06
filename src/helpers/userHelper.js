@@ -11,6 +11,7 @@ module.exports = {
       phone_numbers,
       first_name,
       last_name,
+      public_metadata,
     } = data;
     console.log(id);
 
@@ -88,17 +89,30 @@ module.exports = {
       { ...user, role: role },
       { new: true }
     );
-    console.log("Modified User", modifiedUser)
+    console.log("Modified User", modifiedUser);
     return modifiedUser;
   },
 
-  getAllUser: async ({ search, sortField, sortOrder, page = 1, limit = 10 }) => {
+  getAllUser: async ({
+    search,
+    sortField,
+    sortOrder,
+    page = 1,
+    limit = 10,
+  }) => {
     try {
       const skip = (page - 1) * limit;
-      const searchRegex = new RegExp(search, 'i');
-      
+      const searchRegex = new RegExp(search, "i");
+
       const allUsers = await User.aggregate([
-        { $match: { $or: [{ name: { $regex: searchRegex } }, { email: { $regex: searchRegex } }] } },
+        {
+          $match: {
+            $or: [
+              { name: { $regex: searchRegex } },
+              { email: { $regex: searchRegex } },
+            ],
+          },
+        },
         {
           $project: {
             _id: 1,
@@ -107,29 +121,29 @@ module.exports = {
             name: 1,
             email: 1,
             phoneNumber: 1,
-            picture: 1
-          }
+            picture: 1,
+          },
         },
-        { $sort: { [sortField]: sortOrder === 'asc' ? 1 : -1 } },
+        { $sort: { [sortField]: sortOrder === "asc" ? 1 : -1 } },
         { $skip: skip },
-        { $limit: Number(limit) }
+        { $limit: Number(limit) },
       ]);
 
       const totalCount = await User.countDocuments({
         $or: [
           { name: { $regex: searchRegex } },
-          { email: { $regex: searchRegex } }
-        ]
+          { email: { $regex: searchRegex } },
+        ],
       });
 
       return {
         users: allUsers,
         totalCount,
-        totalPages: Math.ceil(totalCount / limit)
+        totalPages: Math.ceil(totalCount / limit),
       };
     } catch (error) {
       console.error(error);
-      throw new Error('Error fetching users from database');
+      throw new Error("Error fetching users from database");
     }
   },
 
@@ -144,9 +158,9 @@ module.exports = {
           name: 1,
           email: 1,
           phoneNumber: 1,
-          picture: 1
-        }
-      }
+          picture: 1,
+        },
+      },
     ]);
     return user;
   },
