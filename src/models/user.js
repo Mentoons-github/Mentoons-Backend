@@ -33,7 +33,6 @@ const UserSchema = new mongoose.Schema({
     },
     validUntil: {
       type: Date,
-      required: true,
     },
   },
   activeSession: {
