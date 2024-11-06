@@ -33,10 +33,14 @@ const UserSchema = new mongoose.Schema({
     },
     validUntil: {
       type: Date,
+      required: true,
+      default: null,
     },
   },
   activeSession: {
     type: Date,
+    required: true,
+    default: new Date.now(),
   },
   userActivityPerDay: {
     type: Number,
