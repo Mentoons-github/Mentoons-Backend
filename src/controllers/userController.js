@@ -136,7 +136,10 @@ module.exports = {
     });
   }), 
   changeRoleController: asyncHandler(async (req, res) => {
-    const { superAdminUserId, userId, role } = req.body;
+   
+    const { userId } = req.params
+    const { role } = req.body;
+    const { superAdminUserId } = req.auth;
     const modifiedUser = await userHelper.changeRole(superAdminUserId, userId, role)
     if (!modifiedUser) {
       return errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR)
