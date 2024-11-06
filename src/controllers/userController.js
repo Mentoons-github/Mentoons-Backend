@@ -139,7 +139,7 @@ module.exports = {
     const { superAdminUserId, userId, role } = req.body;
     const modifiedUser = await userHelper.changeRole(superAdminUserId, userId, role)
     if (!modifiedUser) {
-      return error(res, 500, messageHelper.INTERNAL_SERVER_ERROR)
+      return errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR)
     }
     return successResponse(modifiedUser, 200, "Successfully changed user role.")
   }),
