@@ -40,7 +40,7 @@ const UserSchema = new mongoose.Schema({
   activeSession: {
     type: Date,
     required: true,
-    default: new Date.now(),
+    default: Date,
   },
   userActivityPerDay: {
     type: Number,
