@@ -69,23 +69,23 @@ module.exports = {
 
     return deletedUser;
   },
-  changeRole: async (superAdminUserId, userId, role) => {
+  changeRole: async (superAdminUserId, user_id, role) => {
     const superAdminUser = await User.findOne({
       _id: superAdminUserId,
       role: "super-admin",
     });
     if (!superAdminUser) {
-      throw new Error("Unauthorize");
+      throw new Error();
     }
 
-    const user = await User.findOne({ _id: userId });
+    const user = await User.findOne({ _id: user_id });
 
     if (!user) {
       throw new Error("User not found");
     }
 
     const modifiedUser = await User.findOneAndUpdate(
-      { _id: userId },
+      { _id: user_id },
       { ...user, role: role },
       { new: true }
     );

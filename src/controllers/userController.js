@@ -12,7 +12,7 @@ module.exports = {
     const { phoneNumber } = req.body;
 
     // Validate required fields
-    if (!phoneNumber ) {
+    if (!phoneNumber) {
       errorResponse(res, 400, messageHelper.MISSING_REQUIRED_FIELDS);
     }
 
@@ -21,7 +21,9 @@ module.exports = {
       return errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR);
     }
 
-    return successResponse(res, 200, messageHelper.OTP_SENT_SUCCESSFULLY, { result});
+    return successResponse(res, 200, messageHelper.OTP_SENT_SUCCESSFULLY, {
+      result,
+    });
   }),
 
   loginController: asyncHandler(async (req, res) => {
@@ -36,12 +38,12 @@ module.exports = {
       return errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR);
     }
     console.log("Login result", result);
-    successResponse(res, 200, messageHelper.OTP_SENT_SUCCESSFULLY,result);
+    successResponse(res, 200, messageHelper.OTP_SENT_SUCCESSFULLY, result);
   }),
 
   verifyUserRegistrationController: asyncHandler(async (req, res) => {
     const { otp, phoneNumber } = req.body;
-    console.log(otp,'popooppo')
+    console.log(otp, "popooppo");
     if (!otp) {
       return errorResponse(res, 400, messageHelper.MISSING_REQUIRED_FIELDS);
     }
@@ -51,16 +53,26 @@ module.exports = {
       return errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR);
     }
 
-    const accessToken = Auth.createAccessToken({ phoneNumber }, process.env.ACCESS_TOKEN_SECRET);
-    const refreshToken = Auth.createRefreshToken({ phoneNumber }, process.env.REFRESH_TOKEN_SECRET);
+    const accessToken = Auth.createAccessToken(
+      { phoneNumber },
+      process.env.ACCESS_TOKEN_SECRET
+    );
+    const refreshToken = Auth.createRefreshToken(
+      { phoneNumber },
+      process.env.REFRESH_TOKEN_SECRET
+    );
 
-    return successResponse(res, 200, messageHelper.SUCCESSFULLY_REGISTERED_USER, { result, accessToken, refreshToken });
+    return successResponse(
+      res,
+      200,
+      messageHelper.SUCCESSFULLY_REGISTERED_USER,
+      { result, accessToken, refreshToken }
+    );
   }),
 
   verifyUserLoginController: asyncHandler(async (req, res) => {
     const { otp, phoneNumber } = req.body;
     const token = req.headers.authorization?.split(" ")[1];
-
 
     if (!otp) {
       return errorResponse(res, 400, messageHelper.MISSING_REQUIRED_FIELDS);
@@ -71,16 +83,26 @@ module.exports = {
       return errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR);
     }
 
-    const accessToken = Auth.createAccessToken({ phoneNumber }, process.env.ACCESS_TOKEN_SECRET);
-    const refreshToken = Auth.createRefreshToken({ phoneNumber }, process.env.REFRESH_TOKEN_SECRET);
+    const accessToken = Auth.createAccessToken(
+      { phoneNumber },
+      process.env.ACCESS_TOKEN_SECRET
+    );
+    const refreshToken = Auth.createRefreshToken(
+      { phoneNumber },
+      process.env.REFRESH_TOKEN_SECRET
+    );
 
-    return successResponse(res, 200, messageHelper.SUCCESSFULLY_LOGGED_USER, { result, accessToken, refreshToken });
+    return successResponse(res, 200, messageHelper.SUCCESSFULLY_LOGGED_USER, {
+      result,
+      accessToken,
+      refreshToken,
+    });
   }),
- 
+
   logoutController: asyncHandler(async (req, res) => {
-    const {phoneNumber} = req.body
+    const { phoneNumber } = req.body;
     const token = req.headers.authorization?.split(" ")[1];
-    console.log(token)
+    console.log(token);
     if (!token) {
       return errorResponse(res, 400, messageHelper.MISSING_REQUIRED_FIELDS);
     }
@@ -90,7 +112,12 @@ module.exports = {
     if (!result) {
       return errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR);
     }
-    return successResponse(res, 200, messageHelper.SUCCESSFULLY_LOGOUT_USER, result);
+    return successResponse(
+      res,
+      200,
+      messageHelper.SUCCESSFULLY_LOGOUT_USER,
+      result
+    );
   }),
 
   refreshTokenController: asyncHandler(async (req, res) => {
@@ -100,9 +127,17 @@ module.exports = {
     }
 
     try {
-      const decoded = Auth.verifyToken(refreshToken, process.env.REFRESH_TOKEN_SECRET);
-      const accessToken = Auth.createAccessToken({ phoneNumber: decoded.phoneNumber }, process.env.ACCESS_TOKEN_SECRET);
-      return successResponse(res, 200, messageHelper.TOKEN_REFRESHED, { accessToken });
+      const decoded = Auth.verifyToken(
+        refreshToken,
+        process.env.REFRESH_TOKEN_SECRET
+      );
+      const accessToken = Auth.createAccessToken(
+        { phoneNumber: decoded.phoneNumber },
+        process.env.ACCESS_TOKEN_SECRET
+      );
+      return successResponse(res, 200, messageHelper.TOKEN_REFRESHED, {
+        accessToken,
+      });
     } catch (error) {
       return errorResponse(res, 401, messageHelper.INVALID_REFRESH_TOKEN);
     }
@@ -134,17 +169,25 @@ module.exports = {
     return successResponse(res, 200, premiumResult.message, {
       premiumEndDate: premiumResult.premiumEndDate,
     });
-  }), 
+  }),
   changeRoleController: asyncHandler(async (req, res) => {
-   
-    const { userId } = req.params
+    const { user_id } = req.params;
     const { role } = req.body;
-    const { superAdminUserId } = req.auth;
-    const modifiedUser = await userHelper.changeRole(superAdminUserId, userId, role)
+    const { superAdminUserId: userId } = req.auth.userId;
+
+    const modifiedUser = await userHelper.changeRole(
+      superAdminUserId,
+      user_id,
+      role
+    );
     if (!modifiedUser) {
-      return errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR)
+      return errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR);
     }
-    return successResponse(modifiedUser, 200, "Successfully changed user role.")
+    return successResponse(
+      modifiedUser,
+      200,
+      "Successfully changed user role."
+    );
   }),
 
   getAllUsersController: asyncHandler(async (req, res) => {
@@ -154,11 +197,13 @@ module.exports = {
       sortField,
       sortOrder,
       page: parseInt(page),
-      limit: parseInt(limit)
+      limit: parseInt(limit),
     };
 
-    const { users, totalCount, totalPages } = await userHelper.getAllUser(queryOptions);
-    
+    const { users, totalCount, totalPages } = await userHelper.getAllUser(
+      queryOptions
+    );
+
     if (!users) {
       return errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR);
     }
@@ -167,35 +212,35 @@ module.exports = {
       users,
       currentPage: queryOptions.page,
       totalPages,
-      totalCount
+      totalCount,
     });
   }),
 
   getUserController: asyncHandler(async (req, res, next) => {
-    const { userId } = req.params
+    const { userId } = req.params;
     if (!userId) {
-      return errorResponse(res, 400,"Id is required",userId)
+      return errorResponse(res, 400, "Id is required", userId);
     }
-    const user = await userHelper.getUser(userId)
+    const user = await userHelper.getUser(userId);
     if (!user) {
-      return errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR,user)
+      return errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR, user);
     }
-    return successResponse(res, 200,"Successfully fetched user",user)
+    return successResponse(res, 200, "Successfully fetched user", user);
   }),
   DeleteUserClerkController: asyncHandler(async (req, res) => {
-    const { userId } = req.params
+    const { userId } = req.params;
     const clerkSecretKey = process.env.CLERK_SECRET_KEY;
     const response = await fetch(`https://api.clerk.com/v1/users/${userId}`, {
-      method: 'DELETE',
+      method: "DELETE",
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${clerkSecretKey}`,
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${clerkSecretKey}`,
       },
     });
     if (!response.ok) {
-      return errorResponse(res, 500, "Failed to delete user")
+      return errorResponse(res, 500, "Failed to delete user");
     }
     const data = await response.json();
     return successResponse(res, 200, "Successfully deleted user", data);
-  })
+  }),
 };
