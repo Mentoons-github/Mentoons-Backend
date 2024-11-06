@@ -10,6 +10,7 @@ const {
   getAllUsersController,
   getUserController,
   DeleteUserClerkController,
+  changeRoleController,
 } = require("../controllers/userController.js");
 const { isSuperAdminOrAdmin } = require("../middlewares/authMiddleware.js");
 
@@ -20,6 +21,7 @@ router.post("/login", loginController);
 router.post("/login/verify", verifyUserLoginController);
 router.post("/logout", logoutController);
 router.post("/premium", premiumController);
+router.post("/update-role", requireAuth({signInUrl:"/sign-in"}), changeRoleController);
 router.get(
   "/all-users",
   requireAuth({ signInUrl: "/sign-in" }),
