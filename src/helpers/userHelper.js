@@ -71,7 +71,7 @@ module.exports = {
   },
   changeRole: async (superAdminUserId, user_id, role) => {
     const superAdminUser = await User.findOne({
-      _id: superAdminUserId,
+      clerkId: superAdminUserId,
       role: "super-admin",
     });
     if (!superAdminUser) {
@@ -79,14 +79,13 @@ module.exports = {
     }
 
     const user = await User.findOne({ _id: user_id });
-
     if (!user) {
-      throw new Error("User not found");
+      throw new Error();
     }
 
     const modifiedUser = await User.findOneAndUpdate(
       { _id: user_id },
-      { ...user, role: role },
+      { role: role },
       { new: true }
     );
     console.log("Modified User", modifiedUser);

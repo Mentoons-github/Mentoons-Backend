@@ -170,11 +170,17 @@ module.exports = {
       premiumEndDate: premiumResult.premiumEndDate,
     });
   }),
-  changeRoleController: asyncHandler(async (req, res) => {
+  changeRoleController: asyncHandler(async (req, res,next) => {
     const { user_id } = req.params;
     const { role } = req.body;
-    const { superAdminUserId: userId } = req.auth.userId;
+    const { userId } = req.auth;
+    const superAdminUserId = userId;
+    console.log(req.body, 'req.body')
+    console.log(superAdminUserId, user_id, role, 'superAdminUserId, user_id, role')
 
+    if(!superAdminUserId || !user_id || !role){
+      return errorResponse(res, 400, messageHelper.BAD_REQUEST);
+    }
     const modifiedUser = await userHelper.changeRole(
       superAdminUserId,
       user_id,
@@ -184,9 +190,9 @@ module.exports = {
       return errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR);
     }
     return successResponse(
-      modifiedUser,
+      res,
       200,
-      "Successfully changed user role."
+      "Successfully changed user role.", modifiedUser,
     );
   }),
 
