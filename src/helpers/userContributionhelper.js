@@ -4,14 +4,16 @@ const UserContributedPodcast = require("../models/userContributedPodcast");
 const mongoose = require("mongoose");
 
 module.exports = {
-  addUserContributedPodcast: async (data) => {
+  addUserContributedPodcast: async (data,userId) => {
+    const clerkId = userId
     try {
-      const user = await User.find({ clerkId: data.userId });
+      const user = await User.find({ clerkId });
 
       if (!user) {
         throw new Error("User Not Register");
       }
-      const newPodcastContribution = new UserContributedPodcast(data);
+      console.log(data,clerkId)
+      const newPodcastContribution = new UserContributedPodcast({...data,clerkId});
 
       await newPodcastContribution.save();
       return newPodcastContribution;

@@ -4,11 +4,12 @@ const { addUserContributedPodcast } = require("../controllers/userContributedPod
 
 
 const { authMiddleware} = require("../middlewares/authMiddleware");
+const { requireAuth } = require("@clerk/express");
 
 
 const router = express.Router();
 
-router.route("/").post(authMiddleware, addUserContributedPodcast);
+router.route("/").post(requireAuth({ signInUrl: "/sign-in" }), addUserContributedPodcast);
 
 
 module.exports = router;

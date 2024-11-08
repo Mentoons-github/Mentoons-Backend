@@ -13,6 +13,7 @@ const whatsappRoutes = require("./src/routes/whatsapp.js");
 const adminRoutes = require("./src/routes/admin.js");
 const uploadRoutes = require("./src/routes/upload.js");
 const careerRoutes = require("./src/routes/career");
+const userContributedPodcastRoutes = require("./src/routes/userContributionRoute.js");
 // const webhookRoutes = require("./src/routes/webhook.js");
 
 const { Webhook, WebhookVerificationError } = require("svix");
@@ -126,6 +127,7 @@ app.use("/api/v1/admin", adminRoutes);
 app.use("/api/v1/upload", upload.single("file"), uploadRoutes);
 app.use("/api/v1/career", careerRoutes);
 app.use("/api/v1/dashboard", dashboardRoutes);
+app.use("/api/v1/userContribution", userContributedPodcastRoutes);
 
 app.use("*", (req, res, next) => {
   const url = req.originalUrl;

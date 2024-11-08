@@ -11,7 +11,6 @@ module.exports = {
 
     const data = {
       ...req.body,
-      userId,
     };
 
     const {
@@ -20,10 +19,14 @@ module.exports = {
       age,
       location,
       topic,
-      descripiton,
+      description,
       audiofile,
       thumbnail,
+      category,
     } = data;
+
+console.log(data,'pp');
+
 
     if (
       !name ||
@@ -31,15 +34,15 @@ module.exports = {
       !age ||
       !location ||
       !topic ||
-      !descripiton ||
+      !description ||
       !audiofile ||
-      !userId
+      !category
     ) {
       return errorResponse(res, 400, messageHelper.BAD_REQUEST);
     }
 
     const newUserContributedPodcast =
-      await userContributionHelper.addUserContributedPodcast(data);
+      await userContributionHelper.addUserContributedPodcast(data,userId);
 
     successResponse(
       res,
