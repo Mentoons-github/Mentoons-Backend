@@ -78,7 +78,8 @@ module.exports = {
       throw new Error();
     }
 
-    const user = await User.findOne({ _id: user_id });
+    const user = await User.findOne({ _id: user_id, rols });
+
     if (!user) {
       throw new Error();
     }

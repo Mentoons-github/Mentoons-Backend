@@ -31,6 +31,10 @@ const UserSchema = new mongoose.Schema({
       enum: ["active", "cancelled"],
       default: "active",
     },
+    startDate: {
+      type: Date,
+      required: true
+    },
     validUntil: {
       type: Date,
       required: true,
