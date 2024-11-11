@@ -27,13 +27,17 @@ const productSchema = new mongoose.Schema(
       required: [true, "Product Sample is required"],
     },
     productFile: {
-        type: String,
-        required: [true, 'Product Sample is required']
+      type: String,
+      required: [true, 'Product Sample is required']
     },
     viewsCount: {
       type: Number,
       default: 0,
     },
+    author: {
+      type: String,
+      required: [true, "Author name is required"],
+    }
   },
   {
     timestamps: true,

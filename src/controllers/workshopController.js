@@ -1,38 +1,49 @@
 const asyncHandler = require("../utils/asyncHandler");
 const messageHelper = require("../utils/messageHelper");
 const { errorResponse, successResponse } = require("../utils/responseHelper");
-const { saveWorkshopEnquiriesToDB, getWorkshopEnquiriesFromDB, getWorkshopEnquiriesByIdFromDB } = require("../helpers/workshopHelper");
+const { saveWorkshopEnquiriesToDB, getWorkshopEnquiriesFromDB, getWorkshopEnquiriesByIdFromDB, saveCallRequestToDB } = require("../helpers/workshopHelper");
 
 
 
-module.exports={
-  submitWorkshopForm:asyncHandler(async (req,res,next)=>{
+module.exports = {
+  submitWorkshopForm: asyncHandler(async (req, res, next) => {
     console.log(req.body)
-   const{name,age,guardianName,guardianContact,guardianEmail,city,duration,workshop}=req.body
-   if(!name||!age||!guardianName||!guardianContact||!guardianEmail||!city||!duration||!workshop){
-     return errorResponse(res,400,messageHelper.BAD_REQUEST)
-   }
-   const EnquiryData = await saveWorkshopEnquiriesToDB({name,age,guardianName,guardianContact,guardianEmail,city,duration,workshop})
-   if(!EnquiryData){
-     return errorResponse(res,500,messageHelper.SOMETHING_WENT_WRONG)
-   }
-   return successResponse(res,200,messageHelper.FORM_SUBMITTED)
-  }),
-  getWorkshopEnquiries:asyncHandler(async(req,res,next)=>{
-    const {search,page,limit} = req.query
-    const EnquiryData = await getWorkshopEnquiriesFromDB(search,page,limit)
-    console.log(EnquiryData,'oooooo')
-    if(!EnquiryData){
-      return errorResponse(res,500,messageHelper.SOMETHING_WENT_WRONG)
+    const { name, age, guardianName, guardianContact, guardianEmail, city, duration, workshop } = req.body
+    if (!name || !age || !guardianName || !guardianContact || !guardianEmail || !city || !duration || !workshop) {
+      return errorResponse(res, 400, messageHelper.BAD_REQUEST)
     }
-    return successResponse(res,200,messageHelper.ENQUIRY_DATA_FETCHED,EnquiryData)
+    const EnquiryData = await saveWorkshopEnquiriesToDB({ name, age, guardianName, guardianContact, guardianEmail, city, duration, workshop })
+    if (!EnquiryData) {
+      return errorResponse(res, 500, messageHelper.SOMETHING_WENT_WRONG)
+    }
+    return successResponse(res, 200, messageHelper.FORM_SUBMITTED)
   }),
-  getWorkshopEnquiriesById:asyncHandler(async(req,res,next)=>{
-    const {workshopId} = req.params
+  getWorkshopEnquiries: asyncHandler(async (req, res, next) => {
+    const { search, page, limit } = req.query
+    const EnquiryData = await getWorkshopEnquiriesFromDB(search, page, limit)
+    console.log(EnquiryData, 'oooooo')
+    if (!EnquiryData) {
+      return errorResponse(res, 500, messageHelper.SOMETHING_WENT_WRONG)
+    }
+    return successResponse(res, 200, messageHelper.ENQUIRY_DATA_FETCHED, EnquiryData)
+  }),
+  getWorkshopEnquiriesById: asyncHandler(async (req, res, next) => {
+    const { workshopId } = req.params
     const EnquiryData = await getWorkshopEnquiriesByIdFromDB(workshopId)
-    if(!EnquiryData){
-      return errorResponse(res,404,messageHelper.ENQUIRY_NOT_FOUND)
+    if (!EnquiryData) {
+      return errorResponse(res, 404, messageHelper.ENQUIRY_NOT_FOUND)
     }
-    return successResponse(res,200,messageHelper.ENQUIRY_DATA_FETCHED,EnquiryData)
+    return successResponse(res, 200, messageHelper.ENQUIRY_DATA_FETCHED, EnquiryData)
+  }),
+  submitCallRequest: asyncHandler(async (req, res, next) => {
+    const { name, phone } = req.body
+    if (!name || !phone) {
+      return errorResponse(res, 400, messageHelper.BAD_REQUEST)
+    }
+    const callRequestData = await saveCallRequestToDB({ name, phone })
+    if (!callRequestData) {
+      return errorResponse(res, 500, messageHelper.SOMETHING_WENT_WRONG)
+    }
+    return successResponse(res, 200, messageHelper.CALL_REQUEST_SUBMITTED, callRequestData)
   })
 }

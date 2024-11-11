@@ -1,3 +1,4 @@
+const requestCall = require("../models/requestCall")
 const workshopEnquiries = require("../models/workshopEnquiries")
 const mongoose = require("mongoose")
 module.exports={
@@ -81,6 +82,15 @@ module.exports={
       return null
     }
     return enquiryData[0]
+    } catch (error) {
+      throw new Error(error.message)
+    }
+  },
+  saveCallRequestToDB:async({name,phone})=>{
+    try {
+      const callRequest = new requestCall({name,phone})
+      const savedCallRequest = await callRequest.save()
+      return savedCallRequest
     } catch (error) {
       throw new Error(error.message)
     }

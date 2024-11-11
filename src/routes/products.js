@@ -7,12 +7,11 @@ const {
   deleteProduct,
   getTrendingProducts,
 } = require("../controllers/productController");
-const { authMiddleware } = require("../middlewares/authMiddleware");
 
 const router = express.Router();
 
 router.route("/")
-  .post(authMiddleware, addProduct)
+  .post(addProduct)
   .get(getAllProducts);
 
 router.route("/trending")
@@ -20,8 +19,8 @@ router.route("/trending")
 
 router.route("/:productId")
   .get(getProduct)
-  .patch(authMiddleware, editProduct)
-  .delete(authMiddleware, deleteProduct);
+  .patch(editProduct)
+  .delete(deleteProduct);
 
 
 module.exports = router;

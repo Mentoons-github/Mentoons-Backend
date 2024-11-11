@@ -5,11 +5,11 @@ const { errorResponse, successResponse } = require('../utils/responseHelper')
 
 module.exports = {
     addProduct: asyncHandler(async (req, res, next) => {
-        const { productTitle, productDescription, productCategory, productThumbnail, productSample, productFile } = req.body
-        if (!productTitle || !productDescription || !productCategory || !productThumbnail || !productSample || !productFile) {
+        const { productTitle, productDescription, productCategory, productThumbnail, productSample, productFile, author } = req.body
+        if (!productTitle || !productDescription || !productCategory || !productThumbnail || !productSample || !productFile || !author) {
             return errorResponse(res, 400, messageHelper.BAD_REQUEST)
         }
-        const data = await productHelpers.addProductToDB({ productTitle, productDescription, productCategory, productThumbnail, productSample, productFile })
+        const data = await productHelpers.addProductToDB({ productTitle, productDescription, productCategory, productThumbnail, productSample, productFile, author })
         successResponse(res, 200, messageHelper.PRODUCT_CREATED, data)
     }),
 
@@ -33,8 +33,8 @@ module.exports = {
 
     editProduct: asyncHandler(async (req, res, next) => {
         const { productId } = req.params
-        const { productTitle, productDescription, productCategory, productThumbnail, productSample, productFile } = req.body
-        const updatedProduct = await productHelpers.editProductFromDB(productTitle, productDescription, productCategory, productThumbnail, productSample, productFile, productId)
+        const { productTitle, productDescription, productCategory, productThumbnail, productSample, productFile, author } = req.body
+        const updatedProduct = await productHelpers.editProductFromDB(productTitle, productDescription, productCategory, productThumbnail, productSample, productFile, author, productId)
         if (!updatedProduct) {
             return errorResponse(res, 404, messageHelper.PRODUCT_NOT_FOUND)
         }
