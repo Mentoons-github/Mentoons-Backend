@@ -2,7 +2,7 @@ const Product = require('../models/products')
 const mongoose = require('mongoose')
 
 module.exports = {
-    addProductToDB: async ({ productTitle, productDescription, productCategory, productThumbnail, productSample, productFile }) => {
+    addProductToDB: async ({ productTitle, productDescription, productCategory, productThumbnail, productSample, productFile, author }) => {
         try {
             const newProduct = new Product({
                 productTitle,
@@ -10,7 +10,8 @@ module.exports = {
                 productCategory,
                 productThumbnail,
                 productSample,
-                productFile
+                productFile,
+                author
             })
             const saveProduct = await newProduct.save()
             return saveProduct
@@ -36,7 +37,8 @@ module.exports = {
                         productCategory: 1,
                         productThumbnail: 1,
                         productSample: 1,
-                        productFile: 1
+                        productFile: 1,
+                        author: 1,
                     }
                 },
                 { $sort: { createdAt: -1 } },
@@ -82,6 +84,7 @@ module.exports = {
                         productSample: 1,
                         productFile: 1,
                         viewsCount:1,
+                        author: 1,
                     }
                 },
             ])
@@ -96,7 +99,7 @@ module.exports = {
         }
     },
 
-    editProductFromDB: async (productTitle, productDescription, productCategory, productThumbnail, productSample, productFile, productId) => {
+    editProductFromDB: async (productTitle, productDescription, productCategory, productThumbnail, productSample, productFile, author, productId) => {
         try {
             const updateData = {
                 productTitle,
@@ -105,6 +108,7 @@ module.exports = {
                 productThumbnail,
                 productSample,
                 productFile,
+                author
             }
             const objectId = new mongoose.Types.ObjectId(productId)
             const updatedProduct = await Product.findByIdAndUpdate(
@@ -149,6 +153,7 @@ module.exports = {
                         productThumbnail: 1,
                         productSample: 1,
                         productFile: 1,
+                        author: 1,
                     }
                 }
             ]);

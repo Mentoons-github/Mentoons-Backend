@@ -14,6 +14,7 @@ const adminRoutes = require("./src/routes/admin.js");
 const uploadRoutes = require("./src/routes/upload.js");
 const careerRoutes = require("./src/routes/career");
 const userContributedPodcastRoutes = require("./src/routes/userContributionRoute.js");
+const callRequestRoutes = require("./src/routes/callRequests.js");
 // const webhookRoutes = require("./src/routes/webhook.js");
 
 const { Webhook, WebhookVerificationError } = require("svix");
@@ -128,6 +129,7 @@ app.use("/api/v1/upload", upload.single("file"), uploadRoutes);
 app.use("/api/v1/career", careerRoutes);
 app.use("/api/v1/dashboard", dashboardRoutes);
 app.use("/api/v1/userContribution", userContributedPodcastRoutes);
+app.use("/api/v1/call-requests", callRequestRoutes);
 
 app.use("*", (req, res, next) => {
   const url = req.originalUrl;
