@@ -8,6 +8,11 @@ const requestCallSchema = new mongoose.Schema({
     phone: {
         type: String,
         required: [true, "Phone is required"]
+    },
+    status: {
+        type: String,
+        enum: ["awaiting outreach", "reached out", "converted to lead", "conversion unsuccessful"],
+        default: "awaiting outreach"
     }
 }, { timestamps: true })
 

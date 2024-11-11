@@ -1,7 +1,7 @@
 const asyncHandler = require("../utils/asyncHandler");
 const messageHelper = require("../utils/messageHelper");
 const { errorResponse, successResponse } = require("../utils/responseHelper");
-const { saveWorkshopEnquiriesToDB, getWorkshopEnquiriesFromDB, getWorkshopEnquiriesByIdFromDB, saveCallRequestToDB } = require("../helpers/workshopHelper");
+const { saveWorkshopEnquiriesToDB, getWorkshopEnquiriesFromDB, getWorkshopEnquiriesByIdFromDB, saveCallRequestToDB, getAllCallRequestFromDB, editCallRequestStatusFromDB, getCallRequestByIdFromDB } = require("../helpers/workshopHelper");
 
 
 
@@ -45,5 +45,30 @@ module.exports = {
       return errorResponse(res, 500, messageHelper.SOMETHING_WENT_WRONG)
     }
     return successResponse(res, 200, messageHelper.CALL_REQUEST_SUBMITTED, callRequestData)
-  })
+  }),
+  getAllCallRequests: asyncHandler(async (req, res, next) => {
+    const { search, page, limit } = req.query
+    const callRequestData = await getAllCallRequestFromDB(search, page, limit)
+    if (!callRequestData) {
+      return errorResponse(res, 404, messageHelper.CALL_REQUEST_NOT_FOUND)
+    }
+    return successResponse(res, 200, messageHelper.CALL_REQUEST_DATA_FETCHED, callRequestData)  
+  }),
+  getCallRequestById: asyncHandler(async (req, res, next) => {
+    const { id } = req.params
+    const callRequestData = await getCallRequestByIdFromDB(id)
+    if (!callRequestData) {
+      return errorResponse(res, 404, messageHelper.CALL_REQUEST_NOT_FOUND)
+    }
+    return successResponse(res, 200, messageHelper.CALL_REQUEST_DATA_FETCHED, callRequestData)
+  }),
+  editCallRequestStatus: asyncHandler(async (req, res, next) => {
+    const { id } = req.params
+    const { status } = req.body
+    const callRequestData = await editCallRequestStatusFromDB(id, status)
+    if (!callRequestData) {
+      return errorResponse(res, 404, messageHelper.CALL_REQUEST_NOT_FOUND)
+    }
+    return successResponse(res, 200, messageHelper.CALL_REQUEST_STATUS_UPDATED, callRequestData)
+  })    
 }
