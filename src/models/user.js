@@ -4,9 +4,9 @@ const UserSchema = new mongoose.Schema({
   clerkId: { type: String, required: true },
   role: {
     type: String,
-    enum: ["admin", "super-admin", "user"],
+    enum: ["ADMIN", "SUPER-ADMIN", "USER"],
     required: true,
-    default: "user",
+    default: "USER",
   },
   name: {
     type: String,
