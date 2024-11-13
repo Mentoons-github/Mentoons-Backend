@@ -33,12 +33,15 @@ const UserSchema = new mongoose.Schema({
     },
     startDate: {
       type: Date,
-      required: true
+      required: true,
+      default: Date.now,
     },
     validUntil: {
       type: Date,
       required: true,
-      default: null,
+      default: function() {
+        return Date.now + 3 * 24 * 60 * 60 * 1000;
+      },
     },
   },
   activeSession: {
