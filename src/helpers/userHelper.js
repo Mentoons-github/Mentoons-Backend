@@ -34,6 +34,7 @@ module.exports = {
       first_name,
       last_name,
       phone_numbers,
+      public_metadata,
     } = data;
     console.log(id);
     const updatedUser = await User.findOneAndUpdate(
@@ -43,6 +44,7 @@ module.exports = {
         phoneNumber: phone_numbers[0]?.phone_number,
         email: email_addresses[0]?.email_address,
         picture: image_url,
+        role: public_metadata.role,
       },
       {
         new: true,
@@ -78,7 +80,7 @@ module.exports = {
       throw new Error();
     }
 
-    const user = await User.findOne({ _id: user_id, rols });
+    const user = await User.findOne({ _id: user_id, role: { $ne: "super-admin" } });
 
     if (!user) {
       throw new Error();

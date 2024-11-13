@@ -175,8 +175,6 @@ module.exports = {
     const { role } = req.body;
     const { userId } = req.auth;
     const superAdminUserId = userId;
-    console.log(req.body, 'req.body')
-    console.log(superAdminUserId, user_id, role, 'superAdminUserId, user_id, role')
 
     if(!superAdminUserId || !user_id || !role){
       return errorResponse(res, 400, messageHelper.BAD_REQUEST);
