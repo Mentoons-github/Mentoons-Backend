@@ -40,7 +40,7 @@ const UserSchema = new mongoose.Schema({
       type: Date,
       required: true,
       default: function() {
-        return Date.now + 3 * 24 * 60 * 60 * 1000;
+        return new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
       },
     },
   },
