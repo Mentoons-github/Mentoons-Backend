@@ -247,4 +247,5 @@ module.exports = {
     const data = await response.json();
     return successResponse(res, 200, "Successfully deleted user", data);
   }),
+
 };

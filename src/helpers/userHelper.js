@@ -1,3 +1,4 @@
+require("dotenv").config();
 const { default: mongoose } = require("mongoose");
 const User = require("../models/user");
 
@@ -11,9 +12,8 @@ module.exports = {
       phone_numbers,
       first_name,
       last_name,
-      public_metadata,
     } = data;
-    console.log(id);
+    console.log(id, 'id');
 
     const newUser = await User.create({
       clerkId: id,
@@ -72,26 +72,31 @@ module.exports = {
     return deletedUser;
   },
   changeRole: async (superAdminUserId, user_id, role) => {
+    console.log(superAdminUserId, user_id, role, 'superAdminUserId, user_id, role') 
     const superAdminUser = await User.findOne({
       clerkId: superAdminUserId,
-      role: "super-admin",
+      role: "SUPER-ADMIN",
     });
     if (!superAdminUser) {
-      throw new Error();
+        throw new Error('Super Admin not found')
     }
 
-    const user = await User.findOne({ _id: user_id, role: { $ne: "super-admin" } });
-
-    if (!user) {
-      throw new Error();
-    }
-
-    const modifiedUser = await User.findOneAndUpdate(
-      { _id: user_id },
-      { role: role },
-      { new: true }
-    );
-    console.log("Modified User", modifiedUser);
+    const user = await User.findOne({ clerkId: user_id, role: { $ne: "SUPER-ADMIN" } });
+   console.log(user, 'user')
+    // if (!user) {
+    //   throw new Error('User not found')
+    // }
+    const modifiedUser = await fetch(`https://api.clerk.com/v1/users/${user_id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.CLERK_SECRET_KEY}`,
+      },
+      body: JSON.stringify({
+        public_metadata: { role: role },
+      }),
+    })
+   console.log(modifiedUser, 'modifiedUser')
     return modifiedUser;
   },
 
