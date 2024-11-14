@@ -1,4 +1,5 @@
 const requestCall = require("../models/requestCall")
+const User = require("../models/user")
 const workshopEnquiries = require("../models/workshopEnquiries")
 const mongoose = require("mongoose")
 module.exports = {
@@ -151,6 +152,24 @@ module.exports = {
     try {
       const callRequestData = await requestCall.findByIdAndUpdate(id, { status }, { new: true })
       return callRequestData
+    } catch (error) {
+      throw new Error(error.message)
+    }
+  },
+  assignCallsToUserFromDB: async (userId, callIds) => {
+    try {
+      const objectId = new mongoose.Types.ObjectId(userId)
+      const isAdmin = await User.findOne({ _id: objectId, role: "ADMIN" })
+      if (!isAdmin) {
+        throw new Error("User is not an admin")
+      }
+      
+      if (!Array.isArray(callIds)) {
+        callIds = [callIds]
+      }
+
+      const updatedUser = await User.findByIdAndUpdate(objectId, { $push: { assignedCalls: { $each: callIds } } }, { new: true })
+      return updatedUser
     } catch (error) {
       throw new Error(error.message)
     }

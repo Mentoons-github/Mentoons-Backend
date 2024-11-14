@@ -83,9 +83,9 @@ module.exports = {
 
     const user = await User.findOne({ clerkId: user_id, role: { $ne: "SUPER-ADMIN" } });
    console.log(user, 'user')
-    // if (!user) {
-    //   throw new Error('User not found')
-    // }
+    if (!user) {
+      throw new Error('User not found')
+    }
     const modifiedUser = await fetch(`https://api.clerk.com/v1/users/${user_id}`, {
       method: "PATCH",
       headers: {

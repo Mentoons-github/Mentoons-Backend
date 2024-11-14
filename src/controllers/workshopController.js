@@ -1,7 +1,7 @@
 const asyncHandler = require("../utils/asyncHandler");
 const messageHelper = require("../utils/messageHelper");
 const { errorResponse, successResponse } = require("../utils/responseHelper");
-const { saveWorkshopEnquiriesToDB, getWorkshopEnquiriesFromDB, getWorkshopEnquiriesByIdFromDB, saveCallRequestToDB, getAllCallRequestFromDB, editCallRequestStatusFromDB, getCallRequestByIdFromDB } = require("../helpers/workshopHelper");
+const { saveWorkshopEnquiriesToDB, getWorkshopEnquiriesFromDB, getWorkshopEnquiriesByIdFromDB, saveCallRequestToDB, getAllCallRequestFromDB, editCallRequestStatusFromDB, getCallRequestByIdFromDB, assignCallsToUserFromDB } = require("../helpers/workshopHelper");
 
 
 
@@ -84,5 +84,14 @@ module.exports = {
       return errorResponse(res, 404, messageHelper.CALL_REQUEST_NOT_FOUND)
     }
     return successResponse(res, 200, messageHelper.CALL_REQUEST_STATUS_UPDATED, callRequestData)
+  }),
+  assignCallsToUser: asyncHandler(async (req, res, next) => {
+    const { userId } = req.params;
+    const { callIds } = req.body;
+    const assignedCalls = await assignCallsToUserFromDB(userId, callIds)
+    if (!assignedCalls) {
+      return errorResponse(res, 404, messageHelper.CALL_REQUEST_NOT_FOUND)
+    }
+    return successResponse(res, 200, messageHelper.CALL_REQUEST_DATA_FETCHED, assignedCalls)
   })
 }

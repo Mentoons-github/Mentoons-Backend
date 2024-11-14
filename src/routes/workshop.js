@@ -4,7 +4,7 @@ const {
   getWorkshopEnquiries,
   getWorkshopEnquiriesById,
   submitCallRequest,
-  getAllCallRequests
+  getAllCallRequests,
 } = require("../controllers/workshopController");
 
 const router = express.Router();
@@ -12,7 +12,8 @@ const router = express.Router();
 router.route("/submit-form").post(submitWorkshopForm);
 router.route("/").get(getWorkshopEnquiries);
 router.route("/:workshopId").get(getWorkshopEnquiriesById);
-router.route("/submit-call-request").post(submitCallRequest);
-router.route("/call-requests").get(getAllCallRequests);
+// router.route("/submit-call-request").post(submitCallRequest);
+// router.route("/call-requests").get(getAllCallRequests);
+
 
 module.exports = router;

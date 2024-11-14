@@ -53,6 +53,12 @@ const UserSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  assignedCalls: {
+    type: Array,
+    default: [],
+    ref: 'RequestCall'
+  }
+
 });
 
 const User = mongoose.model("User", UserSchema);
