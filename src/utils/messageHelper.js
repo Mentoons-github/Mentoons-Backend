@@ -47,4 +47,5 @@ module.exports = {
   SOMETHING_WENT_WRONG: "Something went wrong",
   ENQUIRY_DATA_FETCHED: "Enquiry data fetched successfully",
   ENQUIRY_NOT_FOUND: "Enquiry not found",
+  CALL_REQUEST_SUBMITTED:"Call Request submitted Successfully"
 };
