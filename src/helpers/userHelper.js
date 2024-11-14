@@ -94,24 +94,33 @@ module.exports = {
   },
 
   getAllUser: async ({
-    search,
-    sortField,
-    sortOrder,
+    search = '',
+    sortField = 'createdAt',
+    sortOrder = 'desc',
     page = 1,
     limit = 10,
+    filter = {},
   }) => {
     try {
       const skip = (page - 1) * limit;
       const searchRegex = new RegExp(search, "i");
 
+      const matchConditions = {
+        $or: [
+          { name: { $regex: searchRegex } },
+          { email: { $regex: searchRegex } },
+        ],
+      };
+
+      if (filter.role && filter.role !== '') {
+        matchConditions.role = filter.role;
+      }
+
+      console.log('Match conditions:', JSON.stringify(matchConditions));
+
       const allUsers = await User.aggregate([
         {
-          $match: {
-            $or: [
-              { name: { $regex: searchRegex } },
-              { email: { $regex: searchRegex } },
-            ],
-          },
+          $match: matchConditions,
         },
         {
           $lookup: {
@@ -138,12 +147,7 @@ module.exports = {
         { $limit: Number(limit) },
       ]);
 
-      const totalCount = await User.countDocuments({
-        $or: [
-          { name: { $regex: searchRegex } },
-          { email: { $regex: searchRegex } },
-        ],
-      });
+      const totalCount = await User.countDocuments(matchConditions);
 
       return {
         users: allUsers,
@@ -151,8 +155,9 @@ module.exports = {
         totalPages: Math.ceil(totalCount / limit),
       };
     } catch (error) {
-      console.error(error);
-      throw new Error("Error fetching users from database");
+      console.error('Error in getAllUser:', error.message);
+      console.error('Stack trace:', error.stack);
+      throw new Error(`Error fetching users from database: ${error.message}`);
     }
   },
 

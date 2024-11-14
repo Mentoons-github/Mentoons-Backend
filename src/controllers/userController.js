@@ -196,13 +196,14 @@ module.exports = {
   }),
 
   getAllUsersController: asyncHandler(async (req, res) => {
-    const { search, sortField, sortOrder, page = 1, limit = 10 } = req.query;
+    const { search, sortField, sortOrder, page = 1, limit = 10, filter } = req.query;
     const queryOptions = {
       search,
       sortField,
       sortOrder,
       page: parseInt(page),
       limit: parseInt(limit),
+      filter: filter || {},
     };
 
     const { users, totalCount, totalPages } = await userHelper.getAllUser(
