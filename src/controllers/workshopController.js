@@ -87,8 +87,8 @@ module.exports = {
   }),
   assignCallsToUser: asyncHandler(async (req, res, next) => {
     const { userId } = req.params;
-    const { callIds } = req.body;
-    const assignedCalls = await assignCallsToUserFromDB(userId, callIds)
+    const { callId } = req.body;
+    const assignedCalls = await assignCallsToUserFromDB(userId, callId)
     if (!assignedCalls) {
       return errorResponse(res, 404, messageHelper.CALL_REQUEST_NOT_FOUND)
     }
