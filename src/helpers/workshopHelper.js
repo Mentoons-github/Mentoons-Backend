@@ -1,4 +1,5 @@
 const requestCall = require("../models/requestCall")
+const User = require("../models/user")
 const workshopEnquiries = require("../models/workshopEnquiries")
 const mongoose = require("mongoose")
 module.exports = {
@@ -98,21 +99,30 @@ module.exports = {
   getAllCallRequestFromDB: async (search, page = 1, limit = 10, id) => {
     try {
       const skip = (page - 1) * limit;
-          const searchRegex = new RegExp(search, 'i');  
+      const searchRegex = new RegExp(search, 'i');
       const callRequestData = await requestCall.aggregate([
         { $match: { $or: [{ name: { $regex: searchRegex } }, { phone: { $regex: searchRegex } }] } },
+        {
+          $lookup: {
+            from: "users",
+            localField: "assignedTo",
+            foreignField: "_id",
+            as: "assignedTo",
+          },
+        },
         {
           $project: {
             _id: 1,
             name: 1,
             phone: 1,
-            status: 1
+            status: 1,
+            assignedTo: 1
           }
         },
         { $sort: { createdAt: -1 } },
         { $skip: skip },
         { $limit: Number(limit) }
-      ])  
+      ])
       const totalCallRequests = await requestCall.countDocuments({
         $or: [{
           name: {
@@ -137,8 +147,25 @@ module.exports = {
           $match: {
             _id: new mongoose.Types.ObjectId(id)
           }
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "assignedTo",
+            foreignField: "_id",
+            as: "assignedTo",
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            name: 1,
+            phone: 1,
+            status: 1,
+            assignedTo: 1
+          }
         }
-      ])  
+      ])
       if (callRequestData.length === 0) {
         return null
       }
@@ -151,6 +178,27 @@ module.exports = {
     try {
       const callRequestData = await requestCall.findByIdAndUpdate(id, { status }, { new: true })
       return callRequestData
+    } catch (error) {
+      throw new Error(error.message)
+    }
+  },
+  assignCallsToUserFromDB: async (userId, callId) => {
+    try {
+      const user = await User.findById(userId)
+      if (!user) {
+        throw new Error("User not found")
+      }
+      if(user.role !== "ADMIN"){
+        throw new Error("User is not an admin")
+      }
+      console.log(callId, 'callId')
+      const call = await requestCall.findById(callId)
+      if (!call) {
+        throw new Error("Call not found")
+      }
+      const updatedCall = await requestCall.findByIdAndUpdate(callId, { assignedTo: userId }, { new: true })
+      const updatedUser = await User.findByIdAndUpdate(userId, { $push: { assignedCalls: callId } }, { new: true })
+      return { updatedUser, updatedCall }
     } catch (error) {
       throw new Error(error.message)
     }

@@ -170,13 +170,13 @@ module.exports = {
       premiumEndDate: premiumResult.premiumEndDate,
     });
   }),
-  changeRoleController: asyncHandler(async (req, res,next) => {
+  changeRoleController: asyncHandler(async (req, res, next) => {
     const { user_id } = req.params;
     const { role } = req.body;
     const { userId } = req.auth;
     const superAdminUserId = userId;
 
-    if(!superAdminUserId || !user_id || !role){
+    if (!superAdminUserId || !user_id || !role) {
       return errorResponse(res, 400, messageHelper.BAD_REQUEST);
     }
     const modifiedUser = await userHelper.changeRole(
@@ -190,7 +190,8 @@ module.exports = {
     return successResponse(
       res,
       200,
-      "Successfully changed user role.", modifiedUser,
+      "Successfully changed user role.",
+      modifiedUser,
     );
   }),
 

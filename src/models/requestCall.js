@@ -13,6 +13,10 @@ const requestCallSchema = new mongoose.Schema({
         type: String,
         enum: ["awaiting outreach", "reached out", "converted to lead", "conversion unsuccessful"],
         default: "awaiting outreach"
+    },
+    assignedTo: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
     }
 }, { timestamps: true })
 

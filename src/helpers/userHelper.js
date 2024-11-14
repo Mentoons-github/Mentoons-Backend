@@ -4,7 +4,6 @@ const User = require("../models/user");
 
 module.exports = {
   createUser: async (data) => {
-    console.log("userCreated", data);
     const {
       id,
       email_addresses,
@@ -36,7 +35,6 @@ module.exports = {
       phone_numbers,
       public_metadata,
     } = data;
-    console.log(id);
     const updatedUser = await User.findOneAndUpdate(
       { clerkId: id.toString() },
       {
@@ -50,14 +48,12 @@ module.exports = {
         new: true,
       }
     );
-    console.log("updatedUser", updatedUser);
     return updatedUser;
   },
   deleteUser: async (data) => {
     console.log("deleted User", data);
     const { id } = data;
 
-    console.log(id);
 
     const deletedUser = await User.findOneAndDelete({
       clerkId: id.toString(),
@@ -67,12 +63,10 @@ module.exports = {
       throw new Error("User not found");
     }
 
-    console.log("deletedUser", deletedUser);
 
     return deletedUser;
   },
   changeRole: async (superAdminUserId, user_id, role) => {
-    console.log(superAdminUserId, user_id, role, 'superAdminUserId, user_id, role') 
     const superAdminUser = await User.findOne({
       clerkId: superAdminUserId,
       role: "SUPER-ADMIN",
@@ -83,9 +77,9 @@ module.exports = {
 
     const user = await User.findOne({ clerkId: user_id, role: { $ne: "SUPER-ADMIN" } });
    console.log(user, 'user')
-    // if (!user) {
-    //   throw new Error('User not found')
-    // }
+    if (!user) {
+      throw new Error('User not found')
+    }
     const modifiedUser = await fetch(`https://api.clerk.com/v1/users/${user_id}`, {
       method: "PATCH",
       headers: {
@@ -96,7 +90,6 @@ module.exports = {
         public_metadata: { role: role },
       }),
     })
-   console.log(modifiedUser, 'modifiedUser')
     return modifiedUser;
   },
 
@@ -121,6 +114,14 @@ module.exports = {
           },
         },
         {
+          $lookup: {
+            from: "requestcalls",
+            localField: "assignedCalls",
+            foreignField: "_id",
+            as: "assignedCalls",
+          },
+        },
+        {
           $project: {
             _id: 1,
             clerkId: 1,
@@ -129,6 +130,7 @@ module.exports = {
             email: 1,
             phoneNumber: 1,
             picture: 1,
+            assignedCalls: 1
           },
         },
         { $sort: { [sortField]: sortOrder === "asc" ? 1 : -1 } },
@@ -155,20 +157,39 @@ module.exports = {
   },
 
   getUser: async (userId) => {
-    const [user] = await User.aggregate([
-      { $match: { _id: new mongoose.Types.ObjectId(userId) } },
-      {
-        $project: {
-          _id: 1,
-          clerkId: 1,
-          role: 1,
-          name: 1,
-          email: 1,
-          phoneNumber: 1,
-          picture: 1,
+    try {
+      console.log("Fetching user with ID:", userId);
+      const [user] = await User.aggregate([
+        { $match: { _id: new mongoose.Types.ObjectId(userId) } },
+        {
+          $lookup: {
+            from: "requestcalls",
+            localField: "assignedCalls",
+            foreignField: "_id",
+            as: "assignedCalls",
+          },
         },
-      },
-    ]);
-    return user;
+        {
+          $project: {
+            _id: 1,
+            clerkId: 1,
+            role: 1,
+            name: 1,
+            email: 1,
+            phoneNumber: 1,
+            picture: 1,
+            assignedCalls: 1
+          },
+        },
+      ]);
+      if (!user) {
+        console.error(`User with ID ${userId} not found.`);
+        throw new Error("User not found");
+      }
+      return user;
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      throw new Error("Error fetching user from database");
+    }
   },
 };

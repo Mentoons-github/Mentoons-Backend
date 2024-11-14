@@ -53,6 +53,11 @@ const UserSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  assignedCalls: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "requestCall",
+  }],
+
 });
 
 const User = mongoose.model("User", UserSchema);
