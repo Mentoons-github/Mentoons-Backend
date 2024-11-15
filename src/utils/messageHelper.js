@@ -47,5 +47,16 @@ module.exports = {
   SOMETHING_WENT_WRONG: "Something went wrong",
   ENQUIRY_DATA_FETCHED: "Enquiry data fetched successfully",
   ENQUIRY_NOT_FOUND: "Enquiry not found",
-  CALL_REQUEST_SUBMITTED:"Call Request submitted Successfully"
+  CALL_REQUEST_SUBMITTED: "Call Request submitted Successfully",
+  CALL_REQUEST_NOT_FOUND: "Call Request not found",
+  CALL_ALLOCATED: "Call Allocated successfully",
+  CALL_STATUS_UPDATED: "Call Request status updated successfully",
+  CALL_ASSIGNED: "Call Request assigned to user successfully",
+  CALL_REALLOCATED: "Call Request reallocated to user successfully",
+  CALL_ALREADY_ASSIGNED: "Call Request already assigned to a user",
+  CALL_DATA_FETCHED: "Call data fetched successfully",
+  CALL_NOT_FOUND: "Call not found",
+  CALL_SUBMITTED: "Call submitted successfully",
+  CALL_STATUS_UPDATED: "Call status updated successfully",
+  
 };

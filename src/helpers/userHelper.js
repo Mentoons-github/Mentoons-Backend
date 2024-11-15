@@ -115,9 +115,6 @@ module.exports = {
       if (filter.role && filter.role !== '') {
         matchConditions.role = filter.role;
       }
-
-      console.log('Match conditions:', JSON.stringify(matchConditions));
-
       const allUsers = await User.aggregate([
         {
           $match: matchConditions,
