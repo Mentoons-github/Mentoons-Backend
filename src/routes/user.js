@@ -11,6 +11,7 @@ const {
   getUserController,
   DeleteUserClerkController,
   changeRoleController,
+  viewAllocatedCalls,
 } = require("../controllers/userController.js");
 const { isSuperAdminOrAdmin } = require("../middlewares/authMiddleware.js");
 
@@ -22,6 +23,7 @@ router.post("/login/verify", verifyUserLoginController);
 router.post("/logout", logoutController);
 router.post("/premium", premiumController);
 router.post("/update-role/:user_id", requireAuth({signInUrl:"/sign-in"}), changeRoleController);
+router.get("/allocatedCalls/:userId",viewAllocatedCalls)
 router.get(
   "/all-users",
   requireAuth({ signInUrl: "/sign-in" }),
@@ -38,4 +40,5 @@ router.delete(
   requireAuth({ signInUrl: "/sign-in" }),
   DeleteUserClerkController
 );
+
 module.exports = router;

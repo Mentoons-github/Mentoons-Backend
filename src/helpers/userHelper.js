@@ -194,4 +194,34 @@ module.exports = {
       throw new Error("Error fetching user from database");
     }
   },
+  viewAllocatedCalls:async(userId)=>{
+    try {
+      const calls = await User.aggregate([
+        {
+          $match: {
+            _id: new mongoose.Types.ObjectId(userId)
+          }
+        },
+        {
+        $lookup: {
+                  from: "requestcalls",
+                  localField: "assignedCalls",
+                  foreignField: "_id",
+                  as: "assignedCalls",
+        }
+        },
+        {
+          $project: {
+            _id:1,
+            name:1,
+            assignedCalls:1,
+          }
+        }
+      ]) ;
+      return calls;
+    } catch (error) {
+      console.error("Error fetching allocated calls:", error);
+      throw new Error("Error fetching allocated calls from database");
+    }
+  }
 };

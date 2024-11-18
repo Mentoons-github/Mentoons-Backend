@@ -249,5 +249,12 @@ module.exports = {
     const data = await response.json();
     return successResponse(res, 200, "Successfully deleted user", data);
   }),
-
+   viewAllocatedCalls:asyncHandler(async(req,res)=>{
+    const {userId} = req.params;
+    const calls = await userHelper.viewAllocatedCalls(userId);
+    if(!calls){
+      return errorResponse(res,400,messageHelper.BAD_REQUEST);
+    }
+    return successResponse(res,200,"Successfully fetched allocated calls",calls);
+   })
 };
