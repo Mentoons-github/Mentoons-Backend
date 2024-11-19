@@ -249,9 +249,10 @@ module.exports = {
     const data = await response.json();
     return successResponse(res, 200, "Successfully deleted user", data);
   }),
-   viewAllocatedCalls:asyncHandler(async(req,res)=>{
-    const {userId} = req.params;
-    const calls = await userHelper.viewAllocatedCalls(userId);
+   viewAllocatedCalls:asyncHandler(async(req,res,next)=>{
+    const {search,sortField,sortOrder,page,limit} = req.query;
+    const {userId} = req.auth;
+    const calls = await userHelper.viewAllocatedCalls(userId,search,sortField,sortOrder,page,limit);
     if(!calls){
       return errorResponse(res,400,messageHelper.BAD_REQUEST);
     }

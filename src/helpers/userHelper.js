@@ -1,6 +1,7 @@
 require("dotenv").config();
 const { default: mongoose } = require("mongoose");
 const User = require("../models/user");
+const requestCall = require("../models/requestCall");
 
 module.exports = {
   createUser: async (data) => {
@@ -152,7 +153,7 @@ module.exports = {
         totalPages: Math.ceil(totalCount / limit),
       };
     } catch (error) {
-      console.error('Error in getAllUser:', error.message);
+      console.error('Error in getAllUser:', error.message); 
       console.error('Stack trace:', error.stack);
       throw new Error(`Error fetching users from database: ${error.message}`);
     }
@@ -194,34 +195,54 @@ module.exports = {
       throw new Error("Error fetching user from database");
     }
   },
-  viewAllocatedCalls:async(userId)=>{
+  viewAllocatedCalls: async (userId, search = '', sortField = 'createdAt', sortOrder = 'desc', page = 1, limit = 10 ) => {
     try {
-      const calls = await User.aggregate([
-        {
-          $match: {
-            _id: new mongoose.Types.ObjectId(userId)
-          }
-        },
-        {
-        $lookup: {
-                  from: "requestcalls",
-                  localField: "assignedCalls",
-                  foreignField: "_id",
-                  as: "assignedCalls",
-        }
-        },
+      const user = await User.findOne({clerkId: userId});
+      
+      if(!user){
+        throw new Error('User not found');
+      }
+      
+      const skip = (page - 1) * limit;
+      const searchRegex = new RegExp(search, "i");
+      
+      const matchConditions = { assignedTo: user._id };
+      if (search) {
+        matchConditions.$or = [
+          { name: { $regex: searchRegex } },
+          { email: { $regex: searchRegex } }
+        ];
+      }     
+      
+      const allocatedCalls = await requestCall.aggregate([
+        { $match: matchConditions },
         {
           $project: {
-            _id:1,
-            name:1,
-            assignedCalls:1,
+            _id: 1,
+            name: 1,
+            email: 1,
+            phone: 1,
+            requestedTopic: 1,
+            status: 1,
+            createdAt: 1,
           }
-        }
-      ]) ;
-      return calls;
+        },
+        { $sort: { [sortField]: sortOrder === "asc" ? 1 : -1 } },
+        { $skip: skip },
+        { $limit: Number(limit) }
+      ]);
+
+      
+      const totalCount = await requestCall.countDocuments(matchConditions);     
+      
+      return {
+        allocatedCalls,
+        totalCount,
+        totalPages: Math.ceil(totalCount / limit),
+      };
     } catch (error) {
-      console.error("Error fetching allocated calls:", error);
-      throw new Error("Error fetching allocated calls from database");
+      console.error("Error in viewAllocatedCalls:", error);
+      throw new Error(error.message);
     }
   }
 };
