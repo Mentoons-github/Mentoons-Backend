@@ -23,7 +23,7 @@ router.post("/login/verify", verifyUserLoginController);
 router.post("/logout", logoutController);
 router.post("/premium", premiumController);
 router.post("/update-role/:user_id", requireAuth({signInUrl:"/sign-in"}), changeRoleController);
-router.get("/allocatedCalls/:userId",viewAllocatedCalls)
+router.get("/allocatedCalls",requireAuth({signInUrl:"/sign-in"}),viewAllocatedCalls)
 router.get(
   "/all-users",
   requireAuth({ signInUrl: "/sign-in" }),

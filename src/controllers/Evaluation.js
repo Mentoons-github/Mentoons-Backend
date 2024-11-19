@@ -6,15 +6,27 @@ const { errorResponse, successResponse } = require('../utils/responseHelper');
 
 module.exports = {
     createFeedback:asyncHandler(async(req,res)=>{
-        const {childName,childAge,parentNames,easeOfUseRating,learnings,overallExperience,monitoringEaseRating,wouldRecommend,recommendationReason} = req.body;
-        if(!childName || !childAge || !parentNames || !easeOfUseRating || !learnings || !overallExperience || !monitoringEaseRating || !wouldRecommend || !recommendationReason){
-          return errorResponse(res,400,BAD_REQUEST);
+        const {
+            childName, childAge, parentNames, easeOfUseRating, learnings,
+            overallExperience, monitoringEaseRating, wouldRecommend,
+            recommendationReason, favoriteFeature, issues
+        } = req.body;
+        
+        if(!childName || !childAge || 
+           !parentNames || !parentNames.mother || !parentNames.father || !parentNames.carer ||
+           !easeOfUseRating || !learnings || !overallExperience || 
+           !monitoringEaseRating || typeof wouldRecommend !== 'boolean' || 
+           !recommendationReason || !favoriteFeature || !issues){
+            return errorResponse(res, 400, BAD_REQUEST);
         }
+
         const feedback = await addFeedbackToDb(req.body);
+        
         if(!feedback){
-          return errorResponse(res,400,BAD_REQUEST);
+            console.log('Failed to add feedback to DB');
+            return errorResponse(res, 400, BAD_REQUEST);
         }
-        return successResponse(res,201,feedback);
+        return successResponse(res,201,"Feedback added successfully",feedback);
     }),
     getAllFeedbacks:asyncHandler(async(req,res)=>{
       const feedbacks = await getAllFeedbacksFromDb();
