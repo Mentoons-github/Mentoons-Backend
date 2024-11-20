@@ -29,7 +29,8 @@ module.exports = {
         return successResponse(res,201,"Feedback added successfully",feedback);
     }),
     getAllFeedbacks:asyncHandler(async(req,res)=>{
-      const feedbacks = await getAllFeedbacksFromDb();
+      const {searchTerm,sortBy,sortOrder,page,limit} = req.query;
+      const feedbacks = await getAllFeedbacksFromDb(searchTerm,sortBy,sortOrder,page,limit);
       if(!feedbacks){
         return errorResponse(res,400,BAD_REQUEST);
       }

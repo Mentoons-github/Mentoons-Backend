@@ -11,7 +11,7 @@ module.exports = {
         }
     },
     
-    getAllFeedbacksFromDb: async(search = '', page = 1, limit = 10) => {
+    getAllFeedbacksFromDb: async(search = '', sortBy = 'createdAt', sortOrder = 'desc', page = 1, limit = 10) => {
         try {
             const skip = (page - 1) * limit;
             const searchRegex = new RegExp(search, 'i');
@@ -44,7 +44,7 @@ module.exports = {
                         createdAt: 1
                     }
                 },
-                { $sort: { createdAt: -1 } },
+                { $sort: { [sortBy]: sortOrder === 'asc' ? 1 : -1 } },
                 { $skip: skip },
                 { $limit: Number(limit) }
             ]);
