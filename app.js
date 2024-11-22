@@ -29,6 +29,7 @@ const {
   updateUser,
   deleteUser,
 } = require("./src/helpers/userHelper.js");
+const { MessageApi } = require("svix/dist/openapi/index.js");
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -134,6 +135,12 @@ app.use("/api/v1/userContribution", userContributedPodcastRoutes);
 app.use("/api/v1/call-requests", callRequestRoutes);
 app.use("/api/v1/author", authorRoutes);
 app.use("/api/v1/evaluation", evaluationRoutes);
+
+app.use("/health", (req, res) => {
+  res.json({
+    message: "The server is healthy"
+  });
+});
 
 app.use("*", (req, res, next) => {
   const url = req.originalUrl;
