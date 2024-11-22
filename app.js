@@ -138,7 +138,7 @@ app.use("/api/v1/evaluation", evaluationRoutes);
 
 app.use("/health", (req, res) => {
   res.json({
-    message: "The server is healthy and good"
+    message: "The server is running successfully"
   });
 });
 
