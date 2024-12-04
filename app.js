@@ -1,6 +1,5 @@
 const express = require("express");
 const cors = require("cors");
-const multer = require("multer");
 const dbConnection = require("./src/config/dbConfig");
 const errorHandler = require("./src/middlewares/errorHandler");
 const emailRoutes = require("./src/routes/email");
@@ -18,6 +17,8 @@ const callRequestRoutes = require("./src/routes/callRequests.js");
 const authorRoutes = require("./src/routes/author.js");
 const reviewRoutes = require("./src/routes/review");
 const skuRoutes = require("./src/routes/cardProductRoutes.js");
+const upload = require('./src/middlewares/uploadFileMiddleware.js'); 
+
 // const webhookRoutes = require("./src/routes/webhook.js");
 const evaluationRoutes = require("./src/routes/EvaluationForm.js");
 
@@ -112,15 +113,7 @@ app.post("/api/v1/webhook/clerk", async (req, res) => {
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "uploads/");
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + "-" + file.originalname);
-  },
-});
-const upload = multer({ storage: storage });
+
 // app.use("/api/v1/webhook", webhookRoutes);
 app.use("/api/v1/email", emailRoutes);
 app.use("/api/v1/whatsapp", whatsappRoutes);
