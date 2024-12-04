@@ -11,7 +11,6 @@
   "author": "mentoons",
   "license": "ISC",
   "dependencies": {
-    "@clerk/clerk-sdk-node": "^5.0.50",
     "@clerk/express": "^1.2.3",
     "aws-sdk": "^2.1691.0",
     "bcrypt": "^5.1.1",

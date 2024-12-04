@@ -16,7 +16,9 @@ const careerRoutes = require("./src/routes/career");
 const userContributedPodcastRoutes = require("./src/routes/userContributionRoute.js");
 const callRequestRoutes = require("./src/routes/callRequests.js");
 const authorRoutes = require("./src/routes/author.js");
-// const webhookRoutes = require("./src/routes/webhook.js");  
+const reviewRoutes = require("./src/routes/review");
+const skuRoutes = require("./src/routes/cardProductRoutes.js");
+// const webhookRoutes = require("./src/routes/webhook.js");
 const evaluationRoutes = require("./src/routes/EvaluationForm.js");
 
 const { Webhook, WebhookVerificationError } = require("svix");
@@ -38,7 +40,7 @@ app.use(bodyParser.json());
 // Webhook route
 app.post("/api/v1/webhook/clerk", async (req, res) => {
   console.log("Request", req.body);
-  const WEBHOOK_SECRET = process.env.VITE_CLERK_WEBHOOK_SECRET_KEY;
+  const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET_KEY;
 
   if (!WEBHOOK_SECRET) {
     console.error("WEBHOOK_SECRET is not set in environment variables");
@@ -135,10 +137,12 @@ app.use("/api/v1/userContribution", userContributedPodcastRoutes);
 app.use("/api/v1/call-requests", callRequestRoutes);
 app.use("/api/v1/author", authorRoutes);
 app.use("/api/v1/evaluation", evaluationRoutes);
+app.use("/api/v1/review", reviewRoutes);
+app.use("/api/v1/sku", skuRoutes);
 
 app.use("/health", (req, res) => {
   res.json({
-    message: "The server is running successfully"
+    message: "The server is running successfully",
   });
 });
 
