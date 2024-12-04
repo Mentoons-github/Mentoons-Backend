@@ -4,6 +4,10 @@ const { requireAuth } = require("@clerk/express");
 
 const router = express.Router();
 
-router.post("/file",  requireAuth({ signInUrl: "/sign-in" }), uploadFileController);
+router.post(
+  "/file",
+  requireAuth({ signInUrl: "/sign-in" }),
+  uploadFileController
+);
 
 module.exports = router;
