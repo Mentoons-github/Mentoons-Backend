@@ -94,7 +94,7 @@ module.exports = {
         $and: [
           {
             $or: [
-              { cardTitle: { $regex: searchRegex } },
+              { productTitle: { $regex: searchRegex } },
               // { cardSummary: { $regex: searchRegex } },
               // add more fields to search if needed
             ],
@@ -108,18 +108,19 @@ module.exports = {
         {
           $project: {
             _id: 1,
-            cardTitle: 1,
-            cardCategory: 1,
-            age: 1,
+            productTitle: 1,
+            productCategory: 1,
+            productSummary: 1,
+            minAge: 1,
+            maxAge: 1,
             ageFilter: 1,
-            cardSummary: 1,
             rating: 1,
             paperEditionPrice: 1,
             printablePrice: 1,
-            cardImages: 1,
-            cardVideos: 1,
-            cardDescriptions: 1,
-            cardReview: 1,
+            productImages: 1,
+            productVideos: 1,
+            productDescriptions: 1,
+            productReview: 1,
           },
         },
         { $sort: { createdAt: -1 } },
@@ -152,6 +153,6 @@ module.exports = {
     } catch (error) {
       console.error(error);
       throw new Error("Error Fetching cardProduct form database");
-    }
+    }ß
   },
 };
