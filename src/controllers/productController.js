@@ -24,6 +24,7 @@ module.exports = {
 
     getProduct: asyncHandler(async (req, res, next) => {
         const { productId } = req.params
+        
         const product = await productHelpers.getOneProductFromDB(productId)
         if (!product) {
             return errorResponse(res, 404, messageHelper.PRODUCT_NOT_FOUND)

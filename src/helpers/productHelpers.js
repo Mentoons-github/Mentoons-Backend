@@ -1,9 +1,14 @@
 const Product = require('../models/products')
 const mongoose = require('mongoose')
+const Author = require('../models/authorModel')
 
 module.exports = {
     addProductToDB: async ({ productTitle, productDescription, productCategory, productThumbnail, productSample, productFile, author }) => {
         try {
+            const authorExists = await Author.findOne({ _id: author })
+            if (!authorExists) {
+                throw new Error('Author not found')
+            }
             const newProduct = new Product({
                 productTitle,
                 productDescription,
@@ -11,7 +16,7 @@ module.exports = {
                 productThumbnail,
                 productSample,
                 productFile,
-                author
+                author: authorExists._id
             })
             const saveProduct = await newProduct.save()
             return saveProduct
@@ -66,7 +71,6 @@ module.exports = {
     getOneProductFromDB: async (productId) => {
         try {
             const objectId = new mongoose.Types.ObjectId(productId);
-            console.log(objectId)
             await Product.findByIdAndUpdate(
                 objectId,
                 { $inc: { viewsCount: 1 } },
@@ -74,6 +78,14 @@ module.exports = {
             );
             const product = await Product.aggregate([
                 { $match: { _id: objectId } },
+                {
+                    $lookup: {  
+                        from: "authors",
+                        localField: "author",
+                        foreignField: "_id",
+                        as: "author"
+                    }   
+                },
                 {
                     $project: {
                         _id: 1,

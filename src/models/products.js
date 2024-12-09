@@ -35,8 +35,8 @@ const productSchema = new mongoose.Schema(
       default: 0,
     },
     author: {
-      type: String,
-      required: [true, "Author name is required"],
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Author"
     }
   },
   {
