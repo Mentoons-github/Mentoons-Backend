@@ -17,7 +17,15 @@ const callRequestRoutes = require("./src/routes/callRequests.js");
 const authorRoutes = require("./src/routes/author.js");
 const reviewRoutes = require("./src/routes/review");
 const skuRoutes = require("./src/routes/cardProductRoutes.js");
-const upload = require('./src/middlewares/uploadFileMiddleware.js'); 
+const upload = require("./src/middlewares/uploadFileMiddleware.js");
+const cartRoutes = require("./src/routes/cartRoutes.js");
+// const paymentRoutes = require("./src/routes/payamentRoutes.js");
+var http = require("http"),
+  fs = require("fs"),
+  ccav = require("./src/utils/ccavutil.js"),
+  qs = require("querystring"),
+  ccavReqHandler = require("./src/controllers/ccavRequestHandler.js"),
+  ccavResHandler = require("./src/controllers/ccavResponseHandler.js");
 
 // const webhookRoutes = require("./src/routes/webhook.js");
 const evaluationRoutes = require("./src/routes/EvaluationForm.js");
@@ -112,7 +120,9 @@ app.post("/api/v1/webhook/clerk", async (req, res) => {
 
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
-
+app.use(express.static("public"));
+app.set("views", __dirname + "/public");
+app.engine("html", require("ejs").renderFile);
 
 // app.use("/api/v1/webhook", webhookRoutes);
 app.use("/api/v1/email", emailRoutes);
@@ -132,6 +142,8 @@ app.use("/api/v1/author", authorRoutes);
 app.use("/api/v1/evaluation", evaluationRoutes);
 app.use("/api/v1/review", reviewRoutes);
 app.use("/api/v1/sku", skuRoutes); // This route is under testing
+app.use("/api/v1/cart", cartRoutes);
+// app.use("/api/v1/payments", paymentRoutes);
 
 app.use("/health", (req, res) => {
   res.json({
@@ -139,14 +151,27 @@ app.use("/health", (req, res) => {
   });
 });
 
+app.get("/about", function (req, res) {
+  res.render("dataFrom.html");
+});
+
+app.post("/ccavRequestHandler", function (request, response) {
+  console.log("Inside ccavRequestHandler");
+  ccavReqHandler.postReq(request, response);
+});
+
+app.post("/ccavResponseHandler", function (request, response) {
+  ccavResHandler.postRes(request, response);
+});
+
+app.use(errorHandler);
+
 app.use("*", (req, res, next) => {
   const url = req.originalUrl;
   res.json({
     message: `${url} is not a valid endpoint`,
   });
 });
-
-app.use(errorHandler);
 
 dbConnection();
 
