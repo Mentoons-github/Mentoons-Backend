@@ -39,7 +39,7 @@ const UserSchema = new mongoose.Schema({
     validUntil: {
       type: Date,
       required: true,
-      default: function() {
+      default: function () {
         return new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
       },
     },
@@ -53,11 +53,12 @@ const UserSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  assignedCalls: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "requestCall",
-  }],
-
+  assignedCalls: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "requestCall",
+    },
+  ],
 });
 
 const User = mongoose.model("User", UserSchema);

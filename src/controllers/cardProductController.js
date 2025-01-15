@@ -20,6 +20,7 @@ module.exports = {
       productDescriptions,
     } = req.body;
     const { userId } = req.auth;
+    console.log("userId", userId);
 
     if (
       !productTitle ||
