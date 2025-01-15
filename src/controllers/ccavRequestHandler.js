@@ -2,26 +2,27 @@ var http = require("http"),
   fs = require("fs"),
   ccav = require("../utils/ccavutil.js"),
   qs = require("querystring");
-
 const dotenv = require("dotenv");
 dotenv.config();
 
-console.log(process.env.CCAVENUE_WORKING_KEY);
-console.log(process.env.CCAVENUE_ACCESS_CODE);
-
 exports.postReq = function (request, response) {
   var body = "",
-    workingKey = `${process.env.CCAVENUE_WORKING_KEY}`, //Put in the 32-Bit key shared by CCAvenues.
-    accessCode = `${process.env.CCAVENUE_ACCESS_CODE}`, //Put in the Access Code shared by CCAvenues.
+    workingKey = `${process.env.CCAVENUE_WORKING_KEY}`, // Put in the 32-Bit key shared by CCAvenues.
+    accessCode = `${process.env.CCAVENUE_ACCESS_CODE}`, // Put in the Access Code shared by CCAvenues.
     encRequest = "",
     formbody = "";
 
-  request.on("data", function (data) {
-    console.log("Inside request data", data);
-    body += data;
+  console.log("Working key length:", workingKey.length); // Log the length of the working key
+  console.log("Working key:", workingKey); // Log the working key for debugging
+  console.log("Access code:", accessCode);
 
-    console.log("Body", body);
+  
+
+  request.on("data", function (data) {
+    console.log("DATA", data);
+    body += data;
     encRequest = ccav.encrypt(body, workingKey);
+    console.log(encRequest);
     formbody =
       '<form id="nonseamless" method="post" name="redirect" action="https://secure.ccavenue.com/transaction/transaction.do?command=initiateTransaction"/> <input type="hidden" id="encRequest" name="encRequest" value="' +
       encRequest +
