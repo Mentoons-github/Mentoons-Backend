@@ -155,6 +155,10 @@ app.get("/about", function (req, res) {
   res.render("dataFrom.html");
 });
 
+app.post("/what", function (req, res) {
+  res.statusCode(200).jsont({ message: "Welcome to the server" });
+});
+
 app.post("/ccavRequestHandler", function (request, response) {
   console.log("Inside ccavRequestHandler");
   ccavReqHandler.postReq(request, response);
