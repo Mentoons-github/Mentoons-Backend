@@ -28,7 +28,7 @@ const productSchema = new mongoose.Schema(
     },
     productFile: {
       type: String,
-      required: [true, 'Product Sample is required']
+      required: [true, "Product Sample is required"],
     },
     viewsCount: {
       type: Number,
@@ -36,14 +36,14 @@ const productSchema = new mongoose.Schema(
     },
     author: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Author"
-    }
+      ref: "Author",
+    },
   },
   {
     timestamps: true,
   }
 );
 
-const Product = mongoose.model("Products", productSchema);
+const Product = mongoose.model("Product", productSchema);
 
 module.exports = Product;

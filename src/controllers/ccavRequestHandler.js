@@ -6,23 +6,18 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 exports.postReq = function (request, response) {
+  console.log("Inside post request");
+  console.log("Request Body", request.body);
   var body = "",
-    workingKey = `${process.env.CCAVENUE_WORKING_KEY}`, // Put in the 32-Bit key shared by CCAvenues.
-    accessCode = `${process.env.CCAVENUE_ACCESS_CODE}`, // Put in the Access Code shared by CCAvenues.
+    workingKey = `${process.env.CCAVENUE_WORKING_KEY}`, //Put in the 32-Bit key shared by CCAvenues.
+    accessCode = `${process.env.CCAVENUE_ACCESS_CODE}`, //Put in the Access Code shared by CCAvenues.
     encRequest = "",
     formbody = "";
-
-  console.log("Working key length:", workingKey.length); // Log the length of the working key
-  console.log("Working key:", workingKey); // Log the working key for debugging
-  console.log("Access code:", accessCode);
-
-  
-
   request.on("data", function (data) {
-    console.log("DATA", data);
+    console.log("Data", data);
     body += data;
     encRequest = ccav.encrypt(body, workingKey);
-    console.log(encRequest);
+    console.log("Encrypted Request", encRequest);
     formbody =
       '<form id="nonseamless" method="post" name="redirect" action="https://secure.ccavenue.com/transaction/transaction.do?command=initiateTransaction"/> <input type="hidden" id="encRequest" name="encRequest" value="' +
       encRequest +

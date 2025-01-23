@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const PaymentController = require("../controllers/payment.controller");
-// const { validatePaymentRequest } = require("../middleware/validation");
+const { validatePaymentRequest } = require("../middleware/validation");
 const rateLimiter = require("../middleware/rateLimiter");
 const auth = require("../middleware/auth");
 

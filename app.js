@@ -119,10 +119,23 @@ app.post("/api/v1/webhook/clerk", async (req, res) => {
 });
 
 app.use(cors());
-app.use(express.urlencoded({ extended: true }));
+// app.use(express.urlencoded({ extended: true }));
+
 app.use(express.static("public"));
 app.set("views", __dirname + "/public");
 app.engine("html", require("ejs").renderFile);
+
+app.get("/about", function (req, res) {
+  res.render("dataFrom.html");
+});
+
+app.post("/ccavRequestHandler", function (request, response) {
+  ccavReqHandler.postReq(request, response);
+});
+
+app.post("/ccavResponseHandler", function (request, response) {
+  ccavResHandler.postRes(request, response);
+});
 
 // app.use("/api/v1/webhook", webhookRoutes);
 app.use("/api/v1/email", emailRoutes);
@@ -149,23 +162,6 @@ app.use("/health", (req, res) => {
   res.json({
     message: "The server is running successfully",
   });
-});
-
-app.get("/about", function (req, res) {
-  res.render("dataFrom.html");
-});
-
-app.post("/what", function (req, res) {
-  res.statusCode(200).jsont({ message: "Welcome to the server" });
-});
-
-app.post("/ccavRequestHandler", function (request, response) {
-  console.log("Inside ccavRequestHandler");
-  ccavReqHandler.postReq(request, response);
-});
-
-app.post("/ccavResponseHandler", function (request, response) {
-  ccavResHandler.postRes(request, response);
 });
 
 app.use(errorHandler);
