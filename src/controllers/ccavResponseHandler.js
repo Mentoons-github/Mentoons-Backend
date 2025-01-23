@@ -7,38 +7,37 @@ dotenv.config();
 
 exports.postRes = function (request, response) {
   var ccavEncResponse = "",
-    ccavResponse = "",
-    workingKey = `${process.env.CCAVENUE_WORKING_KEY}`, // Put in the 32-Bit key shared by CCAvenues.
-    ccavPOST = "";
-
-  // Check the length of the workingKey
-  if (workingKey.length !== 32) {
-    console.error("Invalid working key length. It must be 32 characters long.");
-    response.writeHead(500, { "Content-Type": "text/plain" });
-    response.write("Internal Server Error: Invalid working key length.");
-    response.end();
-    return;
-  }
+    workingKey = `${process.env.CCAVENUE_WORKING_KEY}`;
 
   request.on("data", function (data) {
     ccavEncResponse += data;
-    ccavPOST = qs.parse(ccavEncResponse);
-    var encryption = ccavPOST.encResp;
-    ccavResponse = ccav.decrypt(encryption, workingKey);
   });
 
   request.on("end", function () {
-    var pData = "";
-    pData = "<table border=1 cellspacing=2 cellpadding=2><tr><td>";
-    pData = pData + ccavResponse.replace(/=/gi, "</td><td>");
-    pData = pData.replace(/&/gi, "</td></tr><tr><td>");
-    pData = pData + "</td></tr></table>";
-    htmlcode =
-      '<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><title>Response Handler</title></head><body><center><font size="4" color="blue"><b>Response Page</b></font><br>' +
-      pData +
-      "</center><br></body></html>";
-    response.writeHeader(200, { "Content-Type": "text/html" });
-    response.write(htmlcode);
-    response.end();
+    try {
+      const ccavPOST = qs.parse(ccavEncResponse);
+      const encryption = ccavPOST.encResp;
+      const decryptedResponse = ccav.decrypt(encryption, workingKey);
+
+      // Convert the response string to an object
+      const responseObject = decryptedResponse.split("&").reduce((acc, pair) => {
+        const [key, value] = pair.split("=");
+        acc[key] = value;
+        return acc;
+      }, {});
+
+      response.setHeader("Content-Type", "application/json");
+      response.status(200).json({
+        status: "success",
+        data: responseObject,
+      });
+    } catch (error) {
+      response.setHeader("Content-Type", "application/json");
+      response.status(500).json({
+        status: "error",
+        message: "Failed to process payment response",
+        error: error.message,
+      });
+    }
   });
 };
