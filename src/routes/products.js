@@ -10,17 +10,14 @@ const {
 
 const router = express.Router();
 
-router.route("/")
-  .post(addProduct)
-  .get(getAllProducts);
+router.route("/").post(addProduct).get(getAllProducts);
 
-router.route("/trending")
-  .get(getTrendingProducts);
+router.route("/trending").get(getTrendingProducts);
 
-router.route("/:productId")
+router
+  .route("/:productId")
   .get(getProduct)
   .patch(editProduct)
   .delete(deleteProduct);
-
 
 module.exports = router;
