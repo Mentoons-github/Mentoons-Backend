@@ -1,5 +1,3 @@
-// product.model.ts
-
 const mongoose = require("mongoose");
 
 const { AgeCategory, ProductType, CardType } = require("../utils/enum");
@@ -44,7 +42,8 @@ const ProductSchema = new mongoose.Schema(
   }
 );
 
-const Product = mongoose.model("Product", ProductSchema);
+// Check if model exists before defining
+const Product = mongoose.models.Product || mongoose.model("Product", ProductSchema);
 
 /* ----- Comic Discriminator ----- */
 const ComicSchema = new mongoose.Schema({

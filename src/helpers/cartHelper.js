@@ -1,112 +1,276 @@
-const Cart = require("../models/cart");
-const User = require("../models/user");
-const { Types, model } = require("mongoose");
+const Cart = require("../models/Cart");
+const { Product } = require("../models/product");
+// const Coupon = require("../models/Coupon"); // Assuming you have a Coupon model
 
-exports.addItem = async (userId, productId, quantity, price) => {
-  const user = await User.findOne({ clerkId: userId });
+/**
+ * Get cart by user ID
+ */
+const getCartByUserId = async (userId) => {
+  try {
+    let cart = await Cart.findOne({ userId, cartStatus: "active" });
 
-  let cart = await Cart.findOne({
-    userId: user._id,
-    status: "active",
-  });
+    if (!cart) {
+      // Create a new cart if none exists
+      cart = await Cart.create({
+        userId,
+        items: [],
+        totalPrice: 0,
+        totalItemCount: 0,
+        cartStatus: "active",
+        discountedPrice: 0,
+      });
+    }
 
-  if (!cart) {
-    cart = new Cart({ userId: user._id, items: [], totalPrice: 0 });
+    return cart;
+  } catch (error) {
+    throw new Error(`Error fetching cart: ${error.message}`);
   }
-  const itemIndex = cart.items?.findIndex(
-    (item) => item.productId.toString() === productId
-  );
+};
 
-  if (itemIndex > -1) {
-    cart.items[itemIndex].quantity += quantity;
-    cart.items[itemIndex].price += Number(price * quantity);
-    if (cart.items[itemIndex].quantity <= 0) {
-      cart.items?.splice(itemIndex, 1);
+/**
+ * Add item to cart
+ */
+const addItemToCart = async (itemData) => {
+  console.log("itemData", itemData);
+  try {
+    const {
+      userId,
+      productId,
+      productType,
+      title,
+      quantity,
+      price,
+      ageCategory,
+      productImage,
+      cardType,
+      productDetails,
+    } = itemData;
+
+    // Find or create cart
+    let cart = await Cart.findOne({ userId, cartStatus: "active" });
+
+    if (!cart) {
+      cart = await Cart.create({
+        userId,
+        items: [],
+        totalPrice: 0,
+        totalItemCount: 0,
+        cartStatus: "active",
+        discountedPrice: 0,
+      });
+    }
+
+    // Check if item already exists in cart
+    const itemIndex = cart.items.findIndex(
+      (item) => item.productId.toString() === productId
+    );
+
+    if (itemIndex > -1) {
+      // Update existing item
+      cart.items[itemIndex].quantity += quantity;
+    } else {
+      // Add new item
+      const newItem = {
+        productId,
+        productType,
+        title,
+        quantity,
+        price,
+        ageCategory,
+        productImage,
+        cardType,
+        productDetails,
+      };
+      cart.items.push(newItem);
+    }
+
+    // Recalculate cart totals
+    await recalculateCartTotals(cart);
+
+    // Save and return cart
+    await cart.save();
+    return cart;
+  } catch (error) {
+    throw new Error(`Error adding item to cart: ${error.message}`);
+  }
+};
+
+/**
+ * Remove item from cart
+ */
+const removeItemFromCart = async (userId, productId) => {
+  try {
+    // Find cart
+    const cart = await Cart.findOne({ userId, cartStatus: "active" });
+
+    if (!cart) {
+      throw new Error("Cart not found");
+    }
+
+    // Remove item
+    cart.items = cart.items.filter(
+      (item) => item.productId.toString() !== productId
+    );
+
+    // Recalculate cart totals
+    await recalculateCartTotals(cart);
+
+    // Save and return cart
+    await cart.save();
+    return cart;
+  } catch (error) {
+    throw new Error(`Error removing item from cart: ${error.message}`);
+  }
+};
+
+/**
+ * Update item quantity in cart
+ */
+const updateItemQuantity = async (userId, productId, quantity) => {
+  try {
+    // Find cart
+    const cart = await Cart.findOne({ userId, cartStatus: "active" });
+
+    if (!cart) {
+      throw new Error("Cart not found");
+    }
+
+    // Find item in cart
+    const itemIndex = cart.items.findIndex(
+      (item) => item.productId.toString() === productId
+    );
+
+    if (itemIndex === -1) {
+      throw new Error("Item not found in cart");
+    }
+
+    // Update quantity
+    cart.items[itemIndex].quantity = quantity;
+
+    // Remove item if quantity is 0
+    if (quantity <= 0) {
+      cart.items.splice(itemIndex, 1);
+    }
+
+    // Recalculate cart totals
+    await recalculateCartTotals(cart);
+
+    // Save and return cart
+    await cart.save();
+    return cart;
+  } catch (error) {
+    throw new Error(`Error updating item quantity: ${error.message}`);
+  }
+};
+
+/**
+ * Apply coupon to cart
+ */
+// exports.applyCoupon = async (userId, couponCode) => {
+//   try {
+//     // Find cart
+//     const cart = await Cart.findOne({ userId, cartStatus: "active" });
+
+//     if (!cart) {
+//       throw new Error("Cart not found");
+//     }
+
+//     // Find coupon
+//     const coupon = await Coupon.findOne({
+//       code: couponCode,
+//       isActive: true,
+//       expiryDate: { $gte: new Date() },
+//     });
+
+//     if (!coupon) {
+//       throw new Error("Invalid or expired coupon");
+//     }
+
+//     // Apply coupon
+//     cart.appliedCoupon = {
+//       code: coupon.code,
+//       discountAmount: coupon.discountAmount,
+//       discountType: coupon.discountType,
+//     };
+
+//     // Recalculate cart totals with discount
+//     await recalculateCartTotals(cart);
+
+//     // Save and return cart
+//     await cart.save();
+//     return cart;
+//   } catch (error) {
+//     throw new Error(`Error applying coupon: ${error.message}`);
+//   }
+// };
+
+/**
+ * Remove coupon from cart
+ */
+// exports.removeCoupon = async (userId) => {
+//   try {
+//     // Find cart
+//     const cart = await Cart.findOne({ userId, cartStatus: "active" });
+
+//     if (!cart) {
+//       throw new Error("Cart not found");
+//     }
+
+//     // Remove coupon
+//     cart.appliedCoupon = undefined;
+
+//     // Recalculate cart totals
+//     await recalculateCartTotals(cart);
+
+//     // Save and return cart
+//     await cart.save();
+//     return cart;
+//   } catch (error) {
+//     throw new Error(`Error removing coupon: ${error.message}`);
+//   }
+// };
+
+/**
+ * Helper function to recalculate cart totals
+ */
+async function recalculateCartTotals(cart) {
+  // Calculate total item count and price
+  let totalItemCount = 0;
+  let totalPrice = 0;
+
+  for (const item of cart.items) {
+    totalItemCount += item.quantity;
+    totalPrice += item.price * item.quantity;
+  }
+
+  cart.totalItemCount = totalItemCount;
+  cart.totalPrice = totalPrice;
+
+  // Apply discount if coupon is applied
+  if (cart.appliedCoupon) {
+    if (cart.appliedCoupon.discountType === "percentage") {
+      const discountAmount =
+        (cart.totalPrice * cart.appliedCoupon.discountAmount) / 100;
+      cart.discountedPrice = cart.totalPrice - discountAmount;
+    } else if (cart.appliedCoupon.discountType === "fixed") {
+      cart.discountedPrice = Math.max(
+        0,
+        cart.totalPrice - cart.appliedCoupon.discountAmount
+      );
     }
   } else {
-    if (quantity > 0) {
-      cart.items?.push({ productId, quantity, price: price * quantity });
-    }
-  }
-  cart.totalPrice = cart.items?.reduce((total, item) => total + item.price, 0);
-  cart.totalItemCount = cart.items?.reduce(
-    (total, item) => total + item.quantity,
-    0
-  );
-  await cart.save();
-  return cart;
-};
-
-exports.removeItem = async (userId, productId) => {
-  console.log("Inside removeItem helper");
-  console.log("userId", userId);
-  const user = await User.findOne({ clerkId: userId });
-  if (!user) throw new Error("User not found");
-  const cart = await Cart.findOne({ userId: user._id, status: "active" });
-  if (!cart) throw new Error("Cart not found");
-  const itemIndex = cart.items.findIndex(
-    (item) => item.productId.toString() === productId
-  );
-  if (itemIndex > -1) {
-    const item = cart.items[itemIndex];
-    cart.totalPrice -= item.price;
-    cart.totalItemCount -= item.quantity;
-    cart.items.splice(itemIndex, 1);
-    await cart.save();
+    cart.discountedPrice = cart.totalPrice;
   }
 
-  await cart.populate("items.productId");
   return cart;
-};
+}
 
-exports.getCart = async (userId) => {
-  const user = await User.findOne({ clerkId: userId });
-  const cart = await Cart.findOne({
-    userId: user._id,
-    status: "active",
-  }).populate("items.productId"); // removed the extra space after productId
-  if (!cart) throw new Error("Cart not found");
 
-  return cart;
-};
-
-exports.updateCartItem = async (userId, productId, flag) => {
-  const paperEditionPrice = 199;
-  // Find the user by their clerkId
-  const user = await User.findOne({ clerkId: userId });
-  if (!user) throw new Error("User not found");
-  // Find the active cart for the user
-  const cart = await Cart.findOne({
-    userId: user._id,
-    status: "active",
-  });
-  if (!cart) throw new Error("Cart not found");
-  // Find the index of the item in the cart
-  const itemIndex = cart.items.findIndex(
-    (item) => item.productId.toString() === productId
-  );
-  // If the item is found, update its quantity and price
-  if (itemIndex > -1) {
-    const item = cart.items[itemIndex];
-    console.log("Item found", item);
-    if (flag === "+") {
-      item.quantity += 1;
-      item.price += paperEditionPrice;
-      cart.totalPrice += paperEditionPrice;
-      cart.totalItemCount += 1;
-    } else if (flag === "-") {
-      if (item.quantity > 1) {
-        item.quantity -= 1;
-        item.price -= paperEditionPrice;
-        cart.totalPrice -= paperEditionPrice;
-        cart.totalItemCount -= 1;
-      }
-    }
-    await cart.save();
-  } else {
-    throw new Error("Item not found in the cart");
-  }
-  // Populate the cart with the product details
-  await cart.populate("items.productId");
-  return cart;
+module.exports = {
+  getCartByUserId,
+  addItemToCart,
+  removeItemFromCart,
+  updateItemQuantity,
+  // applyCoupon,
+  // removeCoupon,
 };

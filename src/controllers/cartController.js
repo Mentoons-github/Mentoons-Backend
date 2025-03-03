@@ -1,58 +1,173 @@
-const Cart = require("../models/cart");
 const cartHelper = require("../helpers/cartHelper");
 
-const addItemToCart = async (req, res) => {
-  console.log("Inside AddItem controller");
-  console.log("Request Body", req.body);
-  try {
-    const { userId, productId, quantity, price } = req.body;
-    const cart = await cartHelper.addItem(userId, productId, quantity, price);
-    res.status(200).json(cart);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-const removeItemFromCart = async (req, res) => {
-  console.log("Inside RemoveItem controller");
-  console.log("Request Body", req.body);
-  console.log("Request Params", req.params);
-  try {
-    const { userId } = req.params;
-    const { productId } = req.params;
-    const cart = await cartHelper.removeItem(userId, productId);
-    res.status(200).json(cart);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
+/**
+ * Get cart by user ID
+ */
 const getCart = async (req, res) => {
   try {
-    const { userId } = req.params;
-    const cart = await cartHelper.getCart(userId);
+    const userId = req.params.userId;
+
+    if (!userId) {
+      return res
+        .status(400)
+        .json({ success: false, message: "User ID is required" });
+    }
+
+    const cart = await cartHelper.getCartByUserId(userId);
+
     res.status(200).json(cart);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return error;
   }
 };
 
-const updateCartItem = async (req, res) => {
+/**
+ * Add item to cart
+ */
+const addItemToCart = async (req, res) => {
+  console.log("Request body:", req.body);
+
   try {
-    console.log("Inside UpdateItem controller");
-    console.log("Request Body", req.body);
-    const { userId, flag } = req.body;
-    const { productId } = req.params;
-    const cart = await cartHelper.updateCartItem(userId, productId, flag);
+    const {
+      userId,
+      productId,
+      productType,
+      title,
+      quantity,
+      price,
+      ageCategory,
+      productImage,
+      cardType,
+      productDetails,
+    } = req.body;
+
+    if (
+      !userId ||
+      !productId ||
+      !productType ||
+      !title ||
+      !quantity ||
+      !price
+    ) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Missing required fields" });
+    }
+
+    const cart = await cartHelper.addItemToCart({
+      userId,
+      productId,
+      productType,
+      title,
+      quantity,
+      price,
+      ageCategory,
+      productImage,
+      cardType,
+      productDetails,
+    });
+
     res.status(200).json(cart);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return error;
+  }
+};
+
+/**
+ * Remove item from cart
+ */
+const removeItemFromCart = async (req, res) => {
+  try {
+    const { userId, productId } = req.body;
+
+    if (!userId || !productId) {
+      return res.status(400).json({
+        success: false,
+        message: "User ID and product ID are required",
+      });
+    }
+
+    const cart = await cartHelper.removeItemFromCart(userId, productId);
+
+    res.status(200).json(cart);
+  } catch (error) {
+    return error;
+  }
+};
+
+/**
+ * Update item quantity in cart
+ */
+const updateItemQuantity = async (req, res) => {
+  try {
+    const { userId, productId, quantity } = req.body;
+
+    if (!userId || !productId || quantity === undefined) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Missing required fields" });
+    }
+
+    const cart = await cartHelper.updateItemQuantity(
+      userId,
+      productId,
+      quantity
+    );
+
+    res.status(200).json(cart);
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+/**
+ * Apply coupon to cart
+ */
+const applyCoupon = async (req, res) => {
+  try {
+    const { userId, couponCode } = req.body;
+
+    if (!userId || !couponCode) {
+      return res.status(400).json({
+        success: false,
+        message: "User ID and coupon code are required",
+      });
+    }
+
+    const cart = await cartHelper.applyCoupon(userId, couponCode);
+
+    res.status(200).json(cart);
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+/**
+ * Remove coupon from cart
+ */
+const removeCoupon = async (req, res) => {
+  try {
+    const { userId } = req.body;
+
+    if (!userId) {
+      return res
+        .status(400)
+        .json({ success: false, message: "User ID is required" });
+    }
+
+    const cart = await cartHelper.removeCoupon(userId);
+
+    res.status(200).json(cart);
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 
 module.exports = {
+  getCart,
   addItemToCart,
   removeItemFromCart,
-  updateCartItem,
-  getCart,
+  updateItemQuantity,
+  applyCoupon,
+  removeCoupon,
 };
