@@ -12,7 +12,7 @@ const CartSchema = new mongoose.Schema(
       {
         productId: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: "Product", 
+          ref: "Product",
           required: true,
         },
         productType: {
@@ -114,4 +114,6 @@ CartSchema.pre("save", function (next) {
   next();
 });
 
-module.exports = mongoose.model("Cart", CartSchema);
+const Cart = mongoose.model("Cart", CartSchema);
+
+module.exports = Cart;

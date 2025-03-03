@@ -1,4 +1,4 @@
-const Cart = require("../models/Cart");
+const Cart = require("../models/cart");
 const { Product } = require("../models/product");
 // const Coupon = require("../models/Coupon"); // Assuming you have a Coupon model
 
@@ -264,7 +264,6 @@ async function recalculateCartTotals(cart) {
 
   return cart;
 }
-
 
 module.exports = {
   getCartByUserId,
