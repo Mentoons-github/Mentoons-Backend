@@ -15,7 +15,7 @@ const getCart = async (req, res) => {
 
     const cart = await cartHelper.getCartByUserId(userId);
 
-    res.status(200).json(cart);
+    return res.status(200).json(cart);
   } catch (error) {
     return error;
   }
@@ -37,7 +37,6 @@ const addItemToCart = async (req, res) => {
       price,
       ageCategory,
       productImage,
-      cardType,
       productDetails,
     } = req.body;
 
@@ -63,13 +62,12 @@ const addItemToCart = async (req, res) => {
       price,
       ageCategory,
       productImage,
-      cardType,
       productDetails,
     });
 
-    res.status(200).json(cart);
+    return res.status(200).json(cart);
   } catch (error) {
-    return error;
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -89,9 +87,9 @@ const removeItemFromCart = async (req, res) => {
 
     const cart = await cartHelper.removeItemFromCart(userId, productId);
 
-    res.status(200).json(cart);
+    return res.status(200).json(cart);
   } catch (error) {
-    return error;
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -101,6 +99,7 @@ const removeItemFromCart = async (req, res) => {
 const updateItemQuantity = async (req, res) => {
   try {
     const { userId, productId, quantity } = req.body;
+    
 
     if (!userId || !productId || quantity === undefined) {
       return res
@@ -114,7 +113,7 @@ const updateItemQuantity = async (req, res) => {
       quantity
     );
 
-    res.status(200).json(cart);
+    return res.status(200).json(cart);
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
   }
@@ -136,7 +135,7 @@ const applyCoupon = async (req, res) => {
 
     const cart = await cartHelper.applyCoupon(userId, couponCode);
 
-    res.status(200).json(cart);
+    return res.status(200).json(cart);
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
   }
@@ -157,7 +156,7 @@ const removeCoupon = async (req, res) => {
 
     const cart = await cartHelper.removeCoupon(userId);
 
-    res.status(200).json(cart);
+    return res.status(200).json(cart);
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
   }

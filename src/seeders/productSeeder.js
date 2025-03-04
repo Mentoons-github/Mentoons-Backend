@@ -188,13 +188,13 @@ const seedProducts = async () => {
         productImages: [
           {
             imageUrl:
-              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733315001610-Silent%20stories%20box%202.png",
+              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Conversation+Starter+Cards+6-12.png",
           },
         ],
         productVideos: [
           {
             videoUrl:
-              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733315016267-Silent+Stories+Ages+6-12.mp4",
+              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733308266572-Conversation+Starter+Cards+6-12+%281%29.mp4",
           },
         ],
         isFeatured: true,
@@ -205,22 +205,26 @@ const seedProducts = async () => {
             {
               title: "Low Confidence",
               description: "Building self-confidence through daily activities",
-              issueIllustrationUrl: "confidence-illustration.jpg",
+              issueIllustrationUrl:
+                "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/low-confidence.png",
             },
             {
               title: "Aggressive Behavior",
               description: "Building self-confidence through daily activities",
-              issueIllustrationUrl: "confidence-illustration.jpg",
+              issueIllustrationUrl:
+                "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/aggressive-behaviour.png",
             },
             {
               title: "Lack of Communication",
               description: "Building self-confidence through daily activities",
-              issueIllustrationUrl: "confidence-illustration.jpg",
+              issueIllustrationUrl:
+                "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/lack-of-communication.png",
             },
             {
               title: "Disobiendence",
               description: "Building self-confidence through daily activities",
-              issueIllustrationUrl: "confidence-illustration.jpg",
+              issueIllustrationUrl:
+                "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/disobidience.png",
             },
           ],
           productDescription: [
@@ -300,7 +304,7 @@ const seedProducts = async () => {
         productImages: [
           {
             imageUrl:
-              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733315001610-Silent%20stories%20box%202.png",
+              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Conversation+Starter+Cards+13-16.png",
           },
           {
             imageUrl:
@@ -310,7 +314,7 @@ const seedProducts = async () => {
         productVideos: [
           {
             videoUrl:
-              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733315016267-Silent+Stories+Ages+6-12.mp4",
+              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733480536383-Teen+Camp+Conversation+Starter+Cards.mp4",
           },
         ],
         isFeatured: false,
@@ -321,24 +325,28 @@ const seedProducts = async () => {
             {
               title: "Dipression",
               description: "Building self-confidence through daily activities",
-              issueIllustrationUrl: "confidence-illustration.jpg",
+              issueIllustrationUrl:
+                "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/dipression.png",
             },
             {
               title: "Bullying",
               description:
                 "Bully-proofing your child through positive affirmations",
-              issueIllustrationUrl: "confidence-illustration.jpg",
+              issueIllustrationUrl:
+                "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/bullying.png",
             },
             {
               title: "Cyber Addiction",
               description: "Cyber addiction and how to overcome it",
-              issueIllustrationUrl: "confidence-illustration.jpg",
+              issueIllustrationUrl:
+                "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/cyber-addiction.png",
             },
             {
               title: "Peer Pressure",
               description:
                 "Dealing with peer pressure and making the right choices",
-              issueIllustrationUrl: "confidence-illustration.jpg",
+              issueIllustrationUrl:
+                "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/peer-pressure.png",
             },
           ],
           productDescription: [
@@ -423,7 +431,7 @@ const seedProducts = async () => {
         productImages: [
           {
             imageUrl:
-              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733315001610-Silent%20stories%20box%202.png",
+              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Conversation+Starter+Cards+17-19.png",
           },
           {
             imageUrl:
@@ -433,7 +441,7 @@ const seedProducts = async () => {
         productVideos: [
           {
             videoUrl:
-              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733315016267-Silent+Stories+Ages+6-12.mp4",
+              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733482725834-Teen+Camp+Conversation+Starter+Cards.mp4",
           },
         ],
         isFeatured: false,
@@ -444,22 +452,26 @@ const seedProducts = async () => {
             {
               title: "Interviewing Skills",
               description: "Interviewing skills for job and college",
-              issueIllustrationUrl: "confidence-illustration.jpg",
+              issueIllustrationUrl:
+                "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/interview-skill.png",
             },
             {
               title: "Professional Image",
               description: "Interviewing skills for job and college",
-              issueIllustrationUrl: "confidence-illustration.jpg",
+              issueIllustrationUrl:
+                "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/professional-image.png",
             },
             {
               title: "Portfolio Management",
               description: "Interviewing skills for job and college",
-              issueIllustrationUrl: "confidence-illustration.jpg",
+              issueIllustrationUrl:
+                "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/portfolio-managment.png",
             },
             {
               title: "Lack of Career Support",
               description: "",
-              issueIllustrationUrl: "confidence-illustration.jpg",
+              issueIllustrationUrl:
+                "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/lack-of-career-support.png",
             },
           ],
           productDescription: [
@@ -533,7 +545,7 @@ const seedProducts = async () => {
         },
       },
       {
-        title: "Conversation Starter Cards (20+) years",
+        title: "Conversation Story Cards(20+) years",
         description:
           "Encourage meaningful conversations with our Conversation Starter Cards. Designed for teenagers, these cards help build confidence, empathy, and social skills while fostering creativity and self-expression.",
         price: 199,
@@ -544,7 +556,7 @@ const seedProducts = async () => {
         productImages: [
           {
             imageUrl:
-              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733315001610-Silent%20stories%20box%202.png",
+              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Conversation+Story+Cards+20%2B.png",
           },
           {
             imageUrl:
@@ -559,11 +571,11 @@ const seedProducts = async () => {
         ],
         isFeatured: false,
         details: {
-          cardType: CardType.CONVERSATION_STARTER_CARDS,
+          cardType: CardType.CONVERSATION_STORY_CARDS,
           accentColor: "#E7002A",
           addressedIssues: [
             {
-              title: "Interviewing Skills",
+              title: "Manage Screen time",
               description: "Interviewing skills for job and college",
               issueIllustrationUrl: "confidence-illustration.jpg",
             },
@@ -665,11 +677,11 @@ const seedProducts = async () => {
         productImages: [
           {
             imageUrl:
-              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733314759098-Story%20Re%20teller%20card%20box.png",
+              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Story+reteller+cards+6-12.png",
           },
           {
             imageUrl:
-              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733314766429-Story%20Re-Teller%20Cards%20Thumbnail.png",
+              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733314767994-Story+Re-Teller+Cards+05.mp4",
           },
         ],
         productVideos: [
@@ -781,7 +793,7 @@ const seedProducts = async () => {
         productImages: [
           {
             imageUrl:
-              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733314759098-Story%20Re%20teller%20card%20box.png",
+              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Story+reteller+cards+6-12.png",
           },
           {
             imageUrl:
@@ -901,7 +913,7 @@ const seedProducts = async () => {
         productImages: [
           {
             imageUrl:
-              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733314759098-Story%20Re%20teller%20card%20box.png",
+              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Story+reteller+cards+front+17-19.png",
           },
           {
             imageUrl:
@@ -1005,107 +1017,7 @@ const seedProducts = async () => {
           ],
         },
       },
-      {
-        title: "Story Re-teller Cards (20+) years",
-        description:
-          "Unleash creativity and connection with our Story Reteller Cards. Inspire kids to imagine, think critically, and bond through fun, engaging stories. Easy to carry, they make learning and sharing a joy anytime, anywhere!",
-        price: 199,
-        ageCategory: AgeCategory.ADULT,
-        type: ProductType.MENTOONS_CARDS,
-        rating: 4.5,
-        tags: ["creativity", "storytelling"],
-        productImages: [
-          {
-            imageUrl:
-              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733314759098-Story%20Re%20teller%20card%20box.png",
-          },
-          {
-            imageUrl:
-              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733314766429-Story%20Re-Teller%20Cards%20Thumbnail.png",
-          },
-        ],
-        productVideos: [
-          {
-            videoUrl:
-              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733314767994-Story+Re-Teller+Cards+05.mp4",
-          },
-        ],
-        isFeatured: false,
-        details: {
-          cardType: CardType.STORY_RE_TELLER_CARD,
-          accentColor: "#A7DE5C",
-          addressedIssues: [
-            {
-              title: "Low Self-Esteem",
-              description: "Building self-confidence through daily activities",
-              issueIllustrationUrl: "confidence-illustration.jpg",
-            },
-          ],
-          productDescription: [
-            {
-              label: "Story Re-Teller cards",
-              descriptionList: [
-                {
-                  description: "Smallm engaging and printable",
-                },
-                {
-                  description: "Each card has different themes",
-                },
-                {
-                  description: "Colourful pictures and story prompts",
-                },
-                {
-                  description: "Question based on stories",
-                },
-                {
-                  description: "Kids can use the cards alone or with friends",
-                },
-              ],
-            },
-            {
-              label: "How kids will benefit",
-              descriptionList: [
-                {
-                  description: "Convenient  for anytime use.",
-                },
-                {
-                  description: "Builds empathy and social skills",
-                },
-                {
-                  description: "Stiulates creativity and imagination",
-                },
-                {
-                  description: "Encourages critical thinking",
-                },
-                {
-                  description: "Forster independence and collaboration",
-                },
-              ],
-            },
-            {
-              label: "How parents will benefit",
-              descriptionList: [
-                {
-                  description: "Easy to carry and use anywhere",
-                },
-                {
-                  description: "Indtroducess important life values naturally",
-                },
-                {
-                  description: "Makes complex ideas easy to explain",
-                },
-                {
-                  description: "Promotes meaningful conversations",
-                },
-                {
-                  description:
-                    "Strengthens sibling bonding and peer interaction",
-                },
-              ],
-            },
-          ],
-        },
-      },
+
       {
         title: "Silent Stories (6-12) years",
         description:
@@ -1118,7 +1030,7 @@ const seedProducts = async () => {
         productImages: [
           {
             imageUrl:
-              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733315001610-Silent%20stories%20box%202.png",
+              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Silent+stories+6-12.png",
           },
           {
             imageUrl:
@@ -1233,7 +1145,7 @@ const seedProducts = async () => {
         productImages: [
           {
             imageUrl:
-              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733315001610-Silent%20stories%20box%202.png",
+              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Silent+stories+13-16+.png",
           },
           {
             imageUrl:
@@ -1360,7 +1272,7 @@ const seedProducts = async () => {
         productImages: [
           {
             imageUrl:
-              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733315001610-Silent%20stories%20box%202.png",
+              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Silent+stories+17-19.png",
           },
           {
             imageUrl:
@@ -1463,237 +1375,7 @@ const seedProducts = async () => {
           ],
         },
       },
-      {
-        title: "Silent Stories (20+) years",
-        description:
-          "Unlock your child’s creativity with Silent Stories, a screen-free activity that boosts imagination and storytelling skills. Perfect for solo or group play, it fosters emotional understanding and strengthens communication while offering a fun, offline bonding experience.",
-        price: 199,
-        ageCategory: AgeCategory.ADULT,
-        type: ProductType.MENTOONS_CARDS,
-        rating: 4.5,
-        tags: ["emotional understanding ", "communication"],
-        productImages: [
-          {
-            imageUrl:
-              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733315001610-Silent%20stories%20box%202.png",
-          },
-          {
-            imageUrl:
-              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733315009292-Silent%20Stories%20Thumbnail.png",
-          },
-        ],
-        productVideos: [
-          {
-            videoUrl:
-              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733315016267-Silent+Stories+Ages+6-12.mp4",
-          },
-        ],
-        isFeatured: true,
-        details: {
-          cardType: CardType.SILENT_STORIES,
-          accentColor: "#69A1FF",
-          addressedIssues: [
-            {
-              title: "Low Self-Esteem",
-              description: "Building self-confidence through daily activities",
-              issueIllustrationUrl: "confidence-illustration.jpg",
-            },
-            {
-              title: "Low Self-Esteem",
-              description: "Building self-confidence through daily activities",
-              issueIllustrationUrl: "confidence-illustration.jpg",
-            },
-            {
-              title: "Low Self-Esteem",
-              description: "Building self-confidence through daily activities",
-              issueIllustrationUrl: "confidence-illustration.jpg",
-            },
-            {
-              title: "Low Self-Esteem",
-              description: "Building self-confidence through daily activities",
-              issueIllustrationUrl: "confidence-illustration.jpg",
-            },
-          ],
-          productDescription: [
-            {
-              label: "Silent Store",
-              descriptionList: [
-                {
-                  description: "Visual Storytelling",
-                },
-                {
-                  description: "Ecourage creativity",
-                },
-                {
-                  description: "Screen-free activity",
-                },
-                {
-                  description: "Enhances communication skill",
-                },
-                {
-                  description: "Flexible use",
-                },
-              ],
-            },
-            {
-              label: "How parents will benefit",
-              descriptionList: [
-                {
-                  description: "Boosts imagination and creativity.",
-                },
-                {
-                  description: "Inspires original ideas and stories.",
-                },
-                {
-                  description: "Focuses on engaging offline fun",
-                },
-                {
-                  description: "Improves storytelling and speaking skills.",
-                },
-                {
-                  description: "Enjoy solo or group play",
-                },
-              ],
-            },
-            {
-              label: "How kids will benefit",
-              descriptionList: [
-                {
-                  description: "Observes child's creative thinking.",
-                },
-                {
-                  description: "Sees unique prespectives from their child.",
-                },
-                {
-                  description: "Offers a healthy alternative to screen time.",
-                },
-                {
-                  description: "Understands child's emotions through stories.",
-                },
-                {
-                  description: "Encourages bonding through stories.",
-                },
-              ],
-            },
-          ],
-        },
-      },
-
-      {
-        title: "Silent Stories (Parents)",
-        description:
-          "Unlock your child’s creativity with Silent Stories, a screen-free activity that boosts imagination and storytelling skills. Perfect for solo or group play, it fosters emotional understanding and strengthens communication while offering a fun, offline bonding experience.",
-        price: 199,
-        ageCategory: AgeCategory.PARENTS,
-        type: ProductType.MENTOONS_CARDS,
-        rating: 4.5,
-        tags: ["emotional understanding ", "communication"],
-        productImages: [
-          {
-            imageUrl:
-              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733315001610-Silent%20stories%20box%202.png",
-          },
-          {
-            imageUrl:
-              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733315009292-Silent%20Stories%20Thumbnail.png",
-          },
-        ],
-        productVideos: [
-          {
-            videoUrl:
-              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733315016267-Silent+Stories+Ages+6-12.mp4",
-          },
-        ],
-        isFeatured: true,
-        details: {
-          cardType: CardType.SILENT_STORIES,
-          accentColor: "#69A1FF",
-          addressedIssues: [
-            {
-              title: "Low Self-Esteem",
-              description: "Building self-confidence through daily activities",
-              issueIllustrationUrl: "confidence-illustration.jpg",
-            },
-            {
-              title: "Low Self-Esteem",
-              description: "Building self-confidence through daily activities",
-              issueIllustrationUrl: "confidence-illustration.jpg",
-            },
-            {
-              title: "Low Self-Esteem",
-              description: "Building self-confidence through daily activities",
-              issueIllustrationUrl: "confidence-illustration.jpg",
-            },
-            {
-              title: "Low Self-Esteem",
-              description: "Building self-confidence through daily activities",
-              issueIllustrationUrl: "confidence-illustration.jpg",
-            },
-          ],
-          productDescription: [
-            {
-              label: "Silent Store",
-              descriptionList: [
-                {
-                  description: "Visual Storytelling",
-                },
-                {
-                  description: "Ecourage creativity",
-                },
-                {
-                  description: "Screen-free activity",
-                },
-                {
-                  description: "Enhances communication skill",
-                },
-                {
-                  description: "Flexible use",
-                },
-              ],
-            },
-            {
-              label: "How parents will benefit",
-              descriptionList: [
-                {
-                  description: "Boosts imagination and creativity.",
-                },
-                {
-                  description: "Inspires original ideas and stories.",
-                },
-                {
-                  description: "Focuses on engaging offline fun",
-                },
-                {
-                  description: "Improves storytelling and speaking skills.",
-                },
-                {
-                  description: "Enjoy solo or group play",
-                },
-              ],
-            },
-            {
-              label: "How kids will benefit",
-              descriptionList: [
-                {
-                  description: "Observes child's creative thinking.",
-                },
-                {
-                  description: "Sees unique prespectives from their child.",
-                },
-                {
-                  description: "Offers a healthy alternative to screen time.",
-                },
-                {
-                  description: "Understands child's emotions through stories.",
-                },
-                {
-                  description: "Encourages bonding through stories.",
-                },
-              ],
-            },
-          ],
-        },
-      },
+      
     ]);
 
     const mentoonsBook = await MentoonsBook.create([
