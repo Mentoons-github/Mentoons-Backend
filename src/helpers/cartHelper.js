@@ -1,5 +1,6 @@
 const Cart = require("../models/cart");
-const { Product } = require("../models/product");
+const User = require("../models/user");
+// const { Product } = require("../models/product");
 // const Coupon = require("../models/Coupon"); // Assuming you have a Coupon model
 
 /**
@@ -7,16 +8,17 @@ const { Product } = require("../models/product");
  */
 const getCartByUserId = async (userId) => {
   try {
-    let cart = await Cart.findOne({ userId, cartStatus: "active" });
+    const user = await User.findOne({ clerkId: userId });
+    let cart = await Cart.findOne({ userId: user._id, status: "active" });
 
     if (!cart) {
       // Create a new cart if none exists
       cart = await Cart.create({
-        userId,
+        userId: user._id,
         items: [],
         totalPrice: 0,
         totalItemCount: 0,
-        cartStatus: "active",
+        status: "active",
         discountedPrice: 0,
       });
     }
@@ -42,20 +44,21 @@ const addItemToCart = async (itemData) => {
       price,
       ageCategory,
       productImage,
-      cardType,
       productDetails,
     } = itemData;
 
     // Find or create cart
-    let cart = await Cart.findOne({ userId, cartStatus: "active" });
+    const user = await User.findOne({ clerkId: userId });
+
+    let cart = await Cart.findOne({ userId: user._id, status: "active" });
 
     if (!cart) {
       cart = await Cart.create({
-        userId,
+        userId: user._id,
         items: [],
         totalPrice: 0,
         totalItemCount: 0,
-        cartStatus: "active",
+        status: "active",
         discountedPrice: 0,
       });
     }
@@ -65,12 +68,14 @@ const addItemToCart = async (itemData) => {
       (item) => item.productId.toString() === productId
     );
 
+    let newItem; // Define newItem outside the if/else blocks
+
     if (itemIndex > -1) {
       // Update existing item
       cart.items[itemIndex].quantity += quantity;
     } else {
       // Add new item
-      const newItem = {
+      newItem = {
         productId,
         productType,
         title,
@@ -78,7 +83,6 @@ const addItemToCart = async (itemData) => {
         price,
         ageCategory,
         productImage,
-        cardType,
         productDetails,
       };
       cart.items.push(newItem);
@@ -89,6 +93,7 @@ const addItemToCart = async (itemData) => {
 
     // Save and return cart
     await cart.save();
+
     return cart;
   } catch (error) {
     throw new Error(`Error adding item to cart: ${error.message}`);
@@ -100,8 +105,9 @@ const addItemToCart = async (itemData) => {
  */
 const removeItemFromCart = async (userId, productId) => {
   try {
+    const user = await User.findOne({ clerkId: userId });
     // Find cart
-    const cart = await Cart.findOne({ userId, cartStatus: "active" });
+    const cart = await Cart.findOne({ userId: user._id, status: "active" });
 
     if (!cart) {
       throw new Error("Cart not found");
@@ -127,9 +133,15 @@ const removeItemFromCart = async (userId, productId) => {
  * Update item quantity in cart
  */
 const updateItemQuantity = async (userId, productId, quantity) => {
+  console.log("userId ", userId);
   try {
+    const user = await User.findOne({ clerkId: userId });
+    console.log("user ", user);
+
     // Find cart
-    const cart = await Cart.findOne({ userId, cartStatus: "active" });
+    const cart = await Cart.findOne({ userId: user._id, status: "active" });
+
+    console.log("cart ", cart);
 
     if (!cart) {
       throw new Error("Cart not found");
