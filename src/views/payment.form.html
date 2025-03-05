@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Redirecting to Payment Gateway</title>
+    <script>
+      // Auto-submit the form when page loads
+      window.onload = function () {
+        document.getElementById("paymentForm").submit();
+      };
+    </script>
+  </head>
+  <body>
+    <div style="text-align: center; margin-top: 50px">
+      <h2>Redirecting to payment gateway...</h2>
+      <p>Please do not refresh this page</p>
+      <div
+        class="loader"
+        style="
+          border: 4px solid #f3f3f3;
+          border-radius: 50%;
+          border-top: 4px solid #3498db;
+          width: 40px;
+          height: 40px;
+          margin: 20px auto;
+          animation: spin 2s linear infinite;
+        "
+      ></div>
+    </div>
+
+    <form
+      id="paymentForm"
+      method="post"
+      action="{{paymentUrl}}"
+      style="display: none"
+    >
+      <input type="hidden" name="encRequest" value="{{encRequest}}" />
+      <input type="hidden" name="access_code" value="{{accessCode}}" />
+      <button type="submit">Submit</button>
+    </form>
+
+    <style>
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </body>
+</html>

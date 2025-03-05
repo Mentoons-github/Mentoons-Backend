@@ -3,9 +3,10 @@ var http = require("http"),
   ccav = require("../utils/ccavutil.js"),
   qs = require("querystring");
 const dotenv = require("dotenv");
+const Order = require("../models/Order");
 dotenv.config();
 
-exports.postRes = function (request, response) {
+const postRes = function (request, response) {
   var ccavEncResponse = "",
     workingKey = `${process.env.CCAVENUE_WORKING_KEY}`;
 
@@ -13,31 +14,78 @@ exports.postRes = function (request, response) {
     ccavEncResponse += data;
   });
 
-  request.on("end", function () {
+  request.on("end", async function () {
     try {
       const ccavPOST = qs.parse(ccavEncResponse);
       const encryption = ccavPOST.encResp;
       const decryptedResponse = ccav.decrypt(encryption, workingKey);
 
       // Convert the response string to an object
-      const responseObject = decryptedResponse.split("&").reduce((acc, pair) => {
-        const [key, value] = pair.split("=");
-        acc[key] = value;
-        return acc;
-      }, {});
+      const responseObject = decryptedResponse
+        .split("&")
+        .reduce((acc, pair) => {
+          const [key, value] = pair.split("=");
+          acc[key] = decodeURIComponent(value || "");
+          return acc;
+        }, {});
 
-      response.setHeader("Content-Type", "application/json");
-      response.status(200).json({
-        status: "success",
-        data: responseObject,
+      console.log("CCAvenue Response:", responseObject);
+
+      // Update order in database if order_id is present
+      if (responseObject.order_id) {
+        try {
+          const orderStatus = responseObject.order_status || "Unknown";
+
+          await Order.findByIdAndUpdate(responseObject.order_id, {
+            status: orderStatus,
+            paymentId: responseObject.tracking_id || null,
+            bankRefNumber: responseObject.bank_ref_no || null,
+            paymentMethod: responseObject.payment_mode || null,
+            updatedAt: new Date(),
+            paymentResponse: JSON.stringify(responseObject),
+          });
+
+          console.log(
+            `Order ${responseObject.order_id} updated with status: ${orderStatus}`
+          );
+        } catch (dbError) {
+          console.error("Database update error:", dbError);
+        }
+      }
+
+      // Redirect to frontend with payment status
+      const redirectUrl = new URL(process.env.FRONTEND_URL + "/payment-status");
+      redirectUrl.searchParams.append(
+        "status",
+        responseObject.order_status || "UNKNOWN"
+      );
+      redirectUrl.searchParams.append("orderId", responseObject.order_id || "");
+      redirectUrl.searchParams.append(
+        "trackingId",
+        responseObject.tracking_id || ""
+      );
+
+      response.writeHeader(302, {
+        Location: redirectUrl.toString(),
       });
+      response.end();
     } catch (error) {
-      response.setHeader("Content-Type", "application/json");
-      response.status(500).json({
-        status: "error",
-        message: "Failed to process payment response",
-        error: error.message,
+      console.error("CCAvenue response error:", error);
+
+      // Redirect to frontend with error
+      const redirectUrl = new URL(process.env.FRONTEND_URL + "/payment-status");
+      redirectUrl.searchParams.append("status", "ERROR");
+      redirectUrl.searchParams.append(
+        "message",
+        "Failed to process payment response"
+      );
+
+      response.writeHeader(302, {
+        Location: redirectUrl.toString(),
       });
+      response.end();
     }
   });
 };
+
+module.exports = { postRes };

@@ -17,13 +17,21 @@ const PaymentSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["initiated", "pending", "success", "failed", "cancelled"],
+    enum: ["initiated", "pending", "processing", "success", "failed", "cancelled", "refunded"],
     default: "initiated",
   },
+  paymentGateway: {
+    type: String,
+    required: true,
+  },
+  transactionId: String,
   trackingId: String,
   bankRefNo: String,
   failureMessage: String,
-  paymentMode: String,
+  paymentMode: {
+    type: String,
+    enum: ["credit_card", "debit_card", "net_banking", "upi", "wallet", "emi", "other"]
+  },
   cardName: String,
   statusMessage: String,
   customerDetails: {
@@ -39,19 +47,6 @@ const PaymentSchema = new mongoose.Schema({
       response: mongoose.Schema.Types.Mixed,
     },
   ],
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
-
-PaymentSchema.pre("save", function (next) {
-  this.updatedAt = Date.now();
-  next();
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model("Payment", PaymentSchema);

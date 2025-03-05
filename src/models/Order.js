@@ -1,95 +1,217 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const orderItemSchema = new mongoose.Schema({
-    product: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Product', // This could reference Course, Book, or any product model
-        required: true
-    },
-    quantity: {
-        type: Number,
-        required: true,
-        min: 1
-    },
-    price: {
-        type: Number,
-        required: true
-    },
-    productName: {
-        type: String,
-        required: true
-    },
-    productType: {
-        type: String,
-        required: true,
-        enum: ['course', 'book', 'merchandise'] // Add more product types as needed
-    }
+  product: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Product",
+    required: true,
+  },
+  quantity: {
+    type: Number,
+    required: true,
+    min: 1,
+  },
+  price: {
+    type: Number,
+    required: true,
+  },
+  productName: {
+    type: String,
+    required: true,
+  },
+  productType: {
+    type: String,
+    required: true,
+    enum: ["course", "book", "merchandise"],
+  },
 });
 
-const addressSchema = new mongoose.Schema({
+const addressSchema = new mongoose.Schema(
+  {
     street: String,
     city: String,
     state: String,
     country: String,
-    postalCode: String
-}, { _id: false });
+    postalCode: String,
+  },
+  { _id: false }
+);
 
-const orderSchema = new mongoose.Schema({
+const paymentDetailsSchema = new mongoose.Schema(
+  {
+    paymentMethod: {
+      type: String,
+      enum: [
+        "credit_card",
+        "debit_card",
+        "upi",
+        "net_banking",
+        "wallet",
+        "other",
+      ],
+      required: true,
+    },
+    transactionId: String,
+    paymentStatus: {
+      type: String,
+      enum: ["initiated", "processing", "completed", "failed", "refunded"],
+      default: "initiated",
+    },
+    paymentDate: Date,
+    gatewayResponse: Object,
+  },
+  { _id: false }
+);
+
+const orderSchema = new mongoose.Schema(
+  {
+    orderId: {
+      type: String,
+      required: true,
+    },
     user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
     items: [orderItemSchema],
+    paymentDetails: paymentDetailsSchema,
     payment: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Payment'
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Payment",
     },
     orderStatus: {
-        type: String,
-        enum: ['pending', 'completed', 'failed', 'refunded'],
-        default: 'pending'
+      type: String,
+      enum: [
+        "pending",
+        "processing",
+        "completed",
+        "failed",
+        "refunded",
+        "cancelled",
+      ],
+      default: "pending",
     },
     totalAmount: {
-        type: Number,
-        required: true
+      type: Number,
+      required: true,
+    },
+    currency: {
+      type: String,
+      default: "INR",
     },
     purchaseDate: {
-        type: Date,
-        default: Date.now
+      type: Date,
+      default: Date.now,
     },
     billingAddress: addressSchema,
     shippingAddress: addressSchema,
     sameAsShipping: {
-        type: Boolean,
-        default: false
-    }
-}, {
-    timestamps: true
-});
+      type: Boolean,
+      default: false,
+    },
+    amount: {
+      type: Number,
+      required: true,
+    },
+    productInfo: {
+      type: String,
+      required: true,
+    },
+    customerName: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+    },
+    phone: {
+      type: String,
+      required: true,
+    },
+    status: {
+      type: String,
+      enum: [
+        "PENDING",
+        "SUCCESS",
+        "FAILURE",
+        "ABORTED",
+        "Invalid",
+        "Cancelled",
+        "Unknown",
+      ],
+      default: "PENDING",
+    },
+    paymentId: {
+      type: String,
+    },
+    bankRefNumber: {
+      type: String,
+    },
+    paymentMethod: {
+      type: String,
+    },
+    paymentResponse: {
+      type: String,
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now,
+    },
+    updatedAt: {
+      type: Date,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
 
 // Calculate total amount before saving
-orderSchema.pre('save', function(next) {
-    if (this.items && this.items.length > 0) {
-        this.totalAmount = this.items.reduce((total, item) => {
-            return total + (item.price * item.quantity);
-        }, 0);
-    }
-    next();
+orderSchema.pre("save", function (next) {
+  if (this.items && this.items.length > 0) {
+    this.totalAmount = this.items.reduce((total, item) => {
+      return total + item.price * item.quantity;
+    }, 0);
+  }
+  next();
 });
 
 // Method to update order status
-orderSchema.methods.updateStatus = async function(status) {
-    this.orderStatus = status;
-    return await this.save();
+orderSchema.methods.updateStatus = async function (status) {
+  this.orderStatus = status;
+  return await this.save();
+};
+
+// Method to update payment status
+orderSchema.methods.updatePaymentStatus = async function (
+  status,
+  transactionId = null,
+  gatewayResponse = null
+) {
+  if (!this.paymentDetails) {
+    this.paymentDetails = {};
+  }
+  this.paymentDetails.paymentStatus = status;
+  if (transactionId) this.paymentDetails.transactionId = transactionId;
+  if (gatewayResponse) this.paymentDetails.gatewayResponse = gatewayResponse;
+  if (status === "completed") this.paymentDetails.paymentDate = new Date();
+
+  // Update order status based on payment status
+  if (status === "completed") this.orderStatus = "processing";
+  if (status === "failed") this.orderStatus = "failed";
+  if (status === "refunded") this.orderStatus = "refunded";
+
+  return await this.save();
 };
 
 // Method to add item to order
-orderSchema.methods.addItem = function(item) {
-    this.items.push(item);
-    return this;
+orderSchema.methods.addItem = function (item) {
+  this.items.push(item);
+  return this;
 };
 
-const Order = mongoose.model('Order', orderSchema);
+const Order = mongoose.model("Order", orderSchema);
 
 module.exports = Order;

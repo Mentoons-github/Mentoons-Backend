@@ -793,7 +793,7 @@ const seedProducts = async () => {
         productImages: [
           {
             imageUrl:
-              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Story+reteller+cards+6-12.png",
+              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Story+reteller+cards+13-16.png",
           },
           {
             imageUrl:
@@ -1375,14 +1375,13 @@ const seedProducts = async () => {
           ],
         },
       },
-      
     ]);
 
     const mentoonsBook = await MentoonsBook.create([
       {
         title: "Coloring Book",
         description:
-          "A collection of short stories that teach valuable life lessons",
+          "A fun coloring book that features your favorite cartoon characters",
         price: 199,
         ageCategory: AgeCategory.CHILD,
         tags: ["coloring", "cartoon character"],
