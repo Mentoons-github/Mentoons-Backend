@@ -1,70 +1,97 @@
-const CCavenueService = require("../services/ccavenue.service");
+const paymentService = require("../services/payment.service");
 const Payment = require("../models/payment");
 const logger = require("../utils/logger");
+const Order = require("../models/Order");
 
-// Initiate a new payment
 const initiatePayment = async (req, res) => {
   try {
-    const paymentData = {
-      order_id: `ORDER_${Date.now()}`,
-      amount: req.body.amount,
-      currency: req.body.currency || "INR",
-      customer_name: req.body.customer_name,
-      customer_email: req.body.customer_email,
-      customer_phone: req.body.customer_phone,
-    };
+    const orderData = req.body;
+    const paymentRequest = await paymentService.createCCavenuePaymentRequest(
+      orderData
+    );
 
-    const result = await CCavenueService.initiatePayment(paymentData);
-    
-    res.json(result);
+    return res.status(200).json({
+      success: true,
+      data: paymentRequest,
+    });
   } catch (error) {
-    logger.error("Payment initiation failed:", error);
-    res.status(500).json({ error: "Failed to initiate payment" });
+    console.error("Payment initiation error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to initiate payment",
+      error: error.message,
+    });
   }
 };
 
-// Handle CCAvenue response
-const handleResponse = async (req, res) => {
+const handlePaymentCallback = async (req, res) => {
   try {
     const { encResp } = req.body;
-    const result = await CCavenueService.handleResponse(encResp);
+    if (!encResp) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid response from payment gateway",
+      });
+    }
 
-    if (result.success) {
-      res.redirect(`/payment/success/${result.payment.orderId}`);
+    const paymentResponse = await paymentService.processCCavenueResponse(
+      encResp
+    );
+
+    // Redirect based on payment status
+    if (paymentResponse.status === "Success") {
+      return res.redirect(
+        `/payment/success?orderId=${paymentResponse.orderId}`
+      );
+    } else if (paymentResponse.status === "Failure") {
+      return res.redirect(
+        `/payment/failure?orderId=${paymentResponse.orderId}`
+      );
     } else {
-      res.redirect(`/payment/failure/${result.payment.orderId}`);
+      return res.redirect(
+        `/payment/pending?orderId=${paymentResponse.orderId}`
+      );
     }
   } catch (error) {
-    logger.error("Payment response handling failed:", error);
-    res.redirect("/payment/error");
+    console.error("Payment callback error:", error);
+    return res.redirect("/payment/error");
   }
 };
 
-// Get payment status
+const handlePaymentCancel = async (req, res) => {
+  return res.redirect("/payment/cancelled");
+};
+
 const getPaymentStatus = async (req, res) => {
   try {
     const { orderId } = req.params;
-    const payment = await Payment.findOne({ orderId });
+    const order = await Order.findById(orderId);
 
-    if (!payment) {
-      return res.status(404).json({ error: "Payment not found" });
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
     }
 
-    res.json({
-      orderId: payment.orderId,
-      status: payment.status,
-      amount: payment.amount,
-      currency: payment.currency,
-      trackingId: payment.trackingId,
-      updatedAt: payment.updatedAt,
+    return res.status(200).json({
+      success: true,
+      data: {
+        orderId: order._id,
+        status: order.status,
+        paymentDetails: order.paymentDetails,
+      },
     });
   } catch (error) {
-    logger.error("Get payment status failed:", error);
-    res.status(500).json({ error: "Failed to fetch payment status" });
+    console.error("Get payment status error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to get payment status",
+      error: error.message,
+    });
   }
 };
 
-// Get payment history
 const getPaymentHistory = async (req, res) => {
   try {
     const payments = await Payment.find({
@@ -110,8 +137,9 @@ const retryPayment = async (req, res) => {
 
 module.exports = {
   initiatePayment,
-  handleResponse,
+  handlePaymentCallback,
+  handlePaymentCancel,
   getPaymentStatus,
   getPaymentHistory,
-  retryPayment
+  retryPayment,
 };

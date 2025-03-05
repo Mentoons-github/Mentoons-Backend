@@ -19,7 +19,7 @@ const reviewRoutes = require("./src/routes/review");
 const skuRoutes = require("./src/routes/cardProductRoutes.js");
 const upload = require("./src/middlewares/uploadFileMiddleware.js");
 const cartRoutes = require("./src/routes/cartRoutes.js");
-// const paymentRoutes = require("./src/routes/payamentRoutes.js");
+const paymentRoutes = require("./src/routes/paymentRoutes.js");
 var http = require("http"),
   fs = require("fs"),
   ccav = require("./src/utils/ccavutil.js"),
@@ -156,8 +156,7 @@ app.use("/api/v1/evaluation", evaluationRoutes);
 app.use("/api/v1/review", reviewRoutes);
 app.use("/api/v1/sku", skuRoutes); // This route is under testing
 app.use("/api/v1/cart", cartRoutes);
-// app.use("/api/v1/payments", paymentRoutes);
-
+app.use("/api/v1/payment", paymentRoutes);
 app.use("/health", (req, res) => {
   res.json({
     message: "The server is running successfully",
