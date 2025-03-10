@@ -7,6 +7,7 @@ const Order = require("../models/Order");
 dotenv.config();
 
 const postRes = function (request, response) {
+  console.log("Received CCAvenue response");
   var ccavEncResponse = "",
     workingKey = `${process.env.CCAVENUE_WORKING_KEY}`;
 
@@ -36,18 +37,25 @@ const postRes = function (request, response) {
         try {
           const orderStatus = responseObject.order_status || "Unknown";
 
-          await Order.findByIdAndUpdate(responseObject.order_id, {
-            status: orderStatus,
-            paymentId: responseObject.tracking_id || null,
-            bankRefNumber: responseObject.bank_ref_no || null,
-            paymentMethod: responseObject.payment_mode || null,
-            updatedAt: new Date(),
-            paymentResponse: JSON.stringify(responseObject),
-          });
+          const orderUpdate = await Order.findByIdAndUpdate(
+            responseObject.order_id,
+            {
+              status: orderStatus,
+              paymentId: responseObject.tracking_id || null,
+              bankRefNumber: responseObject.bank_ref_no || null,
+              paymentMethod: responseObject.payment_mode || null,
+              updatedAt: new Date(),
+              paymentResponse: JSON.stringify(responseObject),
+            }
+          );
+
+          console.log("Order update result:", orderUpdate);
 
           console.log(
             `Order ${responseObject.order_id} updated with status: ${orderStatus}`
           );
+
+          console.log("here you can send the product to the user");
         } catch (dbError) {
           console.error("Database update error:", dbError);
         }
@@ -64,6 +72,14 @@ const postRes = function (request, response) {
         "trackingId",
         responseObject.tracking_id || ""
       );
+
+      // Log the complete URL information
+      console.log("Redirect URL object:", redirectUrl);
+      console.log("Redirect URL string:", redirectUrl.toString());
+      console.log("URL search parameters:");
+      redirectUrl.searchParams.forEach((value, key) => {
+        console.log(`  ${key}: ${value}`);
+      });
 
       response.writeHeader(302, {
         Location: redirectUrl.toString(),

@@ -22,7 +22,7 @@ const initiatePayment = async (req, res) => {
         orderId,
         amount,
         productInfo,
-        customerName: "Test User",
+        customerName: `${firstName} ${lastName || ""}`.trim(),
         email,
         phone,
         status: "PENDING",
