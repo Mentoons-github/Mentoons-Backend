@@ -180,7 +180,7 @@ const seedProducts = async () => {
         title: "Conversation Starter Cards (6-12) years",
         description:
           "Discover the power of meaningful conversations with our Conversation Starter Cards. Watch your kids become more expressive, creative, and socially confident.",
-        price: 199,
+        price: 0.01,
         ageCategory: AgeCategory.CHILD,
         type: ProductType.MENTOONS_CARDS,
         rating: 4.5,
@@ -296,7 +296,7 @@ const seedProducts = async () => {
         title: "Conversation Starter Cards (13-16) years",
         description:
           "Encourage meaningful conversations with our Conversation Starter Cards. Designed for teenagers, these cards help build confidence, empathy, and social skills while fostering creativity and self-expression.",
-        price: 199,
+        price: 0.01,
         ageCategory: AgeCategory.TEEN,
         type: ProductType.MENTOONS_CARDS,
         rating: 4.5,
@@ -548,7 +548,7 @@ const seedProducts = async () => {
         title: "Conversation Story Cards(20+) years",
         description:
           "Encourage meaningful conversations with our Conversation Starter Cards. Designed for teenagers, these cards help build confidence, empathy, and social skills while fostering creativity and self-expression.",
-        price: 199,
+        price: 0.01,
         ageCategory: AgeCategory.ADULT,
         type: ProductType.MENTOONS_CARDS,
         rating: 4.5,
@@ -669,7 +669,7 @@ const seedProducts = async () => {
         title: "Story Re-teller Cards (6-12) years",
         description:
           "Unleash creativity and connection with our Story Reteller Cards. Inspire kids to imagine, think critically, and bond through fun, engaging stories. Easy to carry, they make learning and sharing a joy anytime, anywhere!",
-        price: 199,
+        price: 0.01,
         ageCategory: AgeCategory.CHILD,
         type: ProductType.MENTOONS_CARDS,
         rating: 4.5,
@@ -785,7 +785,7 @@ const seedProducts = async () => {
         title: "Story Re-teller Cards (13-16) years",
         description:
           "Unleash creativity and connection with our Story Reteller Cards. Inspire kids to imagine, think critically, and bond through fun, engaging stories. Easy to carry, they make learning and sharing a joy anytime, anywhere!",
-        price: 199,
+        price: 0.01,
         ageCategory: AgeCategory.TEEN,
         type: ProductType.MENTOONS_CARDS,
         rating: 4.5,
@@ -905,7 +905,7 @@ const seedProducts = async () => {
         title: "Story Re-teller Cards (17-19) years",
         description:
           "Unleash creativity and connection with our Story Reteller Cards. Inspire kids to imagine, think critically, and bond through fun, engaging stories. Easy to carry, they make learning and sharing a joy anytime, anywhere!",
-        price: 199,
+        price: 0.01,
         ageCategory: AgeCategory.YOUNG_ADULT,
         type: ProductType.MENTOONS_CARDS,
         rating: 4.5,
@@ -1022,7 +1022,7 @@ const seedProducts = async () => {
         title: "Silent Stories (6-12) years",
         description:
           "Unlock your child’s creativity with Silent Stories, a screen-free activity that boosts imagination and storytelling skills. Perfect for solo or group play, it fosters emotional understanding and strengthens communication while offering a fun, offline bonding experience.",
-        price: 199,
+        price: 0.01,
         ageCategory: AgeCategory.CHILD,
         type: ProductType.MENTOONS_CARDS,
         rating: 4.5,
@@ -1137,7 +1137,7 @@ const seedProducts = async () => {
         title: "Silent Stories (13-16) years",
         description:
           "Unlock your child’s creativity with Silent Stories, a screen-free activity that boosts imagination and storytelling skills. Perfect for solo or group play, it fosters emotional understanding and strengthens communication while offering a fun, offline bonding experience.",
-        price: 199,
+        price: 0.01,
         ageCategory: AgeCategory.TEEN,
         type: ProductType.MENTOONS_CARDS,
         rating: 4.5,
