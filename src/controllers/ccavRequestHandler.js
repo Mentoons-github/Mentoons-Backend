@@ -7,6 +7,7 @@ dotenv.config();
 
 exports.postReq = function (request, response) {
   console.log("Inside post request");
+  console.log("Request Body: ", request.body);
 
   var workingKey = `${process.env.CCAVENUE_WORKING_KEY}`, //Put in the 32-Bit key shared by CCAvenues.
     accessCode = `${process.env.CCAVENUE_ACCESS_CODE}`, //Put in the Access Code shared by CCAvenues.
