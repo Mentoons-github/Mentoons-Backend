@@ -72,6 +72,15 @@ const postRes = function (request, response) {
         "trackingId",
         responseObject.tracking_id || ""
       );
+      if (responseObject.order_status === "Success") {
+        redirectUrl.searchParams.append("message", "Payment Successful");
+      } else if (responseObject.order_status === "Aborted") {
+        redirectUrl.searchParams.append("message", "Payment Aborted");
+      } else if (responseObject.order_status === "Failure") {
+        redirectUrl.searchParams.append("message", "Payment Failed");
+      } else {
+        redirectUrl.searchParams.append("message", "Payment Status Unknown");
+      }
 
       // Log the complete URL information
       console.log("Redirect URL object:", redirectUrl);

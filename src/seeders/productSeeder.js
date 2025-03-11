@@ -21,7 +21,7 @@ const seedProducts = async () => {
       {
         title: "The Amazing Adventures",
         description: "A thrilling comic about superhero adventures",
-        price: 9.99,
+        price: 1,
         ageCategory: AgeCategory.TEEN,
         tags: ["superhero", "action", "adventure"],
         details: {
@@ -36,7 +36,7 @@ const seedProducts = async () => {
       {
         title: "Mystery Manor",
         description: "A spooky comic series",
-        price: 7.99,
+        price: 1,
         ageCategory: AgeCategory.YOUNG_ADULT,
         tags: ["mystery", "horror", "suspense"],
         details: {
@@ -55,7 +55,7 @@ const seedProducts = async () => {
       {
         title: "Space Explorers: Audio Edition",
         description: "An immersive audio comic experience",
-        price: 14.99,
+        price: 1,
         ageCategory: AgeCategory.CHILD,
         tags: ["space", "adventure", "audio"],
         details: {
@@ -73,7 +73,7 @@ const seedProducts = async () => {
       {
         title: "Tech Talk Weekly",
         description: "Weekly discussions about technology",
-        price: 0.99,
+        price: 1,
         ageCategory: AgeCategory.ADULT,
         tags: ["technology", "education", "news"],
         rating: 4.5,
@@ -100,7 +100,7 @@ const seedProducts = async () => {
       {
         title: "Growing Up Right",
         description: "Educational podcast for teenagers",
-        price: 4.99,
+        price: 1,
         ageCategory: AgeCategory.TEENAGER,
         type: ProductType.PODCAST,
         tags: ["education", "teenagers", "growth"],
@@ -132,7 +132,7 @@ const seedProducts = async () => {
       {
         title: "Comic Creation Masterclass",
         description: "Learn to create your own comics",
-        price: 99.99,
+        price: 1,
         ageCategory: AgeCategory.TEEN,
         tags: ["education", "art", "comics"],
         details: {
@@ -151,7 +151,7 @@ const seedProducts = async () => {
       {
         title: "Comic History Quiz",
         description: "Test your knowledge of comic history",
-        price: 4.99,
+        price: 1,
         ageCategory: AgeCategory.CHILD,
         tags: ["quiz", "education", "comics"],
         details: {
@@ -180,7 +180,7 @@ const seedProducts = async () => {
         title: "Conversation Starter Cards (6-12) years",
         description:
           "Discover the power of meaningful conversations with our Conversation Starter Cards. Watch your kids become more expressive, creative, and socially confident.",
-        price: 0.01,
+        price: 1,
         ageCategory: AgeCategory.CHILD,
         type: ProductType.MENTOONS_CARDS,
         rating: 4.5,
@@ -296,7 +296,7 @@ const seedProducts = async () => {
         title: "Conversation Starter Cards (13-16) years",
         description:
           "Encourage meaningful conversations with our Conversation Starter Cards. Designed for teenagers, these cards help build confidence, empathy, and social skills while fostering creativity and self-expression.",
-        price: 0.01,
+        price: 1,
         ageCategory: AgeCategory.TEEN,
         type: ProductType.MENTOONS_CARDS,
         rating: 4.5,
@@ -423,7 +423,7 @@ const seedProducts = async () => {
         title: "Conversation Starter Cards (17-19) years",
         description:
           "Encourage meaningful conversations with our Conversation Starter Cards. Designed for teenagers, these cards help build confidence, empathy, and social skills while fostering creativity and self-expression.",
-        price: 199,
+        price: 1,
         ageCategory: AgeCategory.YOUNG_ADULT,
         type: ProductType.MENTOONS_CARDS,
         rating: 4.5,
@@ -548,7 +548,7 @@ const seedProducts = async () => {
         title: "Conversation Story Cards(20+) years",
         description:
           "Encourage meaningful conversations with our Conversation Starter Cards. Designed for teenagers, these cards help build confidence, empathy, and social skills while fostering creativity and self-expression.",
-        price: 0.01,
+        price: 1,
         ageCategory: AgeCategory.ADULT,
         type: ProductType.MENTOONS_CARDS,
         rating: 4.5,
@@ -669,7 +669,7 @@ const seedProducts = async () => {
         title: "Story Re-teller Cards (6-12) years",
         description:
           "Unleash creativity and connection with our Story Reteller Cards. Inspire kids to imagine, think critically, and bond through fun, engaging stories. Easy to carry, they make learning and sharing a joy anytime, anywhere!",
-        price: 0.01,
+        price: 1,
         ageCategory: AgeCategory.CHILD,
         type: ProductType.MENTOONS_CARDS,
         rating: 4.5,
@@ -785,7 +785,7 @@ const seedProducts = async () => {
         title: "Story Re-teller Cards (13-16) years",
         description:
           "Unleash creativity and connection with our Story Reteller Cards. Inspire kids to imagine, think critically, and bond through fun, engaging stories. Easy to carry, they make learning and sharing a joy anytime, anywhere!",
-        price: 0.01,
+        price: 1,
         ageCategory: AgeCategory.TEEN,
         type: ProductType.MENTOONS_CARDS,
         rating: 4.5,
@@ -905,7 +905,7 @@ const seedProducts = async () => {
         title: "Story Re-teller Cards (17-19) years",
         description:
           "Unleash creativity and connection with our Story Reteller Cards. Inspire kids to imagine, think critically, and bond through fun, engaging stories. Easy to carry, they make learning and sharing a joy anytime, anywhere!",
-        price: 0.01,
+        price: 1,
         ageCategory: AgeCategory.YOUNG_ADULT,
         type: ProductType.MENTOONS_CARDS,
         rating: 4.5,
@@ -1022,7 +1022,7 @@ const seedProducts = async () => {
         title: "Silent Stories (6-12) years",
         description:
           "Unlock your child’s creativity with Silent Stories, a screen-free activity that boosts imagination and storytelling skills. Perfect for solo or group play, it fosters emotional understanding and strengthens communication while offering a fun, offline bonding experience.",
-        price: 0.01,
+        price: 1,
         ageCategory: AgeCategory.CHILD,
         type: ProductType.MENTOONS_CARDS,
         rating: 4.5,
@@ -1137,7 +1137,7 @@ const seedProducts = async () => {
         title: "Silent Stories (13-16) years",
         description:
           "Unlock your child’s creativity with Silent Stories, a screen-free activity that boosts imagination and storytelling skills. Perfect for solo or group play, it fosters emotional understanding and strengthens communication while offering a fun, offline bonding experience.",
-        price: 0.01,
+        price: 1,
         ageCategory: AgeCategory.TEEN,
         type: ProductType.MENTOONS_CARDS,
         rating: 4.5,
@@ -1264,7 +1264,7 @@ const seedProducts = async () => {
         title: "Silent Stories (17-19) years",
         description:
           "Unlock your child’s creativity with Silent Stories, a screen-free activity that boosts imagination and storytelling skills. Perfect for solo or group play, it fosters emotional understanding and strengthens communication while offering a fun, offline bonding experience.",
-        price: 199,
+        price: 1,
         ageCategory: AgeCategory.YOUNG_ADULT,
         type: ProductType.MENTOONS_CARDS,
         rating: 4.5,
@@ -1382,7 +1382,7 @@ const seedProducts = async () => {
         title: "Coloring Book",
         description:
           "A fun coloring book that features your favorite cartoon characters",
-        price: 199,
+        price: 1,
         ageCategory: AgeCategory.CHILD,
         tags: ["coloring", "cartoon character"],
         type: ProductType.MENTOONS_BOOKS,
@@ -1419,7 +1419,7 @@ const seedProducts = async () => {
         title: "Activity Book",
         description:
           "A fun activity book that encourages creativity and learning",
-        price: 199,
+        price: 1,
         ageCategory: AgeCategory.CHILD,
         tags: ["activity", "creativity"],
         type: ProductType.MENTOONS_BOOKS,
