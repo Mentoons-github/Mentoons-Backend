@@ -56,6 +56,32 @@ const postRes = function (request, response) {
           );
 
           console.log("here you can send the product to the user");
+// Send email to user with product link
+const order = await Order.findById(responseObject.order_id).populate('products');
+if (order && order.user && order.user.email) {
+  try {
+    const emailData = {
+      to: order.user.email,
+      subject: 'Your Mentoons Product Purchase',
+      template: 'product-purchase',
+      context: {
+        orderId: order._id,
+        products: order.products.map(product => ({
+          name: product.name,
+          downloadLink: product.downloadLink
+        }))
+      }
+    };
+
+    const emailServiceREsponse = await emailService.sendEmail(emailData);
+    console.log("EmailServiceResponse", emailServiceREsponse)
+    console.log(`Product access email sent to ${order.user.email}`);
+  } catch (emailError) {
+    console.error('Error sending product email:', emailError);
+  }
+} else {
+  console.log('Unable to send email: Missing order details or user email');
+}
         } catch (dbError) {
           console.error("Database update error:", dbError);
         }
