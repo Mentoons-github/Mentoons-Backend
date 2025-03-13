@@ -4,11 +4,12 @@ const User = require("../models/user");
 
 const initiatePayment = async (req, res) => {
   try {
-    const { amount, productInfo, email, phone, orderId, firstName, lastName } = req.body;
+    const { amount, productInfo, email, phone, orderId, firstName, lastName } =
+      req.body;
 
     console.log("Order Data", req.body);
 
-    if (!amount || !productInfo || !email || !phone || !orderId) {
+    if (!amount || !productInfo || !email || !orderId) {
       return res.status(400).json({
         status: "error",
         message: "Missing required payment information",
