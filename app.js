@@ -41,6 +41,7 @@ const {
   deleteUser,
 } = require("./src/helpers/userHelper.js");
 const { MessageApi } = require("svix/dist/openapi/index.js");
+const queryRoutes = require("./src/routes/query.routes.js");
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -157,6 +158,8 @@ app.use("/api/v1/review", reviewRoutes);
 app.use("/api/v1/sku", skuRoutes); // This route is under testing
 app.use("/api/v1/cart", cartRoutes);
 app.use("/api/v1/payment", paymentRoutes);
+app.use("/api/v1/query", queryRoutes);
+
 app.use("/health", (req, res) => {
   res.json({
     message: "The server is running successfully",
