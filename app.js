@@ -20,12 +20,6 @@ const skuRoutes = require("./src/routes/cardProductRoutes.js");
 const upload = require("./src/middlewares/uploadFileMiddleware.js");
 const cartRoutes = require("./src/routes/cartRoutes.js");
 const paymentRoutes = require("./src/routes/paymentRoutes.js");
-var http = require("http"),
-  fs = require("fs"),
-  ccav = require("./src/utils/ccavutil.js"),
-  qs = require("querystring"),
-  ccavReqHandler = require("./src/controllers/ccavRequestHandler.js"),
-  ccavResHandler = require("./src/controllers/ccavResponseHandler.js");
 
 // const webhookRoutes = require("./src/routes/webhook.js");
 const evaluationRoutes = require("./src/routes/EvaluationForm.js");
@@ -120,25 +114,11 @@ app.post("/api/v1/webhook/clerk", async (req, res) => {
 });
 
 app.use(cors());
-// app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true }));
 
 app.use(express.static("public"));
 app.set("views", __dirname + "/public");
 app.engine("html", require("ejs").renderFile);
-
-app.get("/about", function (req, res) {
-  res.render("dataFrom.html");
-});
-
-app.post("/ccavRequestHandler", function (request, response) {
-  ccavReqHandler.postReq(request, response);
-});
-
-app.post("/ccavResponseHandler", function (request, response) {
-  ccavResHandler.postRes(request, response);
-});
-
-// app.use("/api/v1/webhook", webhookRoutes);
 app.use("/api/v1/email", emailRoutes);
 app.use("/api/v1/whatsapp", whatsappRoutes);
 app.use("/api/v1/products", productRoutes);
