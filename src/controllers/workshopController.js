@@ -6,15 +6,12 @@ const { saveWorkshopEnquiriesToDB, getWorkshopEnquiriesFromDB, getWorkshopEnquir
 
 
 module.exports = {
-
-  
   submitWorkshopForm: asyncHandler(async (req, res, next) => {
-    console.log(req.body)
-    const { name, age, guardianName, guardianContact, guardianEmail, city, duration, workshop } = req.body
-    if (!name || !age || !guardianName || !guardianContact || !guardianEmail || !city || !duration || !workshop) {
+    const { firstname, lastname, email, phone, message, workshop } = req.body
+    if (!firstname || !lastname || !email || !phone || !message || !workshop) {
       return errorResponse(res, 400, messageHelper.BAD_REQUEST)
     }
-    const EnquiryData = await saveWorkshopEnquiriesToDB({ name, age, guardianName, guardianContact, guardianEmail, city, duration, workshop })
+    const EnquiryData = await saveWorkshopEnquiriesToDB({ firstname, lastname, email, phone, message, workshop })
     if (!EnquiryData) {
       return errorResponse(res, 500, messageHelper.SOMETHING_WENT_WRONG)
     }
