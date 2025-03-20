@@ -1,1 +1,0 @@
-const hello = 'This is just a demo route'

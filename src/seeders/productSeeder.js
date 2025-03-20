@@ -149,11 +149,16 @@ const seedProducts = async () => {
     // Create Assessments
     const assessments = await Assessment.create([
       {
-        title: "Comic History Quiz",
-        description: "Test your knowledge of comic history",
-        price: 1,
-        ageCategory: AgeCategory.CHILD,
-        tags: ["quiz", "education", "comics"],
+        title: "Emotional joy",
+        description:
+          "Explore your emotional well-being, family values, and relationship dynamics. ",
+        price: 10,
+        ageCategory: AgeCategory.ADULT,
+        tags: [
+          "emotional well-being",
+          "family values",
+          "relationship dynamics",
+        ],
         details: {
           questions: [
             {
@@ -168,8 +173,153 @@ const seedProducts = async () => {
             },
           ],
           passingScore: 70,
-          duration: 30, // minutes
-          difficulty: "medium",
+          duration: 10, // minutes
+          difficulty: "College Students",
+        },
+      },
+      {
+        title: "Self Awareness Assessment.",
+        description:
+          "Discover your current state of mind, self-conduct, family values, willingness to change, and spiritual journey.",
+        price: 10,
+        ageCategory: AgeCategory.ADULT,
+        tags: [
+          "emotional well-being",
+          "family values",
+          "relationship dynamics",
+        ],
+        details: {
+          questions: [
+            {
+              questionText: "Who created Spider-Man?",
+              options: ["Stan Lee", "Bob Kane", "Jack Kirby", "Steve Ditko"],
+              correctAnswer: "Stan Lee",
+            },
+            {
+              questionText: "In which year was Marvel Comics founded?",
+              options: ["1939", "1945", "1961", "1970"],
+              correctAnswer: "1939",
+            },
+          ],
+          passingScore: 70,
+          duration: 10, // minutes
+          difficulty: "College Students",
+        },
+      },
+      {
+        title: "Skills Assessment",
+        description:
+          "Assess your interpersonal, analytical, and professional skills to enhance your career, communication, and overall growth.",
+        price: 10,
+        ageCategory: AgeCategory.ADULT,
+        tags: [
+          "emotional well-being",
+          "family values",
+          "relationship dynamics",
+        ],
+        details: {
+          questions: [
+            {
+              questionText: "Who created Spider-Man?",
+              options: ["Stan Lee", "Bob Kane", "Jack Kirby", "Steve Ditko"],
+              correctAnswer: "Stan Lee",
+            },
+            {
+              questionText: "In which year was Marvel Comics founded?",
+              options: ["1939", "1945", "1961", "1970"],
+              correctAnswer: "1939",
+            },
+          ],
+          passingScore: 70,
+          duration: 15, // minutes
+          difficulty: "Individuals from any background",
+        },
+      },
+      {
+        title: "Addiction Awareness",
+        description:
+          "Evaluate your habits and identify areas of addiction, from mobile and social media to gaming, shopping, and substance abuse. ",
+        price: 10,
+        ageCategory: AgeCategory.ADULT,
+        tags: [
+          "emotional well-being",
+          "family values",
+          "relationship dynamics",
+        ],
+        details: {
+          questions: [
+            {
+              questionText: "Who created Spider-Man?",
+              options: ["Stan Lee", "Bob Kane", "Jack Kirby", "Steve Ditko"],
+              correctAnswer: "Stan Lee",
+            },
+            {
+              questionText: "In which year was Marvel Comics founded?",
+              options: ["1939", "1945", "1961", "1970"],
+              correctAnswer: "1939",
+            },
+          ],
+          passingScore: 70,
+          duration: 10, // minutes
+          difficulty: "College Students",
+        },
+      },
+      {
+        title: "Emotional Joy",
+        description:
+          "Explore your emotional well-being, family values, and relationship dynamics. ",
+        price: 10,
+        ageCategory: AgeCategory.ADULT,
+        tags: [
+          "emotional well-being",
+          "family values",
+          "relationship dynamics",
+        ],
+        details: {
+          questions: [
+            {
+              questionText: "Who created Spider-Man?",
+              options: ["Stan Lee", "Bob Kane", "Jack Kirby", "Steve Ditko"],
+              correctAnswer: "Stan Lee",
+            },
+            {
+              questionText: "In which year was Marvel Comics founded?",
+              options: ["1939", "1945", "1961", "1970"],
+              correctAnswer: "1939",
+            },
+          ],
+          passingScore: 70,
+          duration: 10, // minutes
+          difficulty: "College Students",
+        },
+      },
+      {
+        title: "Emotional Fear",
+        description:
+          "Discover your current state of mind, self-conduct, family values, willingness to change, and spiritual journey.",
+        price: 10,
+        ageCategory: AgeCategory.ADULT,
+        tags: [
+          "emotional well-being",
+          "family values",
+          "relationship dynamics",
+        ],
+        details: {
+          questions: [
+            {
+              questionText: "Who created Spider-Man?",
+              options: ["Stan Lee", "Bob Kane", "Jack Kirby", "Steve Ditko"],
+              correctAnswer: "Stan Lee",
+            },
+            {
+              questionText: "In which year was Marvel Comics founded?",
+              options: ["1939", "1945", "1961", "1970"],
+              correctAnswer: "1939",
+            },
+          ],
+          passingScore: 70,
+          duration: 10, // minutes
+          difficulty: "College Students",
         },
       },
     ]);

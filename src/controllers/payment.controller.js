@@ -4,6 +4,7 @@ const logger = require("../utils/logger");
 const Order = require("../models/Order");
 
 const initiatePayment = async (req, res) => {
+  console.log("payment.controller.js - initiatePayment");
   try {
     const orderData = req.body;
     const paymentRequest = await paymentService.createCCavenuePaymentRequest(

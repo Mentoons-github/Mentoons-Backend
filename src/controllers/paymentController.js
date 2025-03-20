@@ -3,6 +3,7 @@ const Order = require("../models/Order");
 const User = require("../models/user");
 
 const initiatePayment = async (req, res) => {
+  console.log("paymentController.js - initiatePayment");
   try {
     const { amount, productInfo, email, phone, orderId, firstName, lastName } =
       req.body;
