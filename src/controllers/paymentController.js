@@ -10,12 +10,12 @@ const initiatePayment = async (req, res) => {
 
     console.log("Order Data", req.body);
 
-    if (!amount || !productInfo || !email || !orderId) {
-      return res.status(400).json({
-        status: "error",
-        message: "Missing required payment information",
-      });
-    }
+    // if (!amount || !productInfo || !email || !orderId) {
+    //   return res.status(400).json({
+    //     status: "error",
+    //     message: "Missing required payment information",
+    //   });
+    // }
 
     // Create or update order record in database
     const order = await Order.findOneAndUpdate(
