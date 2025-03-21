@@ -115,7 +115,6 @@ app.post("/api/v1/webhook/clerk", async (req, res) => {
 
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
-
 app.use(express.static("public"));
 app.set("views", __dirname + "/public");
 app.engine("html", require("ejs").renderFile);
