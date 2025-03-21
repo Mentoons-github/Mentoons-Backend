@@ -50,11 +50,11 @@ const addItemToCart = async (itemData) => {
     // Find or create cart
     const user = await User.findOne({ clerkId: userId });
 
-    let cart = await Cart.findOne({ userId: user._id, status: "active" });
+    let cart = await Cart.findOne({ userId: user?._id, status: "active" });
 
     if (!cart) {
       cart = await Cart.create({
-        userId: user._id,
+        userId: user?._id,
         items: [],
         totalPrice: 0,
         totalItemCount: 0,

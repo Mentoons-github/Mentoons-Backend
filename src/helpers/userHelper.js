@@ -9,17 +9,17 @@ module.exports = {
       id,
       email_addresses,
       image_url,
-      phone_numbers,
+
       first_name,
       last_name,
     } = data;
-    console.log(id, 'id');
+    console.log(id, "id");
 
     const newUser = await User.create({
       clerkId: id,
       name: `${first_name}${last_name ? ` ${last_name}` : ""}`,
       email: email_addresses[0]?.email_address,
-      phoneNumber: phone_numbers[0]?.phone_number,
+
       picture: image_url,
     });
     await newUser.save();
@@ -33,14 +33,12 @@ module.exports = {
       image_url,
       first_name,
       last_name,
-      phone_numbers,
       public_metadata,
     } = data;
     const updatedUser = await User.findOneAndUpdate(
       { clerkId: id.toString() },
       {
         name: `${first_name}${last_name ? ` ${last_name}` : ""}`,
-        phoneNumber: phone_numbers[0]?.phone_number,
         email: email_addresses[0]?.email_address,
         picture: image_url,
         role: public_metadata.role,
@@ -55,7 +53,6 @@ module.exports = {
     console.log("deleted User", data);
     const { id } = data;
 
-
     const deletedUser = await User.findOneAndDelete({
       clerkId: id.toString(),
     });
@@ -63,7 +60,6 @@ module.exports = {
     if (!deletedUser) {
       throw new Error("User not found");
     }
-
 
     return deletedUser;
   },
@@ -73,31 +69,37 @@ module.exports = {
       role: "SUPER-ADMIN",
     });
     if (!superAdminUser) {
-        throw new Error('Super Admin not found')
+      throw new Error("Super Admin not found");
     }
 
-    const user = await User.findOne({ clerkId: user_id, role: { $ne: "SUPER-ADMIN" } });
-   console.log(user, 'user')
+    const user = await User.findOne({
+      clerkId: user_id,
+      role: { $ne: "SUPER-ADMIN" },
+    });
+    console.log(user, "user");
     if (!user) {
-      throw new Error('User not found')
+      throw new Error("User not found");
     }
-    const modifiedUser = await fetch(`https://api.clerk.com/v1/users/${user_id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
+    const modifiedUser = await fetch(
+      `https://api.clerk.com/v1/users/${user_id}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
           Authorization: `Bearer ${process.env.CLERK_SECRET_KEY}`,
-      },
-      body: JSON.stringify({
-        public_metadata: { role: role },
-      }),
-    })
+        },
+        body: JSON.stringify({
+          public_metadata: { role: role },
+        }),
+      }
+    );
     return modifiedUser;
   },
 
   getAllUser: async ({
-    search = '',
-    sortField = 'createdAt',
-    sortOrder = 'desc',
+    search = "",
+    sortField = "createdAt",
+    sortOrder = "desc",
     page = 1,
     limit = 10,
     filter = {},
@@ -113,7 +115,7 @@ module.exports = {
         ],
       };
 
-      if (filter.role && filter.role !== '') {
+      if (filter.role && filter.role !== "") {
         matchConditions.role = filter.role;
       }
       const allUsers = await User.aggregate([
@@ -135,9 +137,8 @@ module.exports = {
             role: 1,
             name: 1,
             email: 1,
-            phoneNumber: 1,
             picture: 1,
-            assignedCalls: 1
+            assignedCalls: 1,
           },
         },
         { $sort: { [sortField]: sortOrder === "asc" ? 1 : -1 } },
@@ -153,8 +154,8 @@ module.exports = {
         totalPages: Math.ceil(totalCount / limit),
       };
     } catch (error) {
-      console.error('Error in getAllUser:', error.message); 
-      console.error('Stack trace:', error.stack);
+      console.error("Error in getAllUser:", error.message);
+      console.error("Stack trace:", error.stack);
       throw new Error(`Error fetching users from database: ${error.message}`);
     }
   },
@@ -179,9 +180,8 @@ module.exports = {
             role: 1,
             name: 1,
             email: 1,
-            phoneNumber: 1,
             picture: 1,
-            assignedCalls: 1
+            assignedCalls: 1,
           },
         },
       ]);
@@ -195,25 +195,32 @@ module.exports = {
       throw new Error("Error fetching user from database");
     }
   },
-  viewAllocatedCalls: async (userId, search = '', sortField = 'createdAt', sortOrder = 'desc', page = 1, limit = 10 ) => {
+  viewAllocatedCalls: async (
+    userId,
+    search = "",
+    sortField = "createdAt",
+    sortOrder = "desc",
+    page = 1,
+    limit = 10
+  ) => {
     try {
-      const user = await User.findOne({clerkId: userId});
-      
-      if(!user){
-        throw new Error('User not found');
+      const user = await User.findOne({ clerkId: userId });
+
+      if (!user) {
+        throw new Error("User not found");
       }
-      
+
       const skip = (page - 1) * limit;
       const searchRegex = new RegExp(search, "i");
-      
+
       const matchConditions = { assignedTo: user._id };
       if (search) {
         matchConditions.$or = [
           { name: { $regex: searchRegex } },
-          { email: { $regex: searchRegex } }
+          { email: { $regex: searchRegex } },
         ];
-      }     
-      
+      }
+
       const allocatedCalls = await requestCall.aggregate([
         { $match: matchConditions },
         {
@@ -225,16 +232,15 @@ module.exports = {
             requestedTopic: 1,
             status: 1,
             createdAt: 1,
-          }
+          },
         },
         { $sort: { [sortField]: sortOrder === "asc" ? 1 : -1 } },
         { $skip: skip },
-        { $limit: Number(limit) }
+        { $limit: Number(limit) },
       ]);
 
-      
-      const totalCount = await requestCall.countDocuments(matchConditions);     
-      
+      const totalCount = await requestCall.countDocuments(matchConditions);
+
       return {
         allocatedCalls,
         totalCount,
@@ -244,5 +250,5 @@ module.exports = {
       console.error("Error in viewAllocatedCalls:", error);
       throw new Error(error.message);
     }
-  }
+  },
 };
