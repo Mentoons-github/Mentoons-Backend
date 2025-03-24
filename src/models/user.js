@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 //Remove phone number from the user schema because its clerk pro feature.
 const UserSchema = new mongoose.Schema({
-  clerkId: { type: String, required: true },
+  clerkId: { type: String, required: true, unique: true },
   role: {
     type: String,
     enum: ["ADMIN", "SUPER-ADMIN", "USER"],

@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const dbConnection = require("./src/config/dbConfig");
 const errorHandler = require("./src/middlewares/errorHandler");
+
 const emailRoutes = require("./src/routes/email");
 const userRoutes = require("./src/routes/user.js");
 const productRoutes = require("./src/routes/product.routes.js");
@@ -24,6 +25,8 @@ const paymentRoutes = require("./src/routes/paymentRoutes.js");
 // const webhookRoutes = require("./src/routes/webhook.js");
 const evaluationRoutes = require("./src/routes/EvaluationForm.js");
 
+const ensureUserExists = require("./src/middlewares/ensureUserExists");
+
 const { Webhook, WebhookVerificationError } = require("svix");
 
 const bodyParser = require("body-parser");
@@ -34,14 +37,15 @@ const {
   updateUser,
   deleteUser,
 } = require("./src/helpers/userHelper.js");
-const { MessageApi } = require("svix/dist/openapi/index.js");
 const queryRoutes = require("./src/routes/query.routes.js");
+const User = require("./src/models/user"); // Adjust path as needed
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 4000;
 app.use(bodyParser.json());
 
 // Webhook route
+app.use(ensureUserExists);
 app.post("/api/v1/webhook/clerk", async (req, res) => {
   console.log("Request", req.body);
   const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET_KEY;
@@ -86,6 +90,14 @@ app.post("/api/v1/webhook/clerk", async (req, res) => {
     const eventType = evt.type;
     switch (eventType) {
       case "user.created":
+        // Check if user already exists (for idempotency)
+        const existingUser = await User.findOne({ clerkId: evt.data.id });
+        if (existingUser) {
+          console.log(`User ${data.id} already exists, skipping creation`);
+          return res
+            .status(200)
+            .json({ received: true, status: "user_exists" });
+        }
         await createUser(evt.data);
         break;
       case "user.updated":

@@ -9,7 +9,6 @@ const {
   MentoonsBook,
 } = require("../models/product");
 const { AgeCategory, ProductType, CardType } = require("../utils/enum"); // Added CardType to imports
-const { lang } = require("moment");
 
 const seedProducts = async () => {
   try {
@@ -24,6 +23,17 @@ const seedProducts = async () => {
         price: 1,
         ageCategory: AgeCategory.TEEN,
         tags: ["superhero", "action", "adventure"],
+        rating: 4.5,
+        proudctImage: [
+          {
+            imageUrl: "podcast-cover.jpg",
+          },
+        ],
+        productVideo: [
+          {
+            videoUrl: "podcast-video",
+          },
+        ],
         details: {
           pages: 32,
           author: "John Smith",
@@ -39,6 +49,17 @@ const seedProducts = async () => {
         price: 1,
         ageCategory: AgeCategory.YOUNG_ADULT,
         tags: ["mystery", "horror", "suspense"],
+        rating: 4.5,
+        proudctImage: [
+          {
+            imageUrl: "podcast-cover.jpg",
+          },
+        ],
+        productVideo: [
+          {
+            videoUrl: "podcast-video",
+          },
+        ],
         details: {
           pages: 28,
           author: "Sarah Johnson",
@@ -1529,34 +1550,34 @@ const seedProducts = async () => {
 
     const mentoonsBook = await MentoonsBook.create([
       {
-        title: "Coloring Book",
+        title: "Coloring Book on Inventions & Inventors",
         description:
-          "A fun coloring book that features your favorite cartoon characters",
+          "An educational and fun coloring book that introduces kids to famous inventors and their groundbreaking inventions.",
         price: 1,
         ageCategory: AgeCategory.CHILD,
-        tags: ["coloring", "cartoon character"],
+        tags: ["coloring", "inventors", "inventions", "learning"],
         type: ProductType.MENTOONS_BOOKS,
-        rating: 4.5,
+        rating: 4.7,
         productImages: [
           {
-            imageUrl: "coloring-book-cover.jpg",
+            imageUrl: "inventions-coloring-book-cover.jpg",
           },
         ],
         productVideos: [
           {
-            videoUrl: "coloring-book-video",
+            videoUrl: "inventions-coloring-book-video",
           },
         ],
         isFeatured: true,
         details: {
-          pages: 120,
+          pages: 100,
           author: "Mentoons Team",
           publisher: "Mentoons",
           language: "en",
-          releaseDate: new Date("2024-02-15"),
+          releaseDate: new Date("2024-03-10"),
           series: "Mentoons Coloring Book",
           bookType: "Coloring Book",
-          isbn: "978-3-16-148410-0",
+          isbn: "978-3-16-148411-7",
           edition: "First Edition",
           dimensions: {
             height: 11,
@@ -1565,13 +1586,14 @@ const seedProducts = async () => {
           },
         },
       },
+
       {
-        title: "Activity Book",
+        title: "Coloring Book in Mandala Art – Gaming Gadgets",
         description:
-          "A fun activity book that encourages creativity and learning",
+          "A creative mandala art coloring book featuring gaming-themed designs to help kids relax and explore their artistic side.",
         price: 1,
         ageCategory: AgeCategory.CHILD,
-        tags: ["activity", "creativity"],
+        tags: ["coloring", "mandala art", "gaming", "creative"],
         type: ProductType.MENTOONS_BOOKS,
         rating: 4.5,
         productImages: [
@@ -1585,16 +1607,52 @@ const seedProducts = async () => {
           },
         ],
         isFeatured: false,
-
         details: {
-          pages: 80,
+          pages: 110,
           author: "Mentoons Team",
           publisher: "Mentoons",
           language: "en",
-          releaseDate: new Date("2024-02-15"),
-          series: "Mentoons Activity Book",
-          bookType: "Activity Book",
-          isbn: "978-3-16-148411-7",
+          releaseDate: new Date("2024-03-20"),
+          series: "Mentoons Coloring Book",
+          bookType: "Coloring Book",
+          isbn: "978-3-16-148412-4",
+          edition: "First Edition",
+          dimensions: {
+            height: 11,
+            width: 8.5,
+            depth: 0.3,
+          },
+        },
+      },
+      {
+        title: "Magnificent - 9 Colouring Book",
+        description:
+          "A fun and engaging coloring book featuring 9 unique characters for kids to bring to life with their creativity.",
+        price: 1,
+        ageCategory: AgeCategory.CHILD,
+        tags: ["coloring", "cartoon characters", "creative", "kids"],
+        type: ProductType.MENTOONS_BOOKS,
+        rating: 4.8,
+        productImages: [
+          {
+            imageUrl: "magnificent-9-coloring-book-cover.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "magnificent-9-coloring-book-video",
+          },
+        ],
+        isFeatured: true,
+        details: {
+          pages: 120,
+          author: "Mentoons Team",
+          publisher: "Mentoons",
+          language: "en",
+          releaseDate: new Date("2024-04-05"),
+          series: "Mentoons Coloring Book",
+          bookType: "Coloring Book",
+          isbn: "978-3-16-148413-1",
           edition: "First Edition",
           dimensions: {
             height: 11,
