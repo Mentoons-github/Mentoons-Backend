@@ -63,6 +63,7 @@ module.exports = {
             `,
     };
     const isEmailSent = await sendEmail(userOptions);
+  
    
     return successResponse(res, 200, messageHelper.EMAIL_SENT);
   }),

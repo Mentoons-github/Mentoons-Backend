@@ -9,20 +9,23 @@ module.exports = {
       id,
       email_addresses,
       image_url,
-
       first_name,
       last_name,
     } = data;
     console.log(id, "id");
 
-    const newUser = await User.create({
-      clerkId: id,
+    const newUser = await User.findOneAndUpdate(
+      { clerkId: id },
+      {
       name: `${first_name}${last_name ? ` ${last_name}` : ""}`,
       email: email_addresses[0]?.email_address,
-
       picture: image_url,
-    });
-    await newUser.save();
+      },
+      { 
+      upsert: true,
+      new: true
+      }
+    );
     return newUser;
   },
   updateUser: async (data) => {
