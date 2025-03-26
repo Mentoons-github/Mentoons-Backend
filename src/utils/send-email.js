@@ -8,3 +8,5 @@ const sendEmail = async (mailOptions) => {
     console.error("Error sending email:", error);
   }
 }
+
+module.exports = { sendEmail };
