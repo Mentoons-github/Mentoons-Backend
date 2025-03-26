@@ -16,85 +16,85 @@ const seedProducts = async () => {
     await mongoose.connection.dropCollection("products");
 
     // Create Comics
-    const comics = await Comic.create([
-      {
-        title: "The Amazing Adventures",
-        description: "A thrilling comic about superhero adventures",
-        price: 1,
-        ageCategory: AgeCategory.TEEN,
-        tags: ["superhero", "action", "adventure"],
-        rating: 4.5,
-        proudctImage: [
-          {
-            imageUrl: "podcast-cover.jpg",
-          },
-        ],
-        productVideo: [
-          {
-            videoUrl: "podcast-video",
-          },
-        ],
-        details: {
-          pages: 32,
-          author: "John Smith",
-          publisher: "Marvel Comics",
-          language: "en",
-          releaseDate: new Date("2024-01-15"),
-          series: "Amazing Adventures",
-        },
-      },
-      {
-        title: "Mystery Manor",
-        description: "A spooky comic series",
-        price: 1,
-        ageCategory: AgeCategory.YOUNG_ADULT,
-        tags: ["mystery", "horror", "suspense"],
-        rating: 4.5,
-        proudctImage: [
-          {
-            imageUrl: "podcast-cover.jpg",
-          },
-        ],
-        productVideo: [
-          {
-            videoUrl: "podcast-video",
-          },
-        ],
-        details: {
-          pages: 28,
-          author: "Sarah Johnson",
-          publisher: "DC Comics",
-          language: "en",
-          releaseDate: new Date("2024-02-01"),
-          series: "Mystery Manor",
-        },
-      },
-    ]);
+    // const comics = await Comic.create([
+    //   {
+    //     title: "The Amazing Adventures",
+    //     description: "A thrilling comic about superhero adventures",
+    //     price: 19,
+    //     ageCategory: AgeCategory.TEEN,
+    //     tags: ["superhero", "action", "adventure"],
+    //     rating: 4.5,
+    //     proudctImage: [
+    //       {
+    //         imageUrl: "podcast-cover.jpg",
+    //       },
+    //     ],
+    //     productVideo: [
+    //       {
+    //         videoUrl: "podcast-video",
+    //       },
+    //     ],
+    //     details: {
+    //       pages: 32,
+    //       author: "John Smith",
+    //       publisher: "Marvel Comics",
+    //       language: "en",
+    //       releaseDate: new Date("2024-01-15"),
+    //       series: "Amazing Adventures",
+    //     },
+    //   },
+    //   {
+    //     title: "Mystery Manor",
+    //     description: "A spooky comic series",
+    //     price: 19,
+    //     ageCategory: AgeCategory.YOUNG_ADULT,
+    //     tags: ["mystery", "horror", "suspense"],
+    //     rating: 4.5,
+    //     proudctImage: [
+    //       {
+    //         imageUrl: "podcast-cover.jpg",
+    //       },
+    //     ],
+    //     productVideo: [
+    //       {
+    //         videoUrl: "podcast-video",
+    //       },
+    //     ],
+    //     details: {
+    //       pages: 28,
+    //       author: "Sarah Johnson",
+    //       publisher: "DC Comics",
+    //       language: "en",
+    //       releaseDate: new Date("2024-02-01"),
+    //       series: "Mystery Manor",
+    //     },
+    //   },
+    // ]);
 
     // Create Audio Comics
-    const audioComics = await AudioComic.create([
-      {
-        title: "Space Explorers: Audio Edition",
-        description: "An immersive audio comic experience",
-        price: 1,
-        ageCategory: AgeCategory.CHILD,
-        tags: ["space", "adventure", "audio"],
-        details: {
-          duration: 45, // minutes
-          narrator: "Michael Brooks",
-          audioQuality: "high",
-          audioFormat: "mp3",
-          releaseDate: new Date("2024-01-20"),
-        },
-      },
-    ]);
+    // const audioComics = await AudioComic.create([
+    //   {
+    //     title: "Space Explorers: Audio Edition",
+    //     description: "An immersive audio comic experience",
+    //     price: 19,
+    //     ageCategory: AgeCategory.CHILD,
+    //     tags: ["space", "adventure", "audio"],
+    //     details: {
+    //       duration: 45, // minutes
+    //       narrator: "Michael Brooks",
+    //       audioQuality: "high",
+    //       audioFormat: "mp3",
+    //       releaseDate: new Date("2024-01-20"),
+    //     },
+    //   },
+    // ]);
 
     // Create Podcasts
     const podcasts = await Podcast.create([
       {
         title: "Tech Talk Weekly",
         description: "Weekly discussions about technology",
-        price: 1,
+        price: 19,
         ageCategory: AgeCategory.ADULT,
         tags: ["technology", "education", "news"],
         rating: 4.5,
@@ -121,7 +121,7 @@ const seedProducts = async () => {
       {
         title: "Growing Up Right",
         description: "Educational podcast for teenagers",
-        price: 1,
+        price: 19,
         ageCategory: AgeCategory.TEENAGER,
         type: ProductType.PODCAST,
         tags: ["education", "teenagers", "growth"],
@@ -148,202 +148,202 @@ const seedProducts = async () => {
       },
     ]);
 
-    // Create Workshops
-    const workshops = await Workshop.create([
-      {
-        title: "Comic Creation Masterclass",
-        description: "Learn to create your own comics",
-        price: 1,
-        ageCategory: AgeCategory.TEEN,
-        tags: ["education", "art", "comics"],
-        details: {
-          instructor: "Emily Chen",
-          location: "Online",
-          schedule: new Date("2024-03-01T15:00:00Z"),
-          duration: 3, // hours
-          capacity: 20,
-          materials: ["sketchbook", "pencils", "digital tablet"],
-        },
-      },
-    ]);
+    // // Create Workshops
+    // const workshops = await Workshop.create([
+    //   {
+    //     title: "Comic Creation Masterclass",
+    //     description: "Learn to create your own comics",
+    //     price: 19,
+    //     ageCategory: AgeCategory.TEEN,
+    //     tags: ["education", "art", "comics"],
+    //     details: {
+    //       instructor: "Emily Chen",
+    //       location: "Online",
+    //       schedule: new Date("2024-03-01T15:00:00Z"),
+    //       duration: 3, // hours
+    //       capacity: 20,
+    //       materials: ["sketchbook", "pencils", "digital tablet"],
+    //     },
+    //   },
+    // ]);
 
-    // Create Assessments
-    const assessments = await Assessment.create([
-      {
-        title: "Emotional joy",
-        description:
-          "Explore your emotional well-being, family values, and relationship dynamics. ",
-        price: 10,
-        ageCategory: AgeCategory.ADULT,
-        tags: [
-          "emotional well-being",
-          "family values",
-          "relationship dynamics",
-        ],
-        details: {
-          questions: [
-            {
-              questionText: "Who created Spider-Man?",
-              options: ["Stan Lee", "Bob Kane", "Jack Kirby", "Steve Ditko"],
-              correctAnswer: "Stan Lee",
-            },
-            {
-              questionText: "In which year was Marvel Comics founded?",
-              options: ["1939", "1945", "1961", "1970"],
-              correctAnswer: "1939",
-            },
-          ],
-          passingScore: 70,
-          duration: 10, // minutes
-          difficulty: "College Students",
-        },
-      },
-      {
-        title: "Self Awareness Assessment.",
-        description:
-          "Discover your current state of mind, self-conduct, family values, willingness to change, and spiritual journey.",
-        price: 10,
-        ageCategory: AgeCategory.ADULT,
-        tags: [
-          "emotional well-being",
-          "family values",
-          "relationship dynamics",
-        ],
-        details: {
-          questions: [
-            {
-              questionText: "Who created Spider-Man?",
-              options: ["Stan Lee", "Bob Kane", "Jack Kirby", "Steve Ditko"],
-              correctAnswer: "Stan Lee",
-            },
-            {
-              questionText: "In which year was Marvel Comics founded?",
-              options: ["1939", "1945", "1961", "1970"],
-              correctAnswer: "1939",
-            },
-          ],
-          passingScore: 70,
-          duration: 10, // minutes
-          difficulty: "College Students",
-        },
-      },
-      {
-        title: "Skills Assessment",
-        description:
-          "Assess your interpersonal, analytical, and professional skills to enhance your career, communication, and overall growth.",
-        price: 10,
-        ageCategory: AgeCategory.ADULT,
-        tags: [
-          "emotional well-being",
-          "family values",
-          "relationship dynamics",
-        ],
-        details: {
-          questions: [
-            {
-              questionText: "Who created Spider-Man?",
-              options: ["Stan Lee", "Bob Kane", "Jack Kirby", "Steve Ditko"],
-              correctAnswer: "Stan Lee",
-            },
-            {
-              questionText: "In which year was Marvel Comics founded?",
-              options: ["1939", "1945", "1961", "1970"],
-              correctAnswer: "1939",
-            },
-          ],
-          passingScore: 70,
-          duration: 15, // minutes
-          difficulty: "Individuals from any background",
-        },
-      },
-      {
-        title: "Addiction Awareness",
-        description:
-          "Evaluate your habits and identify areas of addiction, from mobile and social media to gaming, shopping, and substance abuse. ",
-        price: 10,
-        ageCategory: AgeCategory.ADULT,
-        tags: [
-          "emotional well-being",
-          "family values",
-          "relationship dynamics",
-        ],
-        details: {
-          questions: [
-            {
-              questionText: "Who created Spider-Man?",
-              options: ["Stan Lee", "Bob Kane", "Jack Kirby", "Steve Ditko"],
-              correctAnswer: "Stan Lee",
-            },
-            {
-              questionText: "In which year was Marvel Comics founded?",
-              options: ["1939", "1945", "1961", "1970"],
-              correctAnswer: "1939",
-            },
-          ],
-          passingScore: 70,
-          duration: 10, // minutes
-          difficulty: "College Students",
-        },
-      },
-      {
-        title: "Emotional Joy",
-        description:
-          "Explore your emotional well-being, family values, and relationship dynamics. ",
-        price: 10,
-        ageCategory: AgeCategory.ADULT,
-        tags: [
-          "emotional well-being",
-          "family values",
-          "relationship dynamics",
-        ],
-        details: {
-          questions: [
-            {
-              questionText: "Who created Spider-Man?",
-              options: ["Stan Lee", "Bob Kane", "Jack Kirby", "Steve Ditko"],
-              correctAnswer: "Stan Lee",
-            },
-            {
-              questionText: "In which year was Marvel Comics founded?",
-              options: ["1939", "1945", "1961", "1970"],
-              correctAnswer: "1939",
-            },
-          ],
-          passingScore: 70,
-          duration: 10, // minutes
-          difficulty: "College Students",
-        },
-      },
-      {
-        title: "Emotional Fear",
-        description:
-          "Discover your current state of mind, self-conduct, family values, willingness to change, and spiritual journey.",
-        price: 10,
-        ageCategory: AgeCategory.ADULT,
-        tags: [
-          "emotional well-being",
-          "family values",
-          "relationship dynamics",
-        ],
-        details: {
-          questions: [
-            {
-              questionText: "Who created Spider-Man?",
-              options: ["Stan Lee", "Bob Kane", "Jack Kirby", "Steve Ditko"],
-              correctAnswer: "Stan Lee",
-            },
-            {
-              questionText: "In which year was Marvel Comics founded?",
-              options: ["1939", "1945", "1961", "1970"],
-              correctAnswer: "1939",
-            },
-          ],
-          passingScore: 70,
-          duration: 10, // minutes
-          difficulty: "College Students",
-        },
-      },
-    ]);
+    // // Create Assessments
+    // const assessments = await Assessment.create([
+    //   {
+    //     title: "Emotional joy",
+    //     description:
+    //       "Explore your emotional well-being, family values, and relationship dynamics. ",
+    //     price: 190,
+    //     ageCategory: AgeCategory.ADULT,
+    //     tags: [
+    //       "emotional well-being",
+    //       "family values",
+    //       "relationship dynamics",
+    //     ],
+    //     details: {
+    //       questions: [
+    //         {
+    //           questionText: "Who created Spider-Man?",
+    //           options: ["Stan Lee", "Bob Kane", "Jack Kirby", "Steve Ditko"],
+    //           correctAnswer: "Stan Lee",
+    //         },
+    //         {
+    //           questionText: "In which year was Marvel Comics founded?",
+    //           options: ["1939", "1945", "1961", "1970"],
+    //           correctAnswer: "1939",
+    //         },
+    //       ],
+    //       passingScore: 70,
+    //       duration: 10, // minutes
+    //       difficulty: "College Students",
+    //     },
+    //   },
+    //   {
+    //     title: "Self Awareness Assessment.",
+    //     description:
+    //       "Discover your current state of mind, self-conduct, family values, willingness to change, and spiritual journey.",
+    //     price: 190,
+    //     ageCategory: AgeCategory.ADULT,
+    //     tags: [
+    //       "emotional well-being",
+    //       "family values",
+    //       "relationship dynamics",
+    //     ],
+    //     details: {
+    //       questions: [
+    //         {
+    //           questionText: "Who created Spider-Man?",
+    //           options: ["Stan Lee", "Bob Kane", "Jack Kirby", "Steve Ditko"],
+    //           correctAnswer: "Stan Lee",
+    //         },
+    //         {
+    //           questionText: "In which year was Marvel Comics founded?",
+    //           options: ["1939", "1945", "1961", "1970"],
+    //           correctAnswer: "1939",
+    //         },
+    //       ],
+    //       passingScore: 70,
+    //       duration: 10, // minutes
+    //       difficulty: "College Students",
+    //     },
+    //   },
+    //   {
+    //     title: "Skills Assessment",
+    //     description:
+    //       "Assess your interpersonal, analytical, and professional skills to enhance your career, communication, and overall growth.",
+    //     price: 190,
+    //     ageCategory: AgeCategory.ADULT,
+    //     tags: [
+    //       "emotional well-being",
+    //       "family values",
+    //       "relationship dynamics",
+    //     ],
+    //     details: {
+    //       questions: [
+    //         {
+    //           questionText: "Who created Spider-Man?",
+    //           options: ["Stan Lee", "Bob Kane", "Jack Kirby", "Steve Ditko"],
+    //           correctAnswer: "Stan Lee",
+    //         },
+    //         {
+    //           questionText: "In which year was Marvel Comics founded?",
+    //           options: ["1939", "1945", "1961", "1970"],
+    //           correctAnswer: "1939",
+    //         },
+    //       ],
+    //       passingScore: 70,
+    //       duration: 15, // minutes
+    //       difficulty: "Individuals from any background",
+    //     },
+    //   },
+    //   {
+    //     title: "Addiction Awareness",
+    //     description:
+    //       "Evaluate your habits and identify areas of addiction, from mobile and social media to gaming, shopping, and substance abuse. ",
+    //     price: 190,
+    //     ageCategory: AgeCategory.ADULT,
+    //     tags: [
+    //       "emotional well-being",
+    //       "family values",
+    //       "relationship dynamics",
+    //     ],
+    //     details: {
+    //       questions: [
+    //         {
+    //           questionText: "Who created Spider-Man?",
+    //           options: ["Stan Lee", "Bob Kane", "Jack Kirby", "Steve Ditko"],
+    //           correctAnswer: "Stan Lee",
+    //         },
+    //         {
+    //           questionText: "In which year was Marvel Comics founded?",
+    //           options: ["1939", "1945", "1961", "1970"],
+    //           correctAnswer: "1939",
+    //         },
+    //       ],
+    //       passingScore: 70,
+    //       duration: 10, // minutes
+    //       difficulty: "College Students",
+    //     },
+    //   },
+    //   {
+    //     title: "Emotional Joy",
+    //     description:
+    //       "Explore your emotional well-being, family values, and relationship dynamics. ",
+    //     price: 190,
+    //     ageCategory: AgeCategory.ADULT,
+    //     tags: [
+    //       "emotional well-being",
+    //       "family values",
+    //       "relationship dynamics",
+    //     ],
+    //     details: {
+    //       questions: [
+    //         {
+    //           questionText: "Who created Spider-Man?",
+    //           options: ["Stan Lee", "Bob Kane", "Jack Kirby", "Steve Ditko"],
+    //           correctAnswer: "Stan Lee",
+    //         },
+    //         {
+    //           questionText: "In which year was Marvel Comics founded?",
+    //           options: ["1939", "1945", "1961", "1970"],
+    //           correctAnswer: "1939",
+    //         },
+    //       ],
+    //       passingScore: 70,
+    //       duration: 10, // minutes
+    //       difficulty: "College Students",
+    //     },
+    //   },
+    //   {
+    //     title: "Emotional Fear",
+    //     description:
+    //       "Discover your current state of mind, self-conduct, family values, willingness to change, and spiritual journey.",
+    //     price: 190,
+    //     ageCategory: AgeCategory.ADULT,
+    //     tags: [
+    //       "emotional well-being",
+    //       "family values",
+    //       "relationship dynamics",
+    //     ],
+    //     details: {
+    //       questions: [
+    //         {
+    //           questionText: "Who created Spider-Man?",
+    //           options: ["Stan Lee", "Bob Kane", "Jack Kirby", "Steve Ditko"],
+    //           correctAnswer: "Stan Lee",
+    //         },
+    //         {
+    //           questionText: "In which year was Marvel Comics founded?",
+    //           options: ["1939", "1945", "1961", "1970"],
+    //           correctAnswer: "1939",
+    //         },
+    //       ],
+    //       passingScore: 70,
+    //       duration: 10, // minutes
+    //       difficulty: "College Students",
+    //     },
+    //   },
+    // ]);
 
     // Sample Mentoons Card
     const mentoonsCard = await MentoonsCard.create([
@@ -351,7 +351,7 @@ const seedProducts = async () => {
         title: "Conversation Starter Cards (6-12) years",
         description:
           "Discover the power of meaningful conversations with our Conversation Starter Cards. Watch your kids become more expressive, creative, and socially confident.",
-        price: 1,
+        price: 19,
         ageCategory: AgeCategory.CHILD,
         type: ProductType.MENTOONS_CARDS,
         rating: 4.5,
@@ -467,7 +467,7 @@ const seedProducts = async () => {
         title: "Conversation Starter Cards (13-16) years",
         description:
           "Encourage meaningful conversations with our Conversation Starter Cards. Designed for teenagers, these cards help build confidence, empathy, and social skills while fostering creativity and self-expression.",
-        price: 1,
+        price: 19,
         ageCategory: AgeCategory.TEEN,
         type: ProductType.MENTOONS_CARDS,
         rating: 4.5,
@@ -594,7 +594,7 @@ const seedProducts = async () => {
         title: "Conversation Starter Cards (17-19) years",
         description:
           "Encourage meaningful conversations with our Conversation Starter Cards. Designed for teenagers, these cards help build confidence, empathy, and social skills while fostering creativity and self-expression.",
-        price: 1,
+        price: 19,
         ageCategory: AgeCategory.YOUNG_ADULT,
         type: ProductType.MENTOONS_CARDS,
         rating: 4.5,
@@ -719,7 +719,7 @@ const seedProducts = async () => {
         title: "Conversation Story Cards(20+) years",
         description:
           "Encourage meaningful conversations with our Conversation Starter Cards. Designed for teenagers, these cards help build confidence, empathy, and social skills while fostering creativity and self-expression.",
-        price: 1,
+        price: 19,
         ageCategory: AgeCategory.ADULT,
         type: ProductType.MENTOONS_CARDS,
         rating: 4.5,
@@ -840,7 +840,7 @@ const seedProducts = async () => {
         title: "Story Re-teller Cards (6-12) years",
         description:
           "Unleash creativity and connection with our Story Reteller Cards. Inspire kids to imagine, think critically, and bond through fun, engaging stories. Easy to carry, they make learning and sharing a joy anytime, anywhere!",
-        price: 1,
+        price: 19,
         ageCategory: AgeCategory.CHILD,
         type: ProductType.MENTOONS_CARDS,
         rating: 4.5,
@@ -956,7 +956,7 @@ const seedProducts = async () => {
         title: "Story Re-teller Cards (13-16) years",
         description:
           "Unleash creativity and connection with our Story Reteller Cards. Inspire kids to imagine, think critically, and bond through fun, engaging stories. Easy to carry, they make learning and sharing a joy anytime, anywhere!",
-        price: 1,
+        price: 19,
         ageCategory: AgeCategory.TEEN,
         type: ProductType.MENTOONS_CARDS,
         rating: 4.5,
@@ -1076,7 +1076,7 @@ const seedProducts = async () => {
         title: "Story Re-teller Cards (17-19) years",
         description:
           "Unleash creativity and connection with our Story Reteller Cards. Inspire kids to imagine, think critically, and bond through fun, engaging stories. Easy to carry, they make learning and sharing a joy anytime, anywhere!",
-        price: 1,
+        price: 19,
         ageCategory: AgeCategory.YOUNG_ADULT,
         type: ProductType.MENTOONS_CARDS,
         rating: 4.5,
@@ -1193,7 +1193,7 @@ const seedProducts = async () => {
         title: "Silent Stories (6-12) years",
         description:
           "Unlock your child’s creativity with Silent Stories, a screen-free activity that boosts imagination and storytelling skills. Perfect for solo or group play, it fosters emotional understanding and strengthens communication while offering a fun, offline bonding experience.",
-        price: 1,
+        price: 19,
         ageCategory: AgeCategory.CHILD,
         type: ProductType.MENTOONS_CARDS,
         rating: 4.5,
@@ -1308,7 +1308,7 @@ const seedProducts = async () => {
         title: "Silent Stories (13-16) years",
         description:
           "Unlock your child’s creativity with Silent Stories, a screen-free activity that boosts imagination and storytelling skills. Perfect for solo or group play, it fosters emotional understanding and strengthens communication while offering a fun, offline bonding experience.",
-        price: 1,
+        price: 19,
         ageCategory: AgeCategory.TEEN,
         type: ProductType.MENTOONS_CARDS,
         rating: 4.5,
@@ -1435,7 +1435,7 @@ const seedProducts = async () => {
         title: "Silent Stories (17-19) years",
         description:
           "Unlock your child’s creativity with Silent Stories, a screen-free activity that boosts imagination and storytelling skills. Perfect for solo or group play, it fosters emotional understanding and strengthens communication while offering a fun, offline bonding experience.",
-        price: 1,
+        price: 19,
         ageCategory: AgeCategory.YOUNG_ADULT,
         type: ProductType.MENTOONS_CARDS,
         rating: 4.5,
@@ -1553,14 +1553,15 @@ const seedProducts = async () => {
         title: "Coloring Book on Inventions & Inventors",
         description:
           "An educational and fun coloring book that introduces kids to famous inventors and their groundbreaking inventions.",
-        price: 1,
+        price: 19,
         ageCategory: AgeCategory.CHILD,
         tags: ["coloring", "inventors", "inventions", "learning"],
         type: ProductType.MENTOONS_BOOKS,
         rating: 4.7,
         productImages: [
           {
-            imageUrl: "inventions-coloring-book-cover.jpg",
+            imageUrl:
+              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/coloring_Books/6-12/inventionsAndInventors.png",
           },
         ],
         productVideos: [
@@ -1591,14 +1592,15 @@ const seedProducts = async () => {
         title: "Coloring Book in Mandala Art – Gaming Gadgets",
         description:
           "A creative mandala art coloring book featuring gaming-themed designs to help kids relax and explore their artistic side.",
-        price: 1,
+        price: 19,
         ageCategory: AgeCategory.CHILD,
         tags: ["coloring", "mandala art", "gaming", "creative"],
         type: ProductType.MENTOONS_BOOKS,
         rating: 4.5,
         productImages: [
           {
-            imageUrl: "activity-book-cover.jpg",
+            imageUrl:
+              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/coloring_Books/6-12/mandalaArt.png",
           },
         ],
         productVideos: [
@@ -1628,14 +1630,15 @@ const seedProducts = async () => {
         title: "Magnificent - 9 Colouring Book",
         description:
           "A fun and engaging coloring book featuring 9 unique characters for kids to bring to life with their creativity.",
-        price: 1,
+        price: 19,
         ageCategory: AgeCategory.CHILD,
         tags: ["coloring", "cartoon characters", "creative", "kids"],
         type: ProductType.MENTOONS_BOOKS,
         rating: 4.8,
         productImages: [
           {
-            imageUrl: "magnificent-9-coloring-book-cover.jpg",
+            imageUrl:
+              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/coloring_Books/6-12/magnificent-9.png",
           },
         ],
         productVideos: [
@@ -1665,11 +1668,8 @@ const seedProducts = async () => {
 
     console.log("Database seeded successfully!");
     console.log(`Created:
-      ${comics.length} Comics
-      ${audioComics.length} Audio Comics
+
       ${podcasts.length} Podcasts
-      ${workshops.length} Workshops
-      ${assessments.length} Assessments
       ${mentoonsCard.length} Mentoons Cards
       ${mentoonsBook.length} Mentoons Books
     `);
