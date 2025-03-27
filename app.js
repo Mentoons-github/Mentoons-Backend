@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const dbConnection = require("./src/config/dbConfig");
 const errorHandler = require("./src/middlewares/errorHandler");
+const morgan = require("morgan");
 
 const emailRoutes = require("./src/routes/email");
 const userRoutes = require("./src/routes/user.js");
@@ -126,6 +127,7 @@ app.post("/api/v1/webhook/clerk", async (req, res) => {
 });
 
 app.use(cors());
+app.use(morgan("dev"));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 app.set("views", __dirname + "/public");
