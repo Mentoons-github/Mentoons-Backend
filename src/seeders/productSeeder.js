@@ -727,11 +727,11 @@ const seedProducts = async () => {
         productImages: [
           {
             imageUrl:
-              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Conversation+Story+Cards+20%2B.png",
+              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/20%2BConversationStarterCards.png",
           },
           {
             imageUrl:
-              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733315009292-Silent%20Stories%20Thumbnail.png",
+              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/20%2BConversationStarterCards.png",
           },
         ],
         productVideos: [
