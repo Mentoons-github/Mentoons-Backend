@@ -974,7 +974,7 @@ const seedProducts = async () => {
         productVideos: [
           {
             videoUrl:
-              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733314767994-Story+Re-Teller+Cards+05.mp4",
+              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/videos/Story+Re-Teller+Cards+(13-19).mp4",
           },
         ],
         isFeatured: false,
@@ -1094,7 +1094,7 @@ const seedProducts = async () => {
         productVideos: [
           {
             videoUrl:
-              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733314767994-Story+Re-Teller+Cards+05.mp4",
+              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/videos/Story+Re-Teller+Cards+(13-19).mp4",
           },
         ],
         isFeatured: false,
@@ -1326,7 +1326,7 @@ const seedProducts = async () => {
         productVideos: [
           {
             videoUrl:
-              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733315016267-Silent+Stories+Ages+6-12.mp4",
+              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/videos/Silent+Stories+(13-16)+(17-19)_02.mp4",
           },
         ],
         isFeatured: true,
@@ -1453,7 +1453,7 @@ const seedProducts = async () => {
         productVideos: [
           {
             videoUrl:
-              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733315016267-Silent+Stories+Ages+6-12.mp4",
+              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/videos/Silent+Stories+(13-16)+(17-19)_02.mp4",
           },
         ],
         isFeatured: true,
