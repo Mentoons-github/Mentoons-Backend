@@ -10,7 +10,7 @@ function dbConnection() {
       console.log("db connected successfully");
     })
     .then(async () => {
-      await seedProducts();
+      // await seedProducts();
     }) // Seed the products collectio
 
     .catch((err) => {

@@ -10,11 +10,11 @@ const getProducts = async (req, res, next) => {
       page = "1",
       limit = "10",
       type = "",
+      cardType = "",
       ageCategory = "",
     } = req.query;
 
     console.log("Query Params", req.query);
-
 
     // Parse pagination values
     const pageNumber = parseInt(page, 10);
@@ -34,6 +34,7 @@ const getProducts = async (req, res, next) => {
     // Add filter conditions
     if (ageCategory) queryFilter.ageCategory = ageCategory;
     if (type) queryFilter.type = type;
+    if (cardType) queryFilter.cardType = cardType;
     // if (tags && Array.isArray(tags) && tags.length > 0) {
     //   queryFilter.tags = { $in: tags };
     // }
@@ -45,6 +46,32 @@ const getProducts = async (req, res, next) => {
       .skip(skip)
       .limit(limitNumber);
 
+    // const products = await Product.aggregate([
+    //   {
+    //     $match: {
+    //       ...queryFilter,
+    //       "details.cardType": queryFilter.cardType
+    //         ? queryFilter.cardType.toLowerCase()
+    //         : { $exists: true },
+    //     },
+    //   },
+    //   {
+    //     $project: {
+    //       originalProductSrc: 0,
+    //     },
+    //   },
+    //   {
+    //     $sort: {
+    //       [sortBy]: sortOrder,
+    //     },
+    //   },
+    //   {
+    //     $skip: skip,
+    //   },
+    //   {
+    //     $limit: limitNumber,
+    //   },
+    // ]);
     console.log("Products", products);
 
     const total = await Product.countDocuments(queryFilter);
