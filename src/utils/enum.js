@@ -4,7 +4,6 @@ const AgeCategory = {
   TEEN: "13-16",
   YOUNG_ADULT: "17-19",
   ADULT: "20+",
-  PARENTS: "parents",
 };
 const ProductType = {
   COMIC: "comic",
