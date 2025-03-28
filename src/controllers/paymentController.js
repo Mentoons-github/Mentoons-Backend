@@ -59,7 +59,7 @@ const initiatePayment = async (req, res) => {
       billing_tel: phone,
 
       merchant_param1: productInfo,
-      merchant_param2: productIds.join(","),
+      merchant_param2: productId.join(","),
     };
 
     // Convert params object to query string
