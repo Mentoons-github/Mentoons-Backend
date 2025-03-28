@@ -10,14 +10,17 @@ const ensureUserExists = async (req, res, next) => {
   try {
     // Skip if no user is authenticated
     if (!req.auth || !req.auth.userId) {
+      console.log("no user found");
       return next();
     }
 
     const clerkUserId = req.auth.userId;
+    console.log("userId exists : ", clerkUserId);
 
     // Check if user exists in our database
     let user = await User.findOne({ clerkId: clerkUserId });
 
+    console.log("use found : ", user);
     // If user doesn't exist, create them on the fly
     if (!user) {
       console.log(`User ${clerkUserId} not found in database, creating now...`);
@@ -25,6 +28,7 @@ const ensureUserExists = async (req, res, next) => {
       // Fetch user data from Clerk
       const clerkUser = await clerkClient.users.getUser(clerkUserId);
 
+      console.log("clerk User : ", clerkUser);
       // Create new user in our database
       user = new User({
         clerkId: clerkUserId,
@@ -34,7 +38,7 @@ const ensureUserExists = async (req, res, next) => {
         profileImage: clerkUser.imageUrl || "",
         // Add any other fields you need
       });
-
+      console.log("user saving");
       await user.save();
       console.log(`User ${clerkUserId} created successfully`);
     }
