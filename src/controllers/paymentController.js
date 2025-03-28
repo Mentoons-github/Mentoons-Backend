@@ -5,8 +5,16 @@ const User = require("../models/user");
 const initiatePayment = async (req, res) => {
   console.log("paymentController.js - initiatePayment");
   try {
-    const { amount, productInfo, email, phone, orderId, firstName, lastName } =
-      req.body;
+    const {
+      amount,
+      productInfo,
+      email,
+      items,
+      phone,
+      orderId,
+      firstName,
+      lastName,
+    } = req.body;
 
     console.log("Order Data", req.body);
 
@@ -17,6 +25,10 @@ const initiatePayment = async (req, res) => {
       });
     }
 
+    const productId = Array.isArray(items)
+      ? items.map((products) => products.productId)
+      : [items.productId];
+
     // Create or update order record in database
     const order = await Order.findOneAndUpdate(
       { orderId: orderId },
@@ -26,6 +38,7 @@ const initiatePayment = async (req, res) => {
         productInfo,
         customerName: `${firstName} ${lastName || ""}`.trim(),
         email,
+        products: productId,
         phone,
         status: "PENDING",
         createdAt: new Date(),
@@ -37,7 +50,6 @@ const initiatePayment = async (req, res) => {
       merchant_id: process.env.CCAVENUE_MERCHANT_ID,
       order_id: order.orderId,
       currency: "INR",
-      currency: "INR",
       amount: amount.toString(),
       redirect_url: `${process.env.FRONTEND_URL}/payment-status`,
       cancel_url: `${process.env.FRONTEND_URL}/payment-status`,
@@ -45,7 +57,9 @@ const initiatePayment = async (req, res) => {
       billing_name: `${firstName} ${lastName || ""}`.trim(),
       billing_email: email,
       billing_tel: phone,
+
       merchant_param1: productInfo,
+      merchant_param2: productIds.join(","),
     };
 
     // Convert params object to query string
