@@ -90,63 +90,63 @@ const seedProducts = async () => {
     // ]);
 
     // Create Podcasts
-    const podcasts = await Podcast.create([
-      {
-        title: "Tech Talk Weekly",
-        description: "Weekly discussions about technology",
-        price: 19,
-        ageCategory: AgeCategory.ADULT,
-        tags: ["technology", "education", "news"],
-        rating: 4.5,
-        proudctImage: [
-          {
-            imageUrl: "podcast-cover.jpg",
-          },
-        ],
-        productVideo: [
-          {
-            videoUrl: "podcast-video",
-          },
-        ],
-        details: {
-          episodeNumber: 42,
-          guests: ["Jane Doe", "Bob Wilson"],
-          season: 2,
-          host: "Alex Thompson",
-          releaseDate: new Date("2024-02-15"),
-          showNotes: "In this episode, we discuss the latest tech trends...",
-        },
-      },
-      // Sample Podcast
-      {
-        title: "Growing Up Right",
-        description: "Educational podcast for teenagers",
-        price: 19,
-        ageCategory: AgeCategory.TEENAGER,
-        type: ProductType.PODCAST,
-        tags: ["education", "teenagers", "growth"],
-        rating: 4.5,
-        proudctImage: [
-          {
-            imageUrl: "https://example.com/podcast-cover.jpg",
-          },
-        ],
-        productVideo: [
-          {
-            videoUrl: "https://example.com/podcast-video",
-          },
-        ],
-        isFeatured: true,
-        details: {
-          episodeNumber: 1,
-          host: "Dr. Sarah Johnson",
-          releaseDate: new Date("2023-03-01"),
-          language: "en",
-          duration: 30, // Added the required duration field (in minutes)
-          sampleUrl: "https://example.com/podcast-sample.mp3",
-        },
-      },
-    ]);
+    // const podcasts = await Podcast.create([
+    //   {
+    //     title: "Tech Talk Weekly",
+    //     description: "Weekly discussions about technology",
+    //     price: 199,
+    //     ageCategory: AgeCategory.ADULT,
+    //     tags: ["technology", "education", "news"],
+    //     rating: 4.5,
+    //     proudctImage: [
+    //       {
+    //         imageUrl: "podcast-cover.jpg",
+    //       },
+    //     ],
+    //     productVideo: [
+    //       {
+    //         videoUrl: "podcast-video",
+    //       },
+    //     ],
+    //     details: {
+    //       episodeNumber: 42,
+    //       guests: ["Jane Doe", "Bob Wilson"],
+    //       season: 2,
+    //       host: "Alex Thompson",
+    //       releaseDate: new Date("2024-02-15"),
+    //       showNotes: "In this episode, we discuss the latest tech trends...",
+    //     },
+    //   },
+    //   // Sample Podcast
+    //   {
+    //     title: "Growing Up Right",
+    //     description: "Educational podcast for teenagers",
+    //     price: 199,
+    //     ageCategory: AgeCategory.TEENAGER,
+    //     type: ProductType.PODCAST,
+    //     tags: ["education", "teenagers", "growth"],
+    //     rating: 4.5,
+    //     proudctImage: [
+    //       {
+    //         imageUrl: "https://example.com/podcast-cover.jpg",
+    //       },
+    //     ],
+    //     productVideo: [
+    //       {
+    //         videoUrl: "https://example.com/podcast-video",
+    //       },
+    //     ],
+    //     isFeatured: true,
+    //     details: {
+    //       episodeNumber: 1,
+    //       host: "Dr. Sarah Johnson",
+    //       releaseDate: new Date("2023-03-01"),
+    //       language: "en",
+    //       duration: 30, // Added the required duration field (in minutes)
+    //       sampleUrl: "https://example.com/podcast-sample.mp3",
+    //     },
+    //   },
+    // ]);
 
     // // Create Workshops
     // const workshops = await Workshop.create([
@@ -351,7 +351,9 @@ const seedProducts = async () => {
         title: "Conversation Starter Cards (6-12) years",
         description:
           "Discover the power of meaningful conversations with our Conversation Starter Cards. Watch your kids become more expressive, creative, and socially confident.",
-        price: 19,
+        price: 199,
+        orignalProductSrc:
+          "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Conversation_starter_cards/6-12/Conversaion+starter+cards+6-12.pdf",
         ageCategory: AgeCategory.CHILD,
         type: ProductType.MENTOONS_CARDS,
         rating: 4.5,
@@ -467,7 +469,9 @@ const seedProducts = async () => {
         title: "Conversation Starter Cards (13-16) years",
         description:
           "Encourage meaningful conversations with our Conversation Starter Cards. Designed for teenagers, these cards help build confidence, empathy, and social skills while fostering creativity and self-expression.",
-        price: 19,
+        price: 199,
+        orignalProductSrc:
+          "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Conversation_starter_cards/13-16/Conversation+starter+cards+13-16.pdf",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.MENTOONS_CARDS,
         rating: 4.5,
@@ -592,9 +596,12 @@ const seedProducts = async () => {
       },
       {
         title: "Conversation Starter Cards (17-19) years",
+
         description:
           "Encourage meaningful conversations with our Conversation Starter Cards. Designed for teenagers, these cards help build confidence, empathy, and social skills while fostering creativity and self-expression.",
-        price: 19,
+        price: 199,
+        orignalProductSrc:
+          "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Conversation_starter_cards/17-19/Conversation+starter+cards+17-19.pdf",
         ageCategory: AgeCategory.YOUNG_ADULT,
         type: ProductType.MENTOONS_CARDS,
         rating: 4.5,
@@ -719,7 +726,9 @@ const seedProducts = async () => {
         title: "Conversation Story Cards(20+) years",
         description:
           "Encourage meaningful conversations with our Conversation Starter Cards. Designed for teenagers, these cards help build confidence, empathy, and social skills while fostering creativity and self-expression.",
-        price: 19,
+        price: 199,
+        orignalProductSrc:
+          "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Conversation_Story_Cards_20%2B/4+STORIES.pdf",
         ageCategory: AgeCategory.ADULT,
         type: ProductType.MENTOONS_CARDS,
         rating: 4.5,
@@ -840,7 +849,9 @@ const seedProducts = async () => {
         title: "Story Re-teller Cards (6-12) years",
         description:
           "Unleash creativity and connection with our Story Reteller Cards. Inspire kids to imagine, think critically, and bond through fun, engaging stories. Easy to carry, they make learning and sharing a joy anytime, anywhere!",
-        price: 19,
+        price: 199,
+        orignalProductSrc:
+          "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Story_Reteller_Cards/6-12/Story+reteller+6-12.pdf",
         ageCategory: AgeCategory.CHILD,
         type: ProductType.MENTOONS_CARDS,
         rating: 4.5,
@@ -956,7 +967,9 @@ const seedProducts = async () => {
         title: "Story Re-teller Cards (13-16) years",
         description:
           "Unleash creativity and connection with our Story Reteller Cards. Inspire kids to imagine, think critically, and bond through fun, engaging stories. Easy to carry, they make learning and sharing a joy anytime, anywhere!",
-        price: 19,
+        price: 199,
+        orignalProductSrc:
+          "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Story_Reteller_Cards/13-16/Story+reteller+cards+13-16.pdf",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.MENTOONS_CARDS,
         rating: 4.5,
@@ -1076,7 +1089,9 @@ const seedProducts = async () => {
         title: "Story Re-teller Cards (17-19) years",
         description:
           "Unleash creativity and connection with our Story Reteller Cards. Inspire kids to imagine, think critically, and bond through fun, engaging stories. Easy to carry, they make learning and sharing a joy anytime, anywhere!",
-        price: 19,
+        price: 199,
+        orignalProductSrc:
+          "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Story_Reteller_Cards/17-19/Story+Reteller+Cards+17-19.pdf",
         ageCategory: AgeCategory.YOUNG_ADULT,
         type: ProductType.MENTOONS_CARDS,
         rating: 4.5,
@@ -1193,7 +1208,9 @@ const seedProducts = async () => {
         title: "Silent Stories (6-12) years",
         description:
           "Unlock your child’s creativity with Silent Stories, a screen-free activity that boosts imagination and storytelling skills. Perfect for solo or group play, it fosters emotional understanding and strengthens communication while offering a fun, offline bonding experience.",
-        price: 19,
+        price: 199,
+        orignalProductSrc:
+          "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Silent_stories/6-12/Silent+Stories+6-12.pdf",
         ageCategory: AgeCategory.CHILD,
         type: ProductType.MENTOONS_CARDS,
         rating: 4.5,
@@ -1308,7 +1325,9 @@ const seedProducts = async () => {
         title: "Silent Stories (13-16) years",
         description:
           "Unlock your child’s creativity with Silent Stories, a screen-free activity that boosts imagination and storytelling skills. Perfect for solo or group play, it fosters emotional understanding and strengthens communication while offering a fun, offline bonding experience.",
-        price: 19,
+        price: 199,
+        orignalProductSrc:
+          "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Silent_stories/13-16/Silent+stories+13-16.pdf",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.MENTOONS_CARDS,
         rating: 4.5,
@@ -1435,7 +1454,9 @@ const seedProducts = async () => {
         title: "Silent Stories (17-19) years",
         description:
           "Unlock your child’s creativity with Silent Stories, a screen-free activity that boosts imagination and storytelling skills. Perfect for solo or group play, it fosters emotional understanding and strengthens communication while offering a fun, offline bonding experience.",
-        price: 19,
+        price: 199,
+        orignalProductSrc:
+          "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Silent_stories/17-19/Silent+stories+17-19.pdf",
         ageCategory: AgeCategory.YOUNG_ADULT,
         type: ProductType.MENTOONS_CARDS,
         rating: 4.5,
@@ -1553,7 +1574,9 @@ const seedProducts = async () => {
         title: "Coloring Book on Inventions & Inventors",
         description:
           "An educational and fun coloring book that introduces kids to famous inventors and their groundbreaking inventions.",
-        price: 19,
+        price: 199,
+        orignalProductSrc:
+          "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/coloring_Books/productPDF/6-12/Inventions+and+Inventors+coloring+book.pdff",
         ageCategory: AgeCategory.CHILD,
         tags: ["coloring", "inventors", "inventions", "learning"],
         type: ProductType.MENTOONS_BOOKS,
@@ -1592,7 +1615,9 @@ const seedProducts = async () => {
         title: "Coloring Book in Mandala Art – Gaming Gadgets",
         description:
           "A creative mandala art coloring book featuring gaming-themed designs to help kids relax and explore their artistic side.",
-        price: 19,
+        price: 199,
+        orignalProductSrc:
+          "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/coloring_Books/productPDF/6-12/Gaming_Book_mandala+art).pdf",
         ageCategory: AgeCategory.CHILD,
         tags: ["coloring", "mandala art", "gaming", "creative"],
         type: ProductType.MENTOONS_BOOKS,
@@ -1630,7 +1655,9 @@ const seedProducts = async () => {
         title: "Magnificent - 9 Colouring Book",
         description:
           "A fun and engaging coloring book featuring 9 unique characters for kids to bring to life with their creativity.",
-        price: 19,
+        price: 1,
+        orignalProductSrc:
+          "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/coloring_Books/productPDF/6-12/M9+colouring+book.pdf",
         ageCategory: AgeCategory.CHILD,
         tags: ["coloring", "cartoon characters", "creative", "kids"],
         type: ProductType.MENTOONS_BOOKS,
@@ -1668,8 +1695,6 @@ const seedProducts = async () => {
 
     console.log("Database seeded successfully!");
     console.log(`Created:
-
-      ${podcasts.length} Podcasts
       ${mentoonsCard.length} Mentoons Cards
       ${mentoonsBook.length} Mentoons Books
     `);

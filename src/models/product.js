@@ -7,11 +7,15 @@ const ProductSchema = new mongoose.Schema(
   {
     title: { type: String, required: true },
     description: { type: String },
-    price: { 
-      type: Number, 
+    price: {
+      type: Number,
       required: true,
-      get: v => parseFloat(v.toFixed(2)),  // Round to 2 decimal places when retrieved
-      set: v => parseFloat(v)  // Ensure it's stored as a float
+      get: (v) => parseFloat(v.toFixed(2)), // Round to 2 decimal places when retrieved
+      set: (v) => parseFloat(v), // Ensure it's stored as a float
+    },
+    orignalProductSrc: {
+      type: String,
+      required: true,
     },
     ageCategory: {
       type: String,
@@ -45,12 +49,13 @@ const ProductSchema = new mongoose.Schema(
     timestamps: true,
     discriminatorKey: "type", // this key differentiates product types
     toJSON: { getters: true },
-    toObject: { getters: true }
+    toObject: { getters: true },
   }
 );
 
 // Check if model exists before defining
-const Product = mongoose.models.Product || mongoose.model("Product", ProductSchema);
+const Product =
+  mongoose.models.Product || mongoose.model("Product", ProductSchema);
 
 /* ----- Comic Discriminator ----- */
 const ComicSchema = new mongoose.Schema({

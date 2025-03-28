@@ -9,6 +9,8 @@ const { saveOTPToDB, validateOtp } = require("../helpers/otpHelpers");
 const whatsappMessage = require("../services/twillioWhatsappService");
 const { createOtp, hashData } = require("../utils/functions");
 
+// Newsletter Email Template function
+
 module.exports = {
   subscribeNewsletter: asyncHandler(async (req, res, next) => {
     const { email } = req.body;
@@ -27,23 +29,24 @@ module.exports = {
       from: process.env.EMAIL_USER,
       to: email,
       subject: "Thank you for subscribing!",
-      html: `
-            <div style="font-family: 'Comic Sans MS', cursive, sans-serif; background: linear-gradient(135deg, #FFE5D4 0%, #FF8C42 100%); padding: 30px; border-radius: 20px; border: 3px dashed #FF6B35; position: relative;">
-                <div style="position: absolute; top: -15px; left: 20px; background: #FF6B35; padding: 5px 15px; border-radius: 15px; transform: rotate(-5deg);">
-                    <span style="color: white; font-size: 14px;">✨ Welcome to the Fun Zone! ✨</span>
-                </div>
-                <h1 style="color: #FF6B35; text-align: center; font-size: 28px; margin-top: 15px; text-shadow: 2px 2px 4px rgba(255,107,53,0.2);">
-                    🎉 Yay! You're Part of Our Club! 🎉
-                </h1>
-                <p style="color: #FF4E00; font-size: 18px; text-align: center; line-height: 1.6;">
-                    Get ready for awesome adventures and super cool updates! 
-                    We're so excited to have you join our magical newsletter family! 🌟
-                </p>
-                <div style="text-align: center; margin-top: 20px; background: #FFA06B; padding: 10px; border-radius: 15px; box-shadow: 0 4px 8px rgba(255,107,53,0.2);">
-                    <span style="font-size: 24px;">🎨 📚 🚀 💫</span>
-                </div>
-            </div>
-        `,
+      html: NewsletterEmailTemplate(),
+      // html: `
+      //       <div style="font-family: 'Comic Sans MS', cursive, sans-serif; background: linear-gradient(135deg, #FFE5D4 0%, #FF8C42 100%); padding: 30px; border-radius: 20px; border: 3px dashed #FF6B35; position: relative;">
+      //           <div style="position: absolute; top: -15px; left: 20px; background: #FF6B35; padding: 5px 15px; border-radius: 15px; transform: rotate(-5deg);">
+      //               <span style="color: white; font-size: 14px;">✨ Welcome to the Fun Zone! ✨</span>
+      //           </div>
+      //           <h1 style="color: #FF6B35; text-align: center; font-size: 28px; margin-top: 15px; text-shadow: 2px 2px 4px rgba(255,107,53,0.2);">
+      //               🎉 Yay! You're Part of Our Club! 🎉
+      //           </h1>
+      //           <p style="color: #FF4E00; font-size: 18px; text-align: center; line-height: 1.6;">
+      //               Get ready for awesome adventures and super cool updates!
+      //               We're so excited to have you join our magical newsletter family! 🌟
+      //           </p>
+      //           <div style="text-align: center; margin-top: 20px; background: #FFA06B; padding: 10px; border-radius: 15px; box-shadow: 0 4px 8px rgba(255,107,53,0.2);">
+      //               <span style="font-size: 24px;">🎨 📚 🚀 💫</span>
+      //           </div>
+      //       </div>
+      //   `,
     };
 
     await emailHelper.saveEmailToDB({
@@ -83,7 +86,7 @@ module.exports = {
 
     return successResponse(res, 200, messageHelper.EMAIL_SENT);
   }),
-sendProductEmail: asyncHandler(async (req, res, next) => {
+  sendProductEmail: asyncHandler(async (req, res, next) => {
     const { name, email, productName, productPrice } = req.body;
     if (!name || !email || !productName || !productPrice) {
       return errorResponse(res, 404, messageHelper.BAD_REQUEST);
@@ -127,7 +130,6 @@ sendProductEmail: asyncHandler(async (req, res, next) => {
     const isEmailSent = await sendEmail(userOptions);
     return successResponse(res, 200, messageHelper.EMAIL_SENT);
   }),
-
 
   // freeDownloads: asyncHandler(async (req, res, next) => {
   //     const { name, email, phone ,pdf,thumbnail } = req.body
@@ -277,6 +279,32 @@ sendProductEmail: asyncHandler(async (req, res, next) => {
     await sendEmail(userOptions);
     await sendEmail(adminOptions);
     return successResponse(res, 200, messageHelper.FREE_DOWNLOAD_CLAIMED);
+  }),
+
+  sendNewsletterEmail: asyncHandler(async (req, res, next) => {
+    const { email } = req.body;
+
+    if (!email) {
+      return errorResponse(res, 400, messageHelper.BAD_REQUEST);
+    }
+
+    const adminOptions = {
+      from: process.env.EMAIL_USER,
+      to: process.env.ADMIN_EMAIL,
+      subject: "Newsletter Email Sent",
+      text: `A newsletter email has been sent to: ${email}`,
+    };
+
+    const userOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: "Mentoons Newsletter - Latest Updates!",
+      html: NewsletterEmailTemplate(),
+    };
+
+    await sendEmail(userOptions);
+    await sendEmail(adminOptions);
+    return successResponse(res, 200, messageHelper.EMAIL_SENT);
   }),
 };
 
@@ -503,5 +531,239 @@ const AssessementEmailTemplate = (name, email, phone, pdf, thumbnail) => {
   `;
 };
 
-
 //NOTE: Create utility function for emails instead of controllers.
+const NewsletterEmailTemplate = () => {
+  return `
+    <div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #FFC107; padding: 20px;">
+      <!-- Header with Logo -->
+      <div style="text-align: start; padding: 20px 0;">
+        <img src="https://mentoons-website.s3.ap-northeast-1.amazonaws.com/logo/ec9141ccd046aff5a1ffb4fe60f79316.png" alt="Mentoons Logo" style="max-width: 120px; height: auto;"/>
+      </div>
+      
+      <!-- Welcome Section -->
+      <div style="text-align: center; margin-bottom: 20px;">
+        <h1 style="color: #FFFFFF; font-size: 24px; margin: 0; text-transform: uppercase; font-weight: bold;">WELCOME TO</h1>
+        <h1 style="color: #FFFFFF; font-size: 24px; margin: 0; text-transform: uppercase; font-weight: bold;">MENTOONS</h1>
+        <h1 style="color: #FFFFFF; font-size: 24px; margin: 0; text-transform: uppercase; font-weight: bold;">NEWSLETTER</h1>
+      </div>
+      
+      <!-- Introduction -->
+      <div style="background-color: #FFFFFF; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+        <p style="color: #333333; font-size: 14px; line-height: 1.5; margin: 0;">
+          Greetings, Special welcome to Mentoons! As part of the Mentoons Newsletter, in this issue we bring you insightful articles, upcoming workshops, and exciting news. Stay tuned for more updates!
+        </p>
+      </div>
+      
+      <!-- What's New Today Section -->
+      <div style="margin-bottom: 20px;">
+        <div style="background-color: #000000; border-radius: 8px; padding: 10px; text-align: center;">
+          <h2 style="color: #FFFFFF; font-size: 18px; margin: 0;">WHAT'S NEW TODAY?</h2>
+        </div>
+        
+        <!-- New Item 1 -->
+        <div style="background-color: #FFFFFF; border-radius: 8px; padding: 15px; margin-top: 15px; display: flex;">
+          <div style="flex: 0 0 30%;">
+            <img src="https://via.placeholder.com/150" alt="Eclipse" style="width: 100%; border-radius: 5px;"/>
+          </div>
+          <div style="flex: 0 0 70%; padding-left: 15px;">
+            <h3 style="color: #333333; font-size: 16px; margin: 0 0 10px 0;">Introducing Mentoons MyTime</h3>
+            <p style="color: #666666; font-size: 14px; line-height: 1.4; margin: 0;">
+              Our newest product designed to enhance your child's time management skills. Perfect for ages 5-12, this interactive tool makes learning fun.
+            </p>
+          </div>
+        </div>
+        
+        <!-- New Item 2 -->
+        <div style="background-color: #FFFFFF; border-radius: 8px; padding: 15px; margin-top: 15px; display: flex;">
+          <div style="flex: 0 0 30%;">
+            <img src="https://via.placeholder.com/150" alt="Psychologist" style="width: 100%; border-radius: 5px;"/>
+          </div>
+          <div style="flex: 0 0 70%; padding-left: 15px;">
+            <h3 style="color: #333333; font-size: 16px; margin: 0 0 10px 0;">Meet our New Psychologist: Dr. Anisha</h3>
+            <p style="color: #666666; font-size: 14px; line-height: 1.4; margin: 0;">
+              We're excited to welcome Dr. Anisha to our team. With over 10 years of experience in child psychology, she brings valuable expertise to our workshops.
+            </p>
+          </div>
+        </div>
+        
+        <!-- New Item 3 -->
+        <div style="background-color: #FFFFFF; border-radius: 8px; padding: 15px; margin-top: 15px; display: flex;">
+          <div style="flex: 0 0 30%;">
+            <img src="https://via.placeholder.com/150" alt="New Books" style="width: 100%; border-radius: 5px;"/>
+          </div>
+          <div style="flex: 0 0 70%; padding-left: 15px;">
+            <h3 style="color: #333333; font-size: 16px; margin: 0 0 10px 0;">New Exciting Books coming up for our Members!</h3>
+            <p style="color: #666666; font-size: 14px; line-height: 1.4; margin: 0;">
+              We've got new books set to launch in July. Stay tuned for more details on these engaging reads for children of all ages.
+            </p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Upcoming Events Section -->
+      <div style="margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; margin-bottom: 15px;">
+          <div style="width: 24px; height: 24px; background-color: #FFFFFF; border-radius: 50%; display: flex; justify-content: center; align-items: center; margin-right: 10px;">
+            <span style="color: #FFC107; font-weight: bold;">📅</span>
+          </div>
+          <h2 style="color: #FFFFFF; font-size: 18px; margin: 0;">Upcoming Events & Workshops</h2>
+        </div>
+        
+        <!-- Event List -->
+        <div style="background-color: #FFFFFF; border-radius: 8px; padding: 15px;">
+          <p style="color: #666666; font-size: 14px; line-height: 1.4; margin: 0 0 10px 0;">
+            Are you ready to enhance your skills? Join our upcoming workshops!  
+          </p>
+          
+          <!-- Event 1 -->
+          <div style="display: flex; margin-bottom: 10px;">
+            <div style="width: 20px; height: 20px; background-color: #FFC107; border-radius: 50%; margin-right: 10px; flex-shrink: 0; margin-top: 2px;"></div>
+            <p style="color: #333333; font-size: 14px; line-height: 1.4; margin: 0;">
+              <strong>Positive Parenting Masterclass</strong> - 15th Workshop
+            </p>
+          </div>
+          
+          <!-- Event 2 -->
+          <div style="display: flex; margin-bottom: 10px;">
+            <div style="width: 20px; height: 20px; background-color: #FFC107; border-radius: 50%; margin-right: 10px; flex-shrink: 0; margin-top: 2px;"></div>
+            <p style="color: #333333; font-size: 14px; line-height: 1.4; margin: 0;">
+              <strong>STEM Kids Camp</strong> - 24th Workshop
+            </p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Workshop Highlights Section -->
+      <div style="margin-bottom: 20px;">
+        <h2 style="color: #FFFFFF; font-size: 18px; margin: 0 0 15px 0;">Few of Missing Out? Here's the Highlight of our previous Workshop</h2>
+        
+        <!-- Workshop Image -->
+        <div style="background-color: #FFFFFF; border-radius: 8px; padding: 15px;">
+          <img src="https://via.placeholder.com/550x300" alt="Workshop Highlights" style="width: 100%; border-radius: 5px; margin-bottom: 15px;"/>
+          <p style="color: #666666; font-size: 14px; line-height: 1.4; margin: 0;">
+            Our last workshop was a huge success! Children learned about emotional intelligence through interactive games and activities. Don't miss our upcoming sessions - register today to secure your spot!
+          </p>
+        </div>
+      </div>
+      
+      <!-- Membership Benefits Section -->
+      <div style="margin-bottom: 20px;">
+        <div style="display: flex; flex-wrap: wrap; gap: 15px;">
+          <!-- Benefit 1 -->
+          <div style="flex: 1 0 30%; min-width: 150px; background-color: #FFFFFF; border-radius: 8px; padding: 15px; text-align: center;">
+            <img src="https://via.placeholder.com/80" alt="Benefit 1" style="width: 80px; height: 80px; margin-bottom: 10px;"/>
+            <h3 style="color: #333333; font-size: 16px; margin: 0 0 10px 0;">Early Bird Access</h3>
+            <p style="color: #666666; font-size: 12px; line-height: 1.4; margin: 0;">
+              Get priority access to all new workshops and materials.
+            </p>
+            <a href="#" style="display: inline-block; background-color: #FFC107; color: #FFFFFF; padding: 5px 15px; border-radius: 4px; text-decoration: none; margin-top: 10px; font-size: 12px;">Learn More</a>
+          </div>
+          
+          <!-- Benefit 2 -->
+          <div style="flex: 1 0 30%; min-width: 150px; background-color: #FFFFFF; border-radius: 8px; padding: 15px; text-align: center;">
+            <img src="https://via.placeholder.com/80" alt="Benefit 2" style="width: 80px; height: 80px; margin-bottom: 10px;"/>
+            <h3 style="color: #333333; font-size: 16px; margin: 0 0 10px 0;">Free Psychologist Consultation</h3>
+            <p style="color: #666666; font-size: 12px; line-height: 1.4; margin: 0;">
+              One-on-one sessions with our expert child psychologists.
+            </p>
+            <a href="#" style="display: inline-block; background-color: #FFC107; color: #FFFFFF; padding: 5px 15px; border-radius: 4px; text-decoration: none; margin-top: 10px; font-size: 12px;">Learn More</a>
+          </div>
+          
+          <!-- Benefit 3 -->
+          <div style="flex: 1 0 30%; min-width: 150px; background-color: #FFFFFF; border-radius: 8px; padding: 15px; text-align: center;">
+            <img src="https://via.placeholder.com/80" alt="Benefit 3" style="width: 80px; height: 80px; margin-bottom: 10px;"/>
+            <h3 style="color: #333333; font-size: 16px; margin: 0 0 10px 0;">Exclusive Group 1 Mentorship</h3>
+            <p style="color: #666666; font-size: 12px; line-height: 1.4; margin: 0;">
+              Small group sessions for personalized guidance and support.
+            </p>
+            <a href="#" style="display: inline-block; background-color: #FFC107; color: #FFFFFF; padding: 5px 15px; border-radius: 4px; text-decoration: none; margin-top: 10px; font-size: 12px;">Learn More</a>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Live Contests Section -->
+      <div style="margin-bottom: 20px;">
+        <div style="text-align: center; margin-bottom: 15px;">
+          <h2 style="color: #FFFFFF; font-size: 18px; margin: 0;">🎮 LIVE CONTESTS 🎮</h2>
+          <h3 style="color: #FFFFFF; font-size: 16px; margin: 5px 0 0 0;">PARTICIPATE & WIN!</h3>
+        </div>
+        
+        <!-- Contest Types -->
+        <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+          <!-- Contest 1 -->
+          <div style="flex: 1; background-color: #FFFFFF; border-radius: 8px; padding: 10px; text-align: center; margin-right: 10px;">
+            <div style="background-color: #FFC107; border-radius: 50%; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; margin: 0 auto 10px;">
+              <span style="color: #FFFFFF; font-weight: bold;">1</span>
+            </div>
+            <h4 style="color: #333333; font-size: 14px; margin: 0 0 5px 0;">THE CLIMBER TASK</h4>
+            <p style="color: #666666; font-size: 12px; line-height: 1.3; margin: 0;">
+              Complete all levels and win a special prize!
+            </p>
+          </div>
+          
+          <!-- Contest 2 -->
+          <div style="flex: 1; background-color: #FFFFFF; border-radius: 8px; padding: 10px; text-align: center; margin-right: 10px;">
+            <div style="background-color: #FFC107; border-radius: 50%; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; margin: 0 auto 10px;">
+              <span style="color: #FFFFFF; font-weight: bold;">2</span>
+            </div>
+            <h4 style="color: #333333; font-size: 14px; margin: 0 0 5px 0;">GUESS THE EMOTION</h4>
+            <p style="color: #666666; font-size: 12px; line-height: 1.3; margin: 0;">
+              Identify emotions and win exciting prizes!
+            </p>
+          </div>
+          
+          <!-- Contest 3 -->
+          <div style="flex: 1; background-color: #FFFFFF; border-radius: 8px; padding: 10px; text-align: center;">
+            <div style="background-color: #FFC107; border-radius: 50%; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; margin: 0 auto 10px;">
+              <span style="color: #FFFFFF; font-weight: bold;">3</span>
+            </div>
+            <h4 style="color: #333333; font-size: 14px; margin: 0 0 5px 0;">STORY TELLING</h4>
+            <p style="color: #666666; font-size: 12px; line-height: 1.3; margin: 0;">
+              Create a story and win a chance to get published!
+            </p>
+          </div>
+        </div>
+        
+        <!-- Influencer Spotlight -->
+        <div style="background-color: #FFFFFF; border-radius: 8px; padding: 15px; margin-bottom: 20px;">
+          <h3 style="color: #333333; font-size: 16px; margin: 0 0 15px 0; text-align: center;">Influencer Spotlight</h3>
+          <div style="display: flex; justify-content: space-around;">
+            <!-- Influencer 1 -->
+            <div style="text-align: center;">
+              <img src="https://via.placeholder.com/100" alt="Influencer 1" style="width: 100px; height: 100px; border-radius: 50%; margin-bottom: 10px;"/>
+            </div>
+            
+            <!-- Influencer 2 -->
+            <div style="text-align: center;">
+              <img src="https://via.placeholder.com/100" alt="Influencer 2" style="width: 100px; height: 100px; border-radius: 50%; margin-bottom: 10px;"/>
+            </div>
+          </div>
+          <p style="color: #666666; font-size: 14px; line-height: 1.4; margin: 15px 0 0 0; text-align: center;">
+            Meet our expert speakers who will guide you in our upcoming workshops. Don't miss out!
+          </p>
+        </div>
+      </div>
+      
+      <!-- Footer -->
+      <div style="text-align: center;">
+        <p style="color: #FFFFFF; font-size: 12px; margin: 0 0 10px 0;">
+          © 2024 Mentoons. All Rights Reserved.
+        </p>
+        <div>
+          <a href="#" style="display: inline-block; margin: 0 5px;">
+            <img src="https://via.placeholder.com/30" alt="Facebook" style="width: 30px; height: 30px;"/>
+          </a>
+          <a href="#" style="display: inline-block; margin: 0 5px;">
+            <img src="https://via.placeholder.com/30" alt="Twitter" style="width: 30px; height: 30px;"/>
+          </a>
+          <a href="#" style="display: inline-block; margin: 0 5px;">
+            <img src="https://via.placeholder.com/30" alt="Instagram" style="width: 30px; height: 30px;"/>
+          </a>
+          <a href="#" style="display: inline-block; margin: 0 5px;">
+            <img src="https://via.placeholder.com/30" alt="LinkedIn" style="width: 30px; height: 30px;"/>
+          </a>
+        </div>
+      </div>
+    </div>
+  `;
+};
