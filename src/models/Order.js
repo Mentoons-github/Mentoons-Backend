@@ -114,13 +114,17 @@ const orderSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    productInfo: [
+    products: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Product",
         required: true,
       },
     ],
+    productInfo: {
+      type: String,
+      required: true,
+    },
     customerName: {
       type: String,
       required: true,
