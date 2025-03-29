@@ -10,6 +10,7 @@ const ensureUserExists = async (req, res, next) => {
   try {
     // Skip if no user is authenticated
     if (!req.auth || !req.auth.userId) {
+      console.log("user : ", req.auth);
       console.log("no user found");
       return next();
     }
