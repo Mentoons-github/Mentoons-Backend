@@ -6,7 +6,10 @@ const { clerkClient } = require("@clerk/express");
  * If the user doesn't exist yet (webhook delay), create them on the fly
  */
 const ensureUserExists = async (req, res, next) => {
-  console.log("ensureUserExists middleware called", req.auth);
+  console.log(
+    "ensureUserExists middleware called=================================================================================================================================>",
+    req.auth
+  );
   console.log("req userID :", req.auth.userId);
   if (req.path === "/api/v1/payment/ccavenue-response") {
     return next();
