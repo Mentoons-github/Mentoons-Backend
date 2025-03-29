@@ -11,6 +11,8 @@ const ensureUserExists = async (req, res, next) => {
     return next();
   }
   try {
+    const authHeader = req.headers.authorization;
+    console.log("header token : ", authHeader);
     // Skip if no user is authenticated
     if (!req.auth || !req.auth.userId) {
       console.log("user : ", req.auth);
