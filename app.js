@@ -126,7 +126,14 @@ app.post("/api/v1/webhook/clerk", async (req, res) => {
   }
 });
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "https://mentoons.com",
+    methods: "GET,POST,PUT,DELETE,OPTIONS",
+    allowedHeaders: "*",
+    credentials: true,
+  })
+);
 app.use(morgan("dev"));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
