@@ -1,6 +1,6 @@
 const ccavRequestHandler = require("./ccavRequestHandler");
+const TemporaryUser = require("../models/tempUserPayment");
 const Order = require("../models/Order");
-const User = require("../models/user");
 
 const initiatePayment = async (req, res) => {
   console.log("paymentController.js - initiatePayment");
@@ -28,6 +28,20 @@ const initiatePayment = async (req, res) => {
     const productId = Array.isArray(items)
       ? items.map((products) => products.productId)
       : [items.productId];
+
+    //temporarily storing it
+    const userId = req.user?.clerkId;
+    console.log("userId found", userId);
+    if (userId) {
+      console.log("userid found");
+      await TemporaryUser.findOneAndUpdate(
+        { orderId },
+        { orderId, userId },
+        { upsert: true, new: true }
+      );
+
+      console.log("user Stored");
+    }
 
     // Create or update order record in database
     const order = await Order.findOneAndUpdate(

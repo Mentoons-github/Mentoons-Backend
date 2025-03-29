@@ -3,7 +3,9 @@ var http = require("http"),
   ccav = require("../utils/ccavutil.js"),
   qs = require("querystring");
 const dotenv = require("dotenv");
+const TemporaryUser = require("../models/tempUserPayment");
 const Order = require("../models/Order");
+const User = require("../models/user.js");
 dotenv.config();
 
 const postRes = function (request, response) {
@@ -35,6 +37,50 @@ const postRes = function (request, response) {
       // Update order in database if order_id is present
       if (responseObject.order_id) {
         try {
+          const storedUser = await TemporaryUser.findOne({
+            orderId: responseObject.order_id,
+          });
+
+          console.log(
+            "Checking stored user for orderId:",
+            responseObject.order_id
+          );
+          console.log("Stored user data:", storedUser);
+
+          if (!storedUser) {
+            console.log(
+              "User authentication expired or missing for orderId:",
+              responseObject.order_id
+            );
+            return response
+              .status(401)
+              .json({ error: "User authentication expired or missing" });
+          }
+
+          const user = await User.findOne({ clerkId: storedUser.userId });
+          console.log(
+            "Checking user in database with clerkId:",
+            storedUser.userId
+          );
+          console.log("User data found:", user);
+
+          if (!user) {
+            console.log(
+              "User does not exist in system for clerkId:",
+              storedUser.userId
+            );
+            return response
+              .status(403)
+              .json({ error: "User does not exist in our system" });
+          }
+
+          console.log(
+            "Deleting stored temporary user record for orderId:",
+            responseObject.order_id
+          );
+          await TemporaryUser.deleteOne({ orderId: responseObject.order_id });
+          console.log("Temporary user record deleted successfully.");
+
           const orderStatus = responseObject.order_status || "Unknown";
 
           const orderUpdate = await Order.findByIdAndUpdate(
@@ -56,32 +102,38 @@ const postRes = function (request, response) {
           );
 
           console.log("here you can send the product to the user");
-// Send email to user with product link
-const order = await Order.findById(responseObject.order_id).populate('products');
-if (order && order.user && order.user.email) {
-  try {
-    const emailData = {
-      to: order.user.email,
-      subject: 'Your Mentoons Product Purchase',
-      template: 'product-purchase',
-      context: {
-        orderId: order._id,
-        products: order.products.map(product => ({
-          name: product.name,
-          downloadLink: product.downloadLink
-        }))
-      }
-    };
+          // Send email to user with product link
+          const order = await Order.findById(responseObject.order_id).populate(
+            "products"
+          );
+          if (order && order.user && order.user.email) {
+            try {
+              const emailData = {
+                to: order.user.email,
+                subject: "Your Mentoons Product Purchase",
+                template: "product-purchase",
+                context: {
+                  orderId: order._id,
+                  products: order.products.map((product) => ({
+                    name: product.name,
+                    downloadLink: product.downloadLink,
+                  })),
+                },
+              };
 
-    const emailServiceREsponse = await emailService.sendEmail(emailData);
-    console.log("EmailServiceResponse", emailServiceREsponse)
-    console.log(`Product access email sent to ${order.user.email}`);
-  } catch (emailError) {
-    console.error('Error sending product email:', emailError);
-  }
-} else {
-  console.log('Unable to send email: Missing order details or user email');
-}
+              const emailServiceREsponse = await emailService.sendEmail(
+                emailData
+              );
+              console.log("EmailServiceResponse", emailServiceREsponse);
+              console.log(`Product access email sent to ${order.user.email}`);
+            } catch (emailError) {
+              console.error("Error sending product email:", emailError);
+            }
+          } else {
+            console.log(
+              "Unable to send email: Missing order details or user email"
+            );
+          }
         } catch (dbError) {
           console.error("Database update error:", dbError);
         }
