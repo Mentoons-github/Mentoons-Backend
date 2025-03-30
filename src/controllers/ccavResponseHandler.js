@@ -10,6 +10,14 @@ dotenv.config();
 
 const postRes = function (request, response) {
   console.log("Received CCAvenue response");
+
+  if (request.body) {
+    console.log("Raw request body as Buffer:", req.body);
+    console.log("Request body as string:", req.body.toString());
+  } else {
+    console.log("No body found on the request.");
+  }
+
   var ccavEncResponse = "",
     workingKey = `${process.env.CCAVENUE_WORKING_KEY}`;
   console.log("Starting CCAvenue response processing.");
@@ -25,6 +33,7 @@ const postRes = function (request, response) {
     ccavEncResponse += data;
   });
 
+  console.log("going to next one");
   request.on("end", async function () {
     try {
       const ccavPOST = qs.parse(ccavEncResponse);
