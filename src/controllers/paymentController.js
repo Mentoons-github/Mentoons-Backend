@@ -58,12 +58,15 @@ const initiatePayment = async (req, res) => {
       { new: true, upsert: true }
     );
 
+    console.log("redirecturl :", process.env.CCAVENUE_REDIRECT_URL);
+
     const ccavenueParams = {
       merchant_id: process.env.CCAVENUE_MERCHANT_ID,
       order_id: order.orderId,
       currency: "INR",
       amount: amount.toString(),
-      redirect_url: `${process.env.FRONTEND_URL}/payment-status`,
+      redirect_url: process.env.CCAVENUE_REDIRECT_URL,
+      // redirect_url: `${process.env.FRONTEND_URL}/payment-status`,
       cancel_url: `${process.env.FRONTEND_URL}/payment-status`,
       language: "EN",
       billing_name: `${firstName} ${lastName || ""}`.trim(),
