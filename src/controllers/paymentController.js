@@ -28,7 +28,7 @@ const initiatePayment = async (req, res) => {
       : [items.productId];
 
     //temporarily storing it
-    const userId = req.auth.userId;
+    const userId = req.auth?.userId;
 
     // Create or update order record in database
     const order = await Order.findOneAndUpdate(
