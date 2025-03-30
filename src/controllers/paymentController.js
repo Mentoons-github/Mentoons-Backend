@@ -28,18 +28,7 @@ const initiatePayment = async (req, res) => {
       : [items.productId];
 
     //temporarily storing it
-    const userId = req.user?.clerkId;
-    console.log("userId found", userId);
-    if (userId) {
-      console.log("userid found");
-      await TemporaryUser.findOneAndUpdate(
-        { orderId },
-        { orderId, userId },
-        { upsert: true, new: true }
-      );
-
-      console.log("user Stored");
-    }
+    const userId = req.auth.userId;
 
     // Create or update order record in database
     const order = await Order.findOneAndUpdate(
@@ -58,19 +47,19 @@ const initiatePayment = async (req, res) => {
       { new: true, upsert: true }
     );
 
-    console.log("redirecturl :", process.env.CCAVENUE_REDIRECT_URL);
+    const redirect_cancel_url = `https://mentoons-backend-zlx3.onrender.com/api/v1/payment/ccavenue-response?userId=${encodeURIComponent(
+      userId
+    )}`;
 
     const ccavenueParams = {
       merchant_id: process.env.CCAVENUE_MERCHANT_ID,
       order_id: order.orderId,
       currency: "INR",
       amount: amount.toString(),
-      redirect_url:
-        "https://mentoons-backend-zlx3.onrender.com/api/v1/payment/ccavenue-response",
+      redirect_url: redirect_cancel_url,
       // redirect_url: `${process.env.FRONTEND_URL}/payment-status`,
       // cancel_url: `${process.env.FRONTEND_URL}/payment-status`,
-      cancel_url:
-        "https://mentoons-backend-zlx3.onrender.com/api/v1/payment/ccavenue-response",
+      cancel_url: redirect_cancel_url,
       language: "EN",
       billing_name: `${firstName} ${lastName || ""}`.trim(),
       billing_email: email,
@@ -78,6 +67,7 @@ const initiatePayment = async (req, res) => {
 
       merchant_param1: productInfo,
       merchant_param2: productId.join(","),
+      merchant_param3: items[0].name,
     };
 
     // Convert params object to query string
