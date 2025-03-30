@@ -12,10 +12,16 @@ const postRes = function (request, response) {
   console.log("Received CCAvenue response");
 
   if (request.body) {
+    // Log the Buffer and its string representation
     console.log("Raw request body as Buffer:", request.body);
-    console.log("Request body as string:", request.body.toString());
+    const rawBodyString = request.body.toString();
+    console.log("Raw request body as string:", rawBodyString);
+
+    // If the data is in query string format, parse it:
+    const parsedData = qs.parse(rawBodyString);
+    console.log("Parsed request data:", parsedData);
   } else {
-    console.log("No body found on the request.");
+    console.log("No request body received.");
   }
 
   var ccavEncResponse = "",
