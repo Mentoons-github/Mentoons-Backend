@@ -15,6 +15,10 @@ const postRes = function (request, response) {
   console.log("Starting CCAvenue response processing.");
   console.log("Using Working Key:", workingKey);
 
+  request.on("error", (err) => {
+    console.error("Request stream error:", err);
+  });
+
   console.log("response checking");
   request.on("data", function (data) {
     console.log("Received data chunk:", data.toString());
