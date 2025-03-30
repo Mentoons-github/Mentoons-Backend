@@ -31,7 +31,7 @@ const postRes = async (request, response) => {
   try {
     const decryptedResponse = ccav.decrypt(ccavEncResponse, workingKey);
     console.log("Decrypted Response:", decryptedResponse);
-    
+
     // Convert the response string to an object
     const responseObject = decryptedResponse.split("&").reduce((acc, pair) => {
       const [key, value] = pair.split("=");
@@ -44,50 +44,6 @@ const postRes = async (request, response) => {
     // Update order in database if order_id is present
     if (responseObject.order_id) {
       try {
-        // const storedUser = await TemporaryUser.findOne({
-        //   orderId: responseObject.order_id,
-        // });
-
-        // console.log(
-        //   "Checking stored user for orderId:",
-        //   responseObject.order_id
-        // );
-        // console.log("Stored user data:", storedUser);
-
-        // if (!storedUser) {
-        //   console.log(
-        //     "User authentication expired or missing for orderId:",
-        //     responseObject.order_id
-        //   );
-        //   return response
-        //     .status(401)
-        //     .json({ error: "User authentication expired or missing" });
-        // }
-
-        // const user = await User.findOne({ clerkId: storedUser.userId });
-        // console.log(
-        //   "Checking user in database with clerkId:",
-        //   storedUser.userId
-        // );
-        // console.log("User data found:", user);
-
-        // if (!user) {
-        //   console.log(
-        //     "User does not exist in system for clerkId:",
-        //     storedUser.userId
-        //   );
-        //   return response
-        //     .status(403)
-        //     .json({ error: "User does not exist in our system" });
-        // }
-
-        // console.log(
-        //   "Deleting stored temporary user record for orderId:",
-        //   responseObject.order_id
-        // );
-        // await TemporaryUser.deleteOne({ orderId: responseObject.order_id });
-        // console.log("Temporary user record deleted successfully.");
-
         const orderStatus = responseObject.order_status || "Unknown";
 
         const orderUpdate = await Order.findByIdAndUpdate(
@@ -159,7 +115,7 @@ const postRes = async (request, response) => {
     );
     if (responseObject.order_status === "Success") {
       redirectUrl.searchParams.append("message", "Payment Successful");
-    } else if (responseObject.order_status === "Aborted") {
+    } else if (responseObject.order_status === "ABORTED") {
       redirectUrl.searchParams.append("message", "Payment Aborted");
     } else if (responseObject.order_status === "Failure") {
       redirectUrl.searchParams.append("message", "Payment Failed");
