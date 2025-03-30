@@ -21,7 +21,7 @@ const UserSchema = new mongoose.Schema({
   subscription: {
     plan: {
       type: String,
-      enum: ["free", "premium"],
+      enum: ["prime", "platinum", "free"],
       default: "free",
     },
     status: {
