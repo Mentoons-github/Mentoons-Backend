@@ -7,6 +7,10 @@ const ccavResponseHandler = require("../controllers/ccavResponseHandler.js");
 router.post("/initiate", paymentController.initiatePayment);
 
 // Route to handle CCAvenue response
-router.post("/ccavenue-response", ccavResponseHandler.postRes);
+router.post(
+  "/ccavenue-response",
+  express.raw({ type: "*/*" }),
+  ccavResponseHandler.postRes
+);
 
 module.exports = router;
