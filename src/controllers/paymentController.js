@@ -67,8 +67,18 @@ const initiatePayment = async (req, res) => {
 
       merchant_param1: productInfo,
       merchant_param2: productId.join(","),
-      merchant_param3: items[0].name,
+      ...(Array.isArray(items) && items.length > 0
+        ? { merchant_param3: items[0].name || "" }
+        : typeof items === "object" && items !== null
+        ? { merchant_param3: items.name || "" }
+        : {}),
     };
+
+    if (Array.isArray(items) && items.length > 0) {
+      console.log("Passing merchant_param3 as first item name:", items[0].name);
+    } else if (typeof items === "object" && items !== null) {
+      console.log("Passing merchant_param3 as object name:", items.name);
+    }
 
     // Convert params object to query string
     const paramString = Object.keys(ccavenueParams)
