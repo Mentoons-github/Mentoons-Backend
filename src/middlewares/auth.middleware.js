@@ -7,6 +7,7 @@ const conditionalAuth = async (req, res, next) => {
       return next();
     }
 
+    console.log("req query :", req.query)
     console.log(type);
 
     return requireAuth()(req, res, next);
