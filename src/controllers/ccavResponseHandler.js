@@ -11,18 +11,16 @@ dotenv.config();
 const postRes = function (request, response) {
   console.log("Received CCAvenue response");
 
-  if (request.body) {
-    // Log the Buffer and its string representation
-    console.log("Raw request body as Buffer:", request.body);
-    const rawBodyString = request.body.toString();
-    console.log("Raw request body as string:", rawBodyString);
-
-    // If the data is in query string format, parse it:
-    const parsedData = qs.parse(rawBodyString);
-    console.log("Parsed request data:", parsedData);
+  if (Buffer.isBuffer(req.body)) {
+    console.log("Raw request body as Buffer:", req.body);
+    console.log("Raw request body as string:", req.body.toString());
   } else {
-    console.log("No request body received.");
+    console.log("Raw request body as JSON:", JSON.stringify(req.body, null, 2));
   }
+
+  const rawString = Buffer.isBuffer(req.body) ? req.body.toString() : JSON.stringify(req.body);
+  const parsedData = qs.parse(rawString);
+  console.log("Parsed request data:", parsedData);
 
   var ccavEncResponse = "",
     workingKey = `${process.env.CCAVENUE_WORKING_KEY}`;
