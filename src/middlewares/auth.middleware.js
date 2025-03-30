@@ -1,4 +1,4 @@
-import { requireAuth } from "@clerk/express";
+const requireAuth = require("@clerk/express");
 
 const conditionalAuth = async (req, res, next) => {
   try {
