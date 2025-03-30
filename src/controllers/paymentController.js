@@ -65,7 +65,8 @@ const initiatePayment = async (req, res) => {
       order_id: order.orderId,
       currency: "INR",
       amount: amount.toString(),
-      redirect_url: process.env.CCAVENUE_REDIRECT_URL,
+      redirect_url:
+        "https://mentoons-backend-zlx3.onrender.com/api/v1/payment/ccavenue-response",
       // redirect_url: `${process.env.FRONTEND_URL}/payment-status`,
       cancel_url: `${process.env.FRONTEND_URL}/payment-status`,
       language: "EN",
