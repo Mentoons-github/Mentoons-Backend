@@ -68,7 +68,9 @@ const initiatePayment = async (req, res) => {
       redirect_url:
         "https://mentoons-backend-zlx3.onrender.com/api/v1/payment/ccavenue-response",
       // redirect_url: `${process.env.FRONTEND_URL}/payment-status`,
-      cancel_url: `${process.env.FRONTEND_URL}/payment-status`,
+      // cancel_url: `${process.env.FRONTEND_URL}/payment-status`,
+      cancel_url:
+        "https://mentoons-backend-zlx3.onrender.com/api/v1/payment/ccavenue-response",
       language: "EN",
       billing_name: `${firstName} ${lastName || ""}`.trim(),
       billing_email: email,
