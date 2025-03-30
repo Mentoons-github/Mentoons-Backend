@@ -12,8 +12,8 @@ const postRes = function (request, response) {
   console.log("Received CCAvenue response");
 
   if (request.body) {
-    console.log("Raw request body as Buffer:", req.body);
-    console.log("Request body as string:", req.body.toString());
+    console.log("Raw request body as Buffer:", request.body);
+    console.log("Request body as string:", request.body.toString());
   } else {
     console.log("No body found on the request.");
   }
