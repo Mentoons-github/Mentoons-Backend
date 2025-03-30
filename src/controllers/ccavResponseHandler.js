@@ -12,8 +12,12 @@ const postRes = function (request, response) {
   console.log("Received CCAvenue response");
   var ccavEncResponse = "",
     workingKey = `${process.env.CCAVENUE_WORKING_KEY}`;
+  console.log("Starting CCAvenue response processing.");
+  console.log("Using Working Key:", workingKey);
 
+  console.log("response checking");
   request.on("data", function (data) {
+    console.log("Received data chunk:", data.toString());
     ccavEncResponse += data;
   });
 
@@ -23,6 +27,7 @@ const postRes = function (request, response) {
       const encryption = ccavPOST.encResp;
       const decryptedResponse = ccav.decrypt(encryption, workingKey);
 
+      console.log("request obeject checking");
       // Convert the response string to an object
       const responseObject = decryptedResponse
         .split("&")
