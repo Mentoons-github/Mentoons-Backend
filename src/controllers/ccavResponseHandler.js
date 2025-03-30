@@ -115,7 +115,7 @@ const postRes = async (request, response) => {
     );
     if (responseObject.order_status === "Success") {
       redirectUrl.searchParams.append("message", "Payment Successful");
-    } else if (responseObject.order_status === "ABORTED") {
+    } else if (responseObject.order_status === "Aborted") {
       redirectUrl.searchParams.append("message", "Payment Aborted");
     } else if (responseObject.order_status === "Failure") {
       redirectUrl.searchParams.append("message", "Payment Failed");
