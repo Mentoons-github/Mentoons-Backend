@@ -10,7 +10,7 @@ dotenv.config();
 
 const postRes = async (request, response) => {
   console.log("Received CCAvenue response");
-  const userId = req.query.userId;
+  const userId = request.query.userId;
 
   let rawString = "";
   if (Buffer.isBuffer(request.body)) {
