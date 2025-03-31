@@ -7,10 +7,10 @@ const conditionalAuth = async (req, res, next) => {
       return next();
     }
 
-    console.log("req query :", req.query)
-    console.log(type);
+    console.log("req query :", req.query);
+    console.log("headers :", req.header);
 
-    return requireAuth()(req, res, next);
+    await requireAuth()(req, res, next);
   } catch (error) {
     return res.status(404).json({ message: "User is not authorized", error });
   }
