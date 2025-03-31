@@ -367,7 +367,7 @@ const seedProducts = async () => {
         productVideos: [
           {
             videoUrl:
-              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733308266572-Conversation+Starter+Cards+6-12+%281%29.mp4",
+              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Conversation_starter_cards/6-12/Conversation+starter+cards+6-12+sub.mp4",
           },
         ],
         isFeatured: true,
@@ -489,7 +489,7 @@ const seedProducts = async () => {
         productVideos: [
           {
             videoUrl:
-              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733480536383-Teen+Camp+Conversation+Starter+Cards.mp4",
+              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Conversation_starter_cards/13-16/Conversation+starter+card+13-19.mp4",
           },
         ],
         isFeatured: false,
@@ -619,7 +619,7 @@ const seedProducts = async () => {
         productVideos: [
           {
             videoUrl:
-              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733482725834-Teen+Camp+Conversation+Starter+Cards.mp4",
+              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Conversation_starter_cards/13-16/Conversation+starter+cards+13-16.pdf",
           },
         ],
         isFeatured: false,
@@ -728,7 +728,7 @@ const seedProducts = async () => {
           "Encourage meaningful conversations with our Conversation Starter Cards. Designed for teenagers, these cards help build confidence, empathy, and social skills while fostering creativity and self-expression.",
         price: 199,
         orignalProductSrc:
-          "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Conversation_Story_Cards_20%2B/4+STORIES.pdf",
+          "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Conversation_Story_Cards_20%2B/Conversation+Story+Cards+20%2B.pdf",
         ageCategory: AgeCategory.ADULT,
         type: ProductType.MENTOONS_CARDS,
         rating: 4.5,
@@ -869,7 +869,7 @@ const seedProducts = async () => {
         productVideos: [
           {
             videoUrl:
-              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733314767994-Story+Re-Teller+Cards+05.mp4",
+              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Story_Reteller_Cards/6-12/Story+Re-teller+Card+6-12.mp4",
           },
         ],
         isFeatured: false,
@@ -969,7 +969,7 @@ const seedProducts = async () => {
           "Unleash creativity and connection with our Story Reteller Cards. Inspire kids to imagine, think critically, and bond through fun, engaging stories. Easy to carry, they make learning and sharing a joy anytime, anywhere!",
         price: 199,
         orignalProductSrc:
-          "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Story_Reteller_Cards/13-16/Story+reteller+cards+13-16.pdf",
+          "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Story_Reteller_Cards/13-16/Story+Reteller+Cards+13-16.pdf",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.MENTOONS_CARDS,
         rating: 4.5,
@@ -987,7 +987,7 @@ const seedProducts = async () => {
         productVideos: [
           {
             videoUrl:
-              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/videos/Story+Re-Teller+Cards+(13-19).mp4",
+              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Story_Reteller_Cards/13-16/Story+Reteller+Cards+13-19.mp4",
           },
         ],
         isFeatured: false,
@@ -1109,7 +1109,7 @@ const seedProducts = async () => {
         productVideos: [
           {
             videoUrl:
-              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/videos/Story+Re-Teller+Cards+(13-19).mp4",
+              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Story_Reteller_Cards/13-16/Story+Reteller+Cards+13-19.mp4",
           },
         ],
         isFeatured: false,
@@ -1228,7 +1228,7 @@ const seedProducts = async () => {
         productVideos: [
           {
             videoUrl:
-              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733315016267-Silent+Stories+Ages+6-12.mp4",
+              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Silent_stories/6-12/Silent+Stories+(Ages+6-12)_04.mp4",
           },
         ],
         isFeatured: true,
@@ -1345,7 +1345,7 @@ const seedProducts = async () => {
         productVideos: [
           {
             videoUrl:
-              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/videos/Silent+Stories+(13-16)+(17-19)_02.mp4",
+              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Silent_stories/13-16/Silent+Stories+(13-16)+(17-19)+Sub.mp4",
           },
         ],
         isFeatured: true,
@@ -1474,7 +1474,7 @@ const seedProducts = async () => {
         productVideos: [
           {
             videoUrl:
-              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/videos/Silent+Stories+(13-16)+(17-19)_02.mp4",
+              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Silent_stories/13-16/Silent+Stories+(13-16)+(17-19)+Sub.mp4",
           },
         ],
         isFeatured: true,
@@ -1576,7 +1576,7 @@ const seedProducts = async () => {
           "An educational and fun coloring book that introduces kids to famous inventors and their groundbreaking inventions.",
         price: 199,
         orignalProductSrc:
-          "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/coloring_Books/productPDF/6-12/Inventions+and+Inventors+coloring+book.pdff",
+          "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/coloring_Books/productPDF/6-12/Inventions+and+Inventors+coloring+book.pdf",
         ageCategory: AgeCategory.CHILD,
         tags: ["coloring", "inventors", "inventions", "learning"],
         type: ProductType.MENTOONS_BOOKS,

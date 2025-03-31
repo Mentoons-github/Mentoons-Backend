@@ -40,14 +40,16 @@ const {
 } = require("./src/helpers/userHelper.js");
 const queryRoutes = require("./src/routes/query.routes.js");
 const User = require("./src/models/user"); // Adjust path as needed
+// const { requireAuth } = require("@clerk/express");
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 4000;
 app.use(bodyParser.json());
 
 // Webhook route
-app.use(ensureUserExists);
-app.post("/api/v1/webhook/clerk", async (req, res) => {
+
+// app.use(ensureUserExists);
+app.post("/api/v1/webhook/clerk", ensureUserExists, async (req, res) => {
   console.log("Request", req.body);
   const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET_KEY;
 
@@ -128,7 +130,10 @@ app.post("/api/v1/webhook/clerk", async (req, res) => {
 
 app.use(
   cors({
-    origin: "https://mentoons.com",
+    origin: [
+      "https://mentoons.com",
+      "http://localhost:3000"
+    ],
     methods: "GET,POST,PUT,DELETE,OPTIONS",
     allowedHeaders: "*",
     credentials: true,

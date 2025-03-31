@@ -22,7 +22,7 @@ const orderItemSchema = new mongoose.Schema({
   productType: {
     type: String,
     required: true,
-    enum: ["course", "book", "merchandise"],
+    enum: ["cards", "book"],
   },
 });
 
@@ -79,6 +79,15 @@ const orderSchema = new mongoose.Schema(
     payment: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Payment",
+    },
+    order_type: {
+      type: String,
+      enum: [
+        "product_purcahse",
+        "subscription_purchase",
+        "consultancy_purchase",
+        "assessment_purchase",
+      ],
     },
     orderStatus: {
       type: String,

@@ -35,46 +35,41 @@ const getProducts = async (req, res, next) => {
     if (ageCategory) queryFilter.ageCategory = ageCategory;
     if (type) queryFilter.type = type;
     if (cardType) queryFilter.cardType = cardType;
-    // if (tags && Array.isArray(tags) && tags.length > 0) {
-    //   queryFilter.tags = { $in: tags };
-    // }
+  
 
-    console.log("Query Filter", queryFilter);
-    // Query the products with sort, pagination, and filter applied
-    const products = await Product.find(queryFilter)
-      .sort({ [sortBy]: sortOrder })
-      .skip(skip)
-      .limit(limitNumber);
+    const matchStage = {
+      ...queryFilter,
+      ...(queryFilter.cardType && {
+      'details.cardType': { $regex: queryFilter.cardType, $options: 'i' }
+      })
+    };
 
-    // const products = await Product.aggregate([
-    //   {
-    //     $match: {
-    //       ...queryFilter,
-    //       "details.cardType": queryFilter.cardType
-    //         ? queryFilter.cardType.toLowerCase()
-    //         : { $exists: true },
-    //     },
-    //   },
-    //   {
-    //     $project: {
-    //       originalProductSrc: 0,
-    //     },
-    //   },
-    //   {
-    //     $sort: {
-    //       [sortBy]: sortOrder,
-    //     },
-    //   },
-    //   {
-    //     $skip: skip,
-    //   },
-    //   {
-    //     $limit: limitNumber,
-    //   },
-    // ]);
+    delete matchStage.cardType; // Remove the top-level cardType since we're using it in details
+
+    const products = await Product.aggregate([
+      {
+      $match: matchStage,
+      },
+      {
+      $project: {
+        orignalProductSrc: 0,
+      },
+      },
+      {
+      $sort: {
+        [sortBy]: sortOrder,
+      },
+      },
+      {
+      $skip: skip,
+      },
+      {
+      $limit: limitNumber,
+      },
+    ]);
     console.log("Products", products);
 
-    const total = await Product.countDocuments(queryFilter);
+    const total = await Product.countDocuments(matchStage);
 
     res.json({
       data: products,

@@ -6,7 +6,17 @@ const dotenv = require("dotenv");
 const TemporaryUser = require("../models/tempUserPayment");
 const Order = require("../models/Order");
 const User = require("../models/user.js");
+
 dotenv.config();
+
+const {
+  ProductEmailTemplate,
+  SubscriptionEmailTemplate,
+  // AssessementReportEmailTemplate,
+  // ConsultanyBookingemailTemplate,
+} = require("../utils/templates/email-template.js");
+
+const { sendEmail } = require("../services/emailService.js");
 
 const postRes = async (request, response) => {
   console.log("Received CCAvenue response");
@@ -47,7 +57,6 @@ const postRes = async (request, response) => {
     if (responseObject.order_id) {
       try {
         const orderStatus = responseObject.order_status || "Unknown";
-
         const orderUpdate = await Order.findByIdAndUpdate(
           { orderId: responseObject.order_id }, // responseObject.order_id,
           {
@@ -89,28 +98,81 @@ const postRes = async (request, response) => {
           const order = await Order.findById(responseObject.order_id).populate(
             "products"
           );
+          console.log("after Successfull payement Order data.", order);
           if (order && order.user && order.user.email) {
             try {
-              const emailData = {
-                to: order.user.email,
-                subject: "Your Mentoons Product Purchase",
-                template: "product-purchase",
-                context: {
-                  orderId: order._id,
-                  products: order.products.map((product) => ({
-                    name: product.name,
-                    downloadLink: product.downloadLink,
-                  })),
-                },
-              };
-
-              const emailServiceREsponse = await emailService.sendEmail(
-                emailData
-              );
-              console.log("EmailServiceResponse", emailServiceREsponse);
-              console.log(`Product access email sent to ${order.user.email}`);
+              switch (order.order_type) {
+                case "product_purcahse":
+                  const productMailInfo = {
+                    from: process.env.EMAIL_USER,
+                    to: order.user.email,
+                    subject: "Thank for your purchase",
+                    html: ProductEmailTemplate(order),
+                  };
+                  const productEmailResponse = await sendEmail(productMailInfo);
+                  if (productEmailResponse.success) {
+                    console.log("EmailServiceResponse", productEmailResponse);
+                    console.log(
+                      `Product access email sent to ${order.user.email}`
+                    );
+                  }
+                  break;
+                case "subscription_purchase":
+                  const subscriptionMailInfo = {
+                    form: process.env.EMAIL_USER,
+                    to: order.user.email,
+                    subject: "Thank you for purchasing Mentoons Subscription",
+                    html: SubscriptionEmailTemplate(order),
+                  };
+                  const subscriptionEmailResponse = await sendEmail(
+                    subscriptionMailInfo
+                  );
+                  if (subscriptionEmailResponse.success) {
+                    console.log(
+                      "Subscription email resonse ",
+                      subscriptionEmailResponse
+                    );
+                  }
+                  break;
+                // case "assessment_purchase":
+                //   const assessmentMailInfo = {
+                //     from: process.env.EMAIL_USER,
+                //     to: order.user.email,
+                //     subject: "Thank you for purchasing the Assessment",
+                //     html: AssessementReportEmailTemplate(order),
+                //   };
+                //   const assessmentMailResponse = await sendEmail(
+                //     assessmentMailInfo
+                //   );
+                //   if (assessmentMailResponse.success) {
+                //     console.log(
+                //       "Assessmnet Mail Response",
+                //       assessmentMailResponse
+                //     );
+                //   }
+                //   break;
+                // case "consultancy_purchase":
+                //   const consultancyMailInfo = {
+                //     from: process.env.EMAIL_USER,
+                //     to: order.user.email,
+                //     subject: "Thank for booking a 1:1 session with Mentoons",
+                //     html: ConsultanyBookingemailTemplate(order),
+                //   };
+                //   const consultancyMailResponse = await sendEmail(
+                //     consultancyMailInfo
+                //   );
+                //   if (consultancyMailResponse.success) {
+                //     console.log(
+                //       "Consultancy Mail Response",
+                //       consultancyMailResponse
+                //     );
+                //   }
+                //   break;
+                default:
+                  break;
+              }
             } catch (emailError) {
-              console.error("Error sending product email:", emailError);
+              console.error(`Error Sending Email`, emailError);
             }
           } else {
             console.log(

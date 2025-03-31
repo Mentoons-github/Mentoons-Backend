@@ -1,5 +1,5 @@
 const User = require("../models/user");
-const { clerkClient } = require("@clerk/express");
+const { clerkClient, getAuth } = require("@clerk/express");
 
 /**
  * Middleware to ensure a user exists in the database
@@ -12,7 +12,7 @@ const ensureUserExists = async (req, res, next) => {
   try {
     // Skip if no user is authenticated
     if (!req.auth || !req.auth.userId) {
-      console.log("user : ", req.auth);
+      console.log("user : ", req.auth.user);
       console.log("no user found");
       return next();
     }
@@ -48,6 +48,7 @@ const ensureUserExists = async (req, res, next) => {
 
     // Attach the user to the request object for use in route handlers
     req.user = user;
+    console.log("req userID :", req.user);
     next();
   } catch (error) {
     console.error("Error in ensureUserExists middleware:", error);
