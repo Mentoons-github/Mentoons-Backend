@@ -1,10 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const paymentController = require("../controllers/paymenontroller.js");
-const { authMiddleware } = require("../middlewares/authMiddleware.js");
+
+const { requireAuth } = require("@clerk/express");
 
 // Initiate payment
-router.post("/initiate", paymentController.initiatePayment);
+router.post("/initiate", requireAuth(), paymentController.initiatePayment);
 
 // Payment callbacks from CCAvenue
 router.post("/ccavenue/callback", paymentController.handlePaymentCallback);
