@@ -54,7 +54,6 @@ const postRes = async (request, response) => {
     console.log("CCAvenue Response:", responseObject);
     const subscriptionType = responseObject.merchant_param3 || null;
 
-    // Update order in database if order_id is present
     if (responseObject.order_id) {
       try {
         const orderStatus =
@@ -79,88 +78,86 @@ const postRes = async (request, response) => {
 
         const type = subscriptionType?.toLowerCase() || "";
 
+        console.log("here you can send the product to the user");
         const order = await Order.findOne({
           orderId: responseObject.order_id,
         }).populate("products");
-        console.log(
-          "data order ================================================================>",
-          order
-        );
 
-        if (type === "platinum" || type === "prime") {
-          console.log("Membership subscription detected:", subscriptionType);
+        console.log("order user found is =====================>", order.user);
 
-          const validUntil = new Date();
-          validUntil.setFullYear(validUntil.getFullYear() + 1);
+        if (order && order.user && order.user.email) {
+          try {
+            if (type === "platinum" || type === "prime") {
+              console.log(
+                "Membership subscription detected:",
+                subscriptionType
+              );
 
-          const updatedUser = await User.findOneAndUpdate(
-            { clerkId: userId },
-            {
-              "subscription.plan": subscriptionType.toLowerCase(),
-              "subscription.status": "active",
-              "subscription.startDate": new Date(),
-              "subscription.validUntil": validUntil,
-            },
-            { new: true }
-          );
+              const validUntil = new Date();
+              validUntil.setFullYear(validUntil.getFullYear() + 1);
 
-          console.log("User subscription updated:", updatedUser);
-          console.log("Skipping product email since this is a subscription.");
-        } else {
-          console.log("here you can send the product to the user");
-          const order = await Order.findOne({
-            orderId: responseObject.order_id,
-          }).populate("products");
-          console.log("after Successfull payement Order data.", order);
-          if (order && order.user && order.user.email) {
-            try {
-              switch (order.order_type) {
-                case "product_purchase":
-                  const productMailInfo = {
-                    from: process.env.EMAIL_USER,
-                    // to: order.user.email,
-                    to: order.email,
-                    subject: "Thank for your purchase",
-                    html: ProductEmailTemplate(order),
-                  };
-                  const productEmailResponse = await sendEmail(productMailInfo);
-                  if (productEmailResponse.success) {
-                    console.log("EmailServiceResponse", productEmailResponse);
-                    console.log(
-                      `Product access email sent to ${order.user.email}`
-                    );
-                  }
-                  break;
-                case "subscription_purchase":
-                  const subscriptionMailInfo = {
-                    form: process.env.EMAIL_USER,
-                    // to: order.user.email,
-                    to: order.email,
-                    subject: "Thank you for purchasing Mentoons Subscription",
-                    html: SubscriptionEmailTemplate(order),
-                  };
-                  const subscriptionEmailResponse = await sendEmail(
-                    subscriptionMailInfo
-                  );
-                  if (subscriptionEmailResponse.success) {
-                    console.log(
-                      "Subscription email resonse ",
-                      subscriptionEmailResponse
-                    );
-                  }
-                  break;
+              const updatedUser = await User.findOneAndUpdate(
+                { clerkId: userId },
+                {
+                  "subscription.plan": subscriptionType.toLowerCase(),
+                  "subscription.status": "active",
+                  "subscription.startDate": new Date(),
+                  "subscription.validUntil": validUntil,
+                },
+                { new: true }
+              );
 
-                default:
-                  break;
-              }
-            } catch (emailError) {
-              console.error(`Error Sending Email`, emailError);
+              console.log("User subscription updated:", updatedUser);
+              console.log(
+                "Skipping product email since this is a subscription."
+              );
             }
-          } else {
-            console.log(
-              "Unable to send email: Missing order details or user email"
-            );
+            switch (order.order_type) {
+              case "product_purchase":
+                const productMailInfo = {
+                  from: process.env.EMAIL_USER,
+                  // to: order.user.email,
+                  to: order.email,
+                  subject: "Thank for your purchase",
+                  html: ProductEmailTemplate(order),
+                };
+                const productEmailResponse = await sendEmail(productMailInfo);
+                if (productEmailResponse.success) {
+                  console.log("EmailServiceResponse", productEmailResponse);
+                  console.log(
+                    `Product access email sent to ${order.user.email}`
+                  );
+                }
+                break;
+              case "subscription_purchase":
+                const subscriptionMailInfo = {
+                  from: process.env.EMAIL_USER,
+                  // to: order.user.email,
+                  to: order.email,
+                  subject: "Thank you for purchasing Mentoons Subscription",
+                  html: SubscriptionEmailTemplate(order),
+                };
+                const subscriptionEmailResponse = await sendEmail(
+                  subscriptionMailInfo
+                );
+                if (subscriptionEmailResponse.success) {
+                  console.log(
+                    "Subscription email resonse ",
+                    subscriptionEmailResponse
+                  );
+                }
+                break;
+
+              default:
+                break;
+            }
+          } catch (emailError) {
+            console.error(`Error Sending Email`, emailError);
           }
+        } else {
+          console.log(
+            "Unable to send email: Missing order details or user email"
+          );
         }
       } catch (dbError) {
         console.error("Database update error:", dbError);
