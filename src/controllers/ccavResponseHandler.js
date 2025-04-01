@@ -76,7 +76,10 @@ const postRes = async (request, response) => {
         console.log(
           `Order ${responseObject.order_id} updated with status: ${orderStatus}`
         );
-        if (subscriptionType === "Platinum" || subscriptionType === "Prime") {
+
+        const type = subscriptionType?.toLowerCase() || "";
+
+        if (type === "platinum" || type === "prime") {
           console.log("Membership subscription detected:", subscriptionType);
 
           const validUntil = new Date();

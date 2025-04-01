@@ -44,6 +44,15 @@ const User = require("./src/models/user"); // Adjust path as needed
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 4000;
+app.use(
+  cors({
+    origin: ["https://mentoons.com", "http://localhost:3000"],
+    methods: "GET,POST,PUT,DELETE,OPTIONS",
+    allowedHeaders: "*",
+    credentials: true,
+  })
+);
+
 app.use(bodyParser.json());
 
 // Webhook route
@@ -128,17 +137,6 @@ app.post("/api/v1/webhook/clerk", ensureUserExists, async (req, res) => {
   }
 });
 
-app.use(
-  cors({
-    origin: [
-      "https://mentoons.com",
-      "http://localhost:3000"
-    ],
-    methods: "GET,POST,PUT,DELETE,OPTIONS",
-    allowedHeaders: "*",
-    credentials: true,
-  })
-);
 app.use(morgan("dev"));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
