@@ -35,7 +35,7 @@ const initiatePayment = async (req, res) => {
 
     const productId =
       order_type === "subscription_purchase"
-        ? [items?.name || "subscription"]
+        ? []
         : Array.isArray(items)
         ? items.map((products) => products.product)
         : [items.product];
