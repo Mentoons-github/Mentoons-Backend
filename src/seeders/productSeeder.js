@@ -736,7 +736,7 @@ const seedProducts = async () => {
         productImages: [
           {
             imageUrl:
-              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/20%2BConversationStarterCards.png",
+              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Conversation_Story_Cards_20%2B/Conversation+Story+Cards+20%2B.png",
           },
           {
             imageUrl:
@@ -746,7 +746,7 @@ const seedProducts = async () => {
         productVideos: [
           {
             videoUrl:
-              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733315016267-Silent+Stories+Ages+6-12.mp4",
+              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Conversation_Story_Cards_20%2B/Conversation+Story+Cards+20%2B.png",
           },
         ],
         isFeatured: false,
@@ -1574,7 +1574,7 @@ const seedProducts = async () => {
         title: "Coloring Book on Inventions & Inventors",
         description:
           "An educational and fun coloring book that introduces kids to famous inventors and their groundbreaking inventions.",
-        price: 199,
+        price: 19,
         orignalProductSrc:
           "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/coloring_Books/productPDF/6-12/Inventions+and+Inventors+coloring+book.pdf",
         ageCategory: AgeCategory.CHILD,
@@ -1589,7 +1589,7 @@ const seedProducts = async () => {
         ],
         productVideos: [
           {
-            videoUrl: "inventions-coloring-book-video",
+            videoUrl: "",
           },
         ],
         isFeatured: true,
@@ -1615,7 +1615,7 @@ const seedProducts = async () => {
         title: "Coloring Book in Mandala Art – Gaming Gadgets",
         description:
           "A creative mandala art coloring book featuring gaming-themed designs to help kids relax and explore their artistic side.",
-        price: 199,
+        price: 19,
         orignalProductSrc:
           "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/coloring_Books/productPDF/6-12/Gaming_Book_mandala+art).pdf",
         ageCategory: AgeCategory.CHILD,
@@ -1630,7 +1630,7 @@ const seedProducts = async () => {
         ],
         productVideos: [
           {
-            videoUrl: "activity-book-video",
+            videoUrl: "",
           },
         ],
         isFeatured: false,
@@ -1670,7 +1670,7 @@ const seedProducts = async () => {
         ],
         productVideos: [
           {
-            videoUrl: "magnificent-9-coloring-book-video",
+            videoUrl: "",
           },
         ],
         isFeatured: true,

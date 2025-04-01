@@ -14,6 +14,7 @@ router.post("/subscribeToNewsletter", subscribeNewsletter);
 router.post("/freeDownloadsReq", freeDownloadsRequest);
 router.post("/freeDownloadClaim", freeDownloadComic);
 router.post("/freeDownloadsVerify", freeDownloadsVerifyOtp);
+router.post("/free-downloads", freeDownloadComic);
 router.get("/getLeadData", authMiddleware, getLeadData);
 router.post("/sendEmail", sendEmailToUser);
 

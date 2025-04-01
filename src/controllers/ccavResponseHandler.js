@@ -135,7 +135,7 @@ const postRes = async (request, response) => {
                 if (productEmailResponse.success) {
                   console.log("EmailServiceResponse", productEmailResponse);
                   console.log(
-                    `Product access email sent to ${order.user.email}`
+                    `Product access email sent to ${order.email}`
                   );
                 }
                 break;

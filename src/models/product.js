@@ -37,7 +37,7 @@ const ProductSchema = new mongoose.Schema(
     ],
     productVideos: [
       {
-        videoUrl: { type: String, required: true }, // URL to the video file
+        videoUrl: { type: String }, // URL to the video file
       },
     ],
     isFeatured: { type: Boolean, default: false },
