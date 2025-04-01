@@ -16,19 +16,6 @@ const initiatePayment = async (req, res) => {
       lastName,
     } = req.body;
 
-    console.log(
-      "details ========================================>",
-      amount,
-      productInfo,
-      email,
-      items,
-      phone,
-      orderId,
-      firstName,
-      lastName
-    );
-
-    console.log("req.body have this datas", req.body);
 
     if (!amount || !productInfo || !email || !orderId) {
       return res.status(400).json({
@@ -38,8 +25,8 @@ const initiatePayment = async (req, res) => {
     }
 
     const productId = Array.isArray(items)
-      ? items.map((products) => products.productId)
-      : [items.productId];
+      ? items.map((products) => products.product)
+      : [items.product];
 
     //temporarily storing it
     const userId = req.user?.id;
@@ -77,8 +64,6 @@ const initiatePayment = async (req, res) => {
       currency: "INR",
       amount: amount.toString(),
       redirect_url: redirect_cancel_url,
-      // redirect_url: `${process.env.FRONTEND_URL}/payment-status`,
-      // cancel_url: `${process.env.FRONTEND_URL}/payment-status`,
       cancel_url: redirect_cancel_url,
       language: "EN",
       billing_name: `${firstName} ${lastName || ""}`.trim(),
