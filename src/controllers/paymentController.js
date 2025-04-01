@@ -16,6 +16,20 @@ const initiatePayment = async (req, res) => {
       lastName,
     } = req.body;
 
+    console.log(
+      "details ========================================>",
+      amount,
+      productInfo,
+      email,
+      items,
+      phone,
+      orderId,
+      firstName,
+      lastName
+    );
+
+    console.log("req.body have this datas", req.body);
+
     if (!amount || !productInfo || !email || !orderId) {
       return res.status(400).json({
         status: "error",
