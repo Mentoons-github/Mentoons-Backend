@@ -56,6 +56,7 @@ const initiatePayment = async (req, res) => {
         productInfo,
         customerName: `${firstName} ${lastName || ""}`.trim(),
         email,
+        userId,
         items: Array.isArray(items) ? items : [items],
         products: productId,
         phone,

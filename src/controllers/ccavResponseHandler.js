@@ -79,6 +79,14 @@ const postRes = async (request, response) => {
 
         const type = subscriptionType?.toLowerCase() || "";
 
+        const order = await Order.findOne({
+          orderId: responseObject.order_id,
+        }).populate("products");
+        console.log(
+          "data order ================================================================>",
+          order
+        );
+
         if (type === "platinum" || type === "prime") {
           console.log("Membership subscription detected:", subscriptionType);
 

@@ -4,11 +4,6 @@ const clerk = new Clerk({ secretKey: process.env.CLERK_SECRET_KEY });
 
 const conditionalAuth = async (req, res, next) => {
   try {
-    const { type } = req.query;
-
-    if (type === "downloads") {
-      return next();
-    }
 
     console.log("Request Query:", req.query);
     console.log("Authorization Header:", req.header("Authorization"));
