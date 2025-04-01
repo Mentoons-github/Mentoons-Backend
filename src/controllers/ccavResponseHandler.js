@@ -57,7 +57,7 @@ const postRes = async (request, response) => {
     if (responseObject.order_id) {
       try {
         const orderStatus = responseObject.order_status || "Unknown";
-        const orderUpdate = await Order.findOneAndUpdate( 
+        const orderUpdate = await Order.findOneAndUpdate(
           { orderId: responseObject.order_id },
           {
             status: orderStatus,
@@ -95,9 +95,9 @@ const postRes = async (request, response) => {
           console.log("Skipping product email since this is a subscription.");
         } else {
           console.log("here you can send the product to the user");
-          const order = await Order.findById(responseObject.order_id).populate(
-            "products"
-          );
+          const order = await Order.findOne({
+            orderId: responseObject.order_id,
+          }).populate("products");
           console.log("after Successfull payement Order data.", order);
           if (order && order.user && order.user.email) {
             try {
