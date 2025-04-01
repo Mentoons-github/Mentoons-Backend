@@ -3,7 +3,6 @@ var http = require("http"),
   ccav = require("../utils/ccavutil.js"),
   qs = require("querystring");
 const dotenv = require("dotenv");
-const TemporaryUser = require("../models/tempUserPayment");
 const Order = require("../models/Order");
 const User = require("../models/user.js");
 
@@ -20,7 +19,9 @@ const { sendEmail } = require("../services/emailService.js");
 
 const postRes = async (request, response) => {
   console.log("Received CCAvenue response");
-  const userId = request.query.userId;
+  const userId = request.query?.userId;
+
+  console.log("userId got : ===========>", userId);
 
   let rawString = "";
   if (Buffer.isBuffer(request.body)) {
