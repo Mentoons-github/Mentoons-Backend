@@ -83,7 +83,7 @@ const orderSchema = new mongoose.Schema(
     order_type: {
       type: String,
       enum: [
-        "product_purcahse",
+        "product_purchase",
         "subscription_purchase",
         "consultancy_purchase",
         "assessment_purchase",
