@@ -5,6 +5,7 @@ var http = require("http"),
 const dotenv = require("dotenv");
 const Order = require("../models/Order");
 const User = require("../models/user.js");
+const clerk = require("../middlewares/auth.middleware.js");
 
 dotenv.config();
 
@@ -108,9 +109,18 @@ const postRes = async (request, response) => {
               );
 
               console.log("User subscription updated:", updatedUser);
-              console.log(
-                "Skipping product email since this is a subscription."
-              );
+
+              const subscriptionData = {
+                plan: type,
+                status: "active",
+                startDate: new Date().toISOString(),
+                validUntil,
+              };
+              await clerk.users.updateUser(userId, {
+                publicMetadata: {
+                  subscriptionData,
+                },
+              });
             }
             switch (order.order_type) {
               case "product_purchase":
