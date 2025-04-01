@@ -12,19 +12,19 @@ const initiatePayment = async (req, res) => {
       items,
       phone,
       orderId,
+      order_type,
       firstName,
       lastName,
     } = req.body;
-    const { type } = req.query;
 
-    const order_type =
-      type === "subscription"
-        ? "subscription_purchase"
-        : type === "assessment"
-        ? "assessment_purchase"
-        : type === "download"
-        ? "product_purchase"
-        : "consultancy_purchase";
+    // const order_type =
+    //   type === "subscription"
+    //     ? "subscription_purchase"
+    //     : type === "assessment"
+    //     ? "assessment_purchase"
+    //     : type === "download"
+    //     ? "product_purchase"
+    //     : "consultancy_purchase";
 
     if (!amount || !productInfo || !email || !orderId) {
       return res.status(400).json({
@@ -33,11 +33,13 @@ const initiatePayment = async (req, res) => {
       });
     }
 
-    const productId = Array.isArray(items)
-      ? items.map((products) => products.product)
-      : [items.product];
+    const productId =
+      order_type === "subscription_purchase"
+        ? [items?.name || "subscription"]
+        : Array.isArray(items)
+        ? items.map((products) => products.product)
+        : [items.product];
 
-    //temporarily storing it
     const userId = req.user?.id;
 
     console.log(
