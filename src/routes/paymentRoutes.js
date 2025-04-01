@@ -3,7 +3,7 @@ const router = express.Router();
 const paymentController = require("../controllers/paymentController.js");
 const ccavResponseHandler = require("../controllers/ccavResponseHandler.js");
 const { requireAuth } = require("@clerk/express");
-import conditionalAuth from "../middlewares/auth.middleware.js";
+const conditionalAuth = require("../middlewares/auth.middleware.js");
 
 // Route to initiate payment
 router.post("/initiate", conditionalAuth, paymentController.initiatePayment);
