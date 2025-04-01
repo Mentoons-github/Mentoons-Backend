@@ -1,10 +1,9 @@
 const { Clerk } = require("@clerk/clerk-sdk-node");
 
-const clerk = new Clerk({ secretKey: process.env.CLERK_SECRET_KEY });
+export const clerk = new Clerk({ secretKey: process.env.CLERK_SECRET_KEY });
 
 const conditionalAuth = async (req, res, next) => {
   try {
-
     console.log("Request Query:", req.query);
     console.log("Authorization Header:", req.header("Authorization"));
 
