@@ -57,8 +57,8 @@ const postRes = async (request, response) => {
     if (responseObject.order_id) {
       try {
         const orderStatus = responseObject.order_status || "Unknown";
-        const orderUpdate = await Order.findByIdAndUpdate(
-          { orderId: responseObject.order_id }, // responseObject.order_id,
+        const orderUpdate = await Order.findOneAndUpdate( 
+          { orderId: responseObject.order_id },
           {
             status: orderStatus,
             paymentId: responseObject.tracking_id || null,
@@ -78,7 +78,7 @@ const postRes = async (request, response) => {
           console.log("Membership subscription detected:", subscriptionType);
 
           const validUntil = new Date();
-          validUntil.setFullYear(validUntil.getFullYear() + 1); // Set expiration to 1 year from now
+          validUntil.setFullYear(validUntil.getFullYear() + 1);
 
           const updatedUser = await User.findOneAndUpdate(
             { _id: userId },
@@ -134,40 +134,7 @@ const postRes = async (request, response) => {
                     );
                   }
                   break;
-                // case "assessment_purchase":
-                //   const assessmentMailInfo = {
-                //     from: process.env.EMAIL_USER,
-                //     to: order.user.email,
-                //     subject: "Thank you for purchasing the Assessment",
-                //     html: AssessementReportEmailTemplate(order),
-                //   };
-                //   const assessmentMailResponse = await sendEmail(
-                //     assessmentMailInfo
-                //   );
-                //   if (assessmentMailResponse.success) {
-                //     console.log(
-                //       "Assessmnet Mail Response",
-                //       assessmentMailResponse
-                //     );
-                //   }
-                //   break;
-                // case "consultancy_purchase":
-                //   const consultancyMailInfo = {
-                //     from: process.env.EMAIL_USER,
-                //     to: order.user.email,
-                //     subject: "Thank for booking a 1:1 session with Mentoons",
-                //     html: ConsultanyBookingemailTemplate(order),
-                //   };
-                //   const consultancyMailResponse = await sendEmail(
-                //     consultancyMailInfo
-                //   );
-                //   if (consultancyMailResponse.success) {
-                //     console.log(
-                //       "Consultancy Mail Response",
-                //       consultancyMailResponse
-                //     );
-                //   }
-                //   break;
+
                 default:
                   break;
               }
