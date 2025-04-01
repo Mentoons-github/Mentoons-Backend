@@ -16,7 +16,6 @@ const initiatePayment = async (req, res) => {
       lastName,
     } = req.body;
 
-
     if (!amount || !productInfo || !email || !orderId) {
       return res.status(400).json({
         status: "error",
@@ -53,7 +52,7 @@ const initiatePayment = async (req, res) => {
       { new: true, upsert: true }
     );
 
-    console.log("orderRecieved =========================> ", orderId);
+    console.log("orderRecieved =========================> ", order);
     const redirect_cancel_url = `https://mentoons-backend-zlx3.onrender.com/api/v1/payment/ccavenue-response?userId=${encodeURIComponent(
       userId
     )}`;
