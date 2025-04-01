@@ -82,7 +82,7 @@ const postRes = async (request, response) => {
           validUntil.setFullYear(validUntil.getFullYear() + 1);
 
           const updatedUser = await User.findOneAndUpdate(
-            { _id: userId },
+            { clerkId: userId },
             {
               "subscription.plan": subscriptionType.toLowerCase(),
               "subscription.status": "active",
