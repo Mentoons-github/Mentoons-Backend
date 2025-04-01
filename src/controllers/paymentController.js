@@ -48,7 +48,6 @@ const initiatePayment = async (req, res) => {
     );
 
     console.log("orderRecieved =========================> ", orderId);
-
     const redirect_cancel_url = `https://mentoons-backend-zlx3.onrender.com/api/v1/payment/ccavenue-response?userId=${encodeURIComponent(
       userId
     )}`;

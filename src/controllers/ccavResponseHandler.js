@@ -57,7 +57,7 @@ const postRes = async (request, response) => {
     if (responseObject.order_id) {
       try {
         const orderStatus = responseObject.order_status || "Unknown";
-        const orderUpdate = await Order.findOneAndUpdate(
+        const orderUpdate = await Order.findOneAndUpdate( 
           { orderId: responseObject.order_id },
           {
             status: orderStatus,
