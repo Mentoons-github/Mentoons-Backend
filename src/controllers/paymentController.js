@@ -15,6 +15,16 @@ const initiatePayment = async (req, res) => {
       firstName,
       lastName,
     } = req.body;
+    const { type } = req.query;
+
+    const order_type =
+      type === "subscription"
+        ? "subscription_purchase"
+        : type === "assessment"
+        ? "assessment_purchase"
+        : type === "download"
+        ? "product_purchase"
+        : "consultancy_purchase";
 
     if (!amount || !productInfo || !email || !orderId) {
       return res.status(400).json({
@@ -44,8 +54,10 @@ const initiatePayment = async (req, res) => {
         productInfo,
         customerName: `${firstName} ${lastName || ""}`.trim(),
         email,
+        items: Array.isArray(items) ? items : [items],
         products: productId,
         phone,
+        order_type,
         status: "PENDING",
         createdAt: new Date(),
       },

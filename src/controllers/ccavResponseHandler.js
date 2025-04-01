@@ -62,7 +62,7 @@ const postRes = async (request, response) => {
         const orderUpdate = await Order.findOneAndUpdate(
           { orderId: responseObject.order_id },
           {
-            status: orderStatus,
+            status: orderStatus?.toUpperCase(),
             paymentId: responseObject.tracking_id || null,
             bankRefNumber: responseObject.bank_ref_no || null,
             paymentMethod: responseObject.payment_mode || null,
@@ -104,10 +104,11 @@ const postRes = async (request, response) => {
           if (order && order.user && order.user.email) {
             try {
               switch (order.order_type) {
-                case "product_purcahse":
+                case "product_purchase":
                   const productMailInfo = {
                     from: process.env.EMAIL_USER,
-                    to: order.user.email,
+                    // to: order.user.email,
+                    to: order.email,
                     subject: "Thank for your purchase",
                     html: ProductEmailTemplate(order),
                   };
@@ -122,7 +123,8 @@ const postRes = async (request, response) => {
                 case "subscription_purchase":
                   const subscriptionMailInfo = {
                     form: process.env.EMAIL_USER,
-                    to: order.user.email,
+                    // to: order.user.email,
+                    to: order.email,
                     subject: "Thank you for purchasing Mentoons Subscription",
                     html: SubscriptionEmailTemplate(order),
                   };
