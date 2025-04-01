@@ -57,7 +57,8 @@ const postRes = async (request, response) => {
     // Update order in database if order_id is present
     if (responseObject.order_id) {
       try {
-        const orderStatus = responseObject.order_status || "Unknown";
+        const orderStatus =
+          responseObject.order_status?.toUpperCase() || "UNKNOWN";
         const orderUpdate = await Order.findOneAndUpdate(
           { orderId: responseObject.order_id },
           {
