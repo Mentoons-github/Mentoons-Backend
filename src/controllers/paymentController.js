@@ -15,7 +15,6 @@ const initiatePayment = async (req, res) => {
       firstName,
       lastName,
     } = req.body;
-    console.log(req.auth.user)
 
     if (!amount || !productInfo || !email || !orderId) {
       return res.status(400).json({
