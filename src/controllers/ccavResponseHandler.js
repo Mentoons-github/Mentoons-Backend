@@ -82,7 +82,9 @@ const postRes = async (request, response) => {
         console.log("here you can send the product to the user");
         const order = await Order.findOne({
           orderId: responseObject.order_id,
-        }).populate("products");
+        })
+          .populate("products")
+          .populate("user");
 
         console.log("order user found is =====================>", order.user);
 

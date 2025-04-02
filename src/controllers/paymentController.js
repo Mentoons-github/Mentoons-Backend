@@ -1,6 +1,7 @@
 const ccavRequestHandler = require("./ccavRequestHandler");
 const TemporaryUser = require("../models/tempUserPayment");
 const Order = require("../models/Order");
+const User = require("../models/user");
 
 const initiatePayment = async (req, res) => {
   console.log("paymentController.js - initiatePayment");
@@ -33,10 +34,9 @@ const initiatePayment = async (req, res) => {
 
     const userId = req.user?.id;
 
-    console.log(
-      "userId in initiate payment =========================>",
-      userId
-    );
+    const user = await User.findOne({ clerkId: userId });
+
+    console.log("userId in initiate payment =========================>", user);
 
     // Create or update order record in database
     const order = await Order.findOneAndUpdate(
@@ -47,7 +47,7 @@ const initiatePayment = async (req, res) => {
         productInfo,
         customerName: `${firstName} ${lastName || ""}`.trim(),
         email,
-        userId,
+        user: user._id,
         items: Array.isArray(items) ? items : [items],
         products: productId,
         phone,
@@ -60,7 +60,7 @@ const initiatePayment = async (req, res) => {
 
     console.log("orderRecieved =========================> ", order);
     const redirect_cancel_url = `https://mentoons-backend-zlx3.onrender.com/api/v1/payment/ccavenue-response?userId=${encodeURIComponent(
-      userId
+      user
     )}`;
 
     const ccavenueParams = {
