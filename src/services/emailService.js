@@ -10,17 +10,13 @@ require("dotenv").config();
 // });
 
 const transporter = nodemailer.createTransport({
-  host: "smtp.office365.com",
-  port: 587,
-  secure: false,
+  host: "smtpout.secureserver.net",
+  port: 465,
+  secure: true,
   auth: {
-    user: "info@mentoons.com",
-    pass: "your-app-password",
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
   },
-  tls: {
-    rejectUnauthorized: false,
-  },
-  debug: true,
 });
 
 const sendEmail = async (mailOptions) => {
