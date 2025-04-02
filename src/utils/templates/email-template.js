@@ -21,9 +21,9 @@ const ProductEmailTemplate = (order) => {
         <table style="width: 100%; border-collapse: collapse;">
           <tr>
             <td style="padding: 12px 0; color: #4A5568; font-size: 15px;">Product</td>
-            <td style="padding: 12px 0; color: #2D3748; font-size: 15px; text-align: right;">${
-              order?.productName
-            }</td>
+            <td style="padding: 12px 0; color: #2D3748; font-size: 15px; text-align: right;">${order?.products
+              ?.map((item) => item.title)
+              .join(", ")}</td>
           </tr>
           <tr>
             <td style="padding: 12px 0; color: #4A5568; font-size: 15px;">Email</td>
