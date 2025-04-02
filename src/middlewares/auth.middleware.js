@@ -1,5 +1,5 @@
 const { Clerk } = require("@clerk/clerk-sdk-node");
-
+const User = require("../models/user");
 const clerk = new Clerk({ secretKey: process.env.CLERK_SECRET_KEY });
 
 const conditionalAuth = async (req, res, next) => {
@@ -22,6 +22,15 @@ const conditionalAuth = async (req, res, next) => {
     const user = await clerk.users.getUser(session.sub);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
+    }
+
+    const DBUser = await User.findOne({ clerkId: user.id });
+
+    if (!DBUser) {
+      return res.status(404).json({
+        status: "error",
+        message: "User not found in the database. Please register first.",
+      });
     }
 
     console.log("user clerk :", user);
