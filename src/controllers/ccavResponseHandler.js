@@ -5,7 +5,7 @@ var http = require("http"),
 const dotenv = require("dotenv");
 const Order = require("../models/Order");
 const User = require("../models/user.js");
-const clerk = require("../middlewares/auth.middleware.js");
+const { clerk } = require("../middlewares/auth.middleware.js");
 
 dotenv.config();
 
@@ -134,9 +134,7 @@ const postRes = async (request, response) => {
                 const productEmailResponse = await sendEmail(productMailInfo);
                 if (productEmailResponse.success) {
                   console.log("EmailServiceResponse", productEmailResponse);
-                  console.log(
-                    `Product access email sent to ${order.email}`
-                  );
+                  console.log(`Product access email sent to ${order.email}`);
                 }
                 break;
               case "subscription_purchase":

@@ -43,4 +43,7 @@ const conditionalAuth = async (req, res, next) => {
   }
 };
 
-module.exports = conditionalAuth;
+module.exports = {
+  conditionalAuth,
+  clerk,
+};
