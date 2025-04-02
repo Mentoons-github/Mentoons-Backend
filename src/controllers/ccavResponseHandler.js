@@ -86,9 +86,15 @@ const postRes = async (request, response) => {
           .populate("products")
           .populate("user");
 
+        console.log("products order ======================>", order);
         console.log("order user found is =====================>", order.user);
 
-        if (order && order.user && order.user.email) {
+        if (
+          order &&
+          order.user &&
+          order.user.email &&
+          orderStatus.toUpperCase() === "SUCCESS"
+        ) {
           try {
             if (type === "platinum" || type === "prime") {
               console.log(
@@ -141,6 +147,10 @@ const postRes = async (request, response) => {
                   html: ProductEmailTemplate(order),
                 };
                 const productEmailResponse = await sendEmail(productMailInfo);
+                console.log(
+                  "email response ======================>",
+                  productEmailResponse
+                );
                 if (productEmailResponse.success) {
                   console.log("EmailServiceResponse", productEmailResponse);
                   console.log(`Product access email sent to ${order.email}`);
