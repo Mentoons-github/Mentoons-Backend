@@ -17,15 +17,6 @@ const initiatePayment = async (req, res) => {
       lastName,
     } = req.body;
 
-    // const order_type =
-    //   type === "subscription"
-    //     ? "subscription_purchase"
-    //     : type === "assessment"
-    //     ? "assessment_purchase"
-    //     : type === "download"
-    //     ? "product_purchase"
-    //     : "consultancy_purchase";
-
     if (!amount || !productInfo || !email || !orderId) {
       return res.status(400).json({
         status: "error",
@@ -92,12 +83,6 @@ const initiatePayment = async (req, res) => {
         ? { merchant_param3: items.name || "" }
         : {}),
     };
-
-    if (Array.isArray(items) && items.length > 0) {
-      console.log("Passing merchant_param3 as first item name:", items[0].name);
-    } else if (typeof items === "object" && items !== null) {
-      console.log("Passing merchant_param3 as object name:", items.name);
-    }
 
     // Convert params object to query string
     const paramString = Object.keys(ccavenueParams)
