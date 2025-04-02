@@ -123,6 +123,13 @@ const postRes = async (request, response) => {
                   subscriptionData,
                 },
               });
+
+              const updatedUserInClerk = await clerk.users.getUser(userId);
+
+              console.log(
+                "Updated Clerk User Metadata:",
+                updatedUserInClerk.publicMetadata
+              );
             }
             switch (order.order_type) {
               case "product_purchase":
