@@ -45,7 +45,7 @@ const initiatePayment = async (req, res) => {
         orderId,
         amount,
         productInfo,
-        customerName: `${firstName} ${lastName || ""}`.trim(),
+        customerName: user.name || `${firstName} ${lastName || ""}`.trim(),
         email,
         user: user._id,
         items: Array.isArray(items) ? items : [items],
