@@ -68,7 +68,8 @@ const postRes = async (request, response) => {
             paymentMethod: responseObject.payment_mode || null,
             updatedAt: new Date(),
             paymentResponse: JSON.stringify(responseObject),
-          }
+          },
+          { new: true }
         );
 
         console.log("Order update result:", orderUpdate);
@@ -80,13 +81,16 @@ const postRes = async (request, response) => {
         const type = subscriptionType?.toLowerCase() || "";
 
         console.log("here you can send the product to the user");
-        const order = await Order.findOne({
-          orderId: responseObject.order_id,
-        })
+        const order = await Order.findOne(
+          {
+            orderId: responseObject.order_id,
+          },
+          { new: true }
+        )
           .populate("products")
           .populate("user");
 
-        console.log("products order ======================>", order);
+        console.log("products order ======================>", order.products);
         console.log("order user found is =====================>", order.user);
 
         if (
