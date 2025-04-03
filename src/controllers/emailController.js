@@ -48,22 +48,7 @@ module.exports = {
       from: process.env.EMAIL_USER,
       to: email,
       subject: "Welcome to Mentoons!",
-
-      // html: AssessementEmailTemplate("Dheeraj Sharma", email, "+916205128100", data.pdf, data.thumbnail),
-      // html: SubscriptionEmailTemplate(
-      //   "Dheeraj Sharma",
-      //   email,
-      //   "+916205128100",
-      //   data.pdf,
-      //   data.thumbnail
-      // ),
       html: WelcomeEmailTemplate(email, data),
-      // html: ProductEmailTemplate(
-      //   "dheeraj",
-      //   email,
-      //   "Conversation Starter Card",
-      //   "199"
-      // ),
     };
     const isEmailSent = await sendEmail(userOptions);
 
@@ -230,10 +215,10 @@ module.exports = {
   }),
 
   freeDownloadComic: asyncHandler(async (req, res, next) => {
-    const { email, thumbnail, pdf } = req.body;
+    const { email, data } = req.body;
 
-    if (!(email && thumbnail && pdf)) {
-      throw new Error("Email, thumbnail and pdf are required fields");
+    if (!email || !data) {
+      throw new Error("Missing fields are required fields");
     }
 
     const adminOptions = {
@@ -251,8 +236,8 @@ module.exports = {
                   <div style="font-family: 'Futura', sans-serif; background-color: #f7bbc3; padding: 20px; border-radius: 8px; border: 2px solid #eb3f56;">
                       <h1 style="color: #eb3f56;">Thank you for subscribing!</h1>
                       <p style="color: #6c757d; font-size: 16px;">We're thrilled to have you! Click the thumbnail below to download your free PDF:</p>
-                      <a href="${pdf}" download style="display: inline-block; text-decoration: none;">
-                          <img src="${thumbnail}" alt="PDF Thumbnail" style="max-width: 50%; height: auto; border: 2px solid #eb3f56; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);" />
+                      <a href="${data.pdf}" download style="display: inline-block; text-decoration: none;">
+                          <img src="${data.thumbnail}" alt="PDF Thumbnail" style="max-width: 50%; height: auto; border: 2px solid #eb3f56; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);" />
                       </a>
                       <p style="font-size: 14px; color: #6c757d; margin-top: 10px;">Happy reading!</p>
                   </div>
@@ -261,7 +246,12 @@ module.exports = {
 
     await sendEmail(userOptions);
     await sendEmail(adminOptions);
-    return successResponse(res, 200, messageHelper.FREE_DOWNLOAD_CLAIMED);
+    return successResponse(
+      res,
+      200,
+      messageHelper.FREE_DOWNLOAD_CLAIMED,
+      email
+    );
   }),
 
   sendNewsletterEmail: asyncHandler(async (req, res, next) => {
@@ -382,7 +372,7 @@ const SubscriptionEmailTemplate = (name, email, phone, pdf, thumbnail) => {
 
       <div style="background-color: #F3F4F6; padding: 20px; text-align: center; border-radius: 0 0 8px 8px;">
         <p style="color: #6B7280; font-size: 14px; margin: 0;">
-          Need help? Contact us at support@mentoons.com<br>
+          Need help? Contact us at <a href="mailto:info@mentoons.com">info@mentoons.com"</a><br>
           Follow us on social media @mentoons
         </p>
       </div>

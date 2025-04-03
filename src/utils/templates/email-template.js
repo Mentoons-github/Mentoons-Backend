@@ -1,92 +1,129 @@
 const ProductEmailTemplate = (order) => {
   return `
-    <div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 40px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-      <div style="text-align: center; margin-bottom: 30px;">
-        <img src="https://mentoons-website.s3.ap-northeast-1.amazonaws.com/logo/ec9141ccd046aff5a1ffb4fe60f79316.png" alt="Mentoons Logo" style="max-width: 180px; height: auto;"/>
-      </div>
-
-      <div style="text-align: center; margin-bottom: 35px;">
-        <h1 style="color: #2D3748; font-size: 24px; font-weight: 600; margin: 0;">
-          Purchase Confirmation
-        </h1>
-        <p style="color: #718096; font-size: 16px; margin-top: 8px;">
-          Thank you for your purchase, ${order?.customerName}
-        </p>
-      </div>
-
-      <div style="background-color: #F7FAFC; border-radius: 6px; padding: 25px; margin-bottom: 30px;">
-        <h2 style="color: #2D3748; font-size: 18px; font-weight: 600; margin: 0 0 20px 0;">
-          Order Details
-        </h2>
-        <table style="width: 100%; border-collapse: collapse;">
-          <tr>
-            <td style="padding: 12px 0; color: #4A5568; font-size: 15px;">Product</td>
-            <td style="padding: 12px 0; color: #2D3748; font-size: 15px; text-align: right;">${order?.products
-              ?.map((item) => item.title)
-              .join(", ")}</td>
-          </tr>
-          <tr>
-            <td style="padding: 12px 0; color: #4A5568; font-size: 15px;">Email</td>
-            <td style="padding: 12px 0; color: #2D3748; font-size: 15px; text-align: right;">${
-              order.email
-            }</td>
-          </tr>
-        </table>
-      </div>
-
-      <div style="display: block; margin-bottom: 20px;">
-        <h1 style="display: block; text-align: center">Products</h1>
-        <div
-          style="
-            display: block;
-          
-          "
-        >
-        ${order.products.map((product) => {
-          return ` <div
-            style="display: flex; align-items: start; justify-content: start; width: 100%;"
-          >
-            <div>
-              <img
-                src=${product.productImages[0]?.imageUrl}
-                alt=${product.title}
-                style="
-                  display: block;
-                  width: 120px;
-                  height: 120px;
-                  object-fit: cover;
-                  
-                "
-              />
-            </div>
-            <div style="display: flex; flex-direction: column;  ">
-            <p style="text-align: start; margin:0px; font-size: large; font-weight: 800; text-transform: capitalize; margin-inline-start:16px ;">${product.title}</p>
-            <a href=${product.orignalProductSrc} style="display: inline-block;  margin-inline-start: 16px; background-color:#e39712; padding-inline:20px; padding-block: 12px; border-radius: 12px; text-decoration: none; color: #fff; font-weight: 800; width: 100px; text-align: center; margin-top: 12px;"> Download </a>
-            </div>
-
-          </div>`;
-        })}
-        </div>
-      </div>
-
-      <div style="margin-bottom: 35px;">
-        <p style="color: #4A5568; font-size: 15px; line-height: 1.6; margin: 0;">
-          We're delighted to confirm your purchase. You'll receive access to your product shortly. If you have any questions, our support team is here to help.
-        </p>
-      </div>
-
-      <div style="border-top: 1px solid #E2E8F0; padding-top: 25px;">
-        <div style="text-align: center;">
-          <p style="color: #718096; font-size: 14px; margin: 0 0 15px 0;">
-            Need assistance? Contact our support team
-          </p>
-          <a href="mailto:metalmahesh@gmail.com" style="color: #4299E1; text-decoration: none; font-size: 14px;">
-            metalmahesh@gmail.com
-          </a>
-        </div>
-      </div>
+   <!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #fffaf0;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      background: #fffaf0;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      
+    }
+    .logo {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .logo img {
+      width: 150px;
+    }
+    h1 {
+      text-align: center;
+      color: #b45309;
+    }
+    .order-details {
+      background: #ffedd5;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border-left: 4px solid #f59e0b;
+    }
+    .product {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #fdba74;
+      padding-bottom: 15px;
+    }
+    .product img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 5px;
+      margin-right: 15px;
+      border: 2px solid #f59e0b;
+    }
+    .product-info {
+      flex: 1;
+    }
+    .btn {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #ea580c;
+      color: #ffffff;
+      text-decoration: none;
+      border-radius: 5px;
+      font-weight: bold;
+      text-align: center;
+    }
+    .footer {
+      text-align: center;
+      font-size: 14px;
+      color: #78350f;
+      margin-top: 20px;
+      background: #ffedd5;
+      padding: 15px;
+      border-radius: 8px;
+    }
+    @media (max-width: 600px) {
+      .product {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .product img {
+        margin-bottom: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+      <img src="https://mentoons-website.s3.ap-northeast-1.amazonaws.com/logo/ec9141ccd046aff5a1ffb4fe60f79316.png" alt="Mentoons Logo">
     </div>
-  `;
+    <h1>Thank You for Your Purchase!</h1>
+    <div class="order-details">
+      <p><strong>Order ID:</strong> ${order?.orderId}</p>
+      <p><strong>Name:</strong> ${order?.customerName}</p>
+      <p><strong>Email:</strong> ${order?.email}</p>
+      <p><strong>Phone:</strong> ${order?.phone}</p>
+      <p><strong>Payment ID:</strong> ${order?.paymentId}</p>
+    </div>
+    
+    <h2 style="color: #b45309;">Products</h2>
+    <div>
+    ${order?.products?.map((product) => {
+      return `<div class="product">
+        <img src="${product?.productImages?.[0]?.imageUrl}" alt="${product?.title}">
+        <div class="product-info">
+          <p><strong>${product?.title}</strong></p>
+          <p>${product?.description}</p>
+          <a href="${product?.orignalProductSrc}" class="btn">Download</a>
+        </div>
+      </div>`;
+    })}
+      
+    </div>
+    
+    <p style="color: #b45309; font-weight: bold;">We're delighted to confirm your purchase. You'll receive access to your product shortly. If you have any questions, our support team is here to help.</p>
+    
+    <div class="footer">
+      <p>Need assistance? Contact our support team:</p>
+      <p><a href="mailto:info@mentoons.com" style="color: #ea580c; text-decoration: none; font-weight: bold;">info@mentoons.com</a></p>
+    </div>
+  </div>
+</body>
+</html>`;
 };
 
 const WelcomeEmailTemplate = (email, data) => {
@@ -158,14 +195,14 @@ const SubscriptionEmailTemplate = (order) => {
           </p>
         </div>
 
-        <div style="text-align: center; margin-bottom: 30px;">
-          <p style="color: #1F2937; font-size: 16px; line-height: 1.6;">
-            Your premium content is ready! Click below to access your materials:
-          </p>
-          <a href="${pdf}" download style="display: inline-block; text-decoration: none;">
-            <img src="${thumbnail}" alt="Content Preview" style="max-width: 300px; border-radius: 8px; margin: 20px 0; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
-          </a>
-        </div>
+        // <div style="text-align: center; margin-bottom: 30px;">
+        //   <p style="color: #1F2937; font-size: 16px; line-height: 1.6;">
+        //     Your premium content is ready! Click below to access your materials:
+        //   </p>
+        //   <a href="${pdf}" download style="display: inline-block; text-decoration: none;">
+        //     <img src="${thumbnail}" alt="Content Preview" style="max-width: 300px; border-radius: 8px; margin: 20px 0; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+        //   </a>
+        // </div>
 
         <div style="border-top: 1px solid #E5E7EB; padding-top: 30px;">
           <h3 style="color: #1F2937; font-size: 18px; margin: 0 0 15px 0;">What's Next?</h3>
@@ -180,7 +217,7 @@ const SubscriptionEmailTemplate = (order) => {
 
       <div style="background-color: #F3F4F6; padding: 20px; text-align: center; border-radius: 0 0 8px 8px;">
         <p style="color: #6B7280; font-size: 14px; margin: 0;">
-          Need help? Contact us at metalmahesh@gmail.com<br>
+          Need help? Contact us at info@mentoons.com<br>
           Follow us on social media @mentoons
         </p>
       </div>
@@ -189,7 +226,7 @@ const SubscriptionEmailTemplate = (order) => {
   `;
 };
 
-const AssessementEmailTemplate = (name, email, phone, pdf, thumbnail) => {
+const AssessementEmailTemplate = (order) => {
   return `
     <div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 15px; box-shadow: 0 4px 15px rgba(255, 107, 53, 0.2);">
       <!-- Header Section -->
@@ -202,7 +239,7 @@ const AssessementEmailTemplate = (name, email, phone, pdf, thumbnail) => {
       <div style="padding: 40px 30px;">
         <!-- Personal Greeting -->
         <div style="margin-bottom: 30px;">
-          <h2 style="color: #FF6B35; font-size: 24px; margin: 0 0 15px 0;">Dear ${name},</h2>
+          <h2 style="color: #FF6B35; font-size: 24px; margin: 0 0 15px 0;">Dear ${order.customerName},</h2>
           <p style="color: #4B5563; font-size: 18px; line-height: 1.6;">
             Thank you for completing the Mentoons Assessment! We're excited to share your personalized results and help you unlock your full potential. 🌟
           </p>
@@ -238,15 +275,19 @@ const AssessementEmailTemplate = (name, email, phone, pdf, thumbnail) => {
         <div style="text-align: center; margin-top: 30px;">
           <h3 style="color: #FF6B35; font-size: 20px; margin: 0 0 15px 0;">📞 Let's Connect!</h3>
           <p style="color: #4B5563; font-size: 16px; line-height: 1.6;">
-            Phone: +91 XXXXXXXXXX<br>
-            Email: metalmahesh@gmail.com<br>
-            Follow us: @mentoons
+            Phone: +91 9036033300<br>
+            Email: info@mentoons.com <br>
           </p>
         </div>
       </div>
 
       <!-- Footer -->
       <div style="background-color: #FF6B35; padding: 20px; text-align: center; border-radius: 0 0 15px 15px;">
+      <img
+          src="https://mentoons-website.s3.ap-northeast-1.amazonaws.com/logo/ec9141ccd046aff5a1ffb4fe60f79316.png"
+          alt="Mentoons Logo"
+          style="max-width: 80px; height: auto"
+        />
         <p style="color: #ffffff; font-size: 14px; margin: 0;">
           © 2025 Mentoons. All rights reserved.<br>
           Helping young minds reach their full potential!
@@ -1038,8 +1079,8 @@ const NewsletterEmailTemplate = () => {
               "
             >
               <span style="font-size: 1.5rem">📧</span>
-              <span style="font-size: 14px"
-                >Need Guidance? Contact us at: support@mentoons.com</span
+              <a href="" style="font-size: 14px"
+                >Need Guidance? Contact us at: info@mentoons.com</
               >
             </div>
           </div>
@@ -1264,7 +1305,51 @@ const AssessementReportEmailTemplate = () => {
     </div>`;
 };
 
+const ConsultanyBookingemailTemplate = (order) => {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>You're In! Consultation Confirmed 🎉</title>
+</head>
+<body style="font-family: 'Poppins', sans-serif; margin: 0; padding: 40px; background-color: #f8f8f8; display: flex; justify-content: center; align-items: center; min-height: 100vh;">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <div style="background-color: #fff; border-radius: 12px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1); width: 100%; max-width: 560px; overflow: hidden;">
+        <div style="background-color: #e39712; color: #fff; padding: 40px; text-align: center; border-radius: 12px 12px 0 0;">
+             <img src="https://mentoons-website.s3.ap-northeast-1.amazonaws.com/logo/ec9141ccd046aff5a1ffb4fe60f79316.png" alt="Mentoons Logo" style="max-width: 100px; height: auto;"/>
+            <h1 style="margin: 0; font-size: 2.5rem; font-weight: 600;">🎉You're In!🎉</h1>
+            <p style="margin-top: 10px; font-size: 1.1rem; opacity: 0.8;">Your consultation is officially booked!</p>
+        </div>
+        <div style="padding: 30px;">
+            <p style="color: #444; font-size: 1.1rem; line-height: 1.7;">Hey ${order.customerName},</p>
+            <p style="color: #444; font-size: 1.1rem; line-height: 1.7;">Get ready! We're super excited to chat with you during your upcoming consultation. Here are all the important details:</p>
+            <div style="background-color: #f2f2f2; border-radius: 8px; padding: 20px; margin: 25px 0; border: 1px solid #ddd;">
+                <h2 style="color: #333; font-size: 1.3rem; font-weight: 500; margin-top: 0; margin-bottom: 15px;">📅 Mark Your Calendar:</h2>
+                <p style="color: #555; font-size: 1.05rem; margin-bottom: 10px;"><strong style="color: #333;">Date:</strong> [Date of Call]</p>
+                <p style="color: #555; font-size: 1.05rem; margin-bottom: 10px;"><strong style="color: #333;">Time:</strong> [Time of Call] [Time Zone]</p>
+                <p style="color: #555; font-size: 1.05rem; margin-bottom: 10px;"><strong style="color: #333;">Duration:</strong> ${order?.Duration}</p>
+                
+            </div>
+            <p style="color: #444; font-size: 1.1rem; line-height: 1.7;">We recommend adding this event to your calendar so you don't miss it!</p>
+            <p style="color: #444; font-size: 1.1rem; line-height: 1.7; margin-top: 20px;">Need to make a change? No worries, just reply to this email and we'll be happy to help.</p>
+            <p style="color: #444; font-size: 1.1rem; line-height: 1.7; margin-top: 25px;">See you soon!</p>
+            <p style="color: #444; font-size: 1.1rem; line-height: 1.7;">Best Regards,</p>
+            <p style="color: #444; font-size: 1.1rem; line-height: 1.7;">Mentoons Team</p>
+        </div>
+        <div style="background-color: #f8f8f8; padding: 20px; text-align: center; border-top: 1px solid #eee; border-radius: 0 0 12px 12px;">
+            <p style="color: #777; font-size: 0.9rem; margin: 5px 0;"><a href="https://mentoons.com" style="color: #777; text-decoration: none;">
+             <img src="https://mentoons-website.s3.ap-northeast-1.amazonaws.com/logo/ec9141ccd046aff5a1ffb4fe60f79316.png" alt="Mentoons Logo" style="max-width: 80px; height: auto;"/>
+             </a></p>
+             <p style="color: #777; font-size: 0.9rem; margin: 5px 0;">399, 2nd Cross Rd, opposite the Paul hotel, HBCS Colony, Amarjyoti Layout, Domlur, Bengaluru, Karnataka 560071</p>
+        </div>
+    </div>
+</body>
+</html>`;
+};
+
 module.exports = {
+  ConsultanyBookingemailTemplate,
   ProductEmailTemplate,
   SubscriptionEmailTemplate,
   WelcomeEmailTemplate,

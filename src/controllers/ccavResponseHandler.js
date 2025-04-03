@@ -13,7 +13,7 @@ const {
   ProductEmailTemplate,
   SubscriptionEmailTemplate,
   // AssessementReportEmailTemplate,
-  // ConsultanyBookingemailTemplate,
+  ConsultanyBookingemailTemplate,
 } = require("../utils/templates/email-template.js");
 
 const { sendEmail } = require("../services/emailService.js");
@@ -152,7 +152,6 @@ const postRes = async (request, response) => {
               case "product_purchase":
                 const productMailInfo = {
                   from: process.env.EMAIL_USER,
-                  // to: order.user.email,
                   to: order.email,
                   subject: "Thank for your purchase",
                   html: ProductEmailTemplate(order),
@@ -170,7 +169,6 @@ const postRes = async (request, response) => {
               case "subscription_purchase":
                 const subscriptionMailInfo = {
                   from: process.env.EMAIL_USER,
-                  // to: order.user.email,
                   to: order.email,
                   subject: "Thank you for purchasing Mentoons Subscription",
                   html: SubscriptionEmailTemplate(order),
@@ -180,12 +178,28 @@ const postRes = async (request, response) => {
                 );
                 if (subscriptionEmailResponse.success) {
                   console.log(
-                    "Subscription email resonse ",
+                    "Subscription email response ",
                     subscriptionEmailResponse
                   );
                 }
                 break;
-
+              case "consultancy_purchase":
+                const consultancyMialinfo = {
+                  from: process.env.EMAIL_USER,
+                  to: order.email,
+                  subject: "🎉 You're In! Consultation Confirmed 🎉",
+                  html: ConsultanyBookingemailTemplate(order),
+                };
+                const consultancyEmailResponse = await sendEmail(
+                  consultancyMialinfo
+                );
+                if (consultancyEmailResponse.success) {
+                  console.log(
+                    "Consultancy email response",
+                    consultancyEmailResponse
+                  );
+                }
+                break;
               default:
                 break;
             }
