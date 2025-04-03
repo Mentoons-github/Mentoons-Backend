@@ -47,8 +47,13 @@ const PORT = process.env.PORT || 4000;
 app.use(
   cors({
     origin: ["https://mentoons.com", "http://localhost:3000"],
-    methods: "GET,POST,PUT,DELETE,OPTIONS",
-    allowedHeaders: "*",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+    exposedHeaders: [
+      "Cross-Origin-Opener-Policy",
+      "Cross-Origin-Resource-Policy",
+      "Access-Control-Allow-Origin",
+    ],
     credentials: true,
   })
 );
