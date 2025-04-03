@@ -59,7 +59,7 @@ const postRes = async (request, response) => {
       try {
         const orderStatus =
           responseObject.order_status?.toUpperCase() || "UNKNOWN";
-        const orderUpdate = await Order.findOneAndUpdate(
+        const order = await Order.findOneAndUpdate(
           { orderId: responseObject.order_id },
           {
             status: orderStatus?.toUpperCase(),
@@ -72,7 +72,10 @@ const postRes = async (request, response) => {
           { new: true }
         );
 
-        console.log("Order update result:", orderUpdate);
+        console.log("Order update result:", order);
+
+        await orderUpdate.populate("products");
+        await orderUpdate.populate("user");
 
         console.log(
           `Order ${responseObject.order_id} updated with status: ${orderStatus}`
@@ -81,14 +84,6 @@ const postRes = async (request, response) => {
         const type = subscriptionType?.toLowerCase() || "";
 
         console.log("here you can send the product to the user");
-        const order = await Order.findOne(
-          {
-            orderId: responseObject.order_id,
-          },
-          { new: true }
-        )
-          .populate("products")
-          .populate("user");
 
         console.log("order check : =======================>", order);
         console.log("products order ======================>", order.products);
