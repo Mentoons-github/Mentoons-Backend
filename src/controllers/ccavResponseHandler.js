@@ -90,6 +90,7 @@ const postRes = async (request, response) => {
           .populate("products")
           .populate("user");
 
+        console.log("order check : =======================>", order);
         console.log("products order ======================>", order.products);
         console.log("order user found is =====================>", order.user);
 
