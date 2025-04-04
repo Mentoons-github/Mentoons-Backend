@@ -849,7 +849,7 @@ const seedProducts = async () => {
         title: "Story Re-teller Cards (6-12) years",
         description:
           "Unleash creativity and connection with our Story Reteller Cards. Inspire kids to imagine, think critically, and bond through fun, engaging stories. Easy to carry, they make learning and sharing a joy anytime, anywhere!",
-        price: 199,
+        price: 1,
         orignalProductSrc:
           "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Story_Reteller_Cards/6-12/Story+reteller+6-12.pdf",
         ageCategory: AgeCategory.CHILD,

@@ -101,7 +101,7 @@ const updateItemQuantity = async (req, res) => {
     const { userId, productId, quantity } = req.body;
     
 
-    if (!userId || !productId || quantity === undefined) {
+    if (!userId || !productId || !quantity) {
       return res
         .status(400)
         .json({ success: false, message: "Missing required fields" });
