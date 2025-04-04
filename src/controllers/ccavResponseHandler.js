@@ -72,17 +72,6 @@ const postRes = async (request, response) => {
           { new: true }
         );
 
-        const orderFinding = await Order.findOne({
-          orderId: responseObject.order_id,
-        })
-          .populate("products")
-          .populate("user");
-
-        console.log(
-          "order finding from database =======================================>",
-          orderFinding
-        );
-
         console.log("Order update result:", order);
 
         await order.populate("products");
