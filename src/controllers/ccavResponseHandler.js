@@ -17,6 +17,7 @@ const {
 } = require("../utils/templates/email-template.js");
 
 const { sendEmail } = require("../services/emailService.js");
+const Cart = require("../models/cart.js");
 
 const postRes = async (request, response) => {
   console.log("Received CCAvenue response");
@@ -92,6 +93,20 @@ const postRes = async (request, response) => {
         console.log("products order ======================>", order.products);
         console.log("order user found is =====================>", order.user);
 
+        // Update the Cart
+        if (order.order_type === "product_purchase" && orderStatus.toUpperCase() === "SUCCESS") {
+          const cart = await Cart.findOneAndUpdate({
+            userId: order.user._id,
+            status: "completed",
+          },{new: true});
+          console.log("Cart found and deleted:", cart);
+          if (cart) {
+            console.log("Cart deleted successfully");
+          } else {
+            console.log("No active cart found for user");
+          }
+        }
+
         if (
           order &&
           order.user &&
@@ -157,6 +172,7 @@ const postRes = async (request, response) => {
                   console.log("EmailServiceResponse", productEmailResponse);
                   console.log(`Product access email sent to ${order.email}`);
                 }
+
                 break;
               case "subscription_purchase":
                 const subscriptionMailInfo = {
