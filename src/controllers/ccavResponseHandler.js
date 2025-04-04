@@ -74,8 +74,11 @@ const postRes = async (request, response) => {
 
         console.log("Order update result:", order);
 
+        await order.populate("items.product");
         await order.populate("products");
         await order.populate("user");
+
+        console.log("Order update after populating result:", order);
 
         console.log(
           `Order ${responseObject.order_id} updated with status: ${orderStatus}`
