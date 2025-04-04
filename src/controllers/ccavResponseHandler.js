@@ -74,6 +74,7 @@ const postRes = async (request, response) => {
 
         console.log("Order update result:", order);
 
+        await order.populate("items.product");
         await order.populate("products");
         await order.populate("user");
 
