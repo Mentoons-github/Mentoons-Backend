@@ -118,6 +118,12 @@ const removeItemFromCart = async (userId, productId) => {
       (item) => item.productId.toString() !== productId
     );
 
+    // If cart is empty after removing item, delete the cart
+    if (cart.items.length === 0) {
+      await Cart.findByIdAndDelete(cart._id);
+      return null;
+    }
+
     // Recalculate cart totals
     await recalculateCartTotals(cart);
 
