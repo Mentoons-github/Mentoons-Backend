@@ -35,36 +35,35 @@ const getProducts = async (req, res, next) => {
     if (ageCategory) queryFilter.ageCategory = ageCategory;
     if (type) queryFilter.type = type;
     if (cardType) queryFilter.cardType = cardType;
-  
 
     const matchStage = {
       ...queryFilter,
       ...(queryFilter.cardType && {
-      'details.cardType': { $regex: queryFilter.cardType, $options: 'i' }
-      })
+        "details.cardType": { $regex: queryFilter.cardType, $options: "i" },
+      }),
     };
 
     delete matchStage.cardType; // Remove the top-level cardType since we're using it in details
 
     const products = await Product.aggregate([
       {
-      $match: matchStage,
+        $match: matchStage,
       },
       {
-      $project: {
-        orignalProductSrc: 0,
-      },
-      },
-      {
-      $sort: {
-        [sortBy]: sortOrder,
-      },
+        $project: {
+          orignalProductSrc: 0,
+        },
       },
       {
-      $skip: skip,
+        $sort: {
+          [sortBy]: sortOrder,
+        },
       },
       {
-      $limit: limitNumber,
+        $skip: skip,
+      },
+      {
+        $limit: limitNumber,
       },
     ]);
     console.log("Products", products);
@@ -78,6 +77,15 @@ const getProducts = async (req, res, next) => {
       limit: limitNumber,
       totalPages: Math.ceil(total / limitNumber),
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getAllProducts = async (req, res, next) => {
+  try {
+    const products = await Product.find();
+    res.status(200).json(products);
   } catch (error) {
     next(error);
   }
@@ -141,5 +149,6 @@ module.exports = {
   deleteProduct,
   getProductById,
   getProducts,
+  getAllProducts,
   updateProduct,
 };
