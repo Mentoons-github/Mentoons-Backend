@@ -5,6 +5,7 @@ const {
   getProductById,
   getProducts,
   updateProduct,
+  getAllProducts,
 } = require("../controllers/product.controller");
 
 const router = express.Router();
@@ -14,6 +15,8 @@ router.post("/", createProduct);
 
 // GET /api/products -> list with search, sort, pagination
 router.get("/", getProducts);
+
+router.get("/all", getAllProducts);
 
 // GET /api/products/:id -> fetch a single product by id
 router.get("/:id", getProductById);
