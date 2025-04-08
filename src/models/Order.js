@@ -22,7 +22,19 @@ const orderItemSchema = new mongoose.Schema({
   productType: {
     type: String,
     required: true,
-    enum: ["cards", "book"],
+    enum: ["cards", "book", "session"],
+  },
+  date: {
+    type: String,
+    required: false,
+  },
+  time: {
+    type: String,
+    required: false,
+  },
+  description: {
+    type: String,
+    default: "No additional details provided",
   },
 });
 
@@ -74,7 +86,10 @@ const orderSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    items: [orderItemSchema],
+    items: {
+      type: [orderItemSchema],
+      required: false,
+    },
     paymentDetails: paymentDetailsSchema,
     payment: {
       type: mongoose.Schema.Types.ObjectId,

@@ -1322,13 +1322,19 @@ const ConsultanyBookingemailTemplate = (order) => {
             <p style="margin-top: 10px; font-size: 1.1rem; opacity: 0.8;">Your consultation is officially booked!</p>
         </div>
         <div style="padding: 30px;">
-            <p style="color: #444; font-size: 1.1rem; line-height: 1.7;">Hey ${order.customerName},</p>
+            <p style="color: #444; font-size: 1.1rem; line-height: 1.7;">Hey ${
+              order.customerName
+            },</p>
             <p style="color: #444; font-size: 1.1rem; line-height: 1.7;">Get ready! We're super excited to chat with you during your upcoming consultation. Here are all the important details:</p>
             <div style="background-color: #f2f2f2; border-radius: 8px; padding: 20px; margin: 25px 0; border: 1px solid #ddd;">
                 <h2 style="color: #333; font-size: 1.3rem; font-weight: 500; margin-top: 0; margin-bottom: 15px;">📅 Mark Your Calendar:</h2>
-                <p style="color: #555; font-size: 1.05rem; margin-bottom: 10px;"><strong style="color: #333;">Date:</strong> [Date of Call]</p>
-                <p style="color: #555; font-size: 1.05rem; margin-bottom: 10px;"><strong style="color: #333;">Time:</strong> [Time of Call] [Time Zone]</p>
-                <p style="color: #555; font-size: 1.05rem; margin-bottom: 10px;"><strong style="color: #333;">Duration:</strong> ${order?.Duration}</p>
+                <p style="color: #555; font-size: 1.05rem; margin-bottom: 10px;"><strong style="color: #333;">Date:</strong>${
+                  order?.items?.[0]?.date || "Not specified"
+                }</p>
+                <p style="color: #555; font-size: 1.05rem; margin-bottom: 10px;"><strong style="color: #333;">Time:</strong>${
+                  order?.items?.[0]?.time || "Not specified"
+                }</p>
+                <p style="color: #555; font-size: 1.05rem; margin-bottom: 10px;"><strong style="color: #333;">Duration:</strong>1 hour</p>
                 
             </div>
             <p style="color: #444; font-size: 1.1rem; line-height: 1.7;">We recommend adding this event to your calendar so you don't miss it!</p>

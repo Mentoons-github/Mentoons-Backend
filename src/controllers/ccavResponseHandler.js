@@ -17,7 +17,9 @@ const {
 } = require("../utils/templates/email-template.js");
 
 const { sendEmail } = require("../services/emailService.js");
+const Employee = require("../models/employee.js");
 const Cart = require("../models/cart.js");
+const SessionModel = require("../models/session.js");
 
 const postRes = async (request, response) => {
   console.log("Received CCAvenue response");
@@ -73,32 +75,43 @@ const postRes = async (request, response) => {
           { new: true }
         );
 
+        if (responseObject.merchant_param4) {
+          await SessionModel.findOneAndUpdate(
+            {
+              pyschologistId: responseObject.merchant_param4,
+              userId: order.user._id,
+              status: "pending",
+            },
+            {
+              status: orderStatus.toLowerCase(),
+            }
+          );
+        }
+
         console.log("Order update result:", order);
 
-        await order.populate("items.product");
-        await order.populate("products");
+        if (order.order_type !== "consultancy_purchase") {
+          await order.populate("items.product");
+          await order.populate("products");
+        }
         await order.populate("user");
-
-        console.log("Order update after populating result:", order.products);
-
         console.log(
           `Order ${responseObject.order_id} updated with status: ${orderStatus}`
         );
 
         const type = subscriptionType?.toLowerCase() || "";
 
-        console.log("here you can send the product to the user");
-
-        console.log("order check : =======================>", order);
-        console.log("products order ======================>", order.products);
-        console.log("order user found is =====================>", order.user);
-
-        // Update the Cart
-        if (order.order_type === "product_purchase" && orderStatus.toUpperCase() === "SUCCESS") {
-          const cart = await Cart.findOneAndUpdate({
-            userId: order.user._id,
-            status: "completed",
-          },{new: true});
+        if (
+          order.order_type === "product_purchase" &&
+          orderStatus.toUpperCase() === "SUCCESS"
+        ) {
+          const cart = await Cart.findOneAndUpdate(
+            {
+              userId: order.user._id,
+              status: "completed",
+            },
+            { new: true }
+          );
           console.log("Cart found and deleted:", cart);
           if (cart) {
             console.log("Cart deleted successfully");
