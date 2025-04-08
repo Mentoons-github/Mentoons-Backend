@@ -1,129 +1,121 @@
 const ProductEmailTemplate = (order) => {
   return `
-   <!DOCTYPE html>
-<html>
-<head>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #fffaf0;
-      margin: 0;
-      padding: 0;
-    }
-    .container {
-      max-width: 600px;
-      margin: 20px auto;
-      background: #fffaf0;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      
-    }
-    .logo {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    .logo img {
-      width: 150px;
-    }
-    h1 {
-      text-align: center;
-      color: #b45309;
-    }
-    .order-details {
-      background: #ffedd5;
-      padding: 15px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      border-left: 4px solid #f59e0b;
-    }
-    .product {
-      display: flex;
-      align-items: center;
-      margin-bottom: 15px;
-      border-bottom: 2px solid #fdba74;
-      padding-bottom: 15px;
-    }
-    .product img {
-      width: 100px;
-      height: 100px;
-      object-fit: cover;
-      border-radius: 5px;
-      margin-right: 15px;
-      border: 2px solid #f59e0b;
-    }
-    .product-info {
-      flex: 1;
-    }
-    .btn {
-      display: inline-block;
-      padding: 10px 20px;
-      background-color: #ea580c;
-      color: #ffffff;
-      text-decoration: none;
-      border-radius: 5px;
-      font-weight: bold;
-      text-align: center;
-    }
-    .footer {
-      text-align: center;
-      font-size: 14px;
-      color: #78350f;
-      margin-top: 20px;
-      background: #ffedd5;
-      padding: 15px;
-      border-radius: 8px;
-    }
-    @media (max-width: 600px) {
-      .product {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      .product img {
-        margin-bottom: 10px;
-      }
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="logo">
-      <img src="https://mentoons-website.s3.ap-northeast-1.amazonaws.com/logo/ec9141ccd046aff5a1ffb4fe60f79316.png" alt="Mentoons Logo">
-    </div>
-    <h1>Thank You for Your Purchase!</h1>
-    <div class="order-details">
-      <p><strong>Order ID:</strong> ${order?.orderId}</p>
-      <p><strong>Name:</strong> ${order?.customerName}</p>
-      <p><strong>Email:</strong> ${order?.email}</p>
-      <p><strong>Phone:</strong> ${order?.phone}</p>
-      <p><strong>Payment ID:</strong> ${order?.paymentId}</p>
-    </div>
-    
-    <h2 style="color: #b45309;">Products</h2>
-    <div>
-    ${order?.products?.map((product) => {
-      return `<div class="product">
-        <img src="${product?.productImages?.[0]?.imageUrl}" alt="${product?.title}">
-        <div class="product-info">
-          <p><strong>${product?.title}</strong></p>
-          <p>${product?.description}</p>
-          <a href="${product?.orignalProductSrc}" class="btn">Download</a>
+   <div
+      style="
+        font-family: Arial, sans-serif;
+        max-width: 600px;
+        margin: 20px auto;
+        background: #fffaf0;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      "
+    >
+      <div style="text-align: center; margin-bottom: 20px">
+        <img
+          src="https://mentoons-website.s3.ap-northeast-1.amazonaws.com/logo/ec9141ccd046aff5a1ffb4fe60f79316.png"
+          alt="Mentoons Logo"
+          style="width: 150px"
+        />
+      </div>
+
+      <h1 style="text-align: center; color: #b45309">
+        Thank You for Your Purchase!
+      </h1>
+
+      <div
+        style="
+          background: #ffedd5;
+          padding: 15px;
+          border-radius: 8px;
+          margin-bottom: 20px;
+          border-left: 4px solid #f59e0b;
+        "
+      >
+        <p><strong>Order ID:</strong> ${order?.orderId}</p>
+        <p><strong>Name:</strong> ${order?.customerName}</p>
+        <p><strong>Email:</strong> ${order?.email}</p>
+        <p><strong>Phone:</strong> ${order?.phone}</p>
+        <p><strong>Payment ID:</strong> ${order?.paymentId}</p>
+      </div>
+
+      <h2 style="color: #b45309">Products</h2>
+
+      <div>
+        ${order?.products?.map((product) => {
+          return `
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #fdba74;
+            padding-bottom: 15px;
+            flex-direction: row;
+          "
+        >
+          <img
+            src="${product?.productImages?.[0]?.imageUrl}"
+            alt="${product?.title}"
+            style="
+              width: 100px;
+              height: 100px;
+              object-fit: cover;
+              border-radius: 5px;
+              margin-right: 15px;
+              border: 2px solid #f59e0b;
+            "
+          />
+          <div style="flex: 1">
+            <p><strong>${product?.title}</strong></p>
+            <p>${product?.description}</p>
+            <a
+              href="${product?.orignalProductSrc}"
+              style="
+                display: inline-block;
+                padding: 10px 20px;
+                background-color: #ea580c;
+                color: #ffffff;
+                text-decoration: none;
+                border-radius: 5px;
+                font-weight: bold;
+                text-align: center;
+              "
+              >Download</a
+            >
+          </div>
         </div>
-      </div>`;
-    })}
-      
-    </div>
-    
-    <p style="color: #b45309; font-weight: bold;">We're delighted to confirm your purchase. You'll receive access to your product shortly. If you have any questions, our support team is here to help.</p>
-    
-    <div class="footer">
-      <p>Need assistance? Contact our support team:</p>
-      <p><a href="mailto:info@mentoons.com" style="color: #ea580c; text-decoration: none; font-weight: bold;">info@mentoons.com</a></p>
-    </div>
-  </div>
-</body>
-</html>`;
+        `;
+        })}
+      </div>
+
+      <p style="color: #b45309; font-weight: bold">
+        We're delighted to confirm your purchase. You'll receive access to your
+        product shortly. If you have any questions, our support team is here to
+        help.
+      </p>
+
+      <div
+        style="
+          text-align: center;
+          font-size: 14px;
+          color: #78350f;
+          margin-top: 20px;
+          background: #ffedd5;
+          padding: 15px;
+          border-radius: 8px;
+        "
+      >
+        <p>Need assistance? Contact our support team:</p>
+        <p>
+          <a
+            href="mailto:info@mentoons.com"
+            style="color: #ea580c; text-decoration: none; font-weight: bold"
+            >info@mentoons.com</a
+          >
+        </p>
+      </div>
+    </div>`;
 };
 
 const WelcomeEmailTemplate = (email, data) => {
