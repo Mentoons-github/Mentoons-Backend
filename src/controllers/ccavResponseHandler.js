@@ -19,6 +19,7 @@ const {
 const { sendEmail } = require("../services/emailService.js");
 const Employee = require("../models/employee.js");
 const Cart = require("../models/cart.js");
+const SessionModel = require("../models/session.js");
 
 const postRes = async (request, response) => {
   console.log("Received CCAvenue response");
@@ -74,6 +75,19 @@ const postRes = async (request, response) => {
           { new: true }
         );
 
+        if (responseObject.merchant_param4) {
+          await SessionModel.findOneAndUpdate(
+            {
+              pyschologistId: responseObject.merchant_param4,
+              userId: order.user._id,
+              status: "pending",
+            },
+            {
+              status: orderStatus.toLowerCase(),
+            }
+          );
+        }
+
         console.log("Order update result:", order);
 
         if (order.order_type !== "consultancy_purchase") {
@@ -87,11 +101,17 @@ const postRes = async (request, response) => {
 
         const type = subscriptionType?.toLowerCase() || "";
 
-        if (order.order_type === "product_purchase" && orderStatus.toUpperCase() === "SUCCESS") {
-          const cart = await Cart.findOneAndUpdate({
-            userId: order.user._id,
-            status: "completed",
-          },{new: true});
+        if (
+          order.order_type === "product_purchase" &&
+          orderStatus.toUpperCase() === "SUCCESS"
+        ) {
+          const cart = await Cart.findOneAndUpdate(
+            {
+              userId: order.user._id,
+              status: "completed",
+            },
+            { new: true }
+          );
           console.log("Cart found and deleted:", cart);
           if (cart) {
             console.log("Cart deleted successfully");
@@ -185,26 +205,6 @@ const postRes = async (request, response) => {
                 }
                 break;
               case "consultancy_purchase":
-                const { items, user } = order;
-                const sessionItem = items[0];
-
-                const psychologist = await Employee.findOne({
-                  role: "psychologist",
-                });
-
-                const sessionData = new SessionModel({
-                  userId: user._id,
-                  pyschologistId: psychologist._id,
-                  date: sessionItem.date,
-                  time: sessionItem.time,
-                  status: "Booked",
-                  orderId: order._id,
-                  notes: sessionItem.description || "No description provided",
-                });
-
-                await sessionData.save();
-                console.log("Consultancy session saved:", sessionData);
-
                 const consultancyMialinfo = {
                   from: process.env.EMAIL_USER,
                   to: order.email,

@@ -1,12 +1,11 @@
 const ccavRequestHandler = require("./ccavRequestHandler");
-const TemporaryUser = require("../models/tempUserPayment");
 const Order = require("../models/Order");
 const User = require("../models/user");
 const Employee = require("../models/employee");
 const SessionModel = require("../models/session");
+const moment = require("moment");
 
 const initiatePayment = async (req, res) => {
-  console.log("paymentController.js - initiatePayment");
   try {
     const {
       amount,
@@ -27,18 +26,12 @@ const initiatePayment = async (req, res) => {
       });
     }
 
-    const productId =
-      order_type === "subscription_purchase"
-        ? []
-        : Array.isArray(items)
-        ? items.map((products) => products.product)
-        : [items.product];
-
+    let productId = [];
     const userId = req.user?.id;
-
     const user = await User.findOne({ clerkId: userId });
 
-    console.log("userId in initiate payment =========================>", user);
+    let createdSession = null;
+    let assignedPsychologistId = null;
 
     if (order_type === "consultancy_purchase") {
       const consultancyItem = Array.isArray(items) ? items[0] : items;
@@ -47,58 +40,84 @@ const initiatePayment = async (req, res) => {
 
       const psychologists = await Employee.find({ role: "psychologist" });
 
-      let assignedPsychologist = null;
       for (const psychologist of psychologists) {
         const sessionCount = await SessionModel.countDocuments({
           pyschologistId: psychologist.id,
           date: sessionDate,
         });
 
-        const hasSessionAtSameTime = await Session.exists({
+        const sessionDateTime = moment(
+          `${consultancyItem.date} ${consultancyItem.time}`,
+          "YYYY-MM-DD HH:mm"
+        );
+        const startRange = sessionDateTime
+          .clone()
+          .subtract(1, "hour")
+          .format("HH:mm");
+        const endRange = sessionDateTime.clone().add(1, "hour").format("HH:mm");
+
+        const hasSessionAtSameTime = await SessionModel.exists({
           pyschologistId: psychologist._id,
           date: sessionDate,
-          time: sessionTime,
+          time: {
+            $gte: startRange,
+            $lte: endRange,
+          },
         });
 
         if (sessionCount < 10 && !hasSessionAtSameTime) {
-          assignedPsychologist = psychologist;
+          assignedPsychologistId = psychologist.id.toString();
+          createdSession = await SessionModel.create({
+            pyschologistId: psychologist._id,
+            userId: user._id,
+            date: sessionDate,
+            time: sessionTime,
+            status: "pending",
+          });
+
+          productId = [createdSession._id.toString()];
           break;
         }
       }
 
-      if (!assignedPsychologist) {
+      if (!assignedPsychologistId) {
         return res.status(400).json({
           success: false,
           message:
             "All psychologists are fully booked at the selected date and time. Please choose another slot.",
         });
       }
-      
+    } else {
+      productId = Array.isArray(items)
+        ? items.map((products) => products.product)
+        : [items.product];
     }
 
-    // Create or update order record in database
-    const order = await Order.findOneAndUpdate(
-      { orderId: orderId },
-      {
-        orderId,
-        amount,
-        productInfo,
-        customerName: user.name || `${firstName} ${lastName || ""}`.trim(),
-        email,
-        user: user._id,
-        items: Array.isArray(items) ? items : [items],
-        products: productId,
-        phone,
-        order_type,
-        status: "PENDING",
-        createdAt: new Date(),
-      },
-      { new: true, upsert: true }
-    );
+    const orderData = {
+      orderId,
+      amount,
+      productInfo,
+      customerName: `${firstName} ${lastName || ""}`.trim() || user.name,
+      email,
+      user: user._id,
+      products: productId,
+      phone,
+      order_type,
+      status: "PENDING",
+      createdAt: new Date(),
+    };
 
-    console.log("orderRecieved =========================> ", order);
+    if (order_type !== "consultancy_purchase") {
+      orderData.items = Array.isArray(items) ? items : [items];
+    }
+
+    const order = await Order.findOneAndUpdate({ orderId }, orderData, {
+      new: true,
+      upsert: true,
+    });
+
     const redirect_cancel_url = `https://mentoons-backend-zlx3.onrender.com/api/v1/payment/ccavenue-response?userId=${encodeURIComponent(
-      user
+      user.clerkId
     )}`;
 
     const ccavenueParams = {
@@ -112,7 +131,6 @@ const initiatePayment = async (req, res) => {
       billing_name: `${firstName} ${lastName || ""}`.trim(),
       billing_email: email,
       billing_tel: phone,
-
       merchant_param1: productInfo,
       merchant_param2: productId.join(","),
       ...(Array.isArray(items) && items.length > 0
@@ -120,18 +138,16 @@ const initiatePayment = async (req, res) => {
         : typeof items === "object" && items !== null
         ? { merchant_param3: items.name || "" }
         : {}),
+      merchant_param4: assignedPsychologistId || "",
     };
 
-    // Convert params object to query string
     const paramString = Object.keys(ccavenueParams)
       .map((key) => `${key}=${encodeURIComponent(ccavenueParams[key])}`)
       .join("&");
 
-    // Set the prepared data in request and call CCAvenue handler
     req.ccavenueParams = paramString;
     ccavRequestHandler.postReq(req, res);
   } catch (error) {
-    console.error("Payment initiation error:", error);
     res.status(500).json({
       status: "error",
       message: "Failed to initiate payment",
