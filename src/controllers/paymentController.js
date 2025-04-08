@@ -81,6 +81,7 @@ const initiatePayment = async (req, res) => {
       }
 
       if (!assignedPsychologistId) {
+        console.log("no psychologists found");
         return res.status(400).json({
           success: false,
           message:
@@ -93,6 +94,7 @@ const initiatePayment = async (req, res) => {
         : [items.product];
     }
 
+    console.log("moving to payment initiating");
     const orderData = {
       orderId,
       amount,
