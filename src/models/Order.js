@@ -22,7 +22,19 @@ const orderItemSchema = new mongoose.Schema({
   productType: {
     type: String,
     required: true,
-    enum: ["cards", "book"],
+    enum: ["cards", "book", "session"],
+  },
+  date: {
+    type: String,
+    required: false,
+  },
+  time: {
+    type: String,
+    required: false,
+  },
+  description: {
+    type: String,
+    default: "No additional details provided",
   },
 });
 

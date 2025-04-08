@@ -4,7 +4,12 @@ const sessionSchema = new mongoose.Schema(
   {
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     date: { type: Date, required: true },
-    duration: { type: Number, required: true },
+    time: { type: String, required: true },
+    pyschologistId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Employee",
+      required: true,
+    },
     status: {
       type: String,
       enum: ["booked", "completed", "cancelled"],
@@ -15,13 +20,5 @@ const sessionSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-
-sessionSchema.pre("save", function (next) {
-  if (this.isModified("status") && this.status === "completed") {
-    this.completedAt = new Date();
-  }
-  next();
-});
-
-const Session = mongoose.model("SessionCalls", sessionSchema);
-module.exports = Session;
+const SessionModel = mongoose.model("SessionCalls", sessionSchema);
+module.exports = SessionModel;

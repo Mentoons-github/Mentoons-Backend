@@ -17,6 +17,7 @@ const {
 } = require("../utils/templates/email-template.js");
 
 const { sendEmail } = require("../services/emailService.js");
+const Employee = require("../models/employee.js");
 
 const postRes = async (request, response) => {
   console.log("Received CCAvenue response");
@@ -74,23 +75,16 @@ const postRes = async (request, response) => {
 
         console.log("Order update result:", order);
 
-        await order.populate("items.product");
-        await order.populate("products");
+        if (order.order_type !== "consultancy_purchase") {
+          await order.populate("items.product");
+          await order.populate("products");
+        }
         await order.populate("user");
-
-        console.log("Order update after populating result:", order.products);
-
         console.log(
           `Order ${responseObject.order_id} updated with status: ${orderStatus}`
         );
 
         const type = subscriptionType?.toLowerCase() || "";
-
-        console.log("here you can send the product to the user");
-
-        console.log("order check : =======================>", order);
-        console.log("products order ======================>", order.products);
-        console.log("order user found is =====================>", order.user);
 
         if (
           order &&
@@ -176,6 +170,26 @@ const postRes = async (request, response) => {
                 }
                 break;
               case "consultancy_purchase":
+                const { items, user } = order;
+                const sessionItem = items[0];
+
+                const psychologist = await Employee.findOne({
+                  role: "psychologist",
+                });
+
+                const sessionData = new SessionModel({
+                  userId: user._id,
+                  pyschologistId: psychologist._id,
+                  date: sessionItem.date,
+                  time: sessionItem.time,
+                  status: "Booked",
+                  orderId: order._id,
+                  notes: sessionItem.description || "No description provided",
+                });
+
+                await sessionData.save();
+                console.log("Consultancy session saved:", sessionData);
+
                 const consultancyMialinfo = {
                   from: process.env.EMAIL_USER,
                   to: order.email,

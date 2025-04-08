@@ -2,6 +2,8 @@ const ccavRequestHandler = require("./ccavRequestHandler");
 const TemporaryUser = require("../models/tempUserPayment");
 const Order = require("../models/Order");
 const User = require("../models/user");
+const Employee = require("../models/employee");
+const SessionModel = require("../models/session");
 
 const initiatePayment = async (req, res) => {
   console.log("paymentController.js - initiatePayment");
@@ -37,6 +39,42 @@ const initiatePayment = async (req, res) => {
     const user = await User.findOne({ clerkId: userId });
 
     console.log("userId in initiate payment =========================>", user);
+
+    if (order_type === "consultancy_purchase") {
+      const consultancyItem = Array.isArray(items) ? items[0] : items;
+      const sessionDate = new Date(consultancyItem.date);
+      const sessionTime = consultancyItem.time;
+
+      const psychologists = await Employee.find({ role: "psychologist" });
+
+      let assignedPsychologist = null;
+      for (const psychologist of psychologists) {
+        const sessionCount = await SessionModel.countDocuments({
+          pyschologistId: psychologist.id,
+          date: sessionDate,
+        });
+
+        const hasSessionAtSameTime = await Session.exists({
+          pyschologistId: psychologist._id,
+          date: sessionDate,
+          time: sessionTime,
+        });
+
+        if (sessionCount < 10 && !hasSessionAtSameTime) {
+          assignedPsychologist = psychologist;
+          break;
+        }
+      }
+
+      if (!assignedPsychologist) {
+        return res.status(400).json({
+          success: false,
+          message:
+            "All psychologists are fully booked at the selected date and time. Please choose another slot.",
+        });
+      }
+      
+    }
 
     // Create or update order record in database
     const order = await Order.findOneAndUpdate(
