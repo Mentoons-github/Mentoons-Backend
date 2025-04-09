@@ -48,7 +48,7 @@ const initiatePayment = async (req, res) => {
 
       for (const psychologist of psychologists) {
         const sessionCount = await SessionModel.countDocuments({
-          pyschologistId: psychologist.id,
+          pyschologistId: psychologist._id,
           date: sessionDate,
         });
 
@@ -156,6 +156,7 @@ const initiatePayment = async (req, res) => {
     req.ccavenueParams = paramString;
     ccavRequestHandler.postReq(req, res);
   } catch (error) {
+    console.log("error found :", error);
     res.status(500).json({
       status: "error",
       message: "Failed to initiate payment",
