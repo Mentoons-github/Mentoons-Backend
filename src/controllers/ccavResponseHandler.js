@@ -88,7 +88,7 @@ const postRes = async (request, response) => {
           const updatedSession = await SessionModel.findOneAndUpdate(
             {
               psychologistId: psychologistId,
-              userId: order.user._id,
+              user: order.user._id,
               status: "pending",
             },
             {
