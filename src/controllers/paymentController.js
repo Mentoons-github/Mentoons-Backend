@@ -28,7 +28,11 @@ const initiatePayment = async (req, res) => {
 
     let productId = [];
     const userId = req.user?.id;
+
+    console.log(userId);
     const user = await User.findOne({ clerkId: userId });
+
+    console.log("user data :", user);
 
     let createdSession = null;
     let assignedPsychologistId = null;
@@ -39,6 +43,8 @@ const initiatePayment = async (req, res) => {
       const sessionTime = consultancyItem.time;
 
       const psychologists = await Employee.find({ role: "psychologist" });
+
+      console.log("psychologists found : ", psychologists);
 
       for (const psychologist of psychologists) {
         const sessionCount = await SessionModel.countDocuments({
