@@ -6,6 +6,7 @@ const dotenv = require("dotenv");
 const Order = require("../models/Order");
 const User = require("../models/user.js");
 const { clerk } = require("../middlewares/auth.middleware.js");
+const mongoose = require("mongoose");
 
 dotenv.config();
 
@@ -20,7 +21,6 @@ const { sendEmail } = require("../services/emailService.js");
 const Employee = require("../models/employee.js");
 const Cart = require("../models/cart.js");
 const SessionModel = require("../models/session.js");
-const { default: mongoose } = require("mongoose");
 
 const postRes = async (request, response) => {
   console.log("Received CCAvenue response");
