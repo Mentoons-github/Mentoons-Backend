@@ -80,9 +80,13 @@ const postRes = async (request, response) => {
           console.log("user id in order :", order.user._id);
           console.log("psychologistsId: ", responseObject.merchant_param4);
           console.log("userId : ", order.user._id);
+
+          const psychologistId = new mongoose.Types.ObjectId(
+            responseObject.merchant_param4
+          );
           const updatedSession = await SessionModel.findOneAndUpdate(
             {
-              pyschologistId: responseObject.merchant_param4,
+              psychologistId: psychologistId,
               userId: order.user._id,
               status: "pending",
             },

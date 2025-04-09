@@ -48,7 +48,7 @@ const initiatePayment = async (req, res) => {
 
       for (const psychologist of psychologists) {
         const sessionCount = await SessionModel.countDocuments({
-          pyschologistId: psychologist._id,
+          psychologistId: psychologist._id,
           date: sessionDate,
         });
 
@@ -63,8 +63,8 @@ const initiatePayment = async (req, res) => {
         const endRange = sessionDateTime.clone().add(1, "hour").format("HH:mm");
 
         const hasSessionAtSameTime = await SessionModel.exists({
-          pyschologistId: psychologist._id,
-          status:"booked",
+          psychologistId: psychologist._id,
+          status: "booked",
           date: sessionDate,
           time: {
             $gte: startRange,
@@ -75,7 +75,7 @@ const initiatePayment = async (req, res) => {
         if (sessionCount < 10 && !hasSessionAtSameTime) {
           assignedPsychologistId = psychologist.id.toString();
           createdSession = await SessionModel.create({
-            pyschologistId: psychologist._id,
+            psychologistId: psychologist._id,
             user: user._id,
             date: sessionDate,
             time: sessionTime,
