@@ -12,7 +12,7 @@ const sessionSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["booked", "completed", "cancelled", "pending"],
+      enum: ["booked", "completed", "cancelled", "pending", "aborted"],
       default: "booked",
     },
     completedAt: { type: Date, default: null, expires: 86400 },
