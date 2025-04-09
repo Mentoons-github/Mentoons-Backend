@@ -78,6 +78,8 @@ const postRes = async (request, response) => {
 
         if (responseObject.merchant_param4) {
           console.log("user id in order :", order.user._id);
+          console.log("psychologistsId: ", responseObject.merchant_param4);
+          console.log("userId : ", order.user._id);
           const updatedSession = await SessionModel.findOneAndUpdate(
             {
               pyschologistId: responseObject.merchant_param4,
