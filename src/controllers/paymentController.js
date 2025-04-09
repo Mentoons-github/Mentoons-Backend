@@ -64,6 +64,7 @@ const initiatePayment = async (req, res) => {
 
         const hasSessionAtSameTime = await SessionModel.exists({
           pyschologistId: psychologist._id,
+          status:"booked",
           date: sessionDate,
           time: {
             $gte: startRange,
