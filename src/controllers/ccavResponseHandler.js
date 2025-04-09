@@ -6,6 +6,7 @@ const dotenv = require("dotenv");
 const Order = require("../models/Order");
 const User = require("../models/user.js");
 const { clerk } = require("../middlewares/auth.middleware.js");
+const mongoose = require("mongoose");
 
 dotenv.config();
 
