@@ -74,10 +74,10 @@ const postRes = async (request, response) => {
           },
           { new: true }
         );
-
-        console.log("order status updating:", orderStatus);
+        await order.populate("user");
 
         if (responseObject.merchant_param4) {
+          console.log("user id in order :", order.user._id);
           const updatedSession = await SessionModel.findOneAndUpdate(
             {
               pyschologistId: responseObject.merchant_param4,
@@ -101,7 +101,6 @@ const postRes = async (request, response) => {
           await order.populate("items.product");
           await order.populate("products");
         }
-        await order.populate("user");
         console.log(
           `Order ${responseObject.order_id} updated with status: ${orderStatus}`
         );
