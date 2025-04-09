@@ -9,6 +9,7 @@ const {
   MentoonsBook,
 } = require("../models/product");
 const { AgeCategory, ProductType, CardType } = require("../utils/enum"); // Added CardType to imports
+const { lang } = require("moment");
 
 const seedProducts = async () => {
   try {
@@ -16,137 +17,1975 @@ const seedProducts = async () => {
     await mongoose.connection.dropCollection("products");
 
     // Create Comics
-    // const comics = await Comic.create([
-    //   {
-    //     title: "The Amazing Adventures",
-    //     description: "A thrilling comic about superhero adventures",
-    //     price: 19,
-    //     ageCategory: AgeCategory.TEEN,
-    //     tags: ["superhero", "action", "adventure"],
-    //     rating: 4.5,
-    //     proudctImage: [
-    //       {
-    //         imageUrl: "podcast-cover.jpg",
-    //       },
-    //     ],
-    //     productVideo: [
-    //       {
-    //         videoUrl: "podcast-video",
-    //       },
-    //     ],
-    //     details: {
-    //       pages: 32,
-    //       author: "John Smith",
-    //       publisher: "Marvel Comics",
-    //       language: "en",
-    //       releaseDate: new Date("2024-01-15"),
-    //       series: "Amazing Adventures",
-    //     },
-    //   },
-    //   {
-    //     title: "Mystery Manor",
-    //     description: "A spooky comic series",
-    //     price: 19,
-    //     ageCategory: AgeCategory.YOUNG_ADULT,
-    //     tags: ["mystery", "horror", "suspense"],
-    //     rating: 4.5,
-    //     proudctImage: [
-    //       {
-    //         imageUrl: "podcast-cover.jpg",
-    //       },
-    //     ],
-    //     productVideo: [
-    //       {
-    //         videoUrl: "podcast-video",
-    //       },
-    //     ],
-    //     details: {
-    //       pages: 28,
-    //       author: "Sarah Johnson",
-    //       publisher: "DC Comics",
-    //       language: "en",
-    //       releaseDate: new Date("2024-02-01"),
-    //       series: "Mystery Manor",
-    //     },
-    //   },
-    // ]);
+    const comics = await Comic.create([
+      {
+        title: "Don't Fade Away",
+        description:
+          "A touching story about staying true to yourself and not losing your identity in the crowd.",
+        price: 0,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/dont+fade+away.pdf",
+        ageCategory: AgeCategory.TEEN,
+        type: ProductType.COMIC,
+        tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
+        rating: 4.3,
+        productImages: [
+          {
+            imageUrl:
+              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Untitled_Artwork+35.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        details: {
+          pages: 32, //change this
+          author: "Mentoons Creative Team",
+          publisher: "Mentoons",
+          language: "en",
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/dont+fade+away.pdf",
+          releaseDate: new Date("2024-01-15"),
+          series: "",
+        },
+      },
+      {
+        title: "One Way Trip",
+        description:
+          "An adventure that teaches valuable lessons about choices and their permanent consequences.",
+        price: 0,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/one+way+trip.pdf",
+        ageCategory: AgeCategory.TEEN,
+        type: ProductType.COMIC,
+        tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
+        rating: 4.3,
+        productImages: [
+          {
+            imageUrl:
+              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Untitled_Artwork+38.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        details: {
+          pages: 32, //change this
+          author: "Mentoons Creative Team",
+          publisher: "Mentoons",
+          language: "en",
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/one+way+trip.pdf",
+          releaseDate: new Date("2024-01-15"),
+          series: "",
+        },
+      },
+      {
+        title: "Bet Your Life",
+        description:
+          "A powerful narrative about the risks of gambling and making life-altering decisions.",
+        price: 0,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/bet+your+life.pdf",
+        ageCategory: AgeCategory.TEEN,
+        type: ProductType.COMIC,
+        tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
+        rating: 4.3,
+        productImages: [
+          {
+            imageUrl:
+              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Untitled_Artwork+37.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        details: {
+          pages: 32, //change this
+          author: "Mentoons Creative Team",
+          publisher: "Mentoons",
+          language: "en",
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/bet+your+life.pdf",
+          releaseDate: new Date("2024-01-15"),
+          series: "",
+        },
+      },
+      {
+        title: "Come out of Gaming",
+        description:
+          "A realistic look at gaming addiction and the importance of maintaining life balance.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/Come+Out+Of+Game.pdf",
+        ageCategory: AgeCategory.TEEN,
+        type: ProductType.COMIC,
+        tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
+        rating: 4.3,
+        productImages: [
+          {
+            imageUrl:
+              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Untitled_Artwork+36.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        details: {
+          pages: 32, //change this
+          author: "Mentoons Creative Team",
+          publisher: "Mentoons",
+          language: "en",
+          sampleUrl: "",
+          releaseDate: new Date("2024-01-15"),
+          series: "",
+        },
+      },
+      {
+        title: "The Cell Life of Soniya",
+        description:
+          "An entertaining educational journey making cell biology accessible and fun.",
+        price: 0,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/Cell+Life+of+Soniya.pdf",
+        ageCategory: AgeCategory.TEEN,
+        type: ProductType.COMIC,
+        tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
+        rating: 4.3,
+        productImages: [
+          {
+            imageUrl:
+              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Untitled_Artwork+35.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        details: {
+          pages: 32, //change this
+          author: "Mentoons Creative Team",
+          publisher: "Mentoons",
+          language: "en",
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/Cell+Life+of+Soniya.pdf",
+          releaseDate: new Date("2024-01-15"),
+          series: "",
+        },
+      },
+      {
+        title: "Tanya's Downfall",
+        description:
+          "A compelling story about facing consequences and finding the strength to change.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/tanya_s+downfall.pdf",
+        ageCategory: AgeCategory.TEEN,
+        type: ProductType.COMIC,
+        tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
+        rating: 4.3,
+        productImages: [
+          {
+            imageUrl:
+              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Untitled_Artwork+26.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        details: {
+          pages: 32, //change this
+          author: "Mentoons Creative Team",
+          publisher: "Mentoons",
+          language: "en",
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/tanya_s+downfall.pdf",
+          releaseDate: new Date("2024-01-15"),
+          series: "",
+        },
+      },
+      {
+        title: "Live and Let Live",
+        description:
+          "An inspiring message about acceptance, tolerance, and celebrating differences.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/live+or+let+live.pdf",
+        ageCategory: AgeCategory.TEEN,
+        type: ProductType.COMIC,
+        tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
+        rating: 4.3,
+        productImages: [
+          {
+            imageUrl:
+              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Untitled_Artwork+23.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        details: {
+          pages: 32, //change this
+          author: "Mentoons Creative Team",
+          publisher: "Mentoons",
+          language: "en",
+          sampleUrl: "",
+          releaseDate: new Date("2024-01-15"),
+          series: "",
+        },
+      },
+      {
+        title: "I can Manage (Time Management)",
+        description:
+          "Essential strategies for managing time effectively and achieving your goals.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/Asha+_+Simran-+Time+management+(6-9)+.pdf",
+        ageCategory: AgeCategory.TEEN,
+        type: ProductType.COMIC,
+        tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
+        rating: 4.3,
+        productImages: [
+          {
+            imageUrl:
+              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Untitled_Artwork+24.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        details: {
+          pages: 32, //change this
+          author: "Mentoons Creative Team",
+          publisher: "Mentoons",
+          language: "en",
+          sampleUrl: "",
+          releaseDate: new Date("2024-01-15"),
+          series: "",
+        },
+      },
+      {
+        title: "Choose Wisely",
+        description:
+          "A thoughtful exploration of decision-making and its impact on our future.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/choose+wisely.pdf",
+        ageCategory: AgeCategory.TEEN,
+        type: ProductType.COMIC,
+        tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
+        rating: 4.3,
+        productImages: [
+          {
+            imageUrl:
+              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Untitled_Artwork+33.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        details: {
+          pages: 32, //change this
+          author: "Mentoons Creative Team",
+          publisher: "Mentoons",
+          language: "en",
+          sampleUrl: "",
+          releaseDate: new Date("2024-01-15"),
+          series: "",
+        },
+      },
+      {
+        title: "Rohan and the Puppies",
+        description:
+          "A heartwarming tale about responsibility, compassion, and caring for animals.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/rohan+and+the+puppies.pdf",
+        ageCategory: AgeCategory.TEEN,
+        type: ProductType.COMIC,
+        tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
+        rating: 4.3,
+        productImages: [
+          {
+            imageUrl:
+              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Untitled_Artwork+28.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        details: {
+          pages: 32, //change this
+          author: "Mentoons Creative Team",
+          publisher: "Mentoons",
+          language: "en",
+          sampleUrl: "",
+          releaseDate: new Date("2024-01-15"),
+          series: "",
+        },
+      },
+      {
+        title: "Rishi and Rohit",
+        description:
+          "A story celebrating friendship, understanding, and personal growth.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/rohit+and+rishi.pdf",
+        ageCategory: AgeCategory.TEEN,
+        type: ProductType.COMIC,
+        tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
+        rating: 4.3,
+        productImages: [
+          {
+            imageUrl:
+              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Untitled_Artwork+29.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        details: {
+          pages: 32, //change this
+          author: "Mentoons Creative Team",
+          publisher: "Mentoons",
+          language: "en",
+          sampleUrl: "",
+          releaseDate: new Date("2024-01-15"),
+          series: "",
+        },
+      },
+      {
+        title: "My Daily Routine",
+        description:
+          "A guide to building productive habits and maintaining a balanced lifestyle.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/supriya-time+management+copy.pdf",
+        ageCategory: AgeCategory.TEEN,
+        type: ProductType.COMIC,
+        tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
+        rating: 4.3,
+        productImages: [
+          {
+            imageUrl:
+              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Untitled_Artwork+25.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        details: {
+          pages: 32, //change this
+          author: "Mentoons Creative Team",
+          publisher: "Mentoons",
+          language: "en",
+          sampleUrl: "",
+          releaseDate: new Date("2024-01-15"),
+          series: "",
+        },
+      },
+      {
+        title: "Comic on Divorce",
+        description:
+          "A sensitive approach to helping children understand and cope with family changes.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/Divorce.pdf",
+        ageCategory: AgeCategory.TEEN,
+        type: ProductType.COMIC,
+        tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
+        rating: 4.3,
+        productImages: [
+          {
+            imageUrl:
+              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Untitled_Artwork+1+4.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        details: {
+          pages: 32, //change this
+          author: "Mentoons Creative Team",
+          publisher: "Mentoons",
+          language: "en",
+          sampleUrl: "",
+          releaseDate: new Date("2024-01-15"),
+          series: "",
+        },
+      },
+      {
+        title: "Say Sorry",
+        description:
+          "Learning about the importance of apologizing and making things right.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/Say+Sorry.pdf",
+        ageCategory: AgeCategory.TEEN,
+        type: ProductType.COMIC,
+        tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
+        rating: 4.3,
+        productImages: [
+          {
+            imageUrl:
+              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Untitled_Artwork+20.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        details: {
+          pages: 32, //change this
+          author: "Mentoons Creative Team",
+          publisher: "Mentoons",
+          language: "en",
+          sampleUrl: "",
+          releaseDate: new Date("2024-01-15"),
+          series: "",
+        },
+      },
+      {
+        title: "How Teenagers Lose Their Jobs Part-2",
+        description:
+          "Valuable insights into maintaining professional behavior and building career success.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/20%2B+script+2+story.pdf",
+        ageCategory: AgeCategory.TEEN,
+        type: ProductType.COMIC,
+        tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
+        rating: 4.3,
+        productImages: [
+          {
+            imageUrl:
+              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Untitled_Artwork+19.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        details: {
+          pages: 32, //change this
+          author: "Mentoons Creative Team",
+          publisher: "Mentoons",
+          language: "en",
+          sampleUrl: "",
+          releaseDate: new Date("2024-01-15"),
+          series: "",
+        },
+      },
+      {
+        title: "Hungry for Likes Not Life",
+        description:
+          "Examining social media's impact and the importance of real-world connections.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/Hungry+for+likes+not+life.pdf",
+        ageCategory: AgeCategory.TEEN,
+        type: ProductType.COMIC,
+        tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
+        rating: 4.3,
+        productImages: [
+          {
+            imageUrl:
+              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Untitled_Artwork+34.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        details: {
+          pages: 32, //change this
+          author: "Mentoons Creative Team",
+          publisher: "Mentoons",
+          language: "en",
+          sampleUrl: "",
+          releaseDate: new Date("2024-01-15"),
+          series: "",
+        },
+      },
+      {
+        title: "Think Before You Act",
+        description:
+          "Understanding the importance of careful consideration before taking action.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/Preppers+Story+(Think+Before+You+Act)+(1).pdf",
+        ageCategory: AgeCategory.TEEN,
+        type: ProductType.COMIC,
+        tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
+        rating: 4.3,
+        productImages: [
+          {
+            imageUrl:
+              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Think_Before_You_Act!.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        details: {
+          pages: 32, //change this
+          author: "Mentoons Creative Team",
+          publisher: "Mentoons",
+          language: "en",
+          sampleUrl: "",
+          releaseDate: new Date("2024-01-15"),
+          series: "",
+        },
+      },
+    ]);
 
     // Create Audio Comics
-    // const audioComics = await AudioComic.create([
-    //   {
-    //     title: "Space Explorers: Audio Edition",
-    //     description: "An immersive audio comic experience",
-    //     price: 19,
-    //     ageCategory: AgeCategory.CHILD,
-    //     tags: ["space", "adventure", "audio"],
-    //     details: {
-    //       duration: 45, // minutes
-    //       narrator: "Michael Brooks",
-    //       audioQuality: "high",
-    //       audioFormat: "mp3",
-    //       releaseDate: new Date("2024-01-20"),
-    //     },
-    //   },
-    // ]);
+    const audioComics = await AudioComic.create([
+      {
+        title: "Bet Your Life",
+        description:
+          "A cautionary tale about the dangers of gambling and making risky life choices that can impact your future.",
+        price: 0,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/BET_YOUR_LIFE.mp4",
+        ageCategory: AgeCategory.TEEN,
+        type: ProductType.AUDIO_COMIC,
+        tags: ["space", "adventure", "audio"],
+        rating: 4.5,
+        productImages: [
+          {
+            imageUrl:
+              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Untitled_Artwork+37.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        isFeatured: true,
+        details: {
+          duration: "2:17", // minutes
+          narrator: "Mentoons Team",
+          language: "en",
+          format: "mp4",
+          sampleDuration: "1:00", // minutes
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/BET_YOUR_LIFE.mp4",
+          releaseDate: new Date("2024-01-20"),
+        },
+      },
+      {
+        title: "The Cell Life of Soniya",
+        description:
+          "An educational journey through cell biology with Soniya, making science fun and easy to understand.",
+        price: 0,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/CELL_LIFE_OF_SONIYA_02.mp4",
+        ageCategory: AgeCategory.CHILD,
+        type: ProductType.AUDIO_COMIC,
+        tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
+        rating: 4.3,
+        productImages: [
+          {
+            imageUrl:
+              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Untitled_Artwork+27.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        isFeatured: true,
+        details: {
+          duration: "2:31", // minutes
+          narrator: "Mentoons Team",
+          language: "en",
+          format: "mp4",
+          sampleDuration: "1:00", // minutes
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/CELL_LIFE_OF_SONIYA_02.mp4",
+          releaseDate: new Date("2024-01-20"),
+        },
+      },
+      {
+        title: "Choose Wisely",
+        description:
+          "A story that emphasizes the importance of making thoughtful decisions and understanding their long-term impact.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/CHOOSE_WISELY.mp4",
+        ageCategory: AgeCategory.TEEN,
+        type: ProductType.AUDIO_COMIC,
+        tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
+        rating: 4.3,
+        productImages: [
+          {
+            imageUrl:
+              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Untitled_Artwork+33.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        isFeatured: true,
+        details: {
+          duration: "4:27", // minutes
+          narrator: "Mentoons Team",
+          language: "en",
+          format: "mp4",
+          sampleDuration: "1:00", // minutes
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/CHOOSE_WISELY.mp4",
+          releaseDate: new Date("2024-01-20"),
+        },
+      },
+      {
+        title: "Come out of Gaming",
+        description:
+          "An eye-opening narrative about gaming addiction and finding balance between virtual and real life.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/COME_OUT_OF_GAMING_02.mp4",
+        ageCategory: AgeCategory.TEEN,
+        type: ProductType.AUDIO_COMIC,
+        tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
+        rating: 4.3,
+        productImages: [
+          {
+            imageUrl:
+              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Untitled_Artwork+36.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        isFeatured: true,
+        details: {
+          duration: "5:51", // minutes
+          narrator: "Mentoons Team",
+          language: "en",
+          format: "mp4",
+          sampleDuration: "1:00", // minutes
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/COME_OUT_OF_GAMING_02.mp4",
+          releaseDate: new Date("2024-01-20"),
+        },
+      },
+      {
+        title: "Comic on Divorce",
+        description:
+          "A sensitive exploration of family changes, helping children understand and cope with divorce.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/COMIC_ON_DIVORCE_01.mp4",
+        ageCategory: AgeCategory.TEEN,
+        type: ProductType.AUDIO_COMIC,
+        tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
+        rating: 4.3,
+        productImages: [
+          {
+            imageUrl:
+              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Untitled_Artwork+1+4.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        isFeatured: true,
+        details: {
+          duration: "2:04", // minutes
+          narrator: "Mentoons Team",
+          language: "en",
+          format: "mp4",
+          sampleDuration: "1:00", // minutes
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/COMIC_ON_DIVORCE_01.mp4",
+          releaseDate: new Date("2024-01-20"),
+        },
+      },
+      {
+        title: "Don't Fade Away",
+        description:
+          "A powerful story about maintaining your identity and standing strong in the face of peer pressure.",
+        price: 0,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/DONT_FADE_AWAY_02.mp4",
+        ageCategory: AgeCategory.TEEN,
+        type: ProductType.AUDIO_COMIC,
+        tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
+        rating: 4.3,
+        productImages: [
+          {
+            imageUrl:
+              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Untitled_Artwork+35.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        isFeatured: true,
+        details: {
+          duration: "2:54", // minutes
+          narrator: "Mentoons Team",
+          language: "en",
+          format: "mp4",
+          sampleDuration: "1:00", // minutes
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/DONT_FADE_AWAY_02.mp4",
+          releaseDate: new Date("2024-01-20"),
+        },
+      },
+      {
+        title: "Hungry For Likes Not Life",
+        description:
+          "An important message about social media addiction and the pursuit of online validation versus real-life fulfillment.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/HUNGRY_FOR_LIKES_NOT_LIFE_01.mp4",
+        ageCategory: AgeCategory.TEEN,
+        type: ProductType.AUDIO_COMIC,
+        tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
+        rating: 4.3,
+        productImages: [
+          {
+            imageUrl:
+              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Untitled_Artwork+34.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        isFeatured: true,
+        details: {
+          duration: "2:10", // minutes
+          narrator: "Mentoons Team",
+          language: "en",
+          format: "mp4",
+          sampleDuration: "1:00", // minutes
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/HUNGRY_FOR_LIKES_NOT_LIFE_01.mp4",
+          releaseDate: new Date("2024-01-20"),
+        },
+      },
+      {
+        title: "One Way Trip",
+        description:
+          "A compelling story about life-changing decisions and their irreversible consequences.",
+        price: 0,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/ONE-WAY-TRIP_1.mp4",
+        ageCategory: AgeCategory.TEEN,
+        type: ProductType.AUDIO_COMIC,
+        tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
+        rating: 4.3,
+        productImages: [
+          {
+            imageUrl:
+              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Untitled_Artwork+38.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        isFeatured: true,
+        details: {
+          duration: "4:09", // minutes
+          narrator: "Mentoons Team",
+          language: "en",
+          format: "mp4",
+          sampleDuration: "1:00", // minutes
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/ONE-WAY-TRIP_1.mp4",
+          releaseDate: new Date("2024-01-20"),
+        },
+      },
+      {
+        title: "Rishi and Rohit",
+        description:
+          "A heartwarming tale of friendship, understanding, and personal growth between two friends.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/RISHI+AND+ROHIT.mp4",
+        ageCategory: AgeCategory.CHILD,
+        type: ProductType.AUDIO_COMIC,
+        tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
+        rating: 4.3,
+        productImages: [
+          {
+            imageUrl:
+              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Untitled_Artwork+29.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        isFeatured: true,
+        details: {
+          duration: "2:20", // minutes
+          narrator: "Mentoons Team",
+          language: "en",
+          format: "mp4",
+          sampleDuration: "1:00", // minutes
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/RISHI+AND+ROHIT.mp4",
+          releaseDate: new Date("2024-01-20"),
+        },
+      },
+      {
+        title: "Rohan and the Puppies",
+        description:
+          "A touching story about compassion, responsibility, and the joy of caring for animals.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/Rohan+and+the+Puppies_01.mp4",
+        ageCategory: AgeCategory.CHILD,
+        type: ProductType.AUDIO_COMIC,
+        tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
+        rating: 4.3,
+        productImages: [
+          {
+            imageUrl:
+              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Untitled_Artwork+28.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        isFeatured: true,
+        details: {
+          duration: "2:09", // minutes
+          narrator: "Mentoons Team",
+          language: "en",
+          format: "mp4",
+          sampleDuration: "1:00", // minutes
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/Rohan+and+the+Puppies_01.mp4",
+          releaseDate: new Date("2024-01-20"),
+        },
+      },
+      {
+        title: "Think Before You Act",
+        description:
+          "An engaging narrative that teaches the importance of considering consequences before taking action.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/Think+Before+You+Act.mp4",
+        ageCategory: AgeCategory.TEEN,
+        type: ProductType.AUDIO_COMIC,
+        tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
+        rating: 4.3,
+        productImages: [
+          {
+            imageUrl:
+              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Think_Before_You_Act!.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        isFeatured: true,
+        details: {
+          duration: "3:45", // minutes
+          narrator: "Mentoons Team",
+          language: "en",
+          format: "mp4",
+          sampleDuration: "1:00", // minutes
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/Think+Before+You+Act.mp4",
+          releaseDate: new Date("2024-01-20"),
+        },
+      },
+      {
+        title: "Tanya's Downfall",
+        description:
+          "A cautionary tale about the consequences of poor choices and the path to redemption.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/TANYA_DOWN-FALL_02.mp4",
+        ageCategory: AgeCategory.CHILD,
+        type: ProductType.AUDIO_COMIC,
+        tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
+        rating: 4.3,
+        productImages: [
+          {
+            imageUrl:
+              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Untitled_Artwork+26.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        isFeatured: true,
+        details: {
+          duration: "1:53", // minutes
+          narrator: "Mentoons Team",
+          language: "en",
+          format: "mp4",
+          sampleDuration: "1:00", // minutes
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/TANYA_DOWN-FALL_02.mp4",
+          releaseDate: new Date("2024-01-20"),
+        },
+      },
+      {
+        title: "How Teenagers Lose Their Jobs Part-1",
+        description:
+          "Essential lessons about workplace etiquette and common mistakes that can impact your career.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+20%2B/SANKAR_INTERVIEW.mp4",
+        ageCategory: AgeCategory.ADULT,
+        type: ProductType.AUDIO_COMIC,
+        tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
+        rating: 4.3,
+        productImages: [
+          {
+            imageUrl:
+              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Untitled_Artwork+1+3.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        isFeatured: true,
+        details: {
+          duration: "1:13", // minutes
+          narrator: "Mentoons Team",
+          language: "en",
+          format: "mp4",
+          sampleDuration: "1:00", // minutes
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+20%2B/SANKAR_INTERVIEW.mp4",
+          releaseDate: new Date("2024-01-20"),
+        },
+      },
+      {
+        title: "How Teenagers Lose Their Jobs Part-2",
+        description:
+          "Continued guidance on maintaining professional behavior and building a successful career path.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+20%2B/Sana+Comic+Interview.mp4",
+        ageCategory: AgeCategory.ADULT,
+        type: ProductType.AUDIO_COMIC,
+        tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
+        rating: 4.3,
+        productImages: [
+          {
+            imageUrl:
+              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Untitled_Artwork+19.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        isFeatured: true,
+        details: {
+          duration: "0:58", // minutes
+          narrator: "Mentoons Team",
+          language: "en",
+          format: "mp4",
+          sampleDuration: "1:00", // minutes
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+20%2B/Sana+Comic+Interview.mp4",
+          releaseDate: new Date("2024-01-20"),
+        },
+      },
+      {
+        title: "I can Manage (Time Management)",
+        description:
+          "Practical strategies and tips for effective time management and building productive habits.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+6+-+12/Asha+%26+Simran-+Time+management+(6-12)_1.mp4",
+        ageCategory: AgeCategory.CHILD,
+        type: ProductType.AUDIO_COMIC,
+        tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
+        rating: 4.3,
+        productImages: [
+          {
+            imageUrl:
+              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Untitled_Artwork+24.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        isFeatured: true,
+        details: {
+          duration: "1:29", // minutes
+          narrator: "Mentoons Team",
+          language: "en",
+          format: "mp4",
+          sampleDuration: "1:00", // minutes
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+6+-+12/Asha+%26+Simran-+Time+management+(6-12)_1.mp4",
+          releaseDate: new Date("2024-01-20"),
+        },
+      },
+      {
+        title: "Comic on Honesty",
+        description:
+          "A valuable lesson about the importance of truthfulness and integrity in daily life.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+6+-+12/COMIC_ON_HONESTY.mp4",
+        ageCategory: AgeCategory.CHILD,
+        type: ProductType.AUDIO_COMIC,
+        tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
+        rating: 4.3,
+        productImages: [
+          {
+            imageUrl:
+              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Untitled_Artwork+40.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        isFeatured: true,
+        details: {
+          duration: "1:16", // minutes
+          narrator: "Mentoons Team",
+          language: "en",
+          format: "mp4",
+          sampleDuration: "1:00", // minutes
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+6+-+12/COMIC_ON_HONESTY.mp4",
+          releaseDate: new Date("2024-01-20"),
+        },
+      },
+      {
+        title: "Greeting Comic",
+        description:
+          "Learning social etiquette and the importance of proper greetings in building relationships.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+6+-+12/GREETING_COMIC.mp4",
+        ageCategory: AgeCategory.CHILD,
+        type: ProductType.AUDIO_COMIC,
+        tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
+        rating: 4.3,
+        productImages: [
+          {
+            imageUrl:
+              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Untitled_Artwork+39.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        isFeatured: true,
+        details: {
+          duration: "1:44", // minutes
+          narrator: "Mentoons Team",
+          language: "en",
+          format: "mp4",
+          sampleDuration: "1:00", // minutes
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+6+-+12/GREETING_COMIC.mp4",
+          releaseDate: new Date("2024-01-20"),
+        },
+      },
+      {
+        title: "Live and Let Live",
+        description:
+          "An inspiring message about acceptance, tolerance, and celebrating differences.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+6+-+12/SAY+SORRY+COMIC.mp4",
+        ageCategory: AgeCategory.CHILD,
+        type: ProductType.AUDIO_COMIC,
+        tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
+        rating: 4.3,
+        productImages: [
+          {
+            imageUrl:
+              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Untitled_Artwork+23.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        isFeatured: true,
+        details: {
+          duration: "2:02", // minutes
+          narrator: "Mentoons Team",
+          language: "en",
+          format: "mp4",
+          sampleDuration: "1:00", // minutes
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+6+-+12/SAY+SORRY+COMIC.mp4",
+          releaseDate: new Date("2024-01-20"),
+        },
+      },
+      {
+        title: "Say Sorry",
+        description:
+          "Understanding the power of apology and taking responsibility for our actions.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+6+-+12/SAY+SORRY+COMIC.mp4",
+        ageCategory: AgeCategory.CHILD,
+        type: ProductType.AUDIO_COMIC,
+        tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
+        rating: 4.3,
+        productImages: [
+          {
+            imageUrl:
+              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Untitled_Artwork+20.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        isFeatured: true,
+        details: {
+          duration: "2:08", // minutes
+          narrator: "Mentoons Team",
+          language: "en",
+          format: "mp4",
+          sampleDuration: "1:00", // minutes
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+6+-+12/SAY+SORRY+COMIC.mp4",
+          releaseDate: new Date("2024-01-20"),
+        },
+      },
+
+      {
+        title: "My Daily Routine",
+        description:
+          "Tips and strategies for creating and maintaining healthy daily habits for success.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+6+-+12/SUPRIYA_TIME_MANAGEMENT_1.mp4",
+        ageCategory: AgeCategory.CHILD,
+        type: ProductType.AUDIO_COMIC,
+        tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
+        rating: 4.3,
+        productImages: [
+          {
+            imageUrl:
+              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Untitled_Artwork+25.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        isFeatured: true,
+        details: {
+          duration: "0:47", // minutes
+          narrator: "Mentoons Team",
+          language: "en",
+          format: "mp4",
+          sampleDuration: "1:00", // minutes
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+6+-+12/SUPRIYA_TIME_MANAGEMENT_1.mp4",
+          releaseDate: new Date("2024-01-20"),
+        },
+      },
+      {
+        title: "Do You Know",
+        description:
+          "Continued guidance on maintaining professional behavior and building a successful career path.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/BOOKS/BOOK+3+DO+YOU+KNOW_FINAL.mp4",
+        ageCategory: AgeCategory.TEEN,
+        type: ProductType.AUDIO_COMIC,
+        tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
+        rating: 4.3,
+        productImages: [
+          {
+            imageUrl:
+              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Untitled_Artwork+31.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        isFeatured: true,
+        details: {
+          duration: "3:44", // minutes
+          narrator: "Mentoons Team",
+          language: "en",
+          format: "mp4",
+          sampleDuration: "1:00", // minutes
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/BOOKS/BOOK+3+DO+YOU+KNOW_FINAL.mp4",
+          releaseDate: new Date("2024-01-20"),
+        },
+      },
+      {
+        title: "Electronic Gadgets And Kids",
+        description:
+          "Understanding the impact of technology on children and promoting healthy digital habits.",
+        price: 0,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/BOOKS/BOOK_02_GADGETS_AND_KIDS_01.mp4",
+        ageCategory: AgeCategory.CHILD,
+        type: ProductType.AUDIO_COMIC,
+        tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
+        rating: 4.3,
+        productImages: [
+          {
+            imageUrl:
+              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Untitled_Artwork+32.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        isFeatured: true,
+        details: {
+          duration: "5:21", // minutes
+          narrator: "Mentoons Team",
+          language: "en",
+          format: "mp4",
+          sampleDuration: "1:00", // minutes
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/BOOKS/BOOK_02_GADGETS_AND_KIDS_01.mp4",
+          releaseDate: new Date("2024-01-20"),
+        },
+      },
+      {
+        title: "How to Handle Relationships",
+        description:
+          "Guidance on building and maintaining healthy relationships with family, friends, and peers.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/BOOKS/HOW+TO+HANDLE+RELATIONSHIP.mp4",
+        ageCategory: AgeCategory.TEEN,
+        type: ProductType.AUDIO_COMIC,
+        tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
+        rating: 4.3,
+        productImages: [
+          {
+            imageUrl:
+              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Untitled_Artwork+30.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        isFeatured: true,
+        details: {
+          duration: "5:11", // minutes
+          narrator: "Mentoons Team",
+          language: "en",
+          format: "mp4",
+          sampleDuration: "1:00", // minutes
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/BOOKS/HOW+TO+HANDLE+RELATIONSHIP.mp4",
+          releaseDate: new Date("2024-01-20"),
+        },
+      },
+      {
+        title: "Listen To Me",
+        description:
+          "A story about the importance of active listening and effective communication.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+6+-+12/Comic+on+Listen+to+me_01.mp4",
+        ageCategory: AgeCategory.CHILD,
+        type: ProductType.AUDIO_COMIC,
+        tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
+        rating: 4.3,
+        productImages: [
+          {
+            imageUrl:
+              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Untitled_Artwork+22.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        isFeatured: true,
+        details: {
+          duration: "2:12", // minutes
+          narrator: "Mentoons Team",
+          language: "en",
+          format: "mp4",
+          sampleDuration: "1:00", // minutes
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+6+-+12/Comic+on+Listen+to+me_01.mp4",
+          releaseDate: new Date("2024-01-20"),
+        },
+      },
+    ]);
 
     // Create Podcasts
-    // const podcasts = await Podcast.create([
-    //   {
-    //     title: "Tech Talk Weekly",
-    //     description: "Weekly discussions about technology",
-    //     price: 199,
-    //     ageCategory: AgeCategory.ADULT,
-    //     tags: ["technology", "education", "news"],
-    //     rating: 4.5,
-    //     proudctImage: [
-    //       {
-    //         imageUrl: "podcast-cover.jpg",
-    //       },
-    //     ],
-    //     productVideo: [
-    //       {
-    //         videoUrl: "podcast-video",
-    //       },
-    //     ],
-    //     details: {
-    //       episodeNumber: 42,
-    //       guests: ["Jane Doe", "Bob Wilson"],
-    //       season: 2,
-    //       host: "Alex Thompson",
-    //       releaseDate: new Date("2024-02-15"),
-    //       showNotes: "In this episode, we discuss the latest tech trends...",
-    //     },
-    //   },
-    //   // Sample Podcast
-    //   {
-    //     title: "Growing Up Right",
-    //     description: "Educational podcast for teenagers",
-    //     price: 199,
-    //     ageCategory: AgeCategory.TEENAGER,
-    //     type: ProductType.PODCAST,
-    //     tags: ["education", "teenagers", "growth"],
-    //     rating: 4.5,
-    //     proudctImage: [
-    //       {
-    //         imageUrl: "https://example.com/podcast-cover.jpg",
-    //       },
-    //     ],
-    //     productVideo: [
-    //       {
-    //         videoUrl: "https://example.com/podcast-video",
-    //       },
-    //     ],
-    //     isFeatured: true,
-    //     details: {
-    //       episodeNumber: 1,
-    //       host: "Dr. Sarah Johnson",
-    //       releaseDate: new Date("2023-03-01"),
-    //       language: "en",
-    //       duration: 30, // Added the required duration field (in minutes)
-    //       sampleUrl: "https://example.com/podcast-sample.mp3",
-    //     },
-    //   },
-    // ]);
+    const podcasts = await Podcast.create([
+      {
+        title: "Negative impact of Mobile phone",
+        description:
+          "Podcast Negative Impact of Mobile Phones takes a closer look at the consequences of our constant connection to the digital world. Through expert insights, real-life stories, and research-backed discussions, we explore how excessive mobile phone usage can affect mental health, disrupt relationships, and hinder personal growth. Each episode uncovers the hidden costs of living through a screen and offers strategies to reclaim balance, improve focus, and foster deeper connections with the world around us.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/negative_impact_of_mobile.mp3",
+        ageCategory: AgeCategory.TEEN,
+        tags: ["technology", "addiction", "news"],
+        rating: 4.5,
+        productImages: [
+          {
+            imageUrl: "/assets/images/negative-impact-of-mobile-phone.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        details: {
+          category: "mobile addiction",
+          episodeNumber: 1,
+          duration: "2:12",
+          language: "en",
+          host: "Haaris Rueben",
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/negative_impact_of_mobile.mp3",
+          releaseDate: new Date("2024-02-15"),
+        },
+      },
+      {
+        title: "Negative impact of social media",
+        description:
+          "Podcast on Negative Impact of Social Media delves into the darker side of the digital landscape and its effects on mental health, self-esteem, and social relationships. Each episode uncovers how excessive use of social platforms can lead to anxiety, comparison, isolation, and addiction. Through expert interviews, personal stories, and actionable advice, we explore the psychological toll of social media and offer strategies to create healthier habits, foster genuine connections, and regain control over our digital lives.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/negative-impact-of-social-media.mp3",
+        ageCategory: AgeCategory.TEEN,
+        tags: ["technology", "addiction", "news"],
+        rating: 4.5,
+        productImages: [
+          {
+            imageUrl: "/assets/images/negative-impact-of-social-media.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        details: {
+          category: "mobile addiction",
+          episodeNumber: 1,
+          duration: "2:12",
+          language: "en",
+          host: "Haaris Rueben",
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/negative-impact-of-social-media.mp3",
+          releaseDate: new Date("2024-02-15"),
+        },
+      },
+      {
+        title: "How does it feel to be an teenager",
+        description:
+          "Podcast on How Does It Feel to Be a Teenager explores the unique challenges and experiences of adolescence in today's fast-paced world. Each episode dives into topics like identity, peer pressure, mental health, and navigating relationships during this transformative phase of life. Featuring candid conversations with teens, experts, and influencers, we shed light on the emotions, struggles, and joys that come with being a teenager. Together, we'll provide insights and advice to help teens feel understood, empowered, and confident in their journey to adulthood.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/how-does-it-feet-to-be-an-teenager-orignals.mp3",
+        ageCategory: AgeCategory.TEEN,
+        tags: ["technology", "addiction", "news"],
+        rating: 4.5,
+        productImages: [
+          {
+            imageUrl: "/assets/images/negative-impact-of-mobile-phone.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        details: {
+          category: "teen emotions",
+          episodeNumber: 1,
+          duration: "2:12",
+          language: "en",
+          host: "Haaris Rueben",
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/how-does-it-feet-to-be-an-teenager-orignals.mp3",
+          releaseDate: new Date("2024-02-15"),
+        },
+      },
+      {
+        title: "Performance Addiction",
+        description:
+          "Podcast on Performance Addiction explores the relentless pursuit of achievement and perfection in today's competitive culture. Each episode delves into how the pressure to constantly excel—whether in academics, career, or personal life—can lead to burnout, anxiety, and a diminished sense of self-worth. Through interviews with psychologists, performance coaches, and individuals who have struggled with this addiction, we unpack the harmful effects of an overemphasis on success and offer strategies to cultivate self-acceptance, balance, and fulfillment beyond mere performance.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/perfomance-addiction.mp3",
+        ageCategory: AgeCategory.TEEN,
+        tags: ["technology", "addiction", "news"],
+        rating: 4.5,
+        productImages: [
+          {
+            imageUrl: "/assets/images/perfomance-addiction.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        details: {
+          category: "teen emotions",
+          episodeNumber: 1,
+          duration: "2:12",
+          language: "en",
+          host: "Haaris Rueben",
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/perfomance-addiction.mp3",
+          releaseDate: new Date("2024-02-15"),
+        },
+      },
+      {
+        title: "The Magic of play without phone",
+        description:
+          "Social Media Reward System delves into how platforms use rewards to keep users hooked. Understand the psychology behind likes, shares, and notifications in this eye-opening podcast.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/the-magic-of-play-without-phone.mp3",
+        ageCategory: AgeCategory.CHILD,
+        tags: ["technology", "addiction", "news"],
+        rating: 4.5,
+        productImages: [
+          {
+            imageUrl: "/assets/images/social-media-reward-system.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        details: {
+          category: "mobile addiction",
+          episodeNumber: 1,
+          duration: "2:12",
+          language: "en",
+          host: "Kisha Kothari",
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/the-magic-of-play-without-phone.mp3",
+          releaseDate: new Date("2024-02-15"),
+        },
+      },
+      {
+        title: "Common Parenting Mistake",
+        description:
+          "Podcast on Common Parenting Mistakes offers a compassionate and insightful look into the missteps many parents make in raising their children. Each episode explores topics like overprotection, inconsistency, unrealistic expectations, and miscommunication, revealing how these actions can impact a child's emotional and behavioral development. Through expert interviews and real-life anecdotes, we provide practical advice to help parents recognize and correct these mistakes, fostering healthier relationships, stronger communication, and a nurturing environment for their children to thrive..",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/common-parrenting-mistake-orignals.mp3",
+        ageCategory: AgeCategory.TEEN,
+        tags: ["technology", "addiction", "news"],
+        rating: 4.5,
+        productImages: [
+          {
+            imageUrl: "/assets/images/common-parenting-mistakes.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        details: {
+          category: "teen emotions",
+          episodeNumber: 1,
+          duration: "2:12",
+          language: "en",
+          host: "Kisha Kothari",
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/common-parrenting-mistake-orignals.mp3",
+          releaseDate: new Date("2024-02-15"),
+        },
+      },
+      {
+        title: "Entertainment Addiction",
+        description:
+          "Podcast on Entertainment Addiction delves into the growing dependency on entertainment and its impact on our daily lives. Each episode examines how excessive consumption of TV, video games, social media, and other forms of entertainment can lead to decreased productivity, social isolation, and mental health challenges. Through expert insights, personal stories, and practical tips, we explore ways to strike a healthier balance between entertainment and real-life responsibilities, fostering a more fulfilling and engaged lifestyle.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/entertainment-addiction-orignals.mp3",
+        ageCategory: AgeCategory.TEEN,
+        tags: ["technology", "addiction", "news"],
+        rating: 4.5,
+        productImages: [
+          {
+            imageUrl: "/assets/images/Entertainment_Addiction_ 2.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        details: {
+          category: "gaming addiction",
+          episodeNumber: 1,
+          duration: "2:12",
+          language: "en",
+          host: "Haaris Rueben",
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/entertainment-addiction-orignals.mp3",
+          releaseDate: new Date("2024-02-15"),
+        },
+      },
+      {
+        title: "Toddler phone Addiction",
+        description:
+          "Podcast on Toddler Phone Addiction investigates the effects of early exposure to screens on young children's development and behavior. Each episode explores how excessive phone use can impact toddlers' cognitive, social, and emotional growth, and offers insights into the challenges faced by parents in managing screen time. Through expert interviews, case studies, and practical advice, we provide strategies for creating healthy screen habits, encouraging interactive play, and supporting a balanced approach to technology in early childhood.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/toddler-phone-addiction.mp3",
+        ageCategory: AgeCategory.CHILD,
+        tags: ["technology", "addiction", "news"],
+        rating: 4.5,
+        productImages: [
+          {
+            imageUrl: "/assets/images/toddler-phone-addiction.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        details: {
+          category: "mobile addiction",
+          episodeNumber: 1,
+          duration: "2:12",
+          language: "en",
+          host: "Kisha Kothari",
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/toddler-phone-addiction.mp3",
+          releaseDate: new Date("2024-02-15"),
+        },
+      },
+      {
+        title: "Social media de-addiction",
+        description:
+          "Podcast on Social Media De-addiction explores the journey to breaking free from the grips of excessive social media use. Each episode delves into the effects of social media addiction on mental health, relationships, and productivity, and offers practical advice for reclaiming control. Featuring insights from experts, personal success stories, and actionable strategies, we guide listeners through the process of reducing screen time, fostering healthier online habits, and finding a more balanced, fulfilling life beyond the screen.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/social-media-de-addiction-orignals.mp3",
+        ageCategory: AgeCategory.TEEN,
+        tags: ["technology", "addiction", "news"],
+        rating: 4.5,
+        productImages: [
+          {
+            imageUrl: "/assets/images/social-media-de-addiction.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        details: {
+          category: "mobile addiction",
+          episodeNumber: 1,
+          duration: "2:12",
+          language: "en",
+          host: "Kisha Kothari",
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/social-media-de-addiction-orignals.mp3",
+          releaseDate: new Date("2024-02-15"),
+        },
+      },
+      {
+        title: "Teen Emotions and Behavioural Problems",
+        description:
+          "Podcast on Teen Emotions and Behavioral Problems addresses the complex emotional and behavioral challenges faced by adolescents. Each episode explores issues such as mood swings, anxiety, defiance, and social pressures, providing a deep dive into the underlying causes and impacts. Through expert interviews, real-life stories, and practical advice, we aim to offer parents, educators, and teens themselves insights into managing and understanding these emotional and behavioral struggles, fostering a supportive environment for healthy growth and development.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/teen-emotional-and-behavioural-problems-orignals.mp3",
+        ageCategory: AgeCategory.TEEN,
+        tags: ["technology", "addiction", "news"],
+        rating: 4.5,
+        productImages: [
+          {
+            imageUrl: "/assets/images/Teen_emotion_&_behaviour_problems_ 2.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        details: {
+          category: "teen emotions",
+          episodeNumber: 1,
+          duration: "2:12",
+          language: "en",
+          host: "Kisha Kothari",
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/teen-emotional-and-behavioural-problems-orignals.mp3",
+          releaseDate: new Date("2024-02-15"),
+        },
+      },
+      {
+        title: "The Magical Journey to self Discovery",
+        description:
+          "Podcast on The Magical Journey to Self-Discovery invites listeners to embark on a transformative exploration of personal growth and self-awareness. Each episode delves into various paths and practices that lead to uncovering one's true self, including mindfulness, introspection, and personal development strategies. Through inspiring stories, expert advice, and practical tips, we guide you through the process of self-discovery, helping you to embrace your strengths, understand your values, and navigate your unique journey toward a more fulfilling and authentic life.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/magical-journey-to-self-dicovery-orignals.mp3",
+        ageCategory: AgeCategory.TEEN,
+        tags: ["technology", "addiction", "news"],
+        rating: 4.5,
+        productImages: [
+          {
+            imageUrl: "/assets/images/magical-journey-to-self-discovery.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        details: {
+          category: "teen emotions",
+          episodeNumber: 1,
+          duration: "2:12",
+          language: "en",
+          host: "Kisha Kothari",
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/magical-journey-to-self-dicovery-orignals.mp3",
+          releaseDate: new Date("2024-02-15"),
+        },
+      },
+      {
+        title: "Maintaining relationship with teenager",
+        description:
+          "Podcast on Maintaining a Relationship with Your Teenager explores effective strategies for building and sustaining strong connections with adolescents. Each episode addresses common challenges in parent-teen relationships, such as communication barriers, conflicts, and evolving dynamics. Through expert advice, real-life experiences, and practical tips, we provide guidance on fostering trust, understanding, and open dialogue. Whether you're navigating tricky conversations or seeking ways to support and connect with your teenager, this podcast offers valuable insights for maintaining a healthy and positive relationship throughout the teenage years.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/maintaining-relationship-with-teenager-orignals.mp3",
+        ageCategory: AgeCategory.TEEN,
+        tags: ["technology", "addiction", "news"],
+        rating: 4.5,
+        productImages: [
+          {
+            imageUrl: "/assets/images/maintain-relationship-with-teen.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        details: {
+          category: "teen emotions",
+          episodeNumber: 1,
+          duration: "2:12",
+          language: "en",
+          host: "Kisha Kothari",
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/maintaining-relationship-with-teenager-orignals.mp3",
+          releaseDate: new Date("2024-02-15"),
+        },
+      },
+      {
+        title:
+          "Phrases and sentences parents should not speak in front of children",
+        description:
+          "Podcast on Phrases and Sentences Parents Should Not Speak in Front of Children focuses on the impact of language on a child's emotional and psychological development. Each episode examines common phrases and statements that can negatively affect self-esteem, behavior, and family dynamics. Through expert insights, real-life examples, and practical advice, we guide parents on how to communicate more effectively and positively. We offer alternative approaches to help foster a supportive and nurturing environment for children to thrive emotionally and mentally.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/phrases-sentences-orignals.mp3",
+        ageCategory: AgeCategory.TEEN,
+        tags: ["technology", "addiction", "news"],
+        rating: 4.5,
+        productImages: [
+          {
+            imageUrl: "/assets/images/Phrases_and_sentences_parents.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        details: {
+          category: "teen emotions",
+          episodeNumber: 1,
+          duration: "2:12",
+          language: "en",
+          host: "Kisha Kothari",
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/phrases-sentences-orignals.mp3",
+          releaseDate: new Date("2024-02-15"),
+        },
+      },
+      {
+        title: "Role Model For Kids",
+        description:
+          "Podcast on Role Model for Kids explores the vital role that positive role models play in a child's development. Each episode highlights how behaviors, values, and attitudes demonstrated by parents, caregivers, and other influential figures can shape a child's character and aspirations. Through expert interviews, inspiring stories, and actionable advice, we discuss ways to model integrity, resilience, and kindness. This podcast provides practical tips for adults to embody the qualities they hope to instill in children, helping them become confident, responsible, and compassionate individuals.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/role-models-for-kid-orignals.mp3",
+        ageCategory: AgeCategory.TEEN,
+        tags: ["technology", "addiction", "news"],
+        rating: 4.5,
+        productImages: [
+          {
+            imageUrl: "/assets/images/Role_Model_For_Kids_.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        details: {
+          category: "teen emotions",
+          episodeNumber: 1,
+          duration: "2:12",
+          language: "en",
+          host: "Kisha Kothari",
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/role-models-for-kid-orignals.mp3",
+          releaseDate: new Date("2024-02-15"),
+        },
+      },
+      {
+        title: "Things parents do that annoy kids",
+        description:
+          "Podcast on Things Parents Do That Annoy Kids dives into the everyday behaviors and habits that can frustrate or alienate children and teens. Each episode explores common parental actions and comments—such as overbearing advice, inconsistent rules, or interruptions of personal space—that can lead to conflicts and misunderstandings. Through expert insights, real-life anecdotes, and practical tips, we offer strategies for parents to improve communication, foster mutual respect, and build stronger, more harmonious relationships with their children.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/things-parents-do-that-annoy-kids-orignals.mp3",
+        ageCategory: AgeCategory.TEEN,
+        tags: ["technology", "addiction", "news"],
+        rating: 4.5,
+        productImages: [
+          {
+            imageUrl: "/assets/images/Things_parents_do_that_annoy_kids 2.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        details: {
+          category: "teen emotions",
+          episodeNumber: 1,
+          duration: "2:12",
+          language: "en",
+          host: "Kisha Kothari",
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/things-parents-do-that-annoy-kids-orignals.mp3",
+          releaseDate: new Date("2024-02-15"),
+        },
+      },
+      {
+        title: "Electronic gadgets and kids.",
+        description:
+          "Podcast on Electronic Gadgets and Kids examines the impact of digital devices on children's development and daily lives. Each episode explores how smartphones, tablets, and other gadgets influence aspects such as cognitive development, social skills, and physical health. Through expert interviews, research findings, and practical advice, we address the benefits and potential drawbacks of technology use, offering strategies for setting healthy boundaries and encouraging balanced screen time. Our goal is to help parents and caregivers navigate the digital landscape to support their children's overall well-being and growth.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/electronic-gadgets-and-kids-orignals.mp3",
+        ageCategory: AgeCategory.CHILD,
+        tags: ["technology", "addiction", "news"],
+        rating: 4.5,
+        productImages: [
+          {
+            imageUrl: "/assets/images/Electronic_Gadgets_.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        details: {
+          category: "mobile addiction",
+          episodeNumber: 1,
+          duration: "2:12",
+          language: "en",
+          host: "Haaris Rueben",
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/electronic-gadgets-and-kids-orignals.mp3",
+          releaseDate: new Date("2024-02-15"),
+        },
+      },
+      {
+        title: "Reconnecting Gen-Z with value beyond the screen.",
+        description:
+          "Helping Gen-Z rediscover meaningful connections and life experiences beyond digital screens, fostering deeper relationships and personal growth in a tech-driven world.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/negative_impact_of_mobile.mp3",
+        ageCategory: AgeCategory.TEEN,
+        tags: ["technology", "addiction", "news"],
+        rating: 4.5,
+        productImages: [
+          {
+            imageUrl:
+              "/assets/images/reconnecting-genz-with-value-beyond-screen.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        details: {
+          category: "mobile addiction",
+          episodeNumber: 1,
+          duration: "2:12",
+          language: "en",
+          host: "Haaris Rueben",
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/reconnecting-genz-with-value-beyond-the-screen.mp3",
+          releaseDate: new Date("2024-02-15"),
+        },
+      },
+      {
+        title: "Fun beyond video games",
+        description:
+          "Helping Gen-Z rediscover meaningful connections and life experiences beyond digital screens, fostering deeper relationships and personal growth in a tech-driven world.",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/fun-beyond-video-game.mp3",
+        ageCategory: AgeCategory.TEEN,
+        tags: ["technology", "addiction", "news"],
+        rating: 4.5,
+        productImages: [
+          {
+            imageUrl:
+              "/assets/images/reconnecting-genz-with-value-beyond-screen.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        details: {
+          category: "gaming addiction",
+          episodeNumber: 1,
+          duration: "2:12",
+          language: "en",
+          host: "Kisha Kothari",
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/fun-beyond-video-game.mp3",
+          releaseDate: new Date("2024-02-15"),
+        },
+      },
+      {
+        title: "How to Maintain Healthy Relations",
+        description:
+          "Podcast on maintaining healthy relationship .A healty realtionship is where you feel the comfort trusted support each other and wellcome",
+        price: 19,
+        orignalProductSrc:
+          "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/how-to-maintain-healthy-relations.mp3",
+        ageCategory: AgeCategory.TEEN,
+        tags: ["Health", "relation", "news"],
+        rating: 4.5,
+        productImages: [
+          {
+            imageUrl:
+              "/assets/images/reconnecting-genz-with-value-beyond-screen.jpg",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        details: {
+          category: "teen emotions",
+          episodeNumber: 1,
+          duration: "2:12",
+          language: "en",
+          host: "Kisha Kothari",
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/how-to-maintain-healthy-relations.mp3",
+          releaseDate: new Date("2024-02-15"),
+        },
+      },
+    ]);
 
     // // Create Workshops
     // const workshops = await Workshop.create([
@@ -364,7 +2203,7 @@ const seedProducts = async () => {
               "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Conversation+Starter+Cards+6-12.png",
           },
         ],
-        productVideos: [
+        productVideoss: [
           {
             videoUrl:
               "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Conversation_starter_cards/6-12/Conversation+starter+cards+6-12+sub.mp4",
@@ -486,7 +2325,7 @@ const seedProducts = async () => {
               "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733315009292-Silent%20Stories%20Thumbnail.png",
           },
         ],
-        productVideos: [
+        productVideoss: [
           {
             videoUrl:
               "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Conversation_starter_cards/13-16/Conversation+starter+card+13-19.mp4",
@@ -616,7 +2455,7 @@ const seedProducts = async () => {
               "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733315009292-Silent%20Stories%20Thumbnail.png",
           },
         ],
-        productVideos: [
+        productVideoss: [
           {
             videoUrl:
               "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Conversation_starter_cards/13-16/Conversation+starter+cards+13-16.pdf",
@@ -743,7 +2582,7 @@ const seedProducts = async () => {
               "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/20%2BConversationStarterCards.png",
           },
         ],
-        productVideos: [
+        productVideoss: [
           {
             videoUrl:
               "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Conversation_Story_Cards_20%2B/Conversation+Story+Cards+20%2B.png",
@@ -866,7 +2705,7 @@ const seedProducts = async () => {
               "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733314767994-Story+Re-Teller+Cards+05.mp4",
           },
         ],
-        productVideos: [
+        productVideoss: [
           {
             videoUrl:
               "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Story_Reteller_Cards/6-12/Story+Re-teller+Card+6-12.mp4",
@@ -984,7 +2823,7 @@ const seedProducts = async () => {
               "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733314766429-Story%20Re-Teller%20Cards%20Thumbnail.png",
           },
         ],
-        productVideos: [
+        productVideoss: [
           {
             videoUrl:
               "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Story_Reteller_Cards/13-16/Story+Reteller+Cards+13-19.mp4",
@@ -1106,7 +2945,7 @@ const seedProducts = async () => {
               "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733314766429-Story%20Re-Teller%20Cards%20Thumbnail.png",
           },
         ],
-        productVideos: [
+        productVideoss: [
           {
             videoUrl:
               "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Story_Reteller_Cards/13-16/Story+Reteller+Cards+13-19.mp4",
@@ -1225,7 +3064,7 @@ const seedProducts = async () => {
               "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733315009292-Silent%20Stories%20Thumbnail.png",
           },
         ],
-        productVideos: [
+        productVideoss: [
           {
             videoUrl:
               "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Silent_stories/6-12/Silent+Stories+(Ages+6-12)_04.mp4",
@@ -1342,7 +3181,7 @@ const seedProducts = async () => {
               "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733315009292-Silent%20Stories%20Thumbnail.png",
           },
         ],
-        productVideos: [
+        productVideoss: [
           {
             videoUrl:
               "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Silent_stories/13-16/Silent+Stories+(13-16)+(17-19)+Sub.mp4",
@@ -1471,7 +3310,7 @@ const seedProducts = async () => {
               "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/user_2pT5VWCnXGfCEDndSUmyLrtIQcz/1733315009292-Silent%20Stories%20Thumbnail.png",
           },
         ],
-        productVideos: [
+        productVideoss: [
           {
             videoUrl:
               "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Silent_stories/13-16/Silent+Stories+(13-16)+(17-19)+Sub.mp4",
@@ -1587,7 +3426,7 @@ const seedProducts = async () => {
               "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/coloring_Books/6-12/inventionsAndInventors.png",
           },
         ],
-        productVideos: [
+        productVideoss: [
           {
             videoUrl: "",
           },
@@ -1628,7 +3467,7 @@ const seedProducts = async () => {
               "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/coloring_Books/6-12/mandalaArt.png",
           },
         ],
-        productVideos: [
+        productVideoss: [
           {
             videoUrl: "",
           },
@@ -1668,7 +3507,7 @@ const seedProducts = async () => {
               "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/coloring_Books/6-12/magnificent-9.png",
           },
         ],
-        productVideos: [
+        productVideoss: [
           {
             videoUrl: "",
           },
@@ -1695,8 +3534,8 @@ const seedProducts = async () => {
 
     console.log("Database seeded successfully!");
     console.log(`Created:
-      ${mentoonsCard.length} Mentoons Cards
-      ${mentoonsBook.length} Mentoons Books
+      ${comics.length} Mentoons Comics
+      ${audioComics.length} Mentoons Audio Comics
     `);
   } catch (error) {
     console.error("Error seeding database:", error);
