@@ -20,6 +20,7 @@ const { sendEmail } = require("../services/emailService.js");
 const Employee = require("../models/employee.js");
 const Cart = require("../models/cart.js");
 const SessionModel = require("../models/session.js");
+const { default: mongoose } = require("mongoose");
 
 const postRes = async (request, response) => {
   console.log("Received CCAvenue response");
