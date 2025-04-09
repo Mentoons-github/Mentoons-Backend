@@ -40,6 +40,7 @@ const {
 } = require("./src/helpers/userHelper.js");
 const queryRoutes = require("./src/routes/query.routes.js");
 const User = require("./src/models/user"); // Adjust path as needed
+const sessionRoute = require("./src/routes/session.js");
 // const { requireAuth } = require("@clerk/express");
 dotenv.config();
 const app = express();
@@ -51,7 +52,7 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
     exposedHeaders: [
       "Cross-Origin-Opener-Policy",
-      "Cross-Origin-Resource-Policy", 
+      "Cross-Origin-Resource-Policy",
       "Access-Control-Allow-Origin",
     ],
     credentials: true,
@@ -166,7 +167,7 @@ app.use("/api/v1/review", reviewRoutes);
 app.use("/api/v1/sku", skuRoutes); // This route is under testing
 app.use("/api/v1/cart", cartRoutes);
 app.use("/api/v1/payment", paymentRoutes);
-app.use("/api/v1/sessionbookings") // adda controller tomorrow
+app.use("/api/v1/sessionbookings", sessionRoute); // adda controller tomorrow
 app.use("/api/v1/query", queryRoutes);
 
 app.use("/health", (req, res) => {
