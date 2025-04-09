@@ -78,6 +78,10 @@ const initiatePayment = async (req, res) => {
             date: sessionDate,
             time: sessionTime,
             status: "pending",
+            email,
+            phone,
+            name: req.body.customerName,
+            description: consultancyItem[0].description ?? "",
           });
 
           productId = [createdSession._id.toString()];
