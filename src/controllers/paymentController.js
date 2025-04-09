@@ -75,7 +75,7 @@ const initiatePayment = async (req, res) => {
           assignedPsychologistId = psychologist.id.toString();
           createdSession = await SessionModel.create({
             pyschologistId: psychologist._id,
-            userId: user._id,
+            user: user._id,
             date: sessionDate,
             time: sessionTime,
             status: "pending",
