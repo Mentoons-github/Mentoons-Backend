@@ -166,6 +166,7 @@ app.use("/api/v1/review", reviewRoutes);
 app.use("/api/v1/sku", skuRoutes); // This route is under testing
 app.use("/api/v1/cart", cartRoutes);
 app.use("/api/v1/payment", paymentRoutes);
+app.use("/api/v1/sessionbookings") // adda controller tomorrow
 app.use("/api/v1/query", queryRoutes);
 
 app.use("/health", (req, res) => {
