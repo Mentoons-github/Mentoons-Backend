@@ -75,8 +75,10 @@ const postRes = async (request, response) => {
           { new: true }
         );
 
+        console.log("order status updating:", orderStatus);
+
         if (responseObject.merchant_param4) {
-          await SessionModel.findOneAndUpdate(
+          const updatedSession = await SessionModel.findOneAndUpdate(
             {
               pyschologistId: responseObject.merchant_param4,
               userId: order.user._id,
@@ -84,8 +86,13 @@ const postRes = async (request, response) => {
             },
             {
               status: orderStatus.toLowerCase(),
+            },
+            {
+              new: true,
             }
           );
+
+          console.log("✅ Updated Session:", updatedSession);
         }
 
         console.log("Order update result:", order);
