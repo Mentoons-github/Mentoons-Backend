@@ -5,7 +5,7 @@ const sessionSchema = new mongoose.Schema(
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     date: { type: Date, required: true },
     time: { type: String, required: true },
-    pyschologistId: {
+    psychologistId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Employee",
       required: true,
