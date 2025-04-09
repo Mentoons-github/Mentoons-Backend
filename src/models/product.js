@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 
 const { AgeCategory, ProductType, CardType } = require("../utils/enum");
+const { format } = require("morgan");
 
 // Base Product Schema
 const ProductSchema = new mongoose.Schema(
@@ -64,6 +65,7 @@ const ComicSchema = new mongoose.Schema({
     author: { type: String, required: true },
     publisher: { type: String },
     language: { type: String, default: "en" },
+    sampleUrl: { type: String },
     releaseDate: { type: Date },
     series: { type: String },
   },
@@ -73,11 +75,13 @@ const Comic = Product.discriminator(ProductType.COMIC, ComicSchema);
 /* ----- Audio Comic Discriminator ----- */
 const AudioComicSchema = new mongoose.Schema({
   details: {
-    duration: { type: Number, required: true },
+    duration: { type: String, required: true },
     narrator: { type: String, required: true },
     language: { type: String, default: "en" },
-    releaseDate: { type: Date },
+    format: { type: String },
+    sampleDuration: { type: String },
     sampleUrl: { type: String },
+    releaseDate: { type: Date },
   },
 });
 const AudioComic = Product.discriminator(
@@ -88,12 +92,13 @@ const AudioComic = Product.discriminator(
 /* ----- Podcast Discriminator ----- */
 const PodcastSchema = new mongoose.Schema({
   details: {
+    category: { type: String, required: true },
     episodeNumber: { type: Number, required: true },
-    host: { type: String },
-    releaseDate: { type: Date },
+    duration: { type: String }, // in minutes
     language: { type: String, default: "en" },
-    duration: { type: Number }, // in minutes
+    host: { type: String },
     sampleUrl: { type: String },
+    releaseDate: { type: Date },
   },
 });
 const Podcast = Product.discriminator(ProductType.PODCAST, PodcastSchema);

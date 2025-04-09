@@ -7,7 +7,7 @@ const AgeCategory = {
 };
 const ProductType = {
   COMIC: "comic",
-  AUDIO_COMIC: "audio_comic",
+  AUDIO_COMIC: "audio comic",
   PODCAST: "podcast",
   WORKSHOP: "workshop",
   ASSESSMENT: "assessment",
