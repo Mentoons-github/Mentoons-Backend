@@ -3,9 +3,9 @@ const mongoose = require("mongoose");
 const sessionSchema = new mongoose.Schema(
   {
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-    name: { type: string, required: true },
-    phone: { type: string, required: true },
-    email: { type: string, required: true },
+    name: { type: String, required: true },
+    phone: { type: String, required: true },
+    email: { type: String, required: true },
     date: { type: Date, required: true },
     time: { type: String, required: true },
     psychologistId: {
