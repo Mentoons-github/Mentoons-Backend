@@ -7,7 +7,7 @@ const getUserSession = async (req, res) => {
 
     const user = await User.findOne({ clerkId: userClerkId });
 
-    const existingSession = await SessionModel.findOne({
+    const existingSession = await SessionModel.find({
       user: user._id,
     }).populate("user");
     if (existingSession.length === 0) {
