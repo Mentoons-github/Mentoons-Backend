@@ -7,6 +7,6 @@ const sessionRoute = express.Router();
 sessionRoute.use(conditionalAuth);
 
 sessionRoute.get("/getbookings", getUserSession);
-sessionRoute.get("/availability", availabiltyCheck);
+sessionRoute.get("/postpone", availabiltyCheck);
 
 module.exports = sessionRoute;
