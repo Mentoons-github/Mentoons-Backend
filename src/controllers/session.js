@@ -114,6 +114,8 @@ const availabiltyCheck = async (req, res) => {
       state,
       sessionID
     );
+
+    console.log("type :", type);
     console.log("🧠 Psychologist availability result:", availablePsychologist);
 
     if (!availablePsychologist) {
