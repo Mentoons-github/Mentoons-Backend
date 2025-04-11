@@ -32,6 +32,9 @@ const getUserSession = async (req, res) => {
 
 const findAvailablePsychologist = async (date, time, state, sessionID) => {
   try {
+    console.log("🔍 Finding available psychologist...");
+    console.log("Input Params:", { date, time, state, sessionID });
+
     const sessionDate = new Date(date);
     const sessionDateTime = moment(`${date} ${time}`, "YYYY-MM-DD HH:mm");
 
@@ -41,14 +44,25 @@ const findAvailablePsychologist = async (date, time, state, sessionID) => {
       .format("HH:mm");
     const endRange = sessionDateTime.clone().add(1, "hour").format("HH:mm");
 
+    console.log(
+      `🕒 Time range for conflict check: ${startRange} - ${endRange}`
+    );
+
     const psychologists = await Employee.find({ role: "psychologist" });
+    console.log(`📋 Total psychologists found: ${psychologists.length}`);
 
     for (const psychologist of psychologists) {
+      console.log(
+        `🔎 Checking psychologist: ${psychologist.name} (${psychologist._id})`
+      );
+
       const sessionCount = await SessionModel.countDocuments({
         psychologistId: psychologist._id,
         date: sessionDate,
         ...(sessionID ? { _id: { $ne: sessionID } } : {}),
       });
+
+      console.log(`📊 Session count on ${date}: ${sessionCount}`);
 
       const hasSessionAtSameTime = await SessionModel.exists({
         psychologistId: psychologist._id,
@@ -61,16 +75,23 @@ const findAvailablePsychologist = async (date, time, state, sessionID) => {
         ...(sessionID ? { _id: { $ne: sessionID } } : {}),
       });
 
+      console.log(`⏱️ Has session at same time: ${hasSessionAtSameTime}`);
+
       const isStateMatching = psychologist.place?.state === state;
+      console.log(`📍 State match (${state}): ${isStateMatching}`);
 
       if (sessionCount < 10 && !hasSessionAtSameTime && isStateMatching) {
+        console.log(`✅ Available psychologist found: ${psychologist.name}`);
         return psychologist;
+      } else {
+        console.log(`❌ Psychologist not available: ${psychologist.name}`);
       }
     }
 
+    console.log("❌ No available psychologist found.");
     return null;
   } catch (err) {
-    console.error("Error in findAvailablePsychologist:", err.message);
+    console.error("🚨 Error in findAvailablePsychologist:", err.message);
     return null;
   }
 };
@@ -80,7 +101,12 @@ const availabiltyCheck = async (req, res) => {
     const { time, date, state, sessionID, type } = req.query;
     const userClerkId = req.user.id;
 
+    console.log("🔍 Incoming availability check/update request");
+    console.log("Query Params:", { time, date, state, sessionID, type });
+    console.log("User Clerk ID:", userClerkId);
+
     const user = await User.findOne({ clerkId: userClerkId });
+    console.log("👤 User fetched from DB:", user?.email || "Not Found");
 
     const availablePsychologist = await findAvailablePsychologist(
       date,
@@ -88,9 +114,10 @@ const availabiltyCheck = async (req, res) => {
       state,
       sessionID
     );
+    console.log("🧠 Psychologist availability result:", availablePsychologist);
 
     if (!availablePsychologist) {
-      console.log("no psychologists found");
+      console.log("❌ No available psychologists found");
       return res.status(400).json({
         success: false,
         message:
@@ -100,14 +127,16 @@ const availabiltyCheck = async (req, res) => {
     }
 
     if (type === "check") {
-      console.log("slot available");
+      console.log("✅ Slot is available for check");
       return res.status(200).json({
         success: true,
         message: "Slot available",
         isAvailable: true,
       });
     }
+
     if (type === "update") {
+      console.log("🔄 Attempting to update session...");
       const updateSession = await SessionModel.findOneAndUpdate(
         {
           _id: sessionID,
@@ -117,12 +146,16 @@ const availabiltyCheck = async (req, res) => {
         { $set: { date: date, time: time } },
         { new: true }
       ).populate("psychologistId");
+
       if (!updateSession) {
+        console.log("❗ Session not found or update not allowed");
         return res.status(404).json({
           success: false,
           message: "Session not found or not eligible for update.",
         });
       }
+
+      console.log("✅ Session updated:", updateSession);
       return res.status(200).json({
         success: true,
         message: `Slot updated to ${date} at ${time}`,
@@ -130,11 +163,13 @@ const availabiltyCheck = async (req, res) => {
       });
     }
 
+    console.log("⚠️ Invalid type provided:", type);
     return res.status(400).json({
       success: false,
       message: "Invalid request type. Use 'check' or 'update'.",
-    });s
+    });
   } catch (err) {
+    console.log("🚨 Error in availabilityCheck:", err.message);
     res.status(400).json({
       success: false,
       message: err.message,
