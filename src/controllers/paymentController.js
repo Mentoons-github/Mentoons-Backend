@@ -4,6 +4,7 @@ const User = require("../models/user");
 const Employee = require("../models/employee");
 const SessionModel = require("../models/session");
 const moment = require("moment");
+const { findAvailablePsychologist } = require("./session");
 
 const initiatePayment = async (req, res) => {
   try {
@@ -32,64 +33,18 @@ const initiatePayment = async (req, res) => {
     console.log(userId);
     const user = await User.findOne({ clerkId: userId });
 
-    let createdSession = null;
-    let assignedPsychologistId = null;
-
     if (order_type === "consultancy_purchase") {
       const consultancyItem = Array.isArray(items) ? items[0] : items;
       const sessionDate = new Date(consultancyItem.date);
       const sessionTime = consultancyItem.time;
 
-      const psychologists = await Employee.find({ role: "psychologist" });
+      const availablePsychologist = await findAvailablePsychologist(
+        consultancyItem.date,
+        consultancyItem.time,
+        consultancyItem.state
+      );
 
-      for (const psychologist of psychologists) {
-        const sessionCount = await SessionModel.countDocuments({
-          psychologistId: psychologist._id,
-          date: sessionDate,
-        });
-
-        const sessionDateTime = moment(
-          `${consultancyItem.date} ${consultancyItem.time}`,
-          "YYYY-MM-DD HH:mm"
-        );
-        const startRange = sessionDateTime
-          .clone()
-          .subtract(1, "hour")
-          .format("HH:mm");
-        const endRange = sessionDateTime.clone().add(1, "hour").format("HH:mm");
-
-        const hasSessionAtSameTime = await SessionModel.exists({
-          psychologistId: psychologist._id,
-          status: "booked",
-          date: sessionDate,
-          time: {
-            $gte: startRange,
-            $lte: endRange,
-          },
-        });
-
-        console.log("has booking in same date :", hasSessionAtSameTime);
-
-        if (sessionCount < 10 && !hasSessionAtSameTime) {
-          assignedPsychologistId = psychologist.id.toString();
-          createdSession = await SessionModel.create({
-            psychologistId: psychologist._id,
-            user: user._id,
-            date: sessionDate,
-            time: sessionTime,
-            status: "pending",
-            email,
-            phone,
-            name: req.body.customerName,
-            description: consultancyItem?.[0]?.description || "",
-          });
-
-          productId = [createdSession._id.toString()];
-          break;
-        }
-      }
-
-      if (!assignedPsychologistId) {
+      if (!availablePsychologist) {
         console.log("no psychologists found");
         return res.status(400).json({
           success: false,
@@ -97,6 +52,22 @@ const initiatePayment = async (req, res) => {
             "All psychologists are fully booked at the selected date and time. Please choose another slot.",
         });
       }
+
+      const assignedPsychologistId = availablePsychologist._id.toString();
+
+      const createdSession = await SessionModel.create({
+        psychologistId: assignedPsychologistId,
+        user: user._id,
+        date: sessionDate,
+        time: sessionTime,
+        status: "pending",
+        email,
+        phone,
+        name: req.body.customerName,
+        description: consultancyItem?.description || "",
+      });
+
+      productId = [createdSession._id.toString()];
     } else {
       productId = Array.isArray(items)
         ? items.map((products) => products.product)
