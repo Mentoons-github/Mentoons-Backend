@@ -106,7 +106,8 @@ const availabiltyCheck = async (req, res) => {
         message: "Slot available",
         isAvailable: true,
       });
-    } else {
+    }
+    if (type === "update") {
       const updateSession = await SessionModel.findOneAndUpdate(
         {
           _id: sessionID,
@@ -128,6 +129,11 @@ const availabiltyCheck = async (req, res) => {
         updatedSession: updateSession,
       });
     }
+
+    return res.status(400).json({
+      success: false,
+      message: "Invalid request type. Use 'check' or 'update'.",
+    });s
   } catch (err) {
     res.status(400).json({
       success: false,
