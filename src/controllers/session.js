@@ -75,7 +75,7 @@ const findAvailablePsychologist = async (date, time, state, sessionID) => {
   }
 };
 
-const availabiltyCheck = async () => {
+const availabiltyCheck = async (req, res) => {
   try {
     const { time, date, state, sessionID, type } = req.query;
     const userClerkId = req.user.id;
@@ -95,6 +95,7 @@ const availabiltyCheck = async () => {
         success: false,
         message:
           "All psychologists are fully booked at the selected date and time. Please choose another slot.",
+        isAvailable: false,
       });
     }
 
@@ -103,6 +104,7 @@ const availabiltyCheck = async () => {
       return res.status(200).json({
         success: true,
         message: "Slot available",
+        isAvailable: true,
       });
     } else {
       const updateSession = await SessionModel.findOneAndUpdate(
