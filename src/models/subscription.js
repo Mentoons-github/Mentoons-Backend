@@ -33,8 +33,8 @@ const subscriptionSchema = new mongoose.Schema(
     },
     category: {
       type: String,
-      enum: ["basic", "platinum"],
-      default: "basic",
+      enum: ["free", "prime", "platinum"],
+      default: "free",
     },
     paymentMethod: {
       type: String,

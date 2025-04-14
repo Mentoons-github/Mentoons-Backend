@@ -22,11 +22,12 @@ const seedProducts = async () => {
         title: "Don't Fade Away",
         description:
           "A touching story about staying true to yourself and not losing your identity in the crowd.",
-        price: 0,
+        price: 19,
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/dont+fade+away.pdf",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.COMIC,
+        product_type: "Platinum",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -41,12 +42,11 @@ const seedProducts = async () => {
           },
         ],
         details: {
-          pages: 32, //change this
+          pages: 9, //change this
           author: "Mentoons Creative Team",
           publisher: "Mentoons",
           language: "en",
-          sampleUrl:
-            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/dont+fade+away.pdf",
+          sampleUrl: "",
           releaseDate: new Date("2024-01-15"),
           series: "",
         },
@@ -55,11 +55,12 @@ const seedProducts = async () => {
         title: "One Way Trip",
         description:
           "An adventure that teaches valuable lessons about choices and their permanent consequences.",
-        price: 0,
+        price: 19,
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/one+way+trip.pdf",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.COMIC,
+        product_type: "Platinum",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -74,12 +75,11 @@ const seedProducts = async () => {
           },
         ],
         details: {
-          pages: 32, //change this
+          pages: 9, //change this
           author: "Mentoons Creative Team",
           publisher: "Mentoons",
           language: "en",
-          sampleUrl:
-            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/one+way+trip.pdf",
+          sampleUrl: "o",
           releaseDate: new Date("2024-01-15"),
           series: "",
         },
@@ -88,11 +88,12 @@ const seedProducts = async () => {
         title: "Bet Your Life",
         description:
           "A powerful narrative about the risks of gambling and making life-altering decisions.",
-        price: 0,
+        price: 19,
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/bet+your+life.pdf",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.COMIC,
+        product_type: "Platinum",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -107,12 +108,11 @@ const seedProducts = async () => {
           },
         ],
         details: {
-          pages: 32, //change this
+          pages: 11, //change this
           author: "Mentoons Creative Team",
           publisher: "Mentoons",
           language: "en",
-          sampleUrl:
-            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/bet+your+life.pdf",
+          sampleUrl: "",
           releaseDate: new Date("2024-01-15"),
           series: "",
         },
@@ -126,6 +126,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/Come+Out+Of+Game.pdf",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.COMIC,
+        product_type: "Platinum",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -140,7 +141,7 @@ const seedProducts = async () => {
           },
         ],
         details: {
-          pages: 32, //change this
+          pages: 13, //change this
           author: "Mentoons Creative Team",
           publisher: "Mentoons",
           language: "en",
@@ -153,17 +154,18 @@ const seedProducts = async () => {
         title: "The Cell Life of Soniya",
         description:
           "An entertaining educational journey making cell biology accessible and fun.",
-        price: 0,
+        price: 19,
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/Cell+Life+of+Soniya.pdf",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.COMIC,
+        product_type: "Prime",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
           {
             imageUrl:
-              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Untitled_Artwork+35.jpg",
+              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Untitled_Artwork+27.jpg",
           },
         ],
         productVideos: [
@@ -172,12 +174,11 @@ const seedProducts = async () => {
           },
         ],
         details: {
-          pages: 32, //change this
+          pages: 3, //change this
           author: "Mentoons Creative Team",
           publisher: "Mentoons",
           language: "en",
-          sampleUrl:
-            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/Cell+Life+of+Soniya.pdf",
+          sampleUrl: "",
           releaseDate: new Date("2024-01-15"),
           series: "",
         },
@@ -186,11 +187,12 @@ const seedProducts = async () => {
         title: "Tanya's Downfall",
         description:
           "A compelling story about facing consequences and finding the strength to change.",
-        price: 19,
+        price: 0,
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/tanya_s+downfall.pdf",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.COMIC,
+        product_type: "Free",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -205,7 +207,7 @@ const seedProducts = async () => {
           },
         ],
         details: {
-          pages: 32, //change this
+          pages: 3, //change this
           author: "Mentoons Creative Team",
           publisher: "Mentoons",
           language: "en",
@@ -224,6 +226,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/live+or+let+live.pdf",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.COMIC,
+        product_type: "Prime",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -238,7 +241,7 @@ const seedProducts = async () => {
           },
         ],
         details: {
-          pages: 32, //change this
+          pages: 11, //change this
           author: "Mentoons Creative Team",
           publisher: "Mentoons",
           language: "en",
@@ -256,6 +259,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/Asha+_+Simran-+Time+management+(6-9)+.pdf",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.COMIC,
+        product_type: "Platinum",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -270,7 +274,7 @@ const seedProducts = async () => {
           },
         ],
         details: {
-          pages: 32, //change this
+          pages: 9, //change this
           author: "Mentoons Creative Team",
           publisher: "Mentoons",
           language: "en",
@@ -288,6 +292,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/choose+wisely.pdf",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.COMIC,
+        product_type: "Platinum",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -302,7 +307,7 @@ const seedProducts = async () => {
           },
         ],
         details: {
-          pages: 32, //change this
+          pages: 12, //change this
           author: "Mentoons Creative Team",
           publisher: "Mentoons",
           language: "en",
@@ -315,11 +320,12 @@ const seedProducts = async () => {
         title: "Rohan and the Puppies",
         description:
           "A heartwarming tale about responsibility, compassion, and caring for animals.",
-        price: 19,
+        price: 0,
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/rohan+and+the+puppies.pdf",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.COMIC,
+        product_type: "Free",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -334,11 +340,12 @@ const seedProducts = async () => {
           },
         ],
         details: {
-          pages: 32, //change this
+          pages: 3, //change this
           author: "Mentoons Creative Team",
           publisher: "Mentoons",
           language: "en",
-          sampleUrl: "",
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/rohan+and+the+puppies.pdf",
           releaseDate: new Date("2024-01-15"),
           series: "",
         },
@@ -347,11 +354,12 @@ const seedProducts = async () => {
         title: "Rishi and Rohit",
         description:
           "A story celebrating friendship, understanding, and personal growth.",
-        price: 19,
+        price: 0,
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/rohit+and+rishi.pdf",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.COMIC,
+        product_type: "Free",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -366,11 +374,12 @@ const seedProducts = async () => {
           },
         ],
         details: {
-          pages: 32, //change this
+          pages: 4, //change this
           author: "Mentoons Creative Team",
           publisher: "Mentoons",
           language: "en",
-          sampleUrl: "",
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/rohit+and+rishi.pdf",
           releaseDate: new Date("2024-01-15"),
           series: "",
         },
@@ -384,8 +393,10 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/supriya-time+management+copy.pdf",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.COMIC,
+        product_type: "Platinum",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
+
         productImages: [
           {
             imageUrl:
@@ -398,7 +409,7 @@ const seedProducts = async () => {
           },
         ],
         details: {
-          pages: 32, //change this
+          pages: 6, //change this
           author: "Mentoons Creative Team",
           publisher: "Mentoons",
           language: "en",
@@ -411,11 +422,12 @@ const seedProducts = async () => {
         title: "Comic on Divorce",
         description:
           "A sensitive approach to helping children understand and cope with family changes.",
-        price: 19,
+        price: 0,
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/Divorce.pdf",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.COMIC,
+        product_type: "Free",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -430,11 +442,12 @@ const seedProducts = async () => {
           },
         ],
         details: {
-          pages: 32, //change this
+          pages: 9, //change this
           author: "Mentoons Creative Team",
           publisher: "Mentoons",
           language: "en",
-          sampleUrl: "",
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/Divorce.pdf",
           releaseDate: new Date("2024-01-15"),
           series: "",
         },
@@ -448,6 +461,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/Say+Sorry.pdf",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.COMIC,
+        product_type: "Prime",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -462,7 +476,7 @@ const seedProducts = async () => {
           },
         ],
         details: {
-          pages: 32, //change this
+          pages: 8, //change this
           author: "Mentoons Creative Team",
           publisher: "Mentoons",
           language: "en",
@@ -494,7 +508,7 @@ const seedProducts = async () => {
           },
         ],
         details: {
-          pages: 32, //change this
+          pages: 5, //change this
           author: "Mentoons Creative Team",
           publisher: "Mentoons",
           language: "en",
@@ -512,6 +526,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/Hungry+for+likes+not+life.pdf",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.COMIC,
+        product_type: "Platinum",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -526,7 +541,7 @@ const seedProducts = async () => {
           },
         ],
         details: {
-          pages: 32, //change this
+          pages: 9, //change this
           author: "Mentoons Creative Team",
           publisher: "Mentoons",
           language: "en",
@@ -539,11 +554,12 @@ const seedProducts = async () => {
         title: "Think Before You Act",
         description:
           "Understanding the importance of careful consideration before taking action.",
-        price: 19,
+        price: 0,
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/Preppers+Story+(Think+Before+You+Act)+(1).pdf",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.COMIC,
+        product_type: "Free",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -558,11 +574,12 @@ const seedProducts = async () => {
           },
         ],
         details: {
-          pages: 32, //change this
+          pages: 21, //change this
           author: "Mentoons Creative Team",
           publisher: "Mentoons",
           language: "en",
-          sampleUrl: "",
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/Preppers+Story+(Think+Before+You+Act)+(1).pdf",
           releaseDate: new Date("2024-01-15"),
           series: "",
         },
@@ -575,11 +592,12 @@ const seedProducts = async () => {
         title: "Bet Your Life",
         description:
           "A cautionary tale about the dangers of gambling and making risky life choices that can impact your future.",
-        price: 0,
+        price: 19,
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/BET_YOUR_LIFE.mp4",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.AUDIO_COMIC,
+        product_type: "Platinum",
         tags: ["space", "adventure", "audio"],
         rating: 4.5,
         productImages: [
@@ -609,11 +627,12 @@ const seedProducts = async () => {
         title: "The Cell Life of Soniya",
         description:
           "An educational journey through cell biology with Soniya, making science fun and easy to understand.",
-        price: 0,
+        price: 19,
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/CELL_LIFE_OF_SONIYA_02.mp4",
         ageCategory: AgeCategory.CHILD,
         type: ProductType.AUDIO_COMIC,
+        product_type: "Prime",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -648,6 +667,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/CHOOSE_WISELY.mp4",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.AUDIO_COMIC,
+        product_type: "Platinum",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -682,6 +702,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/COME_OUT_OF_GAMING_02.mp4",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.AUDIO_COMIC,
+        product_type: "Platinum",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -708,14 +729,15 @@ const seedProducts = async () => {
         },
       },
       {
-        title: "Comic on Divorce",
+        title: "Audio comic on Divorce",
         description:
           "A sensitive exploration of family changes, helping children understand and cope with divorce.",
-        price: 19,
+        price: 0,
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/COMIC_ON_DIVORCE_01.mp4",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.AUDIO_COMIC,
+        product_type: "Free",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -745,11 +767,12 @@ const seedProducts = async () => {
         title: "Don't Fade Away",
         description:
           "A powerful story about maintaining your identity and standing strong in the face of peer pressure.",
-        price: 0,
+        price: 19,
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/DONT_FADE_AWAY_02.mp4",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.AUDIO_COMIC,
+        product_type: "Platinum",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -784,6 +807,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/HUNGRY_FOR_LIKES_NOT_LIFE_01.mp4",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.AUDIO_COMIC,
+        product_type: "Platinum",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -813,11 +837,12 @@ const seedProducts = async () => {
         title: "One Way Trip",
         description:
           "A compelling story about life-changing decisions and their irreversible consequences.",
-        price: 0,
+        price: 19,
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/ONE-WAY-TRIP_1.mp4",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.AUDIO_COMIC,
+        product_type: "Platinum",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -847,11 +872,12 @@ const seedProducts = async () => {
         title: "Rishi and Rohit",
         description:
           "A heartwarming tale of friendship, understanding, and personal growth between two friends.",
-        price: 19,
+        price: 0,
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/RISHI+AND+ROHIT.mp4",
         ageCategory: AgeCategory.CHILD,
         type: ProductType.AUDIO_COMIC,
+        product_type: "Free",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -881,11 +907,12 @@ const seedProducts = async () => {
         title: "Rohan and the Puppies",
         description:
           "A touching story about compassion, responsibility, and the joy of caring for animals.",
-        price: 19,
+        price: 0,
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/Rohan+and+the+Puppies_01.mp4",
         ageCategory: AgeCategory.CHILD,
         type: ProductType.AUDIO_COMIC,
+        product_type: "Free",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -915,11 +942,12 @@ const seedProducts = async () => {
         title: "Think Before You Act",
         description:
           "An engaging narrative that teaches the importance of considering consequences before taking action.",
-        price: 19,
+        price: 0,
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/Think+Before+You+Act.mp4",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.AUDIO_COMIC,
+        product_type: "Free",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -949,11 +977,12 @@ const seedProducts = async () => {
         title: "Tanya's Downfall",
         description:
           "A cautionary tale about the consequences of poor choices and the path to redemption.",
-        price: 19,
+        price: 0,
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/TANYA_DOWN-FALL_02.mp4",
         ageCategory: AgeCategory.CHILD,
         type: ProductType.AUDIO_COMIC,
+        product_type: "Free",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -1056,6 +1085,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+6+-+12/Asha+%26+Simran-+Time+management+(6-12)_1.mp4",
         ageCategory: AgeCategory.CHILD,
         type: ProductType.AUDIO_COMIC,
+        product_type: "Platinum",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -1082,7 +1112,7 @@ const seedProducts = async () => {
         },
       },
       {
-        title: "Comic on Honesty",
+        title: "Audio comic on Honesty",
         description:
           "A valuable lesson about the importance of truthfulness and integrity in daily life.",
         price: 19,
@@ -1158,6 +1188,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+6+-+12/SAY+SORRY+COMIC.mp4",
         ageCategory: AgeCategory.CHILD,
         type: ProductType.AUDIO_COMIC,
+        product_type: "Prime",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -1192,6 +1223,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+6+-+12/SAY+SORRY+COMIC.mp4",
         ageCategory: AgeCategory.CHILD,
         type: ProductType.AUDIO_COMIC,
+        product_type: "Prime",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -1227,6 +1259,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+6+-+12/SUPRIYA_TIME_MANAGEMENT_1.mp4",
         ageCategory: AgeCategory.CHILD,
         type: ProductType.AUDIO_COMIC,
+        product_type: "Platinum",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -1261,6 +1294,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/BOOKS/BOOK+3+DO+YOU+KNOW_FINAL.mp4",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.AUDIO_COMIC,
+        product_type: "Platinum",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -1329,6 +1363,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/BOOKS/HOW+TO+HANDLE+RELATIONSHIP.mp4",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.AUDIO_COMIC,
+        product_type: "Platinum",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -1363,6 +1398,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+6+-+12/Comic+on+Listen+to+me_01.mp4",
         ageCategory: AgeCategory.CHILD,
         type: ProductType.AUDIO_COMIC,
+        product_type: "Prime",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -1376,7 +1412,7 @@ const seedProducts = async () => {
             videoUrl: "",
           },
         ],
-        isFeatured: true,
+        isFeatured: false,
         details: {
           duration: "2:12", // minutes
           narrator: "Mentoons Team",
@@ -1469,7 +1505,7 @@ const seedProducts = async () => {
         rating: 4.5,
         productImages: [
           {
-            imageUrl: "/assets/images/negative-impact-of-mobile-phone.jpg",
+            imageUrl: "/assets/images/how-does-it-feel-to-be-teenager.jpg",
           },
         ],
         productVideos: [
@@ -1651,7 +1687,7 @@ const seedProducts = async () => {
       {
         title: "Social media de-addiction",
         description:
-          "Podcast on Social Media De-addiction explores the journey to breaking free from the grips of excessive social media use. Each episode delves into the effects of social media addiction on mental health, relationships, and productivity, and offers practical advice for reclaiming control. Featuring insights from experts, personal success stories, and actionable strategies, we guide listeners through the process of reducing screen time, fostering healthier online habits, and finding a more balanced, fulfilling life beyond the screen.",
+          "Podcast on Social Media De-addiction explores the journey to breaking Free from the grips of excessive social media use. Each episode delves into the effects of social media addiction on mental health, relationships, and productivity, and offers practical advice for reclaiming control. Featuring insights from experts, personal success stories, and actionable strategies, we guide listeners through the process of reducing screen time, fostering healthier online habits, and finding a more balanced, fulfilling life beyond the screen.",
         price: 19,
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/social-media-de-addiction-orignals.mp3",
@@ -1919,7 +1955,7 @@ const seedProducts = async () => {
         productImages: [
           {
             imageUrl:
-              "/assets/images/reconnecting-genz-with-value-beyond-screen.jpg",
+              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/thumbnails/Reconnecting+gen+Z+with+value+beyond+the+screen+.png",
           },
         ],
         productVideos: [
@@ -1952,7 +1988,7 @@ const seedProducts = async () => {
         productImages: [
           {
             imageUrl:
-              "/assets/images/reconnecting-genz-with-value-beyond-screen.jpg",
+              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/thumbnails/Fun+beyond+Games.png",
           },
         ],
         productVideos: [
@@ -1985,7 +2021,7 @@ const seedProducts = async () => {
         productImages: [
           {
             imageUrl:
-              "/assets/images/reconnecting-genz-with-value-beyond-screen.jpg",
+              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/thumbnails/How+to+maintain+Healthy+Relations+.png",
           },
         ],
         productVideos: [
@@ -2064,7 +2100,7 @@ const seedProducts = async () => {
                 "Everyone approaches me with their problems.",
                 "I don't allow anyone to share their problems with me.",
               ],
-              correcAnswer: "Everyone approaches me with their problems.",
+              correctAnswer: "Everyone approaches me with their problems.",
             },
             {
               imageUrl: "/assets/assesments/Therapy/therapy-02.JPG",
@@ -3441,7 +3477,7 @@ const seedProducts = async () => {
         title: "Story Re-teller Cards (6-12) years",
         description:
           "Unleash creativity and connection with our Story Reteller Cards. Inspire kids to imagine, think critically, and bond through fun, engaging stories. Easy to carry, they make learning and sharing a joy anytime, anywhere!",
-        price: 1,
+        price: 199,
         orignalProductSrc:
           "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Story_Reteller_Cards/6-12/Story+reteller+6-12.pdf",
         ageCategory: AgeCategory.CHILD,
@@ -3659,7 +3695,7 @@ const seedProducts = async () => {
                 },
                 {
                   description:
-                    "Helps teens express themselves freely, boosting confidence",
+                    "Helps teens express themselves Freely, boosting confidence",
                 },
                 {
                   description:
@@ -3799,7 +3835,7 @@ const seedProducts = async () => {
       {
         title: "Silent Stories (6-12) years",
         description:
-          "Unlock your child’s creativity with Silent Stories, a screen-free activity that boosts imagination and storytelling skills. Perfect for solo or group play, it fosters emotional understanding and strengthens communication while offering a fun, offline bonding experience.",
+          "Unlock your child’s creativity with Silent Stories, a screen-Free activity that boosts imagination and storytelling skills. Perfect for solo or group play, it fosters emotional understanding and strengthens communication while offering a fun, offline bonding experience.",
         price: 199,
         orignalProductSrc:
           "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Silent_stories/6-12/Silent+Stories+6-12.pdf",
@@ -3860,7 +3896,7 @@ const seedProducts = async () => {
                   description: "Ecourage creativity",
                 },
                 {
-                  description: "Screen-free activity",
+                  description: "Screen-Free activity",
                 },
                 {
                   description: "Enhances communication skill",
@@ -3916,7 +3952,7 @@ const seedProducts = async () => {
       {
         title: "Silent Stories (13-16) years",
         description:
-          "Unlock your child’s creativity with Silent Stories, a screen-free activity that boosts imagination and storytelling skills. Perfect for solo or group play, it fosters emotional understanding and strengthens communication while offering a fun, offline bonding experience.",
+          "Unlock your child’s creativity with Silent Stories, a screen-Free activity that boosts imagination and storytelling skills. Perfect for solo or group play, it fosters emotional understanding and strengthens communication while offering a fun, offline bonding experience.",
         price: 199,
         orignalProductSrc:
           "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Silent_stories/13-16/Silent+stories+13-16.pdf",
@@ -3976,7 +4012,7 @@ const seedProducts = async () => {
                 },
                 {
                   description:
-                    "Helps teens express themselves freely, boosting confidence",
+                    "Helps teens express themselves Freely, boosting confidence",
                 },
                 {
                   description:
@@ -4000,7 +4036,7 @@ const seedProducts = async () => {
                 },
                 {
                   description:
-                    "Helps teens express themselves freely, boosting confidence",
+                    "Helps teens express themselves Freely, boosting confidence",
                 },
                 {
                   description:
@@ -4024,7 +4060,7 @@ const seedProducts = async () => {
                 },
                 {
                   description:
-                    "Helps teens express themselves freely, boosting confidence",
+                    "Helps teens express themselves Freely, boosting confidence",
                 },
                 {
                   description:
@@ -4045,7 +4081,7 @@ const seedProducts = async () => {
       {
         title: "Silent Stories (17-19) years",
         description:
-          "Unlock your child’s creativity with Silent Stories, a screen-free activity that boosts imagination and storytelling skills. Perfect for solo or group play, it fosters emotional understanding and strengthens communication while offering a fun, offline bonding experience.",
+          "Unlock your child’s creativity with Silent Stories, a screen-Free activity that boosts imagination and storytelling skills. Perfect for solo or group play, it fosters emotional understanding and strengthens communication while offering a fun, offline bonding experience.",
         price: 199,
         orignalProductSrc:
           "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Silent_stories/17-19/Silent+stories+17-19.pdf",
@@ -4106,7 +4142,7 @@ const seedProducts = async () => {
                   description: "Ecourage creativity",
                 },
                 {
-                  description: "Screen-free activity",
+                  description: "Screen-Free activity",
                 },
                 {
                   description: "Enhances communication skill",
@@ -4247,7 +4283,7 @@ const seedProducts = async () => {
         title: "Magnificent - 9 Colouring Book",
         description:
           "A fun and engaging coloring book featuring 9 unique characters for kids to bring to life with their creativity.",
-        price: 1,
+        price: 19,
         orignalProductSrc:
           "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/coloring_Books/productPDF/6-12/M9+colouring+book.pdf",
         ageCategory: AgeCategory.CHILD,
