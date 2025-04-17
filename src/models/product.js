@@ -17,6 +17,7 @@ const ProductSchema = new mongoose.Schema(
     orignalProductSrc: {
       type: String,
       required: true,
+      default: "https://mentoons.com",
     },
     ageCategory: {
       type: String,
@@ -27,6 +28,10 @@ const ProductSchema = new mongoose.Schema(
       type: String,
       enum: Object.values(ProductType),
       required: true,
+    },
+    product_type: {
+      type: String,
+      enum: ["Free", "Prime", "Platinum"],
     },
     tags: { type: [String], default: [] },
     rating: { type: Number, default: 0 },
@@ -137,23 +142,20 @@ const Workshop = Product.discriminator(ProductType.WORKSHOP, WorkshopSchema);
 /* ----- Assessment Discriminator ----- */
 const AssessmentSchema = new mongoose.Schema({
   details: {
-    questions: {
+    color: { type: String },
+    duration: { type: Number },
+    difficulty: { type: String },
+    credits: { type: String },
+    questionGallery: {
       type: [
         {
-          questionText: { type: String, required: true },
+          imageUrl: { type: String, required: true },
           options: { type: [String] },
           correctAnswer: { type: String },
-          explaination: { type: String },
         },
       ],
       required: true,
     },
-    passingScore: { type: Number, required: true },
-    duration: { type: Number, required: true }, // in minutes
-    difficulty: { type: String },
-    totalQuestions: { type: Number },
-    createBy: { type: String },
-    createDate: { type: Date },
   },
 });
 const Assessment = Product.discriminator(

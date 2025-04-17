@@ -22,11 +22,12 @@ const seedProducts = async () => {
         title: "Don't Fade Away",
         description:
           "A touching story about staying true to yourself and not losing your identity in the crowd.",
-        price: 0,
+        price: 19,
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/dont+fade+away.pdf",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.COMIC,
+        product_type: "Platinum",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -41,12 +42,11 @@ const seedProducts = async () => {
           },
         ],
         details: {
-          pages: 32, //change this
+          pages: 9, //change this
           author: "Mentoons Creative Team",
           publisher: "Mentoons",
           language: "en",
-          sampleUrl:
-            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/dont+fade+away.pdf",
+          sampleUrl: "",
           releaseDate: new Date("2024-01-15"),
           series: "",
         },
@@ -55,11 +55,12 @@ const seedProducts = async () => {
         title: "One Way Trip",
         description:
           "An adventure that teaches valuable lessons about choices and their permanent consequences.",
-        price: 0,
+        price: 19,
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/one+way+trip.pdf",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.COMIC,
+        product_type: "Platinum",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -74,12 +75,11 @@ const seedProducts = async () => {
           },
         ],
         details: {
-          pages: 32, //change this
+          pages: 9, //change this
           author: "Mentoons Creative Team",
           publisher: "Mentoons",
           language: "en",
-          sampleUrl:
-            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/one+way+trip.pdf",
+          sampleUrl: "o",
           releaseDate: new Date("2024-01-15"),
           series: "",
         },
@@ -88,11 +88,12 @@ const seedProducts = async () => {
         title: "Bet Your Life",
         description:
           "A powerful narrative about the risks of gambling and making life-altering decisions.",
-        price: 0,
+        price: 19,
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/bet+your+life.pdf",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.COMIC,
+        product_type: "Platinum",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -107,12 +108,11 @@ const seedProducts = async () => {
           },
         ],
         details: {
-          pages: 32, //change this
+          pages: 11, //change this
           author: "Mentoons Creative Team",
           publisher: "Mentoons",
           language: "en",
-          sampleUrl:
-            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/bet+your+life.pdf",
+          sampleUrl: "",
           releaseDate: new Date("2024-01-15"),
           series: "",
         },
@@ -126,6 +126,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/Come+Out+Of+Game.pdf",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.COMIC,
+        product_type: "Platinum",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -140,7 +141,7 @@ const seedProducts = async () => {
           },
         ],
         details: {
-          pages: 32, //change this
+          pages: 13, //change this
           author: "Mentoons Creative Team",
           publisher: "Mentoons",
           language: "en",
@@ -153,17 +154,18 @@ const seedProducts = async () => {
         title: "The Cell Life of Soniya",
         description:
           "An entertaining educational journey making cell biology accessible and fun.",
-        price: 0,
+        price: 19,
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/Cell+Life+of+Soniya.pdf",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.COMIC,
+        product_type: "Prime",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
           {
             imageUrl:
-              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Untitled_Artwork+35.jpg",
+              "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/thumbnail/Audio+comics+thumbnails/Untitled_Artwork+27.jpg",
           },
         ],
         productVideos: [
@@ -172,12 +174,11 @@ const seedProducts = async () => {
           },
         ],
         details: {
-          pages: 32, //change this
+          pages: 3, //change this
           author: "Mentoons Creative Team",
           publisher: "Mentoons",
           language: "en",
-          sampleUrl:
-            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/Cell+Life+of+Soniya.pdf",
+          sampleUrl: "",
           releaseDate: new Date("2024-01-15"),
           series: "",
         },
@@ -186,11 +187,12 @@ const seedProducts = async () => {
         title: "Tanya's Downfall",
         description:
           "A compelling story about facing consequences and finding the strength to change.",
-        price: 19,
+        price: 0,
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/tanya_s+downfall.pdf",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.COMIC,
+        product_type: "Free",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -205,7 +207,7 @@ const seedProducts = async () => {
           },
         ],
         details: {
-          pages: 32, //change this
+          pages: 3, //change this
           author: "Mentoons Creative Team",
           publisher: "Mentoons",
           language: "en",
@@ -224,6 +226,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/live+or+let+live.pdf",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.COMIC,
+        product_type: "Prime",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -238,7 +241,7 @@ const seedProducts = async () => {
           },
         ],
         details: {
-          pages: 32, //change this
+          pages: 11, //change this
           author: "Mentoons Creative Team",
           publisher: "Mentoons",
           language: "en",
@@ -256,6 +259,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/Asha+_+Simran-+Time+management+(6-9)+.pdf",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.COMIC,
+        product_type: "Platinum",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -270,7 +274,7 @@ const seedProducts = async () => {
           },
         ],
         details: {
-          pages: 32, //change this
+          pages: 9, //change this
           author: "Mentoons Creative Team",
           publisher: "Mentoons",
           language: "en",
@@ -288,6 +292,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/choose+wisely.pdf",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.COMIC,
+        product_type: "Platinum",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -302,7 +307,7 @@ const seedProducts = async () => {
           },
         ],
         details: {
-          pages: 32, //change this
+          pages: 12, //change this
           author: "Mentoons Creative Team",
           publisher: "Mentoons",
           language: "en",
@@ -315,11 +320,12 @@ const seedProducts = async () => {
         title: "Rohan and the Puppies",
         description:
           "A heartwarming tale about responsibility, compassion, and caring for animals.",
-        price: 19,
+        price: 0,
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/rohan+and+the+puppies.pdf",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.COMIC,
+        product_type: "Free",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -334,11 +340,12 @@ const seedProducts = async () => {
           },
         ],
         details: {
-          pages: 32, //change this
+          pages: 3, //change this
           author: "Mentoons Creative Team",
           publisher: "Mentoons",
           language: "en",
-          sampleUrl: "",
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/rohan+and+the+puppies.pdf",
           releaseDate: new Date("2024-01-15"),
           series: "",
         },
@@ -347,11 +354,12 @@ const seedProducts = async () => {
         title: "Rishi and Rohit",
         description:
           "A story celebrating friendship, understanding, and personal growth.",
-        price: 19,
+        price: 0,
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/rohit+and+rishi.pdf",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.COMIC,
+        product_type: "Free",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -366,11 +374,12 @@ const seedProducts = async () => {
           },
         ],
         details: {
-          pages: 32, //change this
+          pages: 4, //change this
           author: "Mentoons Creative Team",
           publisher: "Mentoons",
           language: "en",
-          sampleUrl: "",
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/rohit+and+rishi.pdf",
           releaseDate: new Date("2024-01-15"),
           series: "",
         },
@@ -384,8 +393,10 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/supriya-time+management+copy.pdf",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.COMIC,
+        product_type: "Platinum",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
+
         productImages: [
           {
             imageUrl:
@@ -398,7 +409,7 @@ const seedProducts = async () => {
           },
         ],
         details: {
-          pages: 32, //change this
+          pages: 6, //change this
           author: "Mentoons Creative Team",
           publisher: "Mentoons",
           language: "en",
@@ -411,11 +422,12 @@ const seedProducts = async () => {
         title: "Comic on Divorce",
         description:
           "A sensitive approach to helping children understand and cope with family changes.",
-        price: 19,
+        price: 0,
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/Divorce.pdf",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.COMIC,
+        product_type: "Free",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -430,11 +442,12 @@ const seedProducts = async () => {
           },
         ],
         details: {
-          pages: 32, //change this
+          pages: 9, //change this
           author: "Mentoons Creative Team",
           publisher: "Mentoons",
           language: "en",
-          sampleUrl: "",
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/Divorce.pdf",
           releaseDate: new Date("2024-01-15"),
           series: "",
         },
@@ -448,6 +461,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/Say+Sorry.pdf",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.COMIC,
+        product_type: "Prime",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -462,7 +476,7 @@ const seedProducts = async () => {
           },
         ],
         details: {
-          pages: 32, //change this
+          pages: 8, //change this
           author: "Mentoons Creative Team",
           publisher: "Mentoons",
           language: "en",
@@ -494,7 +508,7 @@ const seedProducts = async () => {
           },
         ],
         details: {
-          pages: 32, //change this
+          pages: 5, //change this
           author: "Mentoons Creative Team",
           publisher: "Mentoons",
           language: "en",
@@ -512,6 +526,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/Hungry+for+likes+not+life.pdf",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.COMIC,
+        product_type: "Platinum",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -526,7 +541,7 @@ const seedProducts = async () => {
           },
         ],
         details: {
-          pages: 32, //change this
+          pages: 9, //change this
           author: "Mentoons Creative Team",
           publisher: "Mentoons",
           language: "en",
@@ -539,11 +554,12 @@ const seedProducts = async () => {
         title: "Think Before You Act",
         description:
           "Understanding the importance of careful consideration before taking action.",
-        price: 19,
+        price: 0,
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/Preppers+Story+(Think+Before+You+Act)+(1).pdf",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.COMIC,
+        product_type: "Free",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -558,11 +574,12 @@ const seedProducts = async () => {
           },
         ],
         details: {
-          pages: 32, //change this
+          pages: 21, //change this
           author: "Mentoons Creative Team",
           publisher: "Mentoons",
           language: "en",
-          sampleUrl: "",
+          sampleUrl:
+            "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/Comics-Pdf/Preppers+Story+(Think+Before+You+Act)+(1).pdf",
           releaseDate: new Date("2024-01-15"),
           series: "",
         },
@@ -575,11 +592,12 @@ const seedProducts = async () => {
         title: "Bet Your Life",
         description:
           "A cautionary tale about the dangers of gambling and making risky life choices that can impact your future.",
-        price: 0,
+        price: 19,
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/BET_YOUR_LIFE.mp4",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.AUDIO_COMIC,
+        product_type: "Platinum",
         tags: ["space", "adventure", "audio"],
         rating: 4.5,
         productImages: [
@@ -609,11 +627,12 @@ const seedProducts = async () => {
         title: "The Cell Life of Soniya",
         description:
           "An educational journey through cell biology with Soniya, making science fun and easy to understand.",
-        price: 0,
+        price: 19,
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/CELL_LIFE_OF_SONIYA_02.mp4",
         ageCategory: AgeCategory.CHILD,
         type: ProductType.AUDIO_COMIC,
+        product_type: "Prime",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -648,6 +667,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/CHOOSE_WISELY.mp4",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.AUDIO_COMIC,
+        product_type: "Platinum",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -682,6 +702,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/COME_OUT_OF_GAMING_02.mp4",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.AUDIO_COMIC,
+        product_type: "Platinum",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -708,14 +729,15 @@ const seedProducts = async () => {
         },
       },
       {
-        title: "Comic on Divorce",
+        title: "Audio comic on Divorce",
         description:
           "A sensitive exploration of family changes, helping children understand and cope with divorce.",
-        price: 19,
+        price: 0,
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/COMIC_ON_DIVORCE_01.mp4",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.AUDIO_COMIC,
+        product_type: "Free",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -745,11 +767,12 @@ const seedProducts = async () => {
         title: "Don't Fade Away",
         description:
           "A powerful story about maintaining your identity and standing strong in the face of peer pressure.",
-        price: 0,
+        price: 19,
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/DONT_FADE_AWAY_02.mp4",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.AUDIO_COMIC,
+        product_type: "Platinum",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -784,6 +807,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/HUNGRY_FOR_LIKES_NOT_LIFE_01.mp4",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.AUDIO_COMIC,
+        product_type: "Platinum",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -813,11 +837,12 @@ const seedProducts = async () => {
         title: "One Way Trip",
         description:
           "A compelling story about life-changing decisions and their irreversible consequences.",
-        price: 0,
+        price: 19,
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/ONE-WAY-TRIP_1.mp4",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.AUDIO_COMIC,
+        product_type: "Platinum",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -847,11 +872,12 @@ const seedProducts = async () => {
         title: "Rishi and Rohit",
         description:
           "A heartwarming tale of friendship, understanding, and personal growth between two friends.",
-        price: 19,
+        price: 0,
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/RISHI+AND+ROHIT.mp4",
         ageCategory: AgeCategory.CHILD,
         type: ProductType.AUDIO_COMIC,
+        product_type: "Free",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -881,11 +907,12 @@ const seedProducts = async () => {
         title: "Rohan and the Puppies",
         description:
           "A touching story about compassion, responsibility, and the joy of caring for animals.",
-        price: 19,
+        price: 0,
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/Rohan+and+the+Puppies_01.mp4",
         ageCategory: AgeCategory.CHILD,
         type: ProductType.AUDIO_COMIC,
+        product_type: "Free",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -915,11 +942,12 @@ const seedProducts = async () => {
         title: "Think Before You Act",
         description:
           "An engaging narrative that teaches the importance of considering consequences before taking action.",
-        price: 19,
+        price: 0,
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/Think+Before+You+Act.mp4",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.AUDIO_COMIC,
+        product_type: "Free",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -949,11 +977,12 @@ const seedProducts = async () => {
         title: "Tanya's Downfall",
         description:
           "A cautionary tale about the consequences of poor choices and the path to redemption.",
-        price: 19,
+        price: 0,
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+13+-+19/TANYA_DOWN-FALL_02.mp4",
         ageCategory: AgeCategory.CHILD,
         type: ProductType.AUDIO_COMIC,
+        product_type: "Free",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -1056,6 +1085,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+6+-+12/Asha+%26+Simran-+Time+management+(6-12)_1.mp4",
         ageCategory: AgeCategory.CHILD,
         type: ProductType.AUDIO_COMIC,
+        product_type: "Platinum",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -1082,7 +1112,7 @@ const seedProducts = async () => {
         },
       },
       {
-        title: "Comic on Honesty",
+        title: "Audio comic on Honesty",
         description:
           "A valuable lesson about the importance of truthfulness and integrity in daily life.",
         price: 19,
@@ -1158,6 +1188,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+6+-+12/SAY+SORRY+COMIC.mp4",
         ageCategory: AgeCategory.CHILD,
         type: ProductType.AUDIO_COMIC,
+        product_type: "Prime",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -1192,6 +1223,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+6+-+12/SAY+SORRY+COMIC.mp4",
         ageCategory: AgeCategory.CHILD,
         type: ProductType.AUDIO_COMIC,
+        product_type: "Prime",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -1227,6 +1259,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+6+-+12/SUPRIYA_TIME_MANAGEMENT_1.mp4",
         ageCategory: AgeCategory.CHILD,
         type: ProductType.AUDIO_COMIC,
+        product_type: "Platinum",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -1261,6 +1294,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/BOOKS/BOOK+3+DO+YOU+KNOW_FINAL.mp4",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.AUDIO_COMIC,
+        product_type: "Platinum",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -1329,6 +1363,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/BOOKS/HOW+TO+HANDLE+RELATIONSHIP.mp4",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.AUDIO_COMIC,
+        product_type: "Platinum",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -1363,6 +1398,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/AGES+6+-+12/Comic+on+Listen+to+me_01.mp4",
         ageCategory: AgeCategory.CHILD,
         type: ProductType.AUDIO_COMIC,
+        product_type: "Prime",
         tags: ["Cell", "Mobile Addiction", "audio", "Addiction"],
         rating: 4.3,
         productImages: [
@@ -1376,7 +1412,7 @@ const seedProducts = async () => {
             videoUrl: "",
           },
         ],
-        isFeatured: true,
+        isFeatured: false,
         details: {
           duration: "2:12", // minutes
           narrator: "Mentoons Team",
@@ -1400,6 +1436,7 @@ const seedProducts = async () => {
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/negative_impact_of_mobile.mp3",
         ageCategory: AgeCategory.TEEN,
+        type: ProductType.PODCAST,
         tags: ["technology", "addiction", "news"],
         rating: 4.5,
         productImages: [
@@ -1431,6 +1468,7 @@ const seedProducts = async () => {
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/negative-impact-of-social-media.mp3",
         ageCategory: AgeCategory.TEEN,
+        type: ProductType.PODCAST,
         tags: ["technology", "addiction", "news"],
         rating: 4.5,
         productImages: [
@@ -1462,11 +1500,12 @@ const seedProducts = async () => {
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/how-does-it-feet-to-be-an-teenager-orignals.mp3",
         ageCategory: AgeCategory.TEEN,
+        type: ProductType.PODCAST,
         tags: ["technology", "addiction", "news"],
         rating: 4.5,
         productImages: [
           {
-            imageUrl: "/assets/images/negative-impact-of-mobile-phone.jpg",
+            imageUrl: "/assets/images/how-does-it-feel-to-be-teenager.jpg",
           },
         ],
         productVideos: [
@@ -1493,6 +1532,7 @@ const seedProducts = async () => {
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/perfomance-addiction.mp3",
         ageCategory: AgeCategory.TEEN,
+        type: ProductType.PODCAST,
         tags: ["technology", "addiction", "news"],
         rating: 4.5,
         productImages: [
@@ -1524,6 +1564,7 @@ const seedProducts = async () => {
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/the-magic-of-play-without-phone.mp3",
         ageCategory: AgeCategory.CHILD,
+        type: ProductType.PODCAST,
         tags: ["technology", "addiction", "news"],
         rating: 4.5,
         productImages: [
@@ -1555,6 +1596,7 @@ const seedProducts = async () => {
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/common-parrenting-mistake-orignals.mp3",
         ageCategory: AgeCategory.TEEN,
+        type: ProductType.PODCAST,
         tags: ["technology", "addiction", "news"],
         rating: 4.5,
         productImages: [
@@ -1586,6 +1628,7 @@ const seedProducts = async () => {
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/entertainment-addiction-orignals.mp3",
         ageCategory: AgeCategory.TEEN,
+        type: ProductType.PODCAST,
         tags: ["technology", "addiction", "news"],
         rating: 4.5,
         productImages: [
@@ -1617,6 +1660,7 @@ const seedProducts = async () => {
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/toddler-phone-addiction.mp3",
         ageCategory: AgeCategory.CHILD,
+        type: ProductType.PODCAST,
         tags: ["technology", "addiction", "news"],
         rating: 4.5,
         productImages: [
@@ -1643,11 +1687,12 @@ const seedProducts = async () => {
       {
         title: "Social media de-addiction",
         description:
-          "Podcast on Social Media De-addiction explores the journey to breaking free from the grips of excessive social media use. Each episode delves into the effects of social media addiction on mental health, relationships, and productivity, and offers practical advice for reclaiming control. Featuring insights from experts, personal success stories, and actionable strategies, we guide listeners through the process of reducing screen time, fostering healthier online habits, and finding a more balanced, fulfilling life beyond the screen.",
+          "Podcast on Social Media De-addiction explores the journey to breaking Free from the grips of excessive social media use. Each episode delves into the effects of social media addiction on mental health, relationships, and productivity, and offers practical advice for reclaiming control. Featuring insights from experts, personal success stories, and actionable strategies, we guide listeners through the process of reducing screen time, fostering healthier online habits, and finding a more balanced, fulfilling life beyond the screen.",
         price: 19,
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/social-media-de-addiction-orignals.mp3",
         ageCategory: AgeCategory.TEEN,
+        type: ProductType.PODCAST,
         tags: ["technology", "addiction", "news"],
         rating: 4.5,
         productImages: [
@@ -1679,6 +1724,7 @@ const seedProducts = async () => {
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/teen-emotional-and-behavioural-problems-orignals.mp3",
         ageCategory: AgeCategory.TEEN,
+        type: ProductType.PODCAST,
         tags: ["technology", "addiction", "news"],
         rating: 4.5,
         productImages: [
@@ -1710,6 +1756,7 @@ const seedProducts = async () => {
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/magical-journey-to-self-dicovery-orignals.mp3",
         ageCategory: AgeCategory.TEEN,
+        type: ProductType.PODCAST,
         tags: ["technology", "addiction", "news"],
         rating: 4.5,
         productImages: [
@@ -1741,6 +1788,7 @@ const seedProducts = async () => {
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/maintaining-relationship-with-teenager-orignals.mp3",
         ageCategory: AgeCategory.TEEN,
+        type: ProductType.PODCAST,
         tags: ["technology", "addiction", "news"],
         rating: 4.5,
         productImages: [
@@ -1773,6 +1821,7 @@ const seedProducts = async () => {
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/phrases-sentences-orignals.mp3",
         ageCategory: AgeCategory.TEEN,
+        type: ProductType.PODCAST,
         tags: ["technology", "addiction", "news"],
         rating: 4.5,
         productImages: [
@@ -1804,6 +1853,7 @@ const seedProducts = async () => {
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/role-models-for-kid-orignals.mp3",
         ageCategory: AgeCategory.TEEN,
+        type: ProductType.PODCAST,
         tags: ["technology", "addiction", "news"],
         rating: 4.5,
         productImages: [
@@ -1835,6 +1885,7 @@ const seedProducts = async () => {
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/things-parents-do-that-annoy-kids-orignals.mp3",
         ageCategory: AgeCategory.TEEN,
+        type: ProductType.PODCAST,
         tags: ["technology", "addiction", "news"],
         rating: 4.5,
         productImages: [
@@ -1866,6 +1917,7 @@ const seedProducts = async () => {
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/electronic-gadgets-and-kids-orignals.mp3",
         ageCategory: AgeCategory.CHILD,
+        type: ProductType.PODCAST,
         tags: ["technology", "addiction", "news"],
         rating: 4.5,
         productImages: [
@@ -1897,12 +1949,13 @@ const seedProducts = async () => {
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/negative_impact_of_mobile.mp3",
         ageCategory: AgeCategory.TEEN,
+        type: ProductType.PODCAST,
         tags: ["technology", "addiction", "news"],
         rating: 4.5,
         productImages: [
           {
             imageUrl:
-              "/assets/images/reconnecting-genz-with-value-beyond-screen.jpg",
+              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/thumbnails/Reconnecting+gen+Z+with+value+beyond+the+screen+.png",
           },
         ],
         productVideos: [
@@ -1929,12 +1982,13 @@ const seedProducts = async () => {
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/fun-beyond-video-game.mp3",
         ageCategory: AgeCategory.TEEN,
+        type: ProductType.PODCAST,
         tags: ["technology", "addiction", "news"],
         rating: 4.5,
         productImages: [
           {
             imageUrl:
-              "/assets/images/reconnecting-genz-with-value-beyond-screen.jpg",
+              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/thumbnails/Fun+beyond+Games.png",
           },
         ],
         productVideos: [
@@ -1961,12 +2015,13 @@ const seedProducts = async () => {
         orignalProductSrc:
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/how-to-maintain-healthy-relations.mp3",
         ageCategory: AgeCategory.TEEN,
+        type: ProductType.PODCAST,
         tags: ["Health", "relation", "news"],
         rating: 4.5,
         productImages: [
           {
             imageUrl:
-              "/assets/images/reconnecting-genz-with-value-beyond-screen.jpg",
+              "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/thumbnails/How+to+maintain+Healthy+Relations+.png",
           },
         ],
         productVideos: [
@@ -2007,182 +2062,916 @@ const seedProducts = async () => {
     // ]);
 
     // // Create Assessments
-    // const assessments = await Assessment.create([
-    //   {
-    //     title: "Emotional joy",
-    //     description:
-    //       "Explore your emotional well-being, family values, and relationship dynamics. ",
-    //     price: 190,
-    //     ageCategory: AgeCategory.ADULT,
-    //     tags: [
-    //       "emotional well-being",
-    //       "family values",
-    //       "relationship dynamics",
-    //     ],
-    //     details: {
-    //       questions: [
-    //         {
-    //           questionText: "Who created Spider-Man?",
-    //           options: ["Stan Lee", "Bob Kane", "Jack Kirby", "Steve Ditko"],
-    //           correctAnswer: "Stan Lee",
-    //         },
-    //         {
-    //           questionText: "In which year was Marvel Comics founded?",
-    //           options: ["1939", "1945", "1961", "1970"],
-    //           correctAnswer: "1939",
-    //         },
-    //       ],
-    //       passingScore: 70,
-    //       duration: 10, // minutes
-    //       difficulty: "College Students",
-    //     },
-    //   },
-    //   {
-    //     title: "Self Awareness Assessment.",
-    //     description:
-    //       "Discover your current state of mind, self-conduct, family values, willingness to change, and spiritual journey.",
-    //     price: 190,
-    //     ageCategory: AgeCategory.ADULT,
-    //     tags: [
-    //       "emotional well-being",
-    //       "family values",
-    //       "relationship dynamics",
-    //     ],
-    //     details: {
-    //       questions: [
-    //         {
-    //           questionText: "Who created Spider-Man?",
-    //           options: ["Stan Lee", "Bob Kane", "Jack Kirby", "Steve Ditko"],
-    //           correctAnswer: "Stan Lee",
-    //         },
-    //         {
-    //           questionText: "In which year was Marvel Comics founded?",
-    //           options: ["1939", "1945", "1961", "1970"],
-    //           correctAnswer: "1939",
-    //         },
-    //       ],
-    //       passingScore: 70,
-    //       duration: 10, // minutes
-    //       difficulty: "College Students",
-    //     },
-    //   },
-    //   {
-    //     title: "Skills Assessment",
-    //     description:
-    //       "Assess your interpersonal, analytical, and professional skills to enhance your career, communication, and overall growth.",
-    //     price: 190,
-    //     ageCategory: AgeCategory.ADULT,
-    //     tags: [
-    //       "emotional well-being",
-    //       "family values",
-    //       "relationship dynamics",
-    //     ],
-    //     details: {
-    //       questions: [
-    //         {
-    //           questionText: "Who created Spider-Man?",
-    //           options: ["Stan Lee", "Bob Kane", "Jack Kirby", "Steve Ditko"],
-    //           correctAnswer: "Stan Lee",
-    //         },
-    //         {
-    //           questionText: "In which year was Marvel Comics founded?",
-    //           options: ["1939", "1945", "1961", "1970"],
-    //           correctAnswer: "1939",
-    //         },
-    //       ],
-    //       passingScore: 70,
-    //       duration: 15, // minutes
-    //       difficulty: "Individuals from any background",
-    //     },
-    //   },
-    //   {
-    //     title: "Addiction Awareness",
-    //     description:
-    //       "Evaluate your habits and identify areas of addiction, from mobile and social media to gaming, shopping, and substance abuse. ",
-    //     price: 190,
-    //     ageCategory: AgeCategory.ADULT,
-    //     tags: [
-    //       "emotional well-being",
-    //       "family values",
-    //       "relationship dynamics",
-    //     ],
-    //     details: {
-    //       questions: [
-    //         {
-    //           questionText: "Who created Spider-Man?",
-    //           options: ["Stan Lee", "Bob Kane", "Jack Kirby", "Steve Ditko"],
-    //           correctAnswer: "Stan Lee",
-    //         },
-    //         {
-    //           questionText: "In which year was Marvel Comics founded?",
-    //           options: ["1939", "1945", "1961", "1970"],
-    //           correctAnswer: "1939",
-    //         },
-    //       ],
-    //       passingScore: 70,
-    //       duration: 10, // minutes
-    //       difficulty: "College Students",
-    //     },
-    //   },
-    //   {
-    //     title: "Emotional Joy",
-    //     description:
-    //       "Explore your emotional well-being, family values, and relationship dynamics. ",
-    //     price: 190,
-    //     ageCategory: AgeCategory.ADULT,
-    //     tags: [
-    //       "emotional well-being",
-    //       "family values",
-    //       "relationship dynamics",
-    //     ],
-    //     details: {
-    //       questions: [
-    //         {
-    //           questionText: "Who created Spider-Man?",
-    //           options: ["Stan Lee", "Bob Kane", "Jack Kirby", "Steve Ditko"],
-    //           correctAnswer: "Stan Lee",
-    //         },
-    //         {
-    //           questionText: "In which year was Marvel Comics founded?",
-    //           options: ["1939", "1945", "1961", "1970"],
-    //           correctAnswer: "1939",
-    //         },
-    //       ],
-    //       passingScore: 70,
-    //       duration: 10, // minutes
-    //       difficulty: "College Students",
-    //     },
-    //   },
-    //   {
-    //     title: "Emotional Fear",
-    //     description:
-    //       "Discover your current state of mind, self-conduct, family values, willingness to change, and spiritual journey.",
-    //     price: 190,
-    //     ageCategory: AgeCategory.ADULT,
-    //     tags: [
-    //       "emotional well-being",
-    //       "family values",
-    //       "relationship dynamics",
-    //     ],
-    //     details: {
-    //       questions: [
-    //         {
-    //           questionText: "Who created Spider-Man?",
-    //           options: ["Stan Lee", "Bob Kane", "Jack Kirby", "Steve Ditko"],
-    //           correctAnswer: "Stan Lee",
-    //         },
-    //         {
-    //           questionText: "In which year was Marvel Comics founded?",
-    //           options: ["1939", "1945", "1961", "1970"],
-    //           correctAnswer: "1939",
-    //         },
-    //       ],
-    //       passingScore: 70,
-    //       duration: 10, // minutes
-    //       difficulty: "College Students",
-    //     },
-    //   },
-    // ]);
+    const assessments = await Assessment.create([
+      {
+        title: "Psychological Emotions (Therapy) ",
+        description:
+          "Valuable insights into maintaining professional behavior and building career success.",
+        price: 10,
+        originalProductSrc: "",
+        ageCategory: AgeCategory.ADULT,
+        type: ProductType.ASSESSMENT,
+        tags: [
+          "emotional well-being",
+          "family values",
+          "relationship dynamics",
+        ],
+        rating: 4.5,
+        productImages: [
+          {
+            imageUrl: "/assets/assesments/thumbnails/therapy.png",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        isFeatured: true,
+        details: {
+          color: "#652D90",
+          duration: 10, // minutes
+          difficulty: "College Students",
+          credits: "Mentoons",
+          questionGallery: [
+            {
+              imageUrl: "/assets/assesments/Therapy/therapy-01.JPG",
+              options: [
+                "Everyone approaches me with their problems.",
+                "I don't allow anyone to share their problems with me.",
+              ],
+              correctAnswer: "Everyone approaches me with their problems.",
+            },
+            {
+              imageUrl: "/assets/assesments/Therapy/therapy-02.JPG",
+              options: [
+                "The teacher recommended therapy for everyone.",
+                "A few students and i were exempted from therapy.",
+              ],
+              correctAnswer: "A few students and i were exempted from therapy.",
+            },
+            {
+              imageUrl: "/assets/assesments/Therapy/therapy-03.JPG",
+              options: [
+                "Very few are seeking therpay.",
+                "None of us gose for therapy.",
+              ],
+              correctAnswer: "None of us gose for therapy.",
+            },
+            {
+              imageUrl: "/assets/assesments/Therapy/therapy-04.JPG",
+              options: ["It works wonderful on me.", "It has no impact on me."],
+              corrctAnswer: "It works wonderful on me.",
+            },
+            {
+              imageUrl: "/assets/assesments/Therapy/therapy-05.JPG",
+              options: [
+                "I feel sorted and peaceful.",
+                "Therapy makes me more confused",
+              ],
+              correctAnswer: "Therapy makes me more confused",
+            },
+            {
+              imageUrl: "/assets/assesments/Therapy/therapy-06.JPG",
+              options: ["Absolutely", "Not necessarily"],
+              correctAnswer: "Absolutely",
+            },
+
+            {
+              imageUrl: "/assets/assesments/Therapy/therapy-07.JPG",
+              options: [
+                "But it's very expensive",
+                "My parents won't allow it.",
+              ],
+              correctAnswer: "My parents won't allow it.",
+            },
+            {
+              imageUrl: "/assets/assesments/Therapy/therapy-08.JPG",
+              options: [
+                "I feel better after spending time with my friends.",
+                "Even my friends cannot help with my situation.",
+              ],
+              correctAnswer: "Even my friends cannot help with my situation.",
+            },
+            {
+              imageUrl: "/assets/assesments/Therapy/therapy-09.JPG",
+              options: ["Therapy helped me.", "Nothing worked on me."],
+              correctAnswer: "Nothing worked on me.",
+            },
+            {
+              imageUrl: "/assets/assesments/Therapy/therapy-10.JPG",
+              options: [
+                "I am scared to tell my parents",
+                "My parents gladdly welcomed me sharing the idea.",
+              ],
+              correctAnswer: "My parents gladdly welcomed me sharing the idea.",
+            },
+          ],
+        },
+      },
+
+      {
+        title: "Psychological Emotions (Self Reflection)",
+        description:
+          "Uncover your strengths, traits, and behaviors to better understand yourself.",
+        price: 15,
+        originalProductSrc: "",
+        ageCategory: AgeCategory.ADULT,
+        type: ProductType.ASSESSMENT,
+        tags: [
+          "emotional well-being",
+          "family values",
+          "relationship dynamics",
+        ],
+        rating: 4.5,
+        productImages: [
+          {
+            imageUrl: "/assets/assesments/thumbnails/self-reflection.png",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        isFeatured: false,
+        details: {
+          color: "#F7941D",
+          duration: 10, // minutes
+          difficulty: "Individuals from any background",
+          credits: "Mentoons",
+          questionGallery: [
+            {
+              imageUrl:
+                "/assets/assesments/Self Reflection/self-reflection-01.JPG",
+              options: [
+                "I wish i continue my career.",
+                "I have a balanced life now.",
+              ],
+              correctAnswer: "I wish i continue my career.",
+            },
+            {
+              imageUrl:
+                "/assets/assesments/Self Reflection/self-reflection-02.JPG",
+              options: [
+                "I miss being a pilot",
+                "I am happy serving as a doctor.",
+              ],
+              correctAnswer: "I am happy serving as a doctor.",
+            },
+            {
+              imageUrl:
+                "/assets/assesments/Self Reflection/self-reflection-03.JPG",
+              options: [
+                "To save my friendship, I will listen adn console.",
+                "I will fight for my rights even at the cost of my friendship.",
+              ],
+              correctAnswer:
+                "I will fight for my rights even at the cost of my friendship.",
+            },
+            {
+              imageUrl:
+                "/assets/assesments/Self Reflection/self-reflection-04.JPG",
+              options: [
+                "I miss my friend and try to reconnect.",
+                "I focus on making new friends.",
+              ],
+              correctAnswer: "I focus on making new friends.",
+            },
+            {
+              imageUrl:
+                "/assets/assesments/Self Reflection/self-reflection-05.JPG",
+              options: [
+                "I think about what to do next.",
+                "I feel bad and do nothing.",
+              ],
+              correctAnswer: "I think about what to do next.",
+            },
+            {
+              imageUrl:
+                "/assets/assesments/Self Reflection/self-reflection-06.JPG",
+              options: ["I am diet conscious.", "I am a foodie."],
+              correctAnswer: "I am diet conscious.",
+            },
+            {
+              imageUrl:
+                "/assets/assesments/Self Reflection/self-reflection-07.JPG",
+              options: [
+                "I am okay with hugging once in while.",
+                "I hate beign touched or hugged.",
+              ],
+              correctAnswer: "I hate beign touched or hugged.",
+            },
+            {
+              imageUrl:
+                "/assets/assesments/Self Reflection/self-reflection-08.JPG",
+              options: [
+                "I celebrate with my friends",
+                "I just share my happiness online.",
+              ],
+              correctAnswer: "I celebrate with my friends",
+            },
+            {
+              imageUrl:
+                "/assets/assesments/Self Reflection/self-reflection-09.JPG",
+              options: [
+                "I have will to fight back",
+                "I sulk and accept defeat.",
+              ],
+              correctAnswer: "I have will to fight back",
+            },
+            {
+              imageUrl:
+                "/assets/assesments/Self Reflection/self-reflection-10.JPG",
+              options: [
+                "I know i won't be able to finish task, so I won't even try.",
+                " I'll listen to my father and complete it.",
+              ],
+              correctAnswer: " I'll listen to my father and complete it.",
+            },
+          ],
+        },
+      },
+      {
+        title: "Psychological Emotions (Meditation) ",
+        description:
+          "Evaluate your emotional intelligence and social skills for better relationships and interactions.",
+        price: 10,
+        originalProductSrc: "",
+        ageCategory: AgeCategory.ADULT,
+        type: ProductType.ASSESSMENT,
+        tags: [
+          "emotional well-being",
+          "family values",
+          "relationship dynamics",
+        ],
+        rating: 4.5,
+        productImages: [
+          {
+            imageUrl: "/assets/assesments/thumbnails/meditation.png",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        isFeatured: false,
+        details: {
+          color: "#F7941D",
+          duration: 10, // minutes
+          difficulty: "College Students",
+          credits: "Mentoons",
+          questionGallery: [
+            {
+              imageUrl: "/assets/assesments/Meditation/meditation-01.JPG",
+              options: ["Meditation helps me.", "Meditation doesn't help me."],
+              correctAnswer: "Meditation helps me.",
+            },
+            {
+              imageUrl: "/assets/assesments/Meditation/meditation-02.JPG",
+              options: [
+                "Meditation helps me overcome stress.",
+                "Meditation does not helps me",
+              ],
+              correctAnswer: "Meditation helps me overcome stress.",
+            },
+            {
+              imageUrl: "/assets/assesments/Meditation/meditation-03.JPG",
+              options: [
+                "I remember things better.",
+                "I forgot things even after meditating.",
+              ],
+              correctAnswer: "I remember things better.",
+            },
+            {
+              imageUrl: "/assets/assesments/Meditation/meditation-04.JPG",
+              options: ["Reduce stress and anxiety", "Get better sleep"],
+              correctAnswer: "Reduce stress and anxiety",
+            },
+            {
+              imageUrl: "/assets/assesments/Meditation/meditation-05.JPG",
+              options: [
+                "I feel pain in my lower back",
+                "I feel calm and deeply relaxed.",
+              ],
+              correctAnswer: "I feel calm and deeply relaxed.",
+            },
+            {
+              imageUrl: "/assets/assesments/Meditation/meditation-06.JPG",
+              options: ["Very effective.", "Didn't work for me."],
+              correctAnswer: "Very effective.",
+            },
+            {
+              imageUrl: "/assets/assesments/Meditation/meditation-07.JPG",
+              options: [
+                "Helps me understand myself better",
+                "Increase positive feeling toward other.",
+              ],
+              correctAnswer: "Helps me understand myself better",
+            },
+            {
+              imageUrl: "/assets/assesments/Meditation/meditation-08.JPG",
+              options: ["It works for me.", "It doesn't work for me."],
+              correctAnswer: "It works for me.",
+            },
+            {
+              imageUrl: "/assets/assesments/Meditation/meditation-09.JPG",
+              options: [
+                "It boosts my thinking.",
+                "It's not effective. for me.",
+              ],
+              correctAnswer: "It boosts my thinking.",
+            },
+            {
+              imageUrl: "/assets/assesments/Meditation/meditation-10.JPG",
+              options: ["It improves my focus.", "It doesn't help me."],
+              correctAnswer: "It improves my focus.",
+            },
+          ],
+        },
+      },
+      {
+        title: "Physical Emotion",
+        description:
+          "Valuable insights into maintaining professional behavior and building career success.",
+        price: 15,
+        originalProductSrc: "",
+        ageCategory: AgeCategory.ADULT,
+        type: ProductType.ASSESSMENT,
+        tags: [
+          "emotional well-being",
+          "family values",
+          "relationship dynamics",
+        ],
+        rating: 4.5,
+        productImages: [
+          {
+            imageUrl: "/assets/assesments/thumbnails/physical-emotion.png",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        isFeatured: false,
+        details: {
+          color: "#652D90",
+          duration: 10, // minutes
+          difficulty: "Individuals from any background",
+          credits: "Mentoons",
+          questionGallery: [
+            {
+              imageUrl:
+                "/assets/assesments/Physical emotions/physical-emotion-01.jpg",
+              options: [
+                "The girl dosen't have any issue with kissing",
+                "In an engagement, the girl avoids kissing in front of relatives.",
+              ],
+              correctAnswer: "The girl dosen't have any issue with kissing",
+            },
+            {
+              imageUrl:
+                "/assets/assesments/Physical emotions/physical-emotion-02.jpg",
+              options: [
+                "In my house, I prefer to study. My parents take care of my grandmother and take her to regular checkups",
+                "I will take medical responsibility and give my parents a break",
+              ],
+              correctAnswer:
+                "I will take medical responsibility and give my parents a break",
+            },
+            {
+              imageUrl:
+                "/assets/assesments/Physical emotions/physical-emotion-03.jpg",
+              options: [
+                "I get to take a body massage, I feel relaxed.",
+                "I don't enjoy body massage.",
+              ],
+              correctAnswer: "I get to take a body massage, I feel relaxed.",
+            },
+            {
+              imageUrl:
+                "/assets/assesments/Physical emotions/physical-emotion-04.jpg",
+              options: [
+                "I follow a proper gym routine and take proteins on time.",
+                "I avoid taking proteins.",
+              ],
+              correctAnswer:
+                "I follow a proper gym routine and take proteins on time.",
+            },
+            {
+              imageUrl:
+                "/assets/assesments/Physical emotions/physical-emotion-05.jpg",
+              options: [
+                "I enjoy holding hands while walking, It feels so good.",
+                "I don't like holding hands in public.",
+              ],
+              correctAnswer:
+                "I enjoy holding hands while walking, It feels so good.",
+            },
+          ],
+        },
+      },
+      {
+        title: "Physical Emotion (Eat Healthy)",
+        description:
+          "Uncover your strengths, traits, and behaviors to better understand yourself.",
+        price: 10,
+        originalProductSrc: "",
+        ageCategory: AgeCategory.ADULT,
+        type: ProductType.ASSESSMENT,
+        tags: [
+          "emotional well-being",
+          "family values",
+          "relationship dynamics",
+        ],
+        rating: 4.5,
+        productImages: [
+          {
+            imageUrl: "/assets/assesments/thumbnails/eat-healthy.png",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        isFeatured: false,
+        details: {
+          color: "#652D90",
+          duration: 10, // minutes
+          difficulty: "College Students",
+          credits: "Mentoons",
+          questionGallery: [
+            {
+              imageUrl: "/assets/assesments/Eat healthy/eat-healthy-01.jpg",
+              options: [
+                "I'll make a quick salad.",
+                "I'll order a fried chicken.",
+              ],
+              correctAnswer: "I'll make a quick salad.",
+            },
+            {
+              imageUrl: "/assets/assesments/Eat healthy/eat-healthy-02.jpg",
+              options: [
+                "I'll enjoy a fruit salad",
+                "I'll eat ice cream or cake.",
+              ],
+              correctAnswer: "I'll enjoy a fruit salad",
+            },
+            {
+              imageUrl: "/assets/assesments/Eat healthy/eat-healthy-03.jpg",
+              options: [
+                "I'll use olive oil or avocado as a topping",
+                "I'll add mayonnaise or creamy dressings",
+              ],
+              correctAnswer: "I'll use olive oil or avocado as a topping",
+            },
+            {
+              imageUrl: "/assets/assesments/Eat healthy/eat-healthy-04.jpg",
+              options: [
+                "I dringk water or buttermilk.",
+                "I drink cola or sugary drinks.",
+              ],
+              correctAnswer: "I dringk water or buttermilk.",
+            },
+            {
+              imageUrl: "/assets/assesments/Eat healthy/eat-healthy-05.jpg",
+              options: [
+                "I eat roti, rice, dal, and sabzi",
+                "I eat biryani or fried snacks.",
+              ],
+              correctAnswer: "I eat roti, rice, dal, and sabzi",
+            },
+            {
+              imageUrl: "/assets/assesments/Eat healthy/eat-healthy-06.jpg",
+              options: ["I'll eat fresh fruit", "I'll have a milkshake."],
+              correctAnswer: "I'll eat fresh fruit",
+            },
+            {
+              imageUrl: "/assets/assesments/Eat healthy/eat-healthy-07.jpg",
+              options: ["I'll cook veggies and chicken", "I'll order pizza."],
+              correctAnswer: "I'll cook veggies and chicken",
+            },
+            {
+              imageUrl: "/assets/assesments/Eat healthy/eat-healthy-08.jpg",
+              options: [
+                "I have a piece of dark chocolate",
+                "I have laddu and or a lot of sweets.",
+              ],
+              correctAnswer: "I have a piece of dark chocolate",
+            },
+            {
+              imageUrl: "/assets/assesments/Eat healthy/eat-healthy-09.JPG",
+              options: [
+                "I ordered a single slice to satisfy craving.",
+                "I ordered three slices of pizza to feel full.",
+              ],
+              correctAnswer: "I ordered a single slice to satisfy craving.",
+            },
+            {
+              imageUrl: "/assets/assesments/Eat healthy/eat-healthy-10.JPG",
+              options: [
+                "Low-fat noodles and snacks with Diet Coke.",
+                "A proper balanced meal full of nutrients.",
+              ],
+              correctAnswer: "A proper balanced meal full of nutrients.",
+            },
+          ],
+        },
+      },
+      {
+        title: "Opinion Assesment",
+        description:
+          "Evaluate your emotional intelligence and social skills for better relationships and interactions.",
+        price: 10,
+        originalProductSrc: "",
+        ageCategory: AgeCategory.ADULT,
+        type: ProductType.ASSESSMENT,
+        tags: [
+          "emotional well-being",
+          "family values",
+          "relationship dynamics",
+        ],
+        rating: 4.5,
+        productImages: [
+          {
+            imageUrl: "/assets/assesments/thumbnails/opinions.png",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        isFeatured: false,
+        details: {
+          color: "#652D90",
+          duration: 10, // minutes
+          difficulty: "College Students",
+          credits: "Mentoons",
+          questionGallery: [
+            {
+              imageUrl: "/assets/assesments/opinions/opinion-01.png",
+              options: ["I give one clear opinion.", "I give 2 or 3 opinions."],
+              correctAnswer: "I give one clear opinion.",
+            },
+            {
+              imageUrl: "/assets/assesments/opinions/opinion-02.png",
+              options: [
+                "I share it, no matter what.",
+                "I share it only when asked.",
+              ],
+              correctAnswer: "I share it, no matter what.",
+            },
+            {
+              imageUrl: "/assets/assesments/opinions/opinion-03.png",
+              options: ["Real friends.", "Online friends."],
+              correctAnswer: "Real friends.",
+            },
+            {
+              imageUrl: "/assets/assesments/opinions/opinion-04.png",
+              options: ["I ignore it.", "I give my opinion."],
+              correctAnswer: "I give my opinion.",
+            },
+            {
+              imageUrl: "/assets/assesments/opinions/opinion-05.png",
+              options: ["I feel scared.", "I feel comfortable."],
+              correctAnswer: "I feel comfortable.",
+            },
+            {
+              imageUrl: "/assets/assesments/opinions/opinion-06.png",
+              options: ["I ignore all of them.", "I take selectively"],
+              correctAnswer: "I take selectively",
+            },
+            {
+              imageUrl: "/assets/assesments/opinions/opinion-07.png",
+              options: [
+                "I'm very vocal about it.",
+                "I prefer to keep it to myself",
+              ],
+              correctAnswer: "I'm very vocal about it.",
+            },
+            {
+              imageUrl: "/assets/assesments/opinions/opinion-08.png",
+              options: ["Yes, it is", "No, it's isn't"],
+              correctAnswer: "Yes, it is",
+            },
+            {
+              imageUrl: "/assets/assesments/opinions/opinion-09.png",
+              options: ["Yes, it is.", "No it isn't."],
+              correctAnswer: "Yes, it is.",
+            },
+            {
+              imageUrl: "/assets/assesments/opinions/opinion-10.png",
+              options: ["I give my own opinion.", "I follow other's opinions."],
+              correctAnswer: "I give my own opinion.",
+            },
+          ],
+        },
+      },
+      {
+        title: "Exercise Assesment",
+        description:
+          "Valuable insights into maintaining professional behavior and building career success.",
+        price: 10,
+        originalProductSrc: "",
+        ageCategory: AgeCategory.ADULT,
+        type: ProductType.ASSESSMENT,
+        tags: [
+          "emotional well-being",
+          "family values",
+          "relationship dynamics",
+        ],
+        rating: 4.5,
+        productImages: [
+          {
+            imageUrl: "/assets/assesments/thumbnails/exercise.png",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        isFeatured: false,
+        details: {
+          color: "#F7941D",
+          duration: 10, // minutes
+          difficulty: "College Students",
+          credits: "Mentoons",
+          questionGallery: [
+            {
+              imageUrl: "/assets/assesments/Exercise/exercise-01.jpg",
+              options: ["I'm ready to exercise", "I want to sleep more"],
+              correctAnswer: "I'm ready to exercise",
+            },
+            {
+              imageUrl: "/assets/assesments/Exercise/exercise-02.jpg",
+              options: ["I'm excited", "I don't feel likt it"],
+              correctAnswer: "I'm excited",
+            },
+            {
+              imageUrl: "/assets/assesments/Exercise/exercise-03.jpg",
+              options: ["I'm motivated", "I feel lazy."],
+              correctAnswer: "I'm motivated",
+            },
+            {
+              imageUrl: "/assets/assesments/Exercise/exercise-04.jpg",
+              options: ["I feel strong", "I want to stop"],
+              correctAnswer: "I feel strong",
+            },
+            {
+              imageUrl: "/assets/assesments/Exercise/exercise-05.jpg",
+              options: ["I feel great", "I'm exhausted"],
+              correctAnswer: "I feel great",
+            },
+            {
+              imageUrl: "/assets/assesments/Exercise/exercise-06.jpg",
+              options: ["I stretch or walk", "I sit and relax"],
+              correctAnswer: "I stretch or walk",
+            },
+            {
+              imageUrl: "/assets/assesments/Exercise/exercise-07.jpg",
+              options: [
+                "I feel good and want to exercise",
+                "I feel tired and prefer to rest.",
+              ],
+              correctAnswer: "I feel good and want to exercise",
+            },
+            {
+              imageUrl: "/assets/assesments/Exercise/exercise-08.jpg",
+              options: [
+                "I'll do it in the evening",
+                "I'll skip it for today and rest",
+              ],
+              correctAnswer: "I'll do it in the evening",
+            },
+            {
+              imageUrl: "/assets/assesments/Exercise/exercise-09.jpg",
+              options: ["I'll skip the workout", "I'll try to work out anyway"],
+              correctAnswer: "I'll try to work out anyway",
+            },
+            {
+              imageUrl: "/assets/assesments/Exercise/exercise-10.JPG",
+              options: [
+                "I go to sleep by 9 PM and wake up in the morining",
+                "I have irregular sleep because I wake up at night due to notificaitons.",
+              ],
+              correctAnswer:
+                "I go to sleep by 9 PM and wake up in the morining",
+            },
+          ],
+        },
+      },
+      {
+        title: "Behavioural Assesment",
+        description:
+          "Uncover your strengths, traits, and behaviors to better understand yourself.",
+        price: 10,
+        originalProductSrc: "",
+        ageCategory: AgeCategory.ADULT,
+        type: ProductType.ASSESSMENT,
+        tags: [
+          "emotional well-being",
+          "family values",
+          "relationship dynamics",
+        ],
+        rating: 4.5,
+        productImages: [
+          {
+            imageUrl: "/assets/assesments/thumbnails/behaviour.png",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        isFeatured: false,
+        details: {
+          color: "#F7941D",
+          duration: 10, // minutes
+          difficulty: "College Students",
+          credits: "Mentoons",
+          questionGallery: [
+            {
+              imageUrl: "/assets/assesments/Behaviours/behavioural-01.jpg",
+              options: [
+                "I worry I can't finish everything on time.",
+                "I feel I have to do everything perfectly.",
+              ],
+              correctAnswer: "I worry I can't finish everything on time.",
+            },
+            {
+              imageUrl: "/assets/assesments/Behaviours/behavioural-02.jpg",
+              options: [
+                "I try to stay polite and calm.",
+                "I struggle to control my behaviour because of how i feel.",
+              ],
+              correctAnswer: "I try to stay polite and calm.",
+            },
+            {
+              imageUrl: "/assets/assesments/Behaviours/behavioural-03.jpg",
+              options: [
+                "How can i help you? Are you hurt?",
+                "Why weren't you paying attention?",
+              ],
+              correctAnswer: "How can i help you? Are you hurt?",
+            },
+            {
+              imageUrl: "/assets/assesments/Behaviours/behavioural-04.jpg",
+              options: [
+                "I feel really sad all the time",
+                "I feel like everything is too hard to enjoy",
+              ],
+              correctAnswer: "I feel really sad all the time",
+            },
+            {
+              imageUrl: "/assets/assesments/Behaviours/behavioural-05.jpg",
+              options: [
+                "I will simply put the balance in my wallet without checking",
+                "I will check the balance twice",
+              ],
+              correctAnswer:
+                "I will simply put the balance in my wallet without checking",
+            },
+            {
+              imageUrl: "/assets/assesments/Behaviours/behavioural-06.jpg",
+              options: [
+                "I engage in my hobbies, and I feel happy and fulfilled",
+                "I don't have any particular hobbies that interest me.",
+              ],
+              correctAnswer:
+                "I engage in my hobbies, and I feel happy and fulfilled",
+            },
+            {
+              imageUrl: "/assets/assesments/Behaviours/behavioural-07.jpg",
+              options: [
+                "I am very comfortable staying alone",
+                "I am not comfortable being with others",
+              ],
+              correctAnswer: "I am very comfortable staying alone",
+            },
+            {
+              imageUrl: "/assets/assesments/Behaviours/behavioural-08.jpg",
+              options: [
+                "I can recall things, but it take effort",
+                "I struggle to remember even simple things",
+              ],
+              correctAnswer: "I can recall things, but it take effort",
+            },
+            {
+              imageUrl: "/assets/assesments/Behaviours/behavioural-09.jpg",
+              options: [
+                "I have to many thoughts running through my mind",
+                "I don't feel tired enough to sleep",
+              ],
+              correctAnswer: "I have to many thoughts running through my mind",
+            },
+            {
+              imageUrl: "/assets/assesments/Behaviours/behavioural-10.jpg",
+              options: [
+                "I chat with the person next",
+                "You keep your eye on the phone",
+              ],
+              correctAnswer: "I chat with the person next",
+            },
+          ],
+        },
+      },
+      {
+        title: "Opinion Assesment",
+        description:
+          "Evaluate your emotional intelligence and social skills for better relationships and interactions.",
+        price: 10,
+        originalProductSrc: "",
+        ageCategory: AgeCategory.ADULT,
+        type: ProductType.ASSESSMENT,
+        tags: [
+          "emotional well-being",
+          "family values",
+          "relationship dynamics",
+        ],
+        rating: 4.5,
+        productImages: [
+          {
+            imageUrl: "/assets/assesments/thumbnails/opinions.png",
+          },
+        ],
+        productVideos: [
+          {
+            videoUrl: "",
+          },
+        ],
+        isFeatured: false,
+        details: {
+          color: "#652D90",
+          duration: 10, // minutes
+          difficulty: "College Students",
+          credits: "Mentoons",
+          questionGallery: [
+            {
+              imageUrl: "/assets/assesments/opinions/opinion-01.png",
+              options: ["I give one clear opinion.", "I give 2 or 3 opinions."],
+              correctAnswer: "I give one clear opinion.",
+            },
+            {
+              imageUrl: "/assets/assesments/opinions/opinion-02.png",
+              options: [
+                "I share it, no matter what.",
+                "I share it only when asked.",
+              ],
+              correctAnswer: "I share it, no matter what.",
+            },
+            {
+              imageUrl: "/assets/assesments/opinions/opinion-03.png",
+              options: ["Real friends.", "Online friends."],
+              correctAnswer: "Real friends.",
+            },
+            {
+              imageUrl: "/assets/assesments/opinions/opinion-04.png",
+              options: ["I ignore it.", "I give my opinion."],
+              correctAnswer: "I give my opinion.",
+            },
+            {
+              imageUrl: "/assets/assesments/opinions/opinion-05.png",
+              options: ["I feel scared.", "I feel comfortable."],
+              correctAnswer: "I feel comfortable.",
+            },
+            {
+              imageUrl: "/assets/assesments/opinions/opinion-06.png",
+              options: ["I ignore all of them.", "I take selectively"],
+              correctAnswer: "I take selectively",
+            },
+            {
+              imageUrl: "/assets/assesments/opinions/opinion-07.png",
+              options: [
+                "I'm very vocal about it.",
+                "I prefer to keep it to myself",
+              ],
+              correctAnswer: "I'm very vocal about it.",
+            },
+            {
+              imageUrl: "/assets/assesments/opinions/opinion-08.png",
+              options: ["Yes, it is", "No, it's isn't"],
+              correctAnswer: "Yes, it is",
+            },
+            {
+              imageUrl: "/assets/assesments/opinions/opinion-09.png",
+              options: ["Yes, it is.", "No it isn't."],
+              correctAnswer: "Yes, it is.",
+            },
+            {
+              imageUrl: "/assets/assesments/opinions/opinion-10.png",
+              options: ["I give my own opinion.", "I follow other's opinions."],
+              correctAnswer: "I give my own opinion.",
+            },
+          ],
+        },
+      },
+    ]);
 
     // Sample Mentoons Card
     const mentoonsCard = await MentoonsCard.create([
@@ -2688,7 +3477,7 @@ const seedProducts = async () => {
         title: "Story Re-teller Cards (6-12) years",
         description:
           "Unleash creativity and connection with our Story Reteller Cards. Inspire kids to imagine, think critically, and bond through fun, engaging stories. Easy to carry, they make learning and sharing a joy anytime, anywhere!",
-        price: 1,
+        price: 199,
         orignalProductSrc:
           "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Story_Reteller_Cards/6-12/Story+reteller+6-12.pdf",
         ageCategory: AgeCategory.CHILD,
@@ -2906,7 +3695,7 @@ const seedProducts = async () => {
                 },
                 {
                   description:
-                    "Helps teens express themselves freely, boosting confidence",
+                    "Helps teens express themselves Freely, boosting confidence",
                 },
                 {
                   description:
@@ -3046,7 +3835,7 @@ const seedProducts = async () => {
       {
         title: "Silent Stories (6-12) years",
         description:
-          "Unlock your child’s creativity with Silent Stories, a screen-free activity that boosts imagination and storytelling skills. Perfect for solo or group play, it fosters emotional understanding and strengthens communication while offering a fun, offline bonding experience.",
+          "Unlock your child’s creativity with Silent Stories, a screen-Free activity that boosts imagination and storytelling skills. Perfect for solo or group play, it fosters emotional understanding and strengthens communication while offering a fun, offline bonding experience.",
         price: 199,
         orignalProductSrc:
           "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Silent_stories/6-12/Silent+Stories+6-12.pdf",
@@ -3107,7 +3896,7 @@ const seedProducts = async () => {
                   description: "Ecourage creativity",
                 },
                 {
-                  description: "Screen-free activity",
+                  description: "Screen-Free activity",
                 },
                 {
                   description: "Enhances communication skill",
@@ -3163,7 +3952,7 @@ const seedProducts = async () => {
       {
         title: "Silent Stories (13-16) years",
         description:
-          "Unlock your child’s creativity with Silent Stories, a screen-free activity that boosts imagination and storytelling skills. Perfect for solo or group play, it fosters emotional understanding and strengthens communication while offering a fun, offline bonding experience.",
+          "Unlock your child’s creativity with Silent Stories, a screen-Free activity that boosts imagination and storytelling skills. Perfect for solo or group play, it fosters emotional understanding and strengthens communication while offering a fun, offline bonding experience.",
         price: 199,
         orignalProductSrc:
           "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Silent_stories/13-16/Silent+stories+13-16.pdf",
@@ -3223,7 +4012,7 @@ const seedProducts = async () => {
                 },
                 {
                   description:
-                    "Helps teens express themselves freely, boosting confidence",
+                    "Helps teens express themselves Freely, boosting confidence",
                 },
                 {
                   description:
@@ -3247,7 +4036,7 @@ const seedProducts = async () => {
                 },
                 {
                   description:
-                    "Helps teens express themselves freely, boosting confidence",
+                    "Helps teens express themselves Freely, boosting confidence",
                 },
                 {
                   description:
@@ -3271,7 +4060,7 @@ const seedProducts = async () => {
                 },
                 {
                   description:
-                    "Helps teens express themselves freely, boosting confidence",
+                    "Helps teens express themselves Freely, boosting confidence",
                 },
                 {
                   description:
@@ -3292,7 +4081,7 @@ const seedProducts = async () => {
       {
         title: "Silent Stories (17-19) years",
         description:
-          "Unlock your child’s creativity with Silent Stories, a screen-free activity that boosts imagination and storytelling skills. Perfect for solo or group play, it fosters emotional understanding and strengthens communication while offering a fun, offline bonding experience.",
+          "Unlock your child’s creativity with Silent Stories, a screen-Free activity that boosts imagination and storytelling skills. Perfect for solo or group play, it fosters emotional understanding and strengthens communication while offering a fun, offline bonding experience.",
         price: 199,
         orignalProductSrc:
           "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/Silent_stories/17-19/Silent+stories+17-19.pdf",
@@ -3353,7 +4142,7 @@ const seedProducts = async () => {
                   description: "Ecourage creativity",
                 },
                 {
-                  description: "Screen-free activity",
+                  description: "Screen-Free activity",
                 },
                 {
                   description: "Enhances communication skill",
@@ -3494,7 +4283,7 @@ const seedProducts = async () => {
         title: "Magnificent - 9 Colouring Book",
         description:
           "A fun and engaging coloring book featuring 9 unique characters for kids to bring to life with their creativity.",
-        price: 1,
+        price: 19,
         orignalProductSrc:
           "https://mentoons-products.s3.ap-northeast-1.amazonaws.com/Products/coloring_Books/productPDF/6-12/M9+colouring+book.pdf",
         ageCategory: AgeCategory.CHILD,
