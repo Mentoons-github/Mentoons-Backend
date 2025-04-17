@@ -29,6 +29,10 @@ const ProductSchema = new mongoose.Schema(
       enum: Object.values(ProductType),
       required: true,
     },
+    product_type: {
+      type: String,
+      enum: ["Free", "Prime", "Platinum"],
+    },
     tags: { type: [String], default: [] },
     rating: { type: Number, default: 0 },
 
