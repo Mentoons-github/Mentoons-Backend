@@ -4,6 +4,8 @@ const dbConnection = require("./src/config/dbConfig");
 const errorHandler = require("./src/middlewares/errorHandler");
 const morgan = require("morgan");
 
+require("./src/cron/sessionNotifer.js");
+
 const emailRoutes = require("./src/routes/email");
 const userRoutes = require("./src/routes/user.js");
 const productRoutes = require("./src/routes/product.routes.js");
