@@ -49,7 +49,6 @@ const postRes = async (request, response) => {
     const decryptedResponse = ccav.decrypt(ccavEncResponse, workingKey);
     console.log("Decrypted Response:", decryptedResponse);
 
-    // Convert the response string to an object
     const responseObject = decryptedResponse.split("&").reduce((acc, pair) => {
       const [key, value] = pair.split("=");
       acc[key] = decodeURIComponent(value || "");
@@ -99,7 +98,7 @@ const postRes = async (request, response) => {
             }
           );
 
-          console.log("✅ Updated Session:", updatedSession);
+          console.log("Updated Session:", updatedSession);
         }
 
         console.log("Order update result:", order);
