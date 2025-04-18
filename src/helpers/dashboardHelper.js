@@ -100,7 +100,11 @@ const getAnalytics = async () => {
       "Dec",
     ];
 
-    const completedOrdersInMonthOrder = monthsInOrder.map((month) => {
+    const currentMonthIndex = new Date().getMonth();
+
+    const monthsUpToCurrent = monthsInOrder.slice(0, currentMonthIndex + 1);
+
+    const completedOrdersInMonthOrder = monthsUpToCurrent.map((month) => {
       const monthData = completedOrdersData.find(
         (data) => data.month === month
       );
