@@ -4,43 +4,59 @@ const { errorResponse, successResponse } = require("../utils/responseHelper");
 const messageHelper = require("../utils/messageHelper");
 
 const uploadFileController = asyncHandler(async (req, res) => {
-  // Validate file upload
+  console.log("Incoming file upload request");
+
   if (!req.file) {
+    console.log("No file found in request");
     return errorResponse(res, 400, "No file uploaded");
   }
 
-  // Additional file validation
-  const MAX_FILE_SIZE = 200 * 1024 * 1024; // 200MB
+  const MAX_FILE_SIZE = 200 * 1024 * 1024;
   const ALLOWED_MIME_TYPES = [
-    'image/jpeg', 
-    'image/png', 
-    'image/gif', 
-    'application/pdf', 
-    'video/mp4',
-    'audio/mpeg',
-    
+    "image/jpeg",
+    "image/png",
+    "image/gif",
+    "application/pdf",
+    "video/mp4",
+    "audio/mpeg",
   ];
 
-  // Validate file size
   if (req.file.size > MAX_FILE_SIZE) {
-    return errorResponse(res, 400, `File too large. Maximum size is ${MAX_FILE_SIZE / (1024 * 1024)}MB`);
+    console.log("File too large:", req.file.size);
+    return errorResponse(
+      res,
+      400,
+      `File too large. Maximum size is ${MAX_FILE_SIZE / (1024 * 1024)}MB`
+    );
   }
 
-  // Validate file type
   if (!ALLOWED_MIME_TYPES.includes(req.file.mimetype)) {
+    console.log("Unsupported file type:", req.file.mimetype);
     return errorResponse(res, 400, "Unsupported file type");
   }
 
   const userId = req.auth.userId;
   const { buffer: fileBuffer, mimetype, originalname } = req.file;
 
+  console.log("Preparing to upload file:");
+  console.log("User ID:", userId);
+  console.log("File name:", originalname);
+  console.log("MIME type:", mimetype);
+  console.log("File size:", req.file.size);
+
   try {
-    const uploadResult = await uploadFile(fileBuffer, userId, mimetype, originalname);
+    const uploadResult = await uploadFile(
+      fileBuffer,
+      userId,
+      mimetype,
+      originalname
+    );
 
-    return successResponse(res, 200, messageHelper.FILE_UPLOAD_SUCCESS, { 
-      fileDetails: uploadResult 
+    console.log("Upload result:", uploadResult);
+
+    return successResponse(res, 200, messageHelper.FILE_UPLOAD_SUCCESS, {
+      fileDetails: uploadResult,
     });
-
   } catch (error) {
     console.error("File upload error:", error);
     return errorResponse(res, 500, messageHelper.FILE_UPLOAD_FAILED);
