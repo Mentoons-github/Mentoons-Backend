@@ -48,7 +48,7 @@ const getAnalytics = async () => {
     const completedOrdersData = await Order.aggregate([
       {
         $match: {
-          status: "completed",
+          status: "SUCCESS",
         },
       },
       {
