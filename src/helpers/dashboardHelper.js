@@ -79,7 +79,7 @@ const getAnalytics = async () => {
               default: "Unknown",
             },
           },
-          completedOrders: "$count",
+          sales: "$count",
         },
       },
       { $sort: { _id: 1 } },
