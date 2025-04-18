@@ -1,7 +1,7 @@
 const Job = require("../models/jobs");
 const User = require("../models/user");
 const JobApplication = require("../models/jobApplication");
-const Product = require("../models/products");
+const { Product } = require("../models/product");
 
 const getAnalytics = async () => {
   try {
