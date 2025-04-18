@@ -22,6 +22,7 @@ module.exports = {
         jobType,
         thumbnail,
       } = req.body;
+      console.log("data from :", req.body)
       if (!jobTitle || !jobDescription || !skillsRequired || !thumbnail) {
         console.log(req.body);
         return errorResponse(res, 400, messageHelper.BAD_REQUEST);
