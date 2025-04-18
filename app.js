@@ -49,7 +49,11 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 app.use(
   cors({
-    origin: ["https://mentoons.com", "http://localhost:3000"],
+    origin: [
+      "https://mentoons.com",
+      "http://localhost:3000",
+      "http://localhost:5173",
+    ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
     exposedHeaders: [
