@@ -85,13 +85,38 @@ const getAnalytics = async () => {
       { $sort: { _id: 1 } },
     ]);
 
+    const monthsInOrder = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+
+    const completedOrdersInMonthOrder = monthsInOrder.map((month) => {
+      const monthData = completedOrdersData.find(
+        (data) => data.month === month
+      );
+      return {
+        month,
+        sales: monthData ? monthData.sales : 0,
+      };
+    });
+
     return {
       totalJobs,
       totalUsers,
       totalJobApplications,
       totalProducts,
       salesData,
-      completedOrdersData,
+      completedOrdersInMonthOrder,
     };
   } catch (error) {
     throw error;
