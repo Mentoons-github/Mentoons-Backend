@@ -13,7 +13,7 @@ const ProductType = {
   ASSESSMENT: "assessment",
   MERCHANDISE: "merchandise",
   MENTOONS_CARDS: "mentoons cards",
-  MENTOONS_BOOKS: "metnoons books",
+  MENTOONS_BOOKS: "mentoons books",
   //Any other product type
 };
 
@@ -24,12 +24,8 @@ const CardType = {
   CONVERSATION_STORY_CARDS: "conversation story cards",
 };
 
-
-
 module.exports = {
   AgeCategory,
   ProductType,
   CardType,
 };
-
-

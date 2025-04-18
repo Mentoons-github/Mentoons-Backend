@@ -55,7 +55,22 @@ const getProducts = async (req, res, next) => {
         },
       },
       {
+        $addFields: {
+          productTypeOrder: {
+            $switch: {
+              branches: [
+                { case: { $eq: ["$product_type", "Free"] }, then: 1 },
+                { case: { $eq: ["$product_type", "Prime"] }, then: 2 },
+                { case: { $eq: ["$product_type", "Platinum"] }, then: 3 }
+              ],
+              default: 4
+            }
+          }
+        }
+      },
+      {
         $sort: {
+          productTypeOrder: 1,
           [sortBy]: sortOrder,
         },
       },

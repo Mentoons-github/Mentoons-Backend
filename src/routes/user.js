@@ -26,7 +26,7 @@ router.post("/update-role/:user_id", requireAuth({signInUrl:"/sign-in"}), change
 router.get("/allocatedCalls",requireAuth({signInUrl:"/sign-in"}),viewAllocatedCalls)
 router.get(
   "/all-users",
-  requireAuth({ signInUrl: "/sign-in" }),
+  // requireAuth({ signInUrl: "/sign-in" }),
   getAllUsersController
 );
 

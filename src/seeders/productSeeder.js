@@ -1437,6 +1437,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/negative_impact_of_mobile.mp3",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.PODCAST,
+        product_type: "Free",
         tags: ["technology", "addiction", "news"],
         rating: 4.5,
         productImages: [
@@ -1469,6 +1470,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/negative-impact-of-social-media.mp3",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.PODCAST,
+        product_type: "Free",
         tags: ["technology", "addiction", "news"],
         rating: 4.5,
         productImages: [
@@ -1501,6 +1503,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/how-does-it-feet-to-be-an-teenager-orignals.mp3",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.PODCAST,
+        product_type: "Free",
         tags: ["technology", "addiction", "news"],
         rating: 4.5,
         productImages: [
@@ -1533,6 +1536,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/perfomance-addiction.mp3",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.PODCAST,
+        product_type: "Free",
         tags: ["technology", "addiction", "news"],
         rating: 4.5,
         productImages: [
@@ -1565,6 +1569,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/the-magic-of-play-without-phone.mp3",
         ageCategory: AgeCategory.CHILD,
         type: ProductType.PODCAST,
+        product_type: "Prime",
         tags: ["technology", "addiction", "news"],
         rating: 4.5,
         productImages: [
@@ -1597,6 +1602,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/common-parrenting-mistake-orignals.mp3",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.PODCAST,
+        product_type: "Free",
         tags: ["technology", "addiction", "news"],
         rating: 4.5,
         productImages: [
@@ -1629,6 +1635,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/entertainment-addiction-orignals.mp3",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.PODCAST,
+        product_type: "Prime",
         tags: ["technology", "addiction", "news"],
         rating: 4.5,
         productImages: [
@@ -1661,6 +1668,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/toddler-phone-addiction.mp3",
         ageCategory: AgeCategory.CHILD,
         type: ProductType.PODCAST,
+        product_type: "Prime",
         tags: ["technology", "addiction", "news"],
         rating: 4.5,
         productImages: [
@@ -1693,6 +1701,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/social-media-de-addiction-orignals.mp3",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.PODCAST,
+        product_type: "Prime",
         tags: ["technology", "addiction", "news"],
         rating: 4.5,
         productImages: [
@@ -1725,6 +1734,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/teen-emotional-and-behavioural-problems-orignals.mp3",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.PODCAST,
+        product_type: "Platinum",
         tags: ["technology", "addiction", "news"],
         rating: 4.5,
         productImages: [
@@ -1757,6 +1767,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/magical-journey-to-self-dicovery-orignals.mp3",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.PODCAST,
+        product_type: "Platinum",
         tags: ["technology", "addiction", "news"],
         rating: 4.5,
         productImages: [
@@ -1789,6 +1800,8 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/maintaining-relationship-with-teenager-orignals.mp3",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.PODCAST,
+        product_type: "Platinum",
+
         tags: ["technology", "addiction", "news"],
         rating: 4.5,
         productImages: [
@@ -1822,6 +1835,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/phrases-sentences-orignals.mp3",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.PODCAST,
+        product_type: "Platinum",
         tags: ["technology", "addiction", "news"],
         rating: 4.5,
         productImages: [
@@ -1854,6 +1868,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/role-models-for-kid-orignals.mp3",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.PODCAST,
+        product_type: "Platinum",
         tags: ["technology", "addiction", "news"],
         rating: 4.5,
         productImages: [
@@ -1886,6 +1901,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/things-parents-do-that-annoy-kids-orignals.mp3",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.PODCAST,
+        product_type: "Prime",
         tags: ["technology", "addiction", "news"],
         rating: 4.5,
         productImages: [
@@ -1918,6 +1934,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/electronic-gadgets-and-kids-orignals.mp3",
         ageCategory: AgeCategory.CHILD,
         type: ProductType.PODCAST,
+        product_type: "Platinum",
         tags: ["technology", "addiction", "news"],
         rating: 4.5,
         productImages: [
@@ -1950,6 +1967,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/negative_impact_of_mobile.mp3",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.PODCAST,
+        product_type: "Platinum",
         tags: ["technology", "addiction", "news"],
         rating: 4.5,
         productImages: [
@@ -1983,6 +2001,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/fun-beyond-video-game.mp3",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.PODCAST,
+        product_type: "Platinum",
         tags: ["technology", "addiction", "news"],
         rating: 4.5,
         productImages: [
@@ -2016,6 +2035,7 @@ const seedProducts = async () => {
           "https://mentoons-comics.s3.ap-northeast-1.amazonaws.com/podcast/how-to-maintain-healthy-relations.mp3",
         ageCategory: AgeCategory.TEEN,
         type: ProductType.PODCAST,
+        product_type: "Platinum",
         tags: ["Health", "relation", "news"],
         rating: 4.5,
         productImages: [
