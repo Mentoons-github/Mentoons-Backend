@@ -17,7 +17,7 @@ const {
 
 const router = express.Router();
 
-router.get("/sessioncalls", requireAuth, viewSessionCalls);
+router.get("/sessioncalls", viewSessionCalls);
 
 router.post("/sign-in", adminRegisterController);
 router.post("/login", adminLoginController);
