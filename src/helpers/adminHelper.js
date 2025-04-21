@@ -120,7 +120,7 @@ module.exports = {
       ];
     }
 
-    console.log("aggregating the query")
+    console.log("aggregating the query");
 
     const allocatedCalls = await Session.aggregate([
       { $match: matchedConditions },
@@ -139,8 +139,13 @@ module.exports = {
           name: 1,
           email: 1,
           phone: 1,
-          psychologistName: "$psychologist.name",
+          psychologist: {
+            _id: "$psychologist._id",
+            name: "$psychologist.name",
+          },
           status: 1,
+          date: 1,
+          time: 1,
           description: 1,
           createdAt: 1,
         },
