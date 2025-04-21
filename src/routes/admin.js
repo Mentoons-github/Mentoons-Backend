@@ -17,11 +17,7 @@ const {
 
 const router = express.Router();
 
-router.get(
-  "/sessioncalls",
-  requireAuth({ signInUrl: "/sign-in" }),
-  viewSessionCalls
-);
+router.get("/sessioncalls", requireAuth, viewSessionCalls);
 
 router.post("/sign-in", adminRegisterController);
 router.post("/login", adminLoginController);
