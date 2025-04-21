@@ -18,7 +18,7 @@ const {
 const router = express.Router();
 
 router.get(
-  "/users/sessioncalls",
+  "/sessioncalls",
   requireAuth({ signInUrl: "/sign-in" }),
   viewSessionCalls
 );
