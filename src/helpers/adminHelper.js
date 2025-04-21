@@ -139,10 +139,7 @@ module.exports = {
           name: 1,
           email: 1,
           phone: 1,
-          psychologist: {
-            _id: "$psychologist._id",
-            name: "$psychologist.name",
-          },
+          psychologistName: "$psychologist",
           status: 1,
           date: 1,
           time: 1,
