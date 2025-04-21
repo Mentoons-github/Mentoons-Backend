@@ -3,6 +3,7 @@ const Admin = require("../models/admin");
 const asyncHandler = require("../utils/asyncHandler");
 const messageHelper = require("../utils/messageHelper");
 const { errorResponse, successResponse } = require("../utils/responseHelper");
+const Session = require("../models/session");
 
 module.exports = {
   adminRegisterController: asyncHandler(async (req, res, next) => {
@@ -85,5 +86,26 @@ module.exports = {
       return errorResponse(res, 404, messageHelper.USER_DOESNT_EXISTS);
     }
     successResponse(res, 200, messageHelper.USER_BLACKLIST);
+  }),
+
+  viewSessionCalls: asyncHandler(async (req, res) => {
+    const { search, sortField, sortOrder, page, limit } = req.query;
+    const sessionCalls = await adminHelper.getAllSessionCalls(
+      search,
+      sortField,
+      sortOrder,
+      page,
+      limit
+    );
+
+    if (!sessionCalls) {
+      return errorResponse(res, 400, messageHelper.BAD_REQUEST);
+    }
+    return successResponse(
+      res,
+      200,
+      "Successfully fetched session calls",
+      sessionCalls
+    );
   }),
 };

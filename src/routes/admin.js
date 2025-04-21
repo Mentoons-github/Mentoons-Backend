@@ -1,4 +1,5 @@
 const express = require("express");
+const { requireAuth } = require("@clerk/clerk-sdk-node");
 const {
   adminRegisterController,
   adminLoginController,
@@ -6,6 +7,7 @@ const {
   getUsersController,
   getOneUserController,
   blacklistUserController,
+  viewSessionCalls,
 } = require("../controllers/admin.js");
 const { isAdmin } = require("../middlewares/authMiddleware.js");
 const { successResponse } = require("../utils/responseHelper");
@@ -29,5 +31,10 @@ router.get("/create-admin", adminAuthMiddleware, makeAdmin);
 router.get("/users", getUsersController);
 router.get("/users/:userId", getOneUserController);
 router.delete("/users/:userId", blacklistUserController);
+router.get(
+  "/users/sessioncalls",
+  requireAuth({ signInUrl: "/sign-in" }),
+  viewSessionCalls
+);
 
 module.exports = router;
