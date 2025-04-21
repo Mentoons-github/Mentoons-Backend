@@ -120,6 +120,8 @@ module.exports = {
       ];
     }
 
+    console.log("aggregating the query")
+
     const allocatedCalls = await Session.aggregate([
       { $match: matchedConditions },
       {

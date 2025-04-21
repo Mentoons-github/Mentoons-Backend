@@ -90,6 +90,7 @@ module.exports = {
 
   viewSessionCalls: asyncHandler(async (req, res) => {
     const { search, sortField, sortOrder, page, limit } = req.query;
+    console.log("checking the query");
     const sessionCalls = await adminHelper.getAllSessionCalls(
       search,
       sortField,
@@ -97,6 +98,8 @@ module.exports = {
       page,
       limit
     );
+
+    console.log("session detail :", sessionCalls);
 
     if (!sessionCalls) {
       return errorResponse(res, 400, messageHelper.BAD_REQUEST);
