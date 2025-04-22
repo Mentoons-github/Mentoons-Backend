@@ -36,6 +36,7 @@ module.exports = {
       throw new Error(error.message);
     }
   },
+
   getWorkshopEnquiriesFromDB: async (search, page = 1, limit = 10) => {
     try {
       const skip = (page - 1) * limit;
@@ -51,14 +52,11 @@ module.exports = {
         },
         {
           $project: {
-            _id: 1,
-            name: 1,
-            age: 1,
-            guardianName: 1,
-            guardianContact: 1,
-            guardianEmail: 1,
-            city: 1,
-            duration: 1,
+            firstname: 1,
+            lastname: 1,
+            email: 1,
+            phone: 1,
+            message: 1,
             workshop: 1,
           },
         },
@@ -97,14 +95,11 @@ module.exports = {
         },
         {
           $project: {
-            _id: 1,
-            name: 1,
-            age: 1,
-            guardianName: 1,
-            guardianContact: 1,
-            guardianEmail: 1,
-            city: 1,
-            duration: 1,
+            firstname: 1,
+            lastname: 1,
+            email: 1,
+            phone: 1,
+            message: 1,
             workshop: 1,
           },
         },

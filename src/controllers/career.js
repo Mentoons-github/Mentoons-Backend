@@ -6,6 +6,7 @@ const {
   editJob,
   deleteJob,
   getAppliedJobs,
+  getAppliedJobById,
 } = require("../helpers/careerHelper");
 const asyncHandler = require("../utils/asyncHandler");
 const messageHelper = require("../utils/messageHelper");
@@ -22,7 +23,7 @@ module.exports = {
         jobType,
         thumbnail,
       } = req.body;
-      console.log("data from :", req.body)
+      console.log("data from :", req.body);
       if (!jobTitle || !jobDescription || !skillsRequired || !thumbnail) {
         console.log(req.body);
         return errorResponse(res, 400, messageHelper.BAD_REQUEST);
@@ -157,5 +158,13 @@ module.exports = {
       return errorResponse(res, 404, messageHelper.JOB_NOT_FOUND);
     }
     return successResponse(res, 200, messageHelper.JOB_FETCHED, jobs);
+  }),
+
+  getAppliedJobById: asyncHandler(async (req, res, next) => {
+    const job = await getAppliedJobById(req.params.id);
+    if (!job) {
+      return errorResponse(res, 404, messageHelper.JOB_NOT_FOUND);
+    }
+    return successResponse(res, 200, messageHelper.JOB_FETCHED, job);
   }),
 };
