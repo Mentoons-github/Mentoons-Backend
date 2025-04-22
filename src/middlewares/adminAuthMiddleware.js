@@ -1,5 +1,5 @@
 const Admin = require("../models/admin");
-const Employee = require("../models/employee");
+const User = require("../models/user");
 const { verifyToken } = require("../utils/auth");
 const messageHelper = require("../utils/messageHelper");
 const { errorResponse, successResponse } = require("../utils/responseHelper");
@@ -38,13 +38,13 @@ module.exports = {
         return next();
       }
 
-      user = await Employee.findOne({ phoneNumber: decoded.phoneNumber });
+      user = await User.findOne({ p: decoded.phoneNumber });
 
       if (!user) {
         return errorResponse(res, 401, "User not found");
       }
 
-      if (!["admin", "superadmin"].includes(user.role)) {
+      if (!["ADMIN", "SUPERADMIN"].includes(user.role)) {
         return errorResponse(
           res,
           403,
