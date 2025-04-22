@@ -1,10 +1,13 @@
 const Admin = require("../models/admin");
+const Employee = require("../models/employee");
 const { verifyToken } = require("../utils/auth");
 const messageHelper = require("../utils/messageHelper");
-const { errorResponse } = require("../utils/responseHelper");
+const { errorResponse, successResponse } = require("../utils/responseHelper");
 
 module.exports = {
   adminAuthMiddleware: async (req, res, next) => {
+    const { check } = req.query;
+
     try {
       const authHeader = req.headers.authorization;
       if (!authHeader) {
@@ -19,20 +22,44 @@ module.exports = {
       let decoded;
       try {
         decoded = verifyToken(token, process.env.ACCESS_TOKEN_SECRET);
+        console.log("Decoded token:", decoded);
       } catch (error) {
-        console.log(error, "wertyus");
         return errorResponse(res, 401, "Invalid or expired token");
       }
 
-      const user = await Admin.findOne({ phoneNumber: decoded.phoneNumber });
+      let user = await Admin.findOne({ phoneNumber: decoded.phoneNumber });
+
+      if (user) {
+        if (check === "true") {
+          return successResponse(res, 200, { role: "admin", success: true });
+        }
+
+        req.user = user;
+        return next();
+      }
+
+      user = await Employee.findOne({ phoneNumber: decoded.phoneNumber });
+
       if (!user) {
         return errorResponse(res, 401, "User not found");
+      }
+
+      if (!["admin", "superadmin"].includes(user.role)) {
+        return errorResponse(
+          res,
+          403,
+          "Access denied: Insufficient permissions"
+        );
+      }
+
+      if (check === "true") {
+        return successResponse(res, 200, { role: user.role, success: true });
       }
 
       req.user = user;
       next();
     } catch (error) {
-      console.error("Auth Middleware Error:", error);
+      console.error("Admin Auth Middleware Error:", error);
       return errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR);
     }
   },
