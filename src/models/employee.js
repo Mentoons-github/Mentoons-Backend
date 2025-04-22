@@ -68,12 +68,6 @@ const employeeSchema = new mongoose.Schema({
       "video editor",
     ],
   },
-  accessRole: {
-    type: String,
-    required: true,
-    enum: ["employee", "admin", "superadmin"],
-    default: "employee",
-  },
   department: {
     type: String,
     required: false,
