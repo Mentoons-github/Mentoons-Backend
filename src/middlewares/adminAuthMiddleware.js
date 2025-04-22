@@ -1,8 +1,10 @@
+const { Clerk } = require("@clerk/clerk-sdk-node");
 const Admin = require("../models/admin");
 const User = require("../models/user");
-const { verifyToken } = require("../utils/auth");
 const messageHelper = require("../utils/messageHelper");
 const { errorResponse, successResponse } = require("../utils/responseHelper");
+
+const clerk = new Clerk({ secretKey: process.env.CLERK_SECRET_KEY });
 
 module.exports = {
   adminAuthMiddleware: async (req, res, next) => {
@@ -23,38 +25,31 @@ module.exports = {
         return errorResponse(res, 401, "Token is missing");
       }
 
-      let decoded;
+      let session;
       try {
-        decoded = verifyToken(token, process.env.ACCESS_TOKEN_SECRET);
-        console.log("[Middleware] Decoded token:", decoded);
+        session = await clerk.sessions.verifySession(token);
+        console.log("[Middleware] Clerk session verified:", session);
+      } catch (err) {
+        console.log("[Middleware] Clerk session verification failed:", err);
+        return errorResponse(res, 401, "Invalid or expired Clerk token");
+      }
+
+      let clerkUser;
+      try {
+        clerkUser = await clerk.users.getUser(session.userId);
+        console.log("[Middleware] Clerk user fetched:", clerkUser.id);
       } catch (error) {
-        console.log("[Middleware] Token verification failed:", error);
-        return errorResponse(res, 401, "Invalid or expired token");
+        console.log("[Middleware] Clerk user fetch failed:", error);
+        return errorResponse(res, 401, "Clerk user not found");
       }
 
-      let user = await Admin.findOne({ phoneNumber: decoded.phoneNumber });
-      console.log("[Middleware] Checked Admin collection");
-
-      if (user) {
-        console.log("[Middleware] Admin user found:", user.phoneNumber);
-        if (check === "true") {
-          console.log("[Middleware] Returning admin role check response");
-          return successResponse(res, 200, { role: "admin", success: true });
-        }
-
-        req.user = user;
-        return next();
-      }
-
-      console.log("[Middleware] Not an Admin, checking User collection...");
-      user = await User.findOne({ phoneNumber: decoded.phoneNumber }); // Fixed from `p` to `phoneNumber`
-
+      let user = await User.findOne({ clerkId: clerkUser.id });
       if (!user) {
-        console.log("[Middleware] No user found in User collection");
+        console.log("[Middleware] No user found with Clerk ID:", clerkUser.id);
         return errorResponse(res, 401, "User not found");
       }
 
-      console.log("[Middleware] User found in User collection:", user.role);
+      console.log("[Middleware] User found:", user.role);
 
       if (!["ADMIN", "SUPERADMIN"].includes(user.role)) {
         console.log("[Middleware] User lacks admin/superadmin permissions");
