@@ -33,5 +33,6 @@ router.get("/create-admin", adminAuthMiddleware, makeAdmin);
 router.get("/users", getUsersController);
 router.get("/users/:userId", getOneUserController);
 router.delete("/users/:userId", blacklistUserController);
+router.get("/checkrole", adminAuthMiddleware);
 
 module.exports = router;

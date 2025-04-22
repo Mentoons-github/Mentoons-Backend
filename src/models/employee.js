@@ -59,6 +59,20 @@ const employeeSchema = new mongoose.Schema({
   role: {
     type: String,
     required: true,
+    enum: [
+      "psychologist",
+      "marketing",
+      "developer",
+      "illustrator",
+      "animator",
+      "video editor",
+    ],
+  },
+  accessRole: {
+    type: String,
+    required: true,
+    enum: ["employee", "admin", "superadmin"],
+    default: "employee",
   },
   department: {
     type: String,
@@ -78,6 +92,10 @@ const employeeSchema = new mongoose.Schema({
   },
   place: {
     type: addressSchema,
+    required: false,
+  },
+  profilePicture: {
+    type: String,
     required: false,
   },
 });
