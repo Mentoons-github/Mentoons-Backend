@@ -1,36 +1,44 @@
-<!-- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mentoons Newsletter</title>
+    
   </head>
   <body
-    style="
-      font-family: 'Helvetica Neue', Arial, sans-serif;
-      margin: 0;
-      padding: 20px;
-      background-color: #f7e0c3;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    "
+    style="margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif"
   >
-    <div style="max-width: 95%; background-color: #f7e0c3">
+    <div
+      style="
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #f7e0c3;
+        font-family: Arial, Helvetica, sans-serif
+      "
+    >
       <div
-        style="text-align: start; padding: 20px 18px; background-color: #e39712"
+        style="text-align: left; padding: 20px 18px; background-color: #e39712"
       >
         <img
           src="https://mentoons-website.s3.ap-northeast-1.amazonaws.com/logo/ec9141ccd046aff5a1ffb4fe60f79316.png"
           alt="Mentoons Logo"
-          style="max-width: 180px; height: auto"
+          style="
+            max-width: 180px;
+            height: auto;
+            border: 0;
+            line-height: 100%;
+            outline: none;
+            text-decoration: none;
+            -ms-interpolation-mode: bicubic;
+          "
         />
       </div>
 
       <div
         style="
-          text-align: start;
+          text-align: left;
           margin-bottom: 20px;
           padding: 32px;
           padding-top: 0px;
@@ -44,6 +52,9 @@
             margin: 0;
             text-transform: uppercase;
             font-weight: bold;
+            @media only screen and (max-width: 599px) {
+              font-size: 24px;
+            }
           "
         >
           WELCOME TO
@@ -55,6 +66,9 @@
             margin: 0;
             text-transform: uppercase;
             font-weight: bold;
+            @media only screen and (max-width: 599px) {
+              font-size: 24px;
+            }
           "
         >
           MENTOONS
@@ -66,6 +80,9 @@
             margin: 0;
             text-transform: uppercase;
             font-weight: bold;
+            @media only screen and (max-width: 599px) {
+              font-size: 24px;
+            }
           "
         >
           NEWSLETTER
@@ -112,24 +129,54 @@
           </h2>
         </div>
 
+        <!-- Feature Card 1 -->
         <div
           style="
             background-color: #9fe9ff;
             padding: 20px;
             margin-top: 15px;
+            border-radius: 8px;
             display: flex;
             flex-direction: column;
-            border-radius: 8px;
+            @media only screen and (min-width: 600px) {
+              flex-direction: row;
+              align-items: center;
+            }
           "
         >
-          <div style="margin-bottom: 15px">
+          <div
+            style="
+              margin-bottom: 15px;
+              width: 100%;
+              @media only screen and (min-width: 600px) {
+                width: 40%;
+                margin: 0 15px 0 0;
+              }
+            "
+          >
             <img
               src="https://plus.unsplash.com/premium_photo-1717774172640-b7d9a3192c5e?q=80&w=1502&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
               alt="Eclipse"
-              style="width: 100%; height: auto; border-radius: 5px"
+              style="
+                width: 100%;
+                height: auto;
+                border-radius: 5px;
+                border: 0;
+                line-height: 100%;
+                outline: none;
+                text-decoration: none;
+                -ms-interpolation-mode: bicubic;
+              "
             />
           </div>
-          <div>
+          <div
+            style="
+              width: 100%;
+              @media only screen and (min-width: 600px) {
+                width: 60%;
+              }
+            "
+          >
             <h3 style="color: #333333; font-size: 18px; margin: 0 0 10px 0">
               Introducing Mentoons Mythos
             </h3>
@@ -141,26 +188,38 @@
                 margin: 0;
               "
             >
-              Mentoons Mythos isn’t just about reports; it’s a thriving
+              Mentoons Mythos isn't just about reports; it's a thriving
               community of individuals seeking purpose, clarity, and cosmic
-              guidance. Whether you’re exploring astrology, psychology, or
+              guidance. Whether you're exploring astrology, psychology, or
               career growth, our groups help you connect with like-minded people
               who share your journey.
             </p>
           </div>
         </div>
 
+        <!-- Feature Card 2 -->
         <div
           style="
             background-color: #fe8b7d;
             padding: 20px;
             margin-top: 15px;
+            border-radius: 8px;
             display: flex;
             flex-direction: column-reverse;
-            border-radius: 8px;
+            @media only screen and (min-width: 600px) {
+              flex-direction: row-reverse;
+              align-items: center;
+            }
           "
         >
-          <div>
+          <div
+            style="
+              width: 100%;
+              @media only screen and (min-width: 600px) {
+                width: 60%;
+              }
+            "
+          >
             <h3 style="color: #333333; font-size: 18px; margin: 0 0 10px 0">
               Meet our New Psychologist: Dr. Nisha K
             </h3>
@@ -177,33 +236,81 @@
               expertise to our workshops.
             </p>
           </div>
-          <div style="margin-bottom: 15px">
+          <div
+            style="
+              margin-bottom: 15px;
+              width: 100%;
+              @media only screen and (min-width: 600px) {
+                width: 40%;
+                margin: 0 0 0 15px;
+              }
+            "
+          >
             <img
               src="https://plus.unsplash.com/premium_photo-1682089872205-dbbae3e4ba32?q=80&w=3540&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
               alt="Psychologist"
-              style="width: 100%; height: auto; border-radius: 5px"
+              style="
+                width: 100%;
+                height: auto;
+                border-radius: 5px;
+                border: 0;
+                line-height: 100%;
+                outline: none;
+                text-decoration: none;
+                -ms-interpolation-mode: bicubic;
+              "
             />
           </div>
         </div>
 
+        <!-- Feature Card 3 -->
         <div
           style="
             background-color: #fee898;
             padding: 20px;
             margin-top: 15px;
+            border-radius: 8px;
             display: flex;
             flex-direction: column;
-            border-radius: 8px;
+            @media only screen and (min-width: 600px) {
+              flex-direction: row;
+              align-items: center;
+            }
           "
         >
-          <div style="margin-bottom: 15px">
+          <div
+            style="
+              margin-bottom: 15px;
+              width: 100%;
+              @media only screen and (min-width: 600px) {
+                width: 40%;
+                margin: 0 15px 0 0;
+              }
+            "
+          >
             <img
               src="https://images.unsplash.com/photo-1581041122145-9f17c04cd153?q=80&w=3542&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
               alt="New Arrival"
-              style="width: 100%; height: auto; border-radius: 5px"
+              style="
+                width: 100%;
+                height: auto;
+                border-radius: 5px;
+                border: 0;
+                line-height: 100%;
+                outline: none;
+                text-decoration: none;
+                -ms-interpolation-mode: bicubic;
+              "
             />
           </div>
-          <div>
+          <div
+            style="
+              width: 100%;
+              @media only screen and (min-width: 600px) {
+                width: 60%;
+              }
+            "
+          >
             <h3 style="color: #333333; font-size: 18px; margin: 0 0 10px 0">
               New Exciting Stuffs coming up for our Mentoons Fam!
             </h3>
@@ -223,7 +330,14 @@
       </div>
 
       <div style="margin-bottom: 20px; padding: 20px; padding-bottom: 0px">
-        <div style="display: flex; align-items: center; margin-bottom: 15px">
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+          "
+        >
           <div
             style="
               width: 40px;
@@ -364,7 +478,7 @@
             line-height: 1.5;
             text-align: center;
             padding-bottom: 20px;
-            width: 90%;
+            width: 100%;
             margin: auto;
           "
         >
@@ -375,7 +489,16 @@
           <img
             src="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?q=80&w=3540&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
             alt="Workshop Highlights"
-            style="width: 100%; border-radius: 5px; margin-bottom: 15px"
+            style="
+              width: 100%;
+              border-radius: 5px;
+              margin-bottom: 15px;
+              border: 0;
+              line-height: 100%;
+              outline: none;
+              text-decoration: none;
+              -ms-interpolation-mode: bicubic;
+            "
           />
           <p
             style="color: #666666; font-size: 14px; line-height: 1.4; margin: 0"
@@ -389,8 +512,18 @@
         </div>
       </div>
 
+      <!-- Grid Section -->
       <div style="margin-bottom: 20px; padding: 20px">
-        <div style="display: grid; grid-template-columns: 1fr; gap: 20px">
+        <div
+          style="
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            @media only screen and (min-width: 600px) {
+              grid-template-columns: 1fr 1fr 1fr;
+            }
+          "
+        >
           <div
             style="
               border-radius: 8px;
@@ -411,6 +544,11 @@
                 object-fit: cover;
                 border-radius: 8px;
                 margin-bottom: 10px;
+                border: 0;
+                line-height: 100%;
+                outline: none;
+                text-decoration: none;
+                -ms-interpolation-mode: bicubic;
               "
             />
             <h3 style="color: #333333; font-size: 18px; margin-bottom: 10px">
@@ -450,6 +588,11 @@
                 object-fit: cover;
                 border-radius: 8px;
                 margin-bottom: 10px;
+                border: 0;
+                line-height: 100%;
+                outline: none;
+                text-decoration: none;
+                -ms-interpolation-mode: bicubic;
               "
             />
             <h3 style="color: #333333; font-size: 18px; margin-bottom: 10px">
@@ -504,6 +647,11 @@
                 object-fit: cover;
                 border-radius: 8px;
                 margin-bottom: 10px;
+                border: 0;
+                line-height: 100%;
+                outline: none;
+                text-decoration: none;
+                -ms-interpolation-mode: bicubic;
               "
             />
             <h3 style="color: #333333; font-size: 18px; margin-bottom: 10px">
@@ -674,6 +822,7 @@
         </div>
       </div>
 
+      <!-- Profile Section -->
       <div
         style="
           border-radius: 8px;
@@ -688,6 +837,10 @@
             justify-content: center;
             align-items: center;
             margin-bottom: 15px;
+            flex-wrap: wrap;
+            @media only screen and (min-width: 600px) {
+              flex-wrap: nowrap;
+            }
           "
         >
           <div
@@ -698,12 +851,26 @@
               overflow: hidden;
               margin: 0 10px;
               position: relative;
+              @media only screen and (max-width: 599px) {
+                width: 80px;
+                height: 80px;
+                margin-bottom: 10px;
+              }
             "
           >
             <img
               src="https://images.unsplash.com/photo-1603217039863-aa0c865404f7?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aW5mbHVlbmNlcnxlbnwwfHwwfHx8Mg%3D%3D"
               alt="Influencer 1"
-              style="width: 100%; height: 100%; object-fit: cover"
+              style="
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                border: 0;
+                line-height: 100%;
+                outline: none;
+                text-decoration: none;
+                -ms-interpolation-mode: bicubic;
+              "
             />
           </div>
           <div
@@ -714,12 +881,26 @@
               overflow: hidden;
               margin: 0 10px;
               position: relative;
+              @media only screen and (max-width: 599px) {
+                width: 80px;
+                height: 80px;
+                margin-bottom: 10px;
+              }
             "
           >
             <img
               src="https://images.unsplash.com/photo-1613053341085-db794820ce43?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8aW5mbHVlbmNlcnxlbnwwfHwwfHx8Mg%3D%3D"
               alt="Influencer 2"
-              style="width: 100%; height: 100%; object-fit: cover"
+              style="
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                border: 0;
+                line-height: 100%;
+                outline: none;
+                text-decoration: none;
+                -ms-interpolation-mode: bicubic;
+              "
             />
           </div>
           <div
@@ -730,12 +911,26 @@
               overflow: hidden;
               margin: 0 10px;
               position: relative;
+              @media only screen and (max-width: 599px) {
+                width: 80px;
+                height: 80px;
+                margin-bottom: 10px;
+              }
             "
           >
             <img
               src="https://images.unsplash.com/photo-1556766920-b10a2bbb81c8?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTh8fGluZmx1ZW5jZXJ8ZW58MHx8MHx8fDI%3D"
               alt="Influencer 3"
-              style="width: 100%; height: 100%; object-fit: cover"
+              style="
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                border: 0;
+                line-height: 100%;
+                outline: none;
+                text-decoration: none;
+                -ms-interpolation-mode: bicubic;
+              "
             />
           </div>
         </div>
@@ -755,6 +950,7 @@
         </p>
       </div>
 
+      <!-- Footer -->
       <div
         style="
           text-align: center;
@@ -781,6 +977,7 @@
                 gap: 8px;
                 margin-bottom: 10px;
                 justify-content: center;
+                flex-wrap: wrap;
               "
             >
               <span style="font-size: 1.5rem">📩</span>
@@ -793,6 +990,7 @@
                 gap: 8px;
                 margin-bottom: 10px;
                 justify-content: center;
+                flex-wrap: wrap;
               "
             >
               <span style="font-size: 1.5rem">📧</span>
@@ -818,6 +1016,11 @@
                     padding: 2px;
                     width: 20px;
                     height: 20px;
+                    border: 0;
+                    line-height: 100%;
+                    outline: none;
+                    text-decoration: none;
+                    -ms-interpolation-mode: bicubic;
                   "
                 />
               </a>
@@ -831,6 +1034,11 @@
                     padding: 2px;
                     width: 20px;
                     height: 20px;
+                    border: 0;
+                    line-height: 100%;
+                    outline: none;
+                    text-decoration: none;
+                    -ms-interpolation-mode: bicubic;
                   "
                 />
               </a>
@@ -847,6 +1055,11 @@
                     padding: 2px;
                     width: 20px;
                     height: 20px;
+                    border: 0;
+                    line-height: 100%;
+                    outline: none;
+                    text-decoration: none;
+                    -ms-interpolation-mode: bicubic;
                   "
                 />
               </a>
@@ -863,142 +1076,17 @@
                     padding: 2px;
                     width: 20px;
                     height: 20px;
+                    border: 0;
+                    line-height: 100%;
+                    outline: none;
+                    text-decoration: none;
+                    -ms-interpolation-mode: bicubic;
                   "
                 />
               </a>
             </div>
           </div>
         </div>
-      </div>
-    </div>
-  </body>
-</html> -->
-
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-  </head>
-  <body
-    style="
-      font-family: Arial, sans-serif;
-      background-color: #fffaf0;
-      margin: 0;
-      padding: 0;
-    "
-  >
-    <div
-      style="
-        font-family: Arial, sans-serif;
-        max-width: 600px;
-        margin: 20px auto;
-        background: #fffaf0;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      "
-    >
-      <div style="text-align: center; margin-bottom: 20px">
-        <img
-          src="https://mentoons-website.s3.ap-northeast-1.amazonaws.com/logo/ec9141ccd046aff5a1ffb4fe60f79316.png"
-          alt="Mentoons Logo"
-          style="width: 150px"
-        />
-      </div>
-
-      <h1 style="text-align: center; color: #b45309">
-        Thank You for Your Purchase!
-      </h1>
-
-      <div
-        style="
-          background: #ffedd5;
-          padding: 15px;
-          border-radius: 8px;
-          margin-bottom: 20px;
-          border-left: 4px solid #f59e0b;
-        "
-      >
-        <p><strong>Order ID:</strong> ${order?.orderId}</p>
-        <p><strong>Name:</strong> ${order?.customerName}</p>
-        <p><strong>Email:</strong> ${order?.email}</p>
-        <p><strong>Phone:</strong> ${order?.phone}</p>
-        <p><strong>Payment ID:</strong> ${order?.paymentId}</p>
-      </div>
-
-      <h2 style="color: #b45309">Products</h2>
-
-      <div>
-        ${order?.products?.map((product) => { return `
-        <div
-          style="
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-            border-bottom: 2px solid #fdba74;
-            padding-bottom: 15px;
-            flex-direction: row;
-          "
-        >
-          <img
-            src="${product?.productImages?.[0]?.imageUrl}"
-            alt="${product?.title}"
-            style="
-              width: 100px;
-              height: 100px;
-              object-fit: cover;
-              border-radius: 5px;
-              margin-right: 15px;
-              border: 2px solid #f59e0b;
-            "
-          />
-          <div style="flex: 1">
-            <p><strong>${product?.title}</strong></p>
-            <p>${product?.description}</p>
-            <a
-              href="${product?.orignalProductSrc}"
-              style="
-                display: inline-block;
-                padding: 10px 20px;
-                background-color: #ea580c;
-                color: #ffffff;
-                text-decoration: none;
-                border-radius: 5px;
-                font-weight: bold;
-                text-align: center;
-              "
-              >Download</a
-            >
-          </div>
-        </div>
-        `; })}
-      </div>
-
-      <p style="color: #b45309; font-weight: bold">
-        We're delighted to confirm your purchase. You'll receive access to your
-        product shortly. If you have any questions, our support team is here to
-        help.
-      </p>
-
-      <div
-        style="
-          text-align: center;
-          font-size: 14px;
-          color: #78350f;
-          margin-top: 20px;
-          background: #ffedd5;
-          padding: 15px;
-          border-radius: 8px;
-        "
-      >
-        <p>Need assistance? Contact our support team:</p>
-        <p>
-          <a
-            href="mailto:info@mentoons.com"
-            style="color: #ea580c; text-decoration: none; font-weight: bold"
-            >info@mentoons.com</a
-          >
-        </p>
       </div>
     </div>
   </body>

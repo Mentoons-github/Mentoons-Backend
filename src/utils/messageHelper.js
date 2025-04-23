@@ -58,5 +58,5 @@ module.exports = {
   CALL_NOT_FOUND: "Call not found",
   CALL_SUBMITTED: "Call submitted successfully",
   CALL_STATUS_UPDATED: "Call status updated successfully",
-  
+  NEWSLETTER_ALREADY_SUBSCRIBED: "You are already subscribed to the newsletter",
 };

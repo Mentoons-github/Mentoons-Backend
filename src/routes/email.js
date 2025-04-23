@@ -6,11 +6,13 @@ const {
   freeDownloadsVerifyOtp,
   freeDownloadComic,
   sendEmailToUser,
+  getAllNewsletters,
 } = require("../controllers/emailController");
 const { authMiddleware } = require("../middlewares/authMiddleware");
 const router = express.Router();
 
 router.post("/subscribeToNewsletter", subscribeNewsletter);
+router.get("/newsletter-subscribers", getAllNewsletters);
 router.post("/free-downloads", freeDownloadComic);
 router.post("/freeDownloadClaim", freeDownloadComic);
 router.get("/getLeadData", authMiddleware, getLeadData);
