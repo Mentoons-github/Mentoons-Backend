@@ -61,12 +61,12 @@ const getProducts = async (req, res, next) => {
               branches: [
                 { case: { $eq: ["$product_type", "Free"] }, then: 1 },
                 { case: { $eq: ["$product_type", "Prime"] }, then: 2 },
-                { case: { $eq: ["$product_type", "Platinum"] }, then: 3 }
+                { case: { $eq: ["$product_type", "Platinum"] }, then: 3 },
               ],
-              default: 4
-            }
-          }
-        }
+              default: 4,
+            },
+          },
+        },
       },
       {
         $sort: {
@@ -122,7 +122,27 @@ const getProductById = async (req, res, next) => {
 const createProduct = async (req, res, next) => {
   try {
     const productData = req.body;
+    const videoUrls = Array.isArray(productData.videos)
+      ? productData.videos.map((url) => ({ videoUrl: url }))
+      : productData.videos
+      ? [{ videoUrl: productData.videos }]
+      : [];
+
     console.log("Product Data", productData);
+    const data = {
+      title: productData.productTitle,
+      description: productData.productDescription,
+      price: productData.price,
+      orignalProductSrc: productData.productFile,
+      ageCategory: productData.age,
+      type: productData.productCategory,
+      product_type: productData.subscription,
+      tags: productData.tags,
+      productVideos: videoUrls,
+      productImages: {
+        imageUrl: productData.productThumbnail,
+      },
+    };
     const product = new Product(productData);
     await product.save();
     res.status(201).json(product);
