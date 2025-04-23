@@ -9,7 +9,6 @@ const clerk = new Clerk({ secretKey: process.env.CLERK_SECRET_KEY });
 module.exports = {
   adminAuthMiddleware: async (req, res, next) => {
     const { check } = req.query;
-
     try {
       console.log("[Middleware] Starting adminAuthMiddleware...");
 

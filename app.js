@@ -52,6 +52,7 @@ app.use(
     origin: [
       "https://mentoons.com",
       "http://localhost:3000",
+      "http://localhost:5174",
       "http://localhost:5173",
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
