@@ -12,7 +12,7 @@ const getEmployeeData = asyncHandler(async (req, res) => {
   const skip = (page - 1) * Number(limit);
   const searchRegex = new RegExp(search, "i");
 
-  const Employees = await Employee.aggregate([
+  const employees = await Employee.aggregate([
     {
       $match: {
         $or: [
@@ -100,12 +100,12 @@ const getEmployeeData = asyncHandler(async (req, res) => {
   const totalPages = Math.ceil(totalEmployees / limit);
   const currentPage = page;
 
-  if (!Employees || Employees.length === 0) {
+  if (!employees || employees.length === 0) {
     return errorResponse(res, 404, messageHelper.EMPLOYEE_NOT_FOUND);
   }
 
   return successResponse(res, 200, messageHelper.EMPLOYEE_FETCHED, {
-    Employees,
+    employees,
     currentPage,
     totalPages,
     totalEmployees,
@@ -181,12 +181,12 @@ const editEmployee = asyncHandler(async (req, res) => {
     return errorResponse(res, 400, "No data provided for update");
   }
 
-  const updatedEmployee = await Employee.findByIdAndUpdate(id, updateData, {
+  const employee = await Employee.findByIdAndUpdate(id, updateData, {
     new: true,
     runValidators: true,
   });
 
-  if (!updatedEmployee) {
+  if (!employee) {
     return errorResponse(res, 404, messageHelper.EMPLOYEE_NOT_FOUND);
   }
 
@@ -194,7 +194,7 @@ const editEmployee = asyncHandler(async (req, res) => {
     res,
     200,
     messageHelper.EMPLOYEE_UPDATED,
-    updatedEmployee
+    employee
   );
 });
 
