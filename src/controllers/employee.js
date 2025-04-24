@@ -1,4 +1,4 @@
-import messageHelper from "../utils/messageHelper";
+const messageHelper = require("../utils/messageHelper");
 
 const Employee = require("../models/employee");
 const asyncHandler = require("../utils/asyncHandler");
