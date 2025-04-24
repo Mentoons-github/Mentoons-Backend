@@ -1,6 +1,6 @@
 const express = require("express");
 const { requireAuth } = require("@clerk/clerk-sdk-node");
-import employeeRouter from "./employee.js";
+const employeeRouter = require("./employee.js");
 const {
   adminRegisterController,
   adminLoginController,
