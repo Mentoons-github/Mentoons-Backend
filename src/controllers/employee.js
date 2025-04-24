@@ -198,7 +198,7 @@ const editEmployee = asyncHandler(async (req, res) => {
   );
 });
 
-export {
+module.exports = {
   getEmployeeData,
   getById,
   deleteEmployee,
