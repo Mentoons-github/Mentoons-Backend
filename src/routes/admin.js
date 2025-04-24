@@ -1,5 +1,6 @@
 const express = require("express");
 const { requireAuth } = require("@clerk/clerk-sdk-node");
+import employeeRouter from "./employee.js";
 const {
   adminRegisterController,
   adminLoginController,
@@ -17,8 +18,9 @@ const {
 
 const router = express.Router();
 
-router.get("/sessioncalls", viewSessionCalls);
+router.use("/employee", employeeRouter);
 
+router.get("/sessioncalls", viewSessionCalls);
 router.post("/sign-in", adminRegisterController);
 router.post("/login", adminLoginController);
 router.get("/create-admin", adminAuthMiddleware, makeAdmin);

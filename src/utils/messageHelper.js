@@ -58,5 +58,12 @@ module.exports = {
   CALL_NOT_FOUND: "Call not found",
   CALL_SUBMITTED: "Call submitted successfully",
   CALL_STATUS_UPDATED: "Call status updated successfully",
-  
+  EMPLOYEE_CREATED: "Employee created successfully",
+  EMPLOYEE_FETCHED: "Employee fetched successfully",
+  EMPLOYEE_NOT_FOUND: "Employee not found",
+  EMPLOYEE_UPDATED: "Employee updated successfully",
+  EMPLOYEE_DELETED: "Employee deleted successfully",
+  EMPLOYEE_LIST_FETCHED: "Employee list fetched successfully",
+  EMPLOYEE_STATUS_UPDATED: "Employee status updated successfully",
+  EMPLOYEE_SALARY_UPDATED: "Employee salary updated successfully",
 };
