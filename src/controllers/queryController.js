@@ -4,7 +4,7 @@ const Query = require("../models/query");
 const createQuery = async (req, res) => {
   console.log("Query Data", req.body);
   try {
-    const query = new Query(req.body);
+    const query = new Query({ ...req.body });
     const savedQuery = await query.save();
     console.log("Saved Query", savedQuery);
     res.status(201).json({
