@@ -139,6 +139,7 @@ const deleteEmployee = asyncHandler(async (req, res) => {
 
 const createEmployee = asyncHandler(async (req, res) => {
   const employeeData = req.body;
+  console.log("▶️ Received employee data:", employeeData);
 
   if (
     !employeeData.name ||
@@ -149,6 +150,7 @@ const createEmployee = asyncHandler(async (req, res) => {
     !employeeData.salary ||
     !employeeData.place
   ) {
+    console.warn("⚠️ Missing required fields");
     return errorResponse(res, 400, messageHelper.BAD_REQUEST);
   }
 
@@ -156,8 +158,14 @@ const createEmployee = asyncHandler(async (req, res) => {
     $or: [{ email: employeeData.email }, { phone: employeeData.phone }],
   });
 
-  if (employeeExist) {
-    return errorResponse(res, 400, "email or phone number already exists");
+  console.log(
+    "🔍 Checking for existing employee by email/phone:",
+    employeeExist
+  );
+
+  if (employeeExist.length > 0) {
+    console.warn("❌ Duplicate email or phone detected");
+    return errorResponse(res, 400, "Email or phone number already exists");
   }
 
   const { houseName, street, city, district, state, pincode, country } =
@@ -172,10 +180,12 @@ const createEmployee = asyncHandler(async (req, res) => {
     !pincode ||
     !country
   ) {
+    console.warn("⚠️ Missing address fields");
     return errorResponse(res, 400, "All address fields are required");
   }
 
   const employee = await Employee.create(employeeData);
+  console.log("✅ New employee created:", employee);
 
   return successResponse(res, 201, messageHelper.EMPLOYEE_CREATED, employee);
 });
