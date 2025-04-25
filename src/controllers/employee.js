@@ -140,7 +140,6 @@ const deleteEmployee = asyncHandler(async (req, res) => {
 const createEmployee = asyncHandler(async (req, res) => {
   const employeeData = req.body;
 
-  console.log("employeeData : ", employeeData);
   if (
     !employeeData.name ||
     !employeeData.email ||
@@ -151,6 +150,14 @@ const createEmployee = asyncHandler(async (req, res) => {
     !employeeData.place
   ) {
     return errorResponse(res, 400, messageHelper.BAD_REQUEST);
+  }
+
+  const employeeExist = await Employee.find({
+    $or: [{ email: employeeData.email }, { phone: employeeData.phone }],
+  });
+
+  if (employeeExist) {
+    return errorResponse(res, 400, "email or phone number already exists");
   }
 
   const { houseName, street, city, district, state, pincode, country } =
@@ -190,12 +197,7 @@ const editEmployee = asyncHandler(async (req, res) => {
     return errorResponse(res, 404, messageHelper.EMPLOYEE_NOT_FOUND);
   }
 
-  return successResponse(
-    res,
-    200,
-    messageHelper.EMPLOYEE_UPDATED,
-    employee
-  );
+  return successResponse(res, 200, messageHelper.EMPLOYEE_UPDATED, employee);
 });
 
 module.exports = {
