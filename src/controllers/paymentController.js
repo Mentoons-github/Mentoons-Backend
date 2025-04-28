@@ -33,6 +33,8 @@ const initiatePayment = async (req, res) => {
     console.log(userId);
     const user = await User.findOne({ clerkId: userId });
 
+    let assignedPsychologistId = "";
+
     if (order_type === "consultancy_purchase") {
       const consultancyItem = Array.isArray(items) ? items[0] : items;
       const sessionDate = new Date(consultancyItem.date);
@@ -53,7 +55,7 @@ const initiatePayment = async (req, res) => {
         });
       }
 
-      const assignedPsychologistId = availablePsychologist._id.toString();
+      assignedPsychologistId = availablePsychologist._id.toString();
 
       const createdSession = await SessionModel.create({
         psychologistId: assignedPsychologistId,
