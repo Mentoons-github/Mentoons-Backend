@@ -1346,6 +1346,7 @@ const ConsultanyBookingemailTemplate = (order) => {
 </html>`;
 };
 
+
 module.exports = {
   ConsultanyBookingemailTemplate,
   ProductEmailTemplate,

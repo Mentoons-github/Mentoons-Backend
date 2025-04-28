@@ -10,6 +10,7 @@ const whatsappMessage = require("../services/twillioWhatsappService");
 const { createOtp, hashData } = require("../utils/functions");
 const Newsletter = require("../models/newsletter");
 const User = require("../models/user");
+const Query = require("../models/query");
 
 // Newsletter Email Template function
 
@@ -103,6 +104,59 @@ module.exports = {
       limit: limitNumber,
       totalPages: Math.ceil(total / limitNumber),
     });
+  }),
+  sendQueryResponseEmail: asyncHandler(async (req, res) => {
+    const { id, name, email, message, responseMessage, status } = req.body;
+
+    console.log(req.body);
+
+    if (!id || !name || !email || !message || !responseMessage || !status) {
+      return errorResponse(res, 400, messageHelper.BAD_REQUEST);
+    }
+
+    // Send email response to the user
+    const userOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: "Your Query, Answered.",
+      html: QueryResponseEmailTemplate(name, message, responseMessage),
+    };
+
+    // Update the query status in the database
+    try {
+      // Assuming we have a Query model imported
+      const updatedQuery = await Query.findByIdAndUpdate(
+        id,
+        {
+          status,
+          responseMessage,
+        },
+        { new: true }
+      );
+
+      if (!updatedQuery) {
+        return errorResponse(res, 404, "Query not found");
+      }
+
+      // Send the email
+      const isEmailSent = await sendEmail(userOptions);
+      if (!isEmailSent) {
+        return errorResponse(res, 400, messageHelper.EMAIL_NOT_SENT);
+      } else {
+        return successResponse(
+          res,
+          200,
+          messageHelper.EMAIL_SENT,
+          updatedQuery
+        );
+      }
+    } catch (error) {
+      return errorResponse(
+        res,
+        500,
+        error.message || "Failed to update query and send email"
+      );
+    }
   }),
   sendEmailToUser: asyncHandler(async (req, res, next) => {
     const { type, email, data } = req.body;
@@ -1595,5 +1649,127 @@ const NewsletterEmailTemplate = () => {
         </div>
       </div>
     </div>
+  `;
+};
+
+const QueryResponseEmailTemplate = (name, message, responseMessage) => {
+  return ` 
+    <table
+      width="100%"
+      cellpadding="0"
+      cellspacing="0"
+      style="padding: 40px 20px"
+    >
+      <tr>
+        <td align="center">
+          <table
+            width="600"
+            cellpadding="0"
+            cellspacing="0"
+            style="
+              background-color: #ffffff;
+              border-radius: 12px;
+              overflow: hidden;
+              box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+            "
+          >
+            <!-- Hero Banner with Gradient -->
+            <tr>
+              <td
+                style="
+                  background: linear-gradient(to right, #ffb74d, #ff9800);
+                  padding: 40px 30px;
+                  text-align: center;
+                  color: white;
+                "
+              >
+                <img
+                  src="https://mentoons-website.s3.ap-northeast-1.amazonaws.com/logo/ec9141ccd046aff5a1ffb4fe60f79316.png"
+                  alt="Mentoons Logo"
+                  style="max-width: 120px; margin-bottom: 20px"
+                />
+                <h1 style="margin: 0; font-size: 28px; font-weight: bold">
+                  Your Query, Answered.
+                </h1>
+                <p style="margin-top: 10px; font-size: 16px">
+                  Thanks for reaching out – we're here to help!
+                </p>
+              </td>
+            </tr>
+
+            <!-- Content Body -->
+            <tr>
+              <td style="padding: 30px 30px 40px 30px; color: #333">
+                <p style="font-size: 18px; margin-top: 0">
+                  Hi <strong>${name}</strong>,
+                </p>
+
+                <p>
+                  We’ve received your query about
+                  <strong>${message}</strong>. Below you’ll find our detailed
+                  response:
+                </p>
+
+                <div
+                  style="
+                    margin: 20px 0;
+                    padding: 20px;
+                    background-color: #fff8e1;
+                    border-left: 4px solid #ff9800;
+                  "
+                >
+                  <p style="margin: 0">
+                    <strong>Your Question:</strong><br />
+                    <em>${message}</em>
+                  </p>
+                </div>
+
+                <div
+                  style="
+                    margin: 20px 0;
+                    padding: 20px;
+                    background-color: #fdf6f0;
+                    border-left: 4px solid #ff9800;
+                  "
+                >
+                  <p style="margin: 0">
+                    <strong>Our Response:</strong><br />
+                    ${responseMessage}
+                  </p>
+                </div>
+
+                <p>
+                  If you have more questions or need further assistance, just
+                  reply to this email—we’ll be glad to help!
+                </p>
+
+                <p style="margin-top: 30px">
+                  Warm regards,<br />
+                    <strong>Mahesh</strong><br />
+                  Founder · Mentoons
+                </p>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td
+                style="
+                  background-color: #f1f1f1;
+                  text-align: center;
+                  padding: 20px;
+                  font-size: 13px;
+                  color: #888;
+                "
+              >
+                <p style="margin: 0">
+                  © ${new Date().getFullYear()} Mentoons. All rights reserved.
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
   `;
 };
