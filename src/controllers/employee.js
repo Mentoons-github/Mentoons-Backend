@@ -116,6 +116,7 @@ const getById = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
   const employees = await Employee.findById({ _id: id });
+  
 
   if (!employees) {
     return errorResponse(res, 404, messageHelper.EMPLOYEE_NOT_FOUND);
@@ -150,7 +151,6 @@ const createEmployee = asyncHandler(async (req, res) => {
     !employeeData.salary ||
     !employeeData.place
   ) {
-    console.warn("⚠️ Missing required fields");
     return errorResponse(res, 400, messageHelper.BAD_REQUEST);
   }
 
@@ -158,13 +158,7 @@ const createEmployee = asyncHandler(async (req, res) => {
     $or: [{ email: employeeData.email }, { phone: employeeData.phone }],
   });
 
-  console.log(
-    "🔍 Checking for existing employee by email/phone:",
-    employeeExist
-  );
-
   if (employeeExist.length > 0) {
-    console.warn("❌ Duplicate email or phone detected");
     return errorResponse(res, 400, "Email or phone number already exists");
   }
 
@@ -180,12 +174,10 @@ const createEmployee = asyncHandler(async (req, res) => {
     !pincode ||
     !country
   ) {
-    console.warn("⚠️ Missing address fields");
     return errorResponse(res, 400, "All address fields are required");
   }
 
   const employee = await Employee.create(employeeData);
-  console.log("✅ New employee created:", employee);
 
   return successResponse(res, 201, messageHelper.EMPLOYEE_CREATED, employee);
 });
@@ -196,6 +188,15 @@ const editEmployee = asyncHandler(async (req, res) => {
 
   if (!updateData || Object.keys(updateData).length === 0) {
     return errorResponse(res, 400, "No data provided for update");
+  }
+
+  const checkEXISTS = await Employee.find({
+    _id: { $ne: id },
+    $or: [{ email: uploadData.email }, { phone: uploadData.phone }],
+  });
+
+  if (checkEXISTS.length > 0) {
+    return errorResponse(res, 409, "Email or phone number already exists");
   }
 
   const employee = await Employee.findByIdAndUpdate(id, updateData, {
