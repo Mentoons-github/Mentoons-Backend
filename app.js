@@ -24,6 +24,7 @@ const skuRoutes = require("./src/routes/cardProductRoutes.js");
 const upload = require("./src/middlewares/uploadFileMiddleware.js");
 const cartRoutes = require("./src/routes/cartRoutes.js");
 const paymentRoutes = require("./src/routes/paymentRoutes.js");
+const mythosCommentRoutes = require("./src/routes/mythosComment.routes.js");
 
 // const webhookRoutes = require("./src/routes/webhook.js");
 const evaluationRoutes = require("./src/routes/EvaluationForm.js");
@@ -176,7 +177,7 @@ app.use("/api/v1/cart", cartRoutes);
 app.use("/api/v1/payment", paymentRoutes);
 app.use("/api/v1/sessionbookings", sessionRoute); // adda controller tomorrow
 app.use("/api/v1/query", queryRoutes);
-
+app.use("/api/v1/mythosComment", mythosCommentRoutes);
 app.use("/health", (req, res) => {
   res.json({
     message: "The server is running successfully",
