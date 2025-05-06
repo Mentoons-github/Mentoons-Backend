@@ -10,7 +10,7 @@ const mongoose = require("mongoose");
 const createComment = async (req, res) => {
   try {
     const { content, postId, parentCommentId, mentions, media } = req.body;
-    const userId = req.user.id;
+    const userId = req.user.dbUser._id;
 
     // Check if post exists
     const post = await Post.findById(postId);
@@ -55,6 +55,10 @@ const createComment = async (req, res) => {
     // Update post comments count
     await Post.findByIdAndUpdate(postId, {
       $inc: { commentCount: 1 },
+    });
+
+    await Post.findByIdAndUpdate(postId, {
+      $push: { comments: savedComment._id },
     });
 
     res.status(201).json({
@@ -168,7 +172,7 @@ const updateComment = async (req, res) => {
   try {
     const { commentId } = req.params;
     const { content, media, mentions } = req.body;
-    const userId = req.user.id;
+    const userId = req.user.dbUser._id;
 
     const comment = await Comment.findById(commentId);
     if (!comment) {
@@ -217,7 +221,7 @@ const updateComment = async (req, res) => {
 const deleteComment = async (req, res) => {
   try {
     const { commentId } = req.params;
-    const userId = req.user.id;
+    const userId = req.user.dbUser._id;
 
     const comment = await Comment.findById(commentId);
     if (!comment) {
@@ -275,7 +279,7 @@ const deleteComment = async (req, res) => {
 const likeComment = async (req, res) => {
   try {
     const { commentId } = req.params;
-    const userId = req.user.id;
+    const userId = req.user.dbUser._id;
 
     const comment = await Comment.findById(commentId);
     if (!comment) {
@@ -317,7 +321,7 @@ const likeComment = async (req, res) => {
 const unlikeComment = async (req, res) => {
   try {
     const { commentId } = req.params;
-    const userId = req.user.id;
+    const userId = req.user.dbUser._id;
 
     const comment = await Comment.findById(commentId);
     if (!comment) {

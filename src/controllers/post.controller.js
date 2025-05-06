@@ -45,7 +45,7 @@ const createPost = async (req, res) => {
 
     const savedPost = await newPost.save();
 
-    await savedPost.populate("user", "username profilePicture name");
+    await savedPost.populate("user", "email picture name");
 
     res.status(201).json({
       success: true,
@@ -89,10 +89,11 @@ const getAllPosts = async (req, res) => {
       limit: parseInt(limit, 10),
       sort: sortOptions,
       populate: [
-        { path: "user", select: "username imageUrl name" },
+        { path: "user", select: "email picture name" },
         {
           path: "comments",
-          populate: { path: "user", select: "username imageUrl name" },
+          populate: { path: "user", select: "email picture name" },
+          select: "content createdAt user likes replies media",
         },
       ],
     };
@@ -145,10 +146,11 @@ const getPostById = async (req, res) => {
     const { id } = req.params;
 
     const post = await Post.findById(id)
-      .populate("user", "username profilePicture name")
+      .populate("user", "email picture name")
       .populate({
         path: "comments",
-        populate: { path: "user", select: "username profilePicture name" },
+        populate: { path: "user", select: "email picture name" },
+        select: "content createdAt user likes replies media",
       });
 
     if (!post) {
@@ -227,7 +229,7 @@ const updatePost = async (req, res) => {
 
     const updatedPost = await post.save();
 
-    await updatedPost.populate("user", "username profilePicture name");
+    await updatedPost.populate("user", "email picture name");
 
     res.status(200).json({
       success: true,
@@ -345,10 +347,10 @@ const getPostsByUser = async (req, res) => {
       limit: parseInt(limit, 10),
       sort: { createdAt: -1 },
       populate: [
-        { path: "user", select: "username profilePicture name" },
+        { path: "user", select: "email picture name" },
         {
           path: "comments",
-          populate: { path: "user", select: "username profilePicture name" },
+          populate: { path: "user", select: "email picture name" },
         },
       ],
     };

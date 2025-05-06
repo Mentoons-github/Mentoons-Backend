@@ -10,7 +10,7 @@ const mongoose = require("mongoose");
 const createLike = async (req, res) => {
   try {
     const { postId } = req.body;
-    const userId = req.user.id;
+    const userId = req.user.dbUser._id;
 
     // Check if post exists
     const post = await Post.findById(postId);
@@ -71,7 +71,7 @@ const createLike = async (req, res) => {
 const deleteLike = async (req, res) => {
   try {
     const { postId } = req.body;
-    const userId = req.user.id;
+    const userId = req.user.dbUser._id;
 
     // Check if post exists
     const post = await Post.findById(postId);
