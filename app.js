@@ -25,7 +25,11 @@ const upload = require("./src/middlewares/uploadFileMiddleware.js");
 const cartRoutes = require("./src/routes/cartRoutes.js");
 const paymentRoutes = require("./src/routes/paymentRoutes.js");
 const mythosCommentRoutes = require("./src/routes/mythosComment.routes.js");
-
+const commentRoutes = require("./src/routes/comment.routes.js");
+const postRoutes = require("./src/routes/post.routes.js");
+const likeRoutes = require("./src/routes/like.routes.js");
+const shareRoutes = require("./src/routes/share.routes.js");
+const feedRoutes = require("./src/routes/feed.routes.js");
 // const webhookRoutes = require("./src/routes/webhook.js");
 const evaluationRoutes = require("./src/routes/EvaluationForm.js");
 
@@ -178,6 +182,11 @@ app.use("/api/v1/payment", paymentRoutes);
 app.use("/api/v1/sessionbookings", sessionRoute); // adda controller tomorrow
 app.use("/api/v1/query", queryRoutes);
 app.use("/api/v1/mythosComment", mythosCommentRoutes);
+app.use("/api/v1/comments", commentRoutes);
+app.use("/api/v1/posts", postRoutes);
+app.use("/api/v1/likes", likeRoutes);
+app.use("/api/v1/shares", shareRoutes);
+app.use("/api/v1", feedRoutes);
 app.use("/health", (req, res) => {
   res.json({
     message: "The server is running successfully",
