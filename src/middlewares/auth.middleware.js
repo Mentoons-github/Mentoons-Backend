@@ -37,9 +37,11 @@ const conditionalAuth = async (req, res, next) => {
 
     req.user = {
       id: user.id,
+      dbUser: DBUser,
       email: user.emailAddresses[0]?.emailAddress,
       firstName: user.firstName,
       lastName: user.lastName,
+      imageUrl: user.imageUrl,
       membership: user.publicMetadata.membership || "FREE",
     };
 
