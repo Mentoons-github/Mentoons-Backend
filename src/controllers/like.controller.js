@@ -163,8 +163,9 @@ const getLikesByPost = async (req, res) => {
  */
 const checkLike = async (req, res) => {
   try {
-    const { postId } = req.params;
-    const userId = req.user.id;
+    const { postId } = req.query;
+
+    const userId = req.user.dbUser._id;
 
     // Check if post exists
     const post = await Post.findById(postId);
