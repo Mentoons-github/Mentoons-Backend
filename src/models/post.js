@@ -83,6 +83,10 @@ const PostSchema = new Schema(
         ref: "Comment",
       },
     ],
+    commentCount: {
+      type: Number,
+      default: 0,
+    },
     shares: [
       {
         type: Schema.Types.ObjectId,

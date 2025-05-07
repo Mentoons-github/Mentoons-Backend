@@ -13,7 +13,7 @@ router.get("/posts/likes", getLikesByPost);
 
 // Protected routes
 router.post("/posts/like", conditionalAuth, createLike);
-router.delete("/posts/unlike", conditionalAuth, deleteLike);
+router.post("/posts/unlike", conditionalAuth, deleteLike);
 router.get("/posts/like/check", conditionalAuth, checkLike);
 
 module.exports = router;

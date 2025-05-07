@@ -17,7 +17,7 @@ const createShare = async (req, res) => {
       recipients,
       externalPlatform,
     } = req.body;
-    const userId = req.user._id;
+    const userId = req.user.dbUser._id;
 
     // Check if post exists
     const post = await Post.findById(postId);
@@ -67,7 +67,7 @@ const createShare = async (req, res) => {
 const deleteShare = async (req, res) => {
   try {
     const { shareId } = req.params;
-    const userId = req.user._id;
+    const userId = req.user.dbUser._id;
 
     // Check if share exists and belongs to user
     const share = await Share.findById(shareId);
