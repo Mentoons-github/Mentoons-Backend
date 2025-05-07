@@ -48,7 +48,8 @@ const {
 const queryRoutes = require("./src/routes/query.routes.js");
 const User = require("./src/models/user"); // Adjust path as needed
 const sessionRoute = require("./src/routes/session.js");
-const { default: addaRouter } = require("./src/routes/adda.routes.js");
+const addaRouter = require("./src/routes/adda.routes.js");
+const socketSetup = require("./src/socket/socket.js");
 // const { requireAuth } = require("@clerk/express");
 dotenv.config();
 const app = express();
@@ -206,6 +207,8 @@ app.use("*", (req, res, next) => {
 
 dbConnection();
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`server running in http://localhost:${PORT}`);
 });
+
+socketSetup(server);

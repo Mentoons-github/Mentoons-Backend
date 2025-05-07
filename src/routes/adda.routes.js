@@ -1,4 +1,4 @@
-import { fetchAllPosts, uploadPost } from "../controllers/adda";
+const { fetchAllPosts, uploadPost } = require("../controllers/adda");
 
 const express = require("express");
 
@@ -6,4 +6,4 @@ const addaRouter = express.Router();
 
 addaRouter.route("/").get(fetchAllPosts).post(uploadPost);
 
-export default addaRouter;
+module.exports = addaRouter;
