@@ -189,7 +189,7 @@ app.use("/api/v1/comments", commentRoutes);
 app.use("/api/v1/posts", postRoutes);
 app.use("/api/v1/likes", likeRoutes);
 app.use("/api/v1/shares", shareRoutes);
-app.use("/api/v1/feed", feedRoutes);
+app.use("/api/v1/feeds", feedRoutes);
 app.use("/health", (req, res) => {
   res.json({
     message: "The server is running successfully",

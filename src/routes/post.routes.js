@@ -18,7 +18,7 @@ const { conditionalAuth } = require("../middlewares/auth.middleware");
 // Public routes
 router.get("/", getAllPosts);
 router.get("/:id", validatePostId, getPostById);
-router.get("/user/:userId", getPostsByUser);
+router.get("/user/:userId", conditionalAuth, getPostsByUser);
 
 // Protected routes
 router.post("/", conditionalAuth, createPost);

@@ -347,18 +347,18 @@ const getPostsByUser = async (req, res) => {
       limit: parseInt(limit, 10),
       sort: { createdAt: -1 },
       populate: [
-        { path: "user", select: "email picture name" },
+        { path: "user" },
         {
           path: "comments",
-          populate: { path: "user", select: "email picture name" },
+          populate: { path: "user" },
         },
       ],
     };
 
-    const query = { user: userId };
+    const query = { user: req.user.dbUser._id };
 
     // If viewing someone else's posts, only show public ones
-    if (!req.user || !req.user._id.equals(userId)) {
+    if (!req.user || !req.user.dbUser._id.equals(userId)) {
       query.visibility = "public";
       // This would need to be expanded with friend logic for 'friends' visibility
     }

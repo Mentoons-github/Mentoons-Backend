@@ -5,25 +5,19 @@ const requestCall = require("../models/requestCall");
 
 module.exports = {
   createUser: async (data) => {
-    const {
-      id,
-      email_addresses,
-      image_url,
-      first_name,
-      last_name,
-    } = data;
+    const { id, email_addresses, image_url, first_name, last_name } = data;
     console.log(id, "id");
 
     const newUser = await User.findOneAndUpdate(
       { clerkId: id },
       {
-      name: `${first_name}${last_name ? ` ${last_name}` : ""}`,
-      email: email_addresses[0]?.email_address,
-      picture: image_url,
+        name: `${first_name}${last_name ? ` ${last_name}` : ""}`,
+        email: email_addresses[0]?.email_address,
+        picture: image_url,
       },
-      { 
-      upsert: true,
-      new: true
+      {
+        upsert: true,
+        new: true,
       }
     );
     return newUser;
@@ -167,7 +161,7 @@ module.exports = {
     try {
       console.log("Fetching user with ID:", userId);
       const [user] = await User.aggregate([
-        { $match: { _id: new mongoose.Types.ObjectId(userId) } },
+        { $match: { _id: userId } },
         {
           $lookup: {
             from: "requestcalls",
@@ -175,18 +169,7 @@ module.exports = {
             foreignField: "_id",
             as: "assignedCalls",
           },
-        },
-        {
-          $project: {
-            _id: 1,
-            clerkId: 1,
-            role: 1,
-            name: 1,
-            email: 1,
-            picture: 1,
-            assignedCalls: 1,
-          },
-        },
+        }, 
       ]);
       if (!user) {
         console.error(`User with ID ${userId} not found.`);
