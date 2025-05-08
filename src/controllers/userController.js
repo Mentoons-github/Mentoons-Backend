@@ -191,12 +191,19 @@ module.exports = {
       res,
       200,
       "Successfully changed user role.",
-      modifiedUser,
+      modifiedUser
     );
   }),
 
   getAllUsersController: asyncHandler(async (req, res) => {
-    const { search, sortField, sortOrder, page = 1, limit = 10, filter } = req.query;
+    const {
+      search,
+      sortField,
+      sortOrder,
+      page = 1,
+      limit = 10,
+      filter,
+    } = req.query;
     const queryOptions = {
       search,
       sortField,
@@ -223,7 +230,7 @@ module.exports = {
   }),
 
   getUserController: asyncHandler(async (req, res, next) => {
-    const { userId } = req.params;
+    const  userId  = req.user.dbUser._id;
     if (!userId) {
       return errorResponse(res, 400, "Id is required", userId);
     }
@@ -249,13 +256,25 @@ module.exports = {
     const data = await response.json();
     return successResponse(res, 200, "Successfully deleted user", data);
   }),
-   viewAllocatedCalls:asyncHandler(async(req,res,next)=>{
-    const {search,sortField,sortOrder,page,limit} = req.query;
-    const {userId} = req.auth;
-    const calls = await userHelper.viewAllocatedCalls(userId,search,sortField,sortOrder,page,limit);
-    if(!calls){
-      return errorResponse(res,400,messageHelper.BAD_REQUEST);
+  viewAllocatedCalls: asyncHandler(async (req, res, next) => {
+    const { search, sortField, sortOrder, page, limit } = req.query;
+    const { userId } = req.auth;
+    const calls = await userHelper.viewAllocatedCalls(
+      userId,
+      search,
+      sortField,
+      sortOrder,
+      page,
+      limit
+    );
+    if (!calls) {
+      return errorResponse(res, 400, messageHelper.BAD_REQUEST);
     }
-    return successResponse(res,200,"Successfully fetched allocated calls",calls);
-   })
+    return successResponse(
+      res,
+      200,
+      "Successfully fetched allocated calls",
+      calls
+    );
+  }),
 };
