@@ -1,4 +1,5 @@
-const Conversation = require("../../models/adda/conversation");
+const Conversations = require("../../models/adda/conversation");
+const FriendRequest = require("../../models/adda/friendRequest");
 const Message = require("../../models/adda/message");
 
 const createConversationAndMessage = async ({
@@ -7,11 +8,22 @@ const createConversationAndMessage = async ({
   message = "",
 }) => {
   try {
-    let conversation = await Conversation.findOne({
+    const checkFriendRequest = await FriendRequest.findOne({
+      $or: [
+        { senderId, receiverId, status: "accepted" },
+        { senderId: receiverId, receiverId: senderId, status: "accepted" },
+      ],
+    });
+
+    if (!checkFriendRequest) {
+      throw new Error("Friend request not found or not accepted");
+    }
+
+    let conversation = await Conversations.findOne({
       members: { $all: [senderId, receiverId] },
     });
     if (!conversation) {
-      conversation = new Conversation({
+      conversation = new Conversations({
         members: [senderId, receiverId],
       });
 
@@ -37,7 +49,7 @@ const createConversationAndMessage = async ({
 
 const deleteMessage = async ({ senderId, receiverId, messageId }) => {
   try {
-    const isConversationExists = await Conversation.findOne({
+    const isConversationExists = await Conversations.findOne({
       members: { $all: [senderId, receiverId] },
     });
 
