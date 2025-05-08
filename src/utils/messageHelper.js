@@ -67,4 +67,8 @@ module.exports = {
   EMPLOYEE_STATUS_UPDATED: "Employee status updated successfully",
   EMPLOYEE_SALARY_UPDATED: "Employee salary updated successfully",
   NEWSLETTER_ALREADY_SUBSCRIBED: "You are already subscribed to the newsletter",
+
+  //posts
+  SUCCESSFULLY_CREATED_POST: "Post created successfully",
+  FETCH_POSTS_SUCCESS: "Posts fetched successfully",
 };

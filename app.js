@@ -48,6 +48,8 @@ const {
 const queryRoutes = require("./src/routes/query.routes.js");
 const User = require("./src/models/user"); // Adjust path as needed
 const sessionRoute = require("./src/routes/session.js");
+const addaRouter = require("./src/routes/adda.routes.js");
+const socketSetup = require("./src/socket/socket.js");
 // const { requireAuth } = require("@clerk/express");
 dotenv.config();
 const app = express();
@@ -160,6 +162,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 app.set("views", __dirname + "/public");
 app.engine("html", require("ejs").renderFile);
+app.use("/api/v1/adda", addaRouter);
 app.use("/api/v1/email", emailRoutes);
 app.use("/api/v1/whatsapp", whatsappRoutes);
 app.use("/api/v1/products", productRoutes);
@@ -179,7 +182,7 @@ app.use("/api/v1/review", reviewRoutes);
 app.use("/api/v1/sku", skuRoutes); // This route is under testing
 app.use("/api/v1/cart", cartRoutes);
 app.use("/api/v1/payment", paymentRoutes);
-app.use("/api/v1/sessionbookings", sessionRoute); // adda controller tomorrow
+app.use("/api/v1/sessionbookings", sessionRoute);
 app.use("/api/v1/query", queryRoutes);
 app.use("/api/v1/mythosComment", mythosCommentRoutes);
 app.use("/api/v1/comments", commentRoutes);
@@ -204,6 +207,8 @@ app.use("*", (req, res, next) => {
 
 dbConnection();
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`server running in http://localhost:${PORT}`);
 });
+
+socketSetup(server);
