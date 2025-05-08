@@ -14,6 +14,7 @@ const {
   viewAllocatedCalls,
 } = require("../controllers/userController.js");
 const { isSuperAdminOrAdmin } = require("../middlewares/authMiddleware.js");
+const { conditionalAuth } = require("../middlewares/auth.middleware.js");
 
 const router = express.Router();
 router.post("/register", registerController);
@@ -40,7 +41,7 @@ router.get(
 
 router.get(
   "/user/:userId",
-  requireAuth({ signInUrl: "/sign-in" }),
+  conditionalAuth,
   getUserController
 );
 router.delete(

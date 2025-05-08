@@ -10,7 +10,7 @@ const mongoose = require("mongoose");
  */
 const getUserFeed = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.user.dbUser._id;
     const { page = 1, limit = 10 } = req.query;
 
     // Find or create feed for user
@@ -83,7 +83,8 @@ const getUserFeed = async (req, res) => {
         { path: "user", select: "name username picture email" },
         {
           path: "comments",
-          select: "content createdAt",
+          populate: { path: "user", select: "email picture name" },
+          select: "content createdAt user likes replies media",
           options: { limit: 3 },
         },
       ]);
@@ -107,7 +108,8 @@ const getUserFeed = async (req, res) => {
           { path: "user", select: "name username picture email" },
           {
             path: "comments",
-            select: "content createdAt",
+            populate: { path: "user", select: "email picture name" },
+            select: "content createdAt user likes replies media",
             options: { limit: 3 },
           },
         ],
@@ -141,7 +143,7 @@ const getUserFeed = async (req, res) => {
  */
 const updateFeedPreferences = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.user.dbUser._id;
     const {
       showLikes,
       showComments,
@@ -193,7 +195,7 @@ const updateFeedPreferences = async (req, res) => {
  */
 const hidePost = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.user.dbUser._id;
     const { postId } = req.params;
 
     // Check if post exists
@@ -239,7 +241,7 @@ const hidePost = async (req, res) => {
  */
 const savePost = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.user.dbUser._id;
     const { postId } = req.params;
 
     // Check if post exists
@@ -285,7 +287,7 @@ const savePost = async (req, res) => {
  */
 const unsavePost = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.user.dbUser._id;
     const { postId } = req.params;
 
     // Find feed for user
@@ -323,7 +325,7 @@ const unsavePost = async (req, res) => {
  */
 const getSavedPosts = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.user.dbUser._id;
     const { page = 1, limit = 10 } = req.query;
 
     // Find feed for user
@@ -342,11 +344,11 @@ const getSavedPosts = async (req, res) => {
       limit: parseInt(limit, 10),
       sort: { createdAt: -1 },
       populate: [
-        { path: "user", select: "name username picture email" },
+        { path: "user", select: "name  picture email" },
         {
           path: "comments",
-          select: "content createdAt",
-          options: { limit: 3 },
+          populate: { path: "user", select: "email picture name" },
+          select: "content createdAt user likes replies media",
         },
       ],
     };
@@ -374,6 +376,24 @@ const getSavedPosts = async (req, res) => {
   }
 };
 
+const checkSavedPost = async (req, res) => {
+  try {
+    const userId = req.user.dbUser._id;
+    const { postId } = req.params;
+    const userFeed = await Feed.findOne({ user: userId });
+    const isSaved = userFeed.savedPosts.includes(postId);
+    res.status(200).json({
+      success: true,
+      data: isSaved,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   getUserFeed,
   updateFeedPreferences,
@@ -381,4 +401,5 @@ module.exports = {
   savePost,
   unsavePost,
   getSavedPosts,
+  checkSavedPost,
 };
