@@ -1,4 +1,4 @@
-const { fetchAllPosts, uploadPost } = require("../controllers/adda");
+// const { fetchAllPosts, uploadPost } = require("../controllers/adda");
 const {
   getAllFriendRequest,
   sendFriendRequest,
@@ -6,6 +6,7 @@ const {
   rejectFriendRequest,
   requestSuggestions,
   getAllFriends,
+  getNotifications,
 } = require("../controllers/adda/friendRequest");
 
 const { getUserConversations } = require("../controllers/adda/conversation");
@@ -23,5 +24,6 @@ addaRouter.patch("/acceptRequest/:requestId", acceptFriendRequest);
 addaRouter.patch("/rejectRequest/:requestId", rejectFriendRequest);
 addaRouter.get("/getFriends", verifyToken, getAllFriends);
 addaRouter.get("/getConversations", verifyToken, getUserConversations);
+addaRouter.get("/userNotifications", verifyToken, getNotifications);
 
 module.exports = addaRouter;
