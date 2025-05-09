@@ -177,11 +177,13 @@ const requestSuggestions = asyncHandler(async (req, res) => {
   const limit = 10;
   const skip = (page - 1) * limit;
 
+  console.log("suggstions fetching");
   try {
     const allRequests = await FriendRequest.find({
       $or: [{ senderId: userId }, { receiverId: userId }],
     });
 
+    console.log("all requests : ", allRequests);
     const excludeId = new Set();
     allRequests.forEach((req) => {
       excludeId.add(req.senderId.toString());
@@ -197,11 +199,15 @@ const requestSuggestions = asyncHandler(async (req, res) => {
       .skip(skip)
       .limit(limit);
 
+    console.log("final sugestions :", suggestions);
+
     const totalRequests = await FriendRequest.countDocuments({
       _id: { $nin: Array.from(excludeId) },
     });
 
     const hasMore = skip + suggestions.length < totalRequests;
+
+    console.log("has more :", hasMore);
 
     return successResponse(res, 200, "suggestions fetched successfully", {
       suggestions,
