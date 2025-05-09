@@ -1,13 +1,14 @@
+const User = require("../../models/user");
 const FriendRequest = require("../../models/adda/friendRequest");
 const asyncHandler = require("../../utils/asyncHandler");
 const {
   errorResponse,
   successResponse,
 } = require("../../utils/responseHelper");
+const { createNotification } = require("../../helpers/adda/createNotification");
 
 const getAllFriendRequest = asyncHandler(async (req, res) => {
-  const userId = req.body.userId;
-  
+  const userId = req.user;
 
   try {
     const [pendingReceived, pendingRequest, acceptedRequest, rejectedRequest] =
@@ -40,21 +41,40 @@ const getAllFriendRequest = asyncHandler(async (req, res) => {
 });
 
 const sendFriendRequest = asyncHandler(async (req, res) => {
-  const senderId = req.body.userId;
-  const { receiverId } = req.query;
+  const senderId = req.user;
+  const { receiverId } = req.params;
+
+  console.log(senderId, receiverId);
 
   try {
-    const exist = await FriendRequest.findOne({ senderId, receiverId });
+    const exist = await FriendRequest.findOne({
+      senderId,
+      receiverId,
+    }).populate("receiverId");
     if (exist) return errorResponse(res, 400, "Request already exists");
 
-    await FriendRequest.create({
+    const newRequest = await FriendRequest.create({
       senderId,
       receiverId,
       status: "pending",
     });
 
+    const user = await User.findById({ _id: receiverId });
+
+    const receiverName = user.name;
+    const notificationMessage = `You have received a friend request from ${receiverName}.`;
+
+    const noti = await createNotification(
+      receiverId,
+      "friend_request",
+      notificationMessage
+    );
+
+    console.log("notification :", noti);
+
     successResponse(res, 200, "Friend request send successfully");
   } catch (err) {
+    console.log(err);
     errorResponse(res, 500, "Error making request");
   }
 });
@@ -63,11 +83,26 @@ const acceptFriendRequest = asyncHandler(async (req, res) => {
   const { requestId } = req.query;
 
   try {
-    const request = await FriendRequest.findById({ _id: requestId });
+    const request = await FriendRequest.findById({ _id: requestId }).populate(
+      "receiverId"
+    );
     if (!request) return errorResponse(res, 404, "No request found");
     request.status = "accepted";
-
+    console.log("request", request);
     await request.save();
+
+    const receiverName = request.receiverId.name;
+    const notificationMessage = `Your friend request to ${receiverName} has been accepted.`;
+
+    const noti = await createNotification(
+      request.receiverId._id,
+      "friendRequest_Accept",
+      notificationMessage
+    );
+
+    console.log(noti);
+
+    console.log("notification created");
     return successResponse(res, 200, "Friend request accepted successfully");
   } catch (err) {
     console.log(err);
@@ -79,11 +114,22 @@ const rejectFriendRequest = asyncHandler(async (req, res) => {
   const { requestId } = req.query;
 
   try {
-    const request = await FriendRequest.findById({ _id: requestId });
+    const request = await FriendRequest.findById({ _id: requestId }).populate(
+      "receiverId"
+    );
     if (!request) return errorResponse(res, 404, "No request found");
     request.status = "rejected";
-
     await request.save();
+
+    const receiverName = request.receiverId.name;
+    const notificationMessage = `Your friend request to ${receiverName} has been rejected.`;
+
+    await createNotification(
+      request.receiverId._id,
+      "friendRequest_Reject",
+      notificationMessage
+    );
+
     return successResponse(res, 200, "Friend request accepted successfully");
   } catch (err) {
     console.log(err);
@@ -93,15 +139,15 @@ const rejectFriendRequest = asyncHandler(async (req, res) => {
 
 const getAllFriends = asyncHandler(async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = req.user;
     const friends = await FriendRequest.find({
       $or: [
         { senderId: userId, status: "accepted" },
         { receiverId: userId, status: "accepted" },
       ],
     })
-      .populate("senderId", "name picture")
-      .populate("receiverId", "name picture");
+      .populate("senderId", "_id name picture")
+      .populate("receiverId", "_id name picture");
 
     const friendList = friends.map((friend) => {
       return friend.senderId.toString() === userId
@@ -125,10 +171,59 @@ const getAllFriends = asyncHandler(async (req, res) => {
   }
 });
 
+const requestSuggestions = asyncHandler(async (req, res) => {
+  const userId = req.user;
+  const page = parseInt(req.query.page) || 1;
+  const limit = 10;
+  const skip = (page - 1) * limit;
+
+  console.log("suggstions fetching");
+  try {
+    const allRequests = await FriendRequest.find({
+      $or: [{ senderId: userId }, { receiverId: userId }],
+    });
+
+    console.log("all requests : ", allRequests);
+    const excludeId = new Set();
+    allRequests.forEach((req) => {
+      excludeId.add(req.senderId.toString());
+      excludeId.add(req.receiverId.toString());
+    });
+
+    excludeId.add(userId);
+
+    const suggestions = await User.find({
+      _id: { $nin: Array.from(excludeId) },
+    })
+      .select("_id name picture")
+      .skip(skip)
+      .limit(limit);
+
+    console.log("final sugestions :", suggestions);
+
+    const totalRequests = await FriendRequest.countDocuments({
+      _id: { $nin: Array.from(excludeId) },
+    });
+
+    const hasMore = skip + suggestions.length < totalRequests;
+
+    console.log("has more :", hasMore);
+
+    return successResponse(res, 200, "suggestions fetched successfully", {
+      suggestions,
+      hasMore,
+    });
+  } catch (err) {
+    console.log(err);
+    return errorResponse(res, 500, "Failed to fetch Suggestions");
+  }
+});
+
 module.exports = {
   getAllFriendRequest,
   sendFriendRequest,
   acceptFriendRequest,
   rejectFriendRequest,
+  requestSuggestions,
   getAllFriends,
 };

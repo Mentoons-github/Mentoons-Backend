@@ -34,7 +34,7 @@ const newConversationAndMessage = asyncHandler(async (req, res) => {
 });
 
 const getUserConversations = asyncHandler(async (req, res) => {
-  const userId = req.body.userId;
+  const userId = req.user;
   try {
     const userConversations = await Conversations.find({
       members: { $in: [userId] },
