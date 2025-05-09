@@ -5,7 +5,10 @@ const {
   errorResponse,
   successResponse,
 } = require("../../utils/responseHelper");
-const { createNotification } = require("../../helpers/adda/createNotification");
+const {
+  createNotification,
+  fetchNotifications,
+} = require("../../helpers/adda/createNotification");
 
 const getAllFriendRequest = asyncHandler(async (req, res) => {
   const userId = req.user;
@@ -91,13 +94,13 @@ const sendFriendRequest = asyncHandler(async (req, res) => {
     }).populate("receiverId");
     if (exist) return errorResponse(res, 400, "Request already exists");
 
-    const newRequest = await FriendRequest.create({
+    await FriendRequest.create({
       senderId,
       receiverId,
       status: "pending",
     });
 
-    const user = await User.findById({ _id: receiverId });
+    const user = await User.findById({ _id: senderId });
 
     const receiverName = user.name;
     const notificationMessage = `You have received a friend request from ${receiverName}.`;
@@ -105,7 +108,8 @@ const sendFriendRequest = asyncHandler(async (req, res) => {
     const noti = await createNotification(
       receiverId,
       "friend_request",
-      notificationMessage
+      notificationMessage,
+      senderId
     );
 
     console.log("notification :", noti);
@@ -118,12 +122,14 @@ const sendFriendRequest = asyncHandler(async (req, res) => {
 });
 
 const acceptFriendRequest = asyncHandler(async (req, res) => {
-  const { requestId } = req.query;
+  const { requestId } = req.params;
 
+  console.log(requestId);
   try {
     const request = await FriendRequest.findById({ _id: requestId }).populate(
       "receiverId"
     );
+    console.log(request);
     if (!request) return errorResponse(res, 404, "No request found");
     request.status = "accepted";
     console.log("request", request);
@@ -134,8 +140,9 @@ const acceptFriendRequest = asyncHandler(async (req, res) => {
 
     const noti = await createNotification(
       request.receiverId._id,
-      "friendRequest_Accept",
-      notificationMessage
+      "friend_request_accepted",
+      notificationMessage,
+      request.senderId
     );
 
     console.log(noti);
@@ -149,7 +156,7 @@ const acceptFriendRequest = asyncHandler(async (req, res) => {
 });
 
 const rejectFriendRequest = asyncHandler(async (req, res) => {
-  const { requestId } = req.query;
+  const { requestId } = req.params;
 
   try {
     const request = await FriendRequest.findById({ _id: requestId }).populate(
@@ -164,8 +171,9 @@ const rejectFriendRequest = asyncHandler(async (req, res) => {
 
     await createNotification(
       request.receiverId._id,
-      "friendRequest_Reject",
-      notificationMessage
+      "friend_request_rejected",
+      notificationMessage,
+      request.senderId
     );
 
     return successResponse(res, 200, "Friend request accepted successfully");
@@ -257,6 +265,23 @@ const requestSuggestions = asyncHandler(async (req, res) => {
   }
 });
 
+const getNotifications = asyncHandler(async (req, res) => {
+  const userId = req.user;
+
+  try {
+    const userNotifications = await fetchNotifications(userId);
+    return successResponse(
+      res,
+      200,
+      "Notifications fetched successfully",
+      userNotifications
+    );
+  } catch (err) {
+    console.log(err);
+    return errorResponse(res, 500, "Failed to fetch notifications");
+  }
+});
+
 module.exports = {
   getAllFriendRequest,
   sendFriendRequest,
@@ -264,4 +289,5 @@ module.exports = {
   rejectFriendRequest,
   requestSuggestions,
   getAllFriends,
+  getNotifications,
 };
