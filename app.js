@@ -179,7 +179,7 @@ app.use("/api/v1/call-requests", callRequestRoutes);
 app.use("/api/v1/author", authorRoutes);
 app.use("/api/v1/evaluation", evaluationRoutes);
 app.use("/api/v1/review", reviewRoutes);
-app.use("/api/v1/sku", skuRoutes); // This route is under testing
+app.use("/api/v1/sku", skuRoutes);
 app.use("/api/v1/cart", cartRoutes);
 app.use("/api/v1/payment", paymentRoutes);
 app.use("/api/v1/sessionbookings", sessionRoute);
