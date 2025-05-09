@@ -143,14 +143,14 @@ const getAllPosts = async (req, res) => {
  */
 const getPostById = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { postId } = req.params;
+    console.log(postId);
 
-    const post = await Post.findById(id)
-      .populate("user", "email picture name")
+    const post = await Post.findById(postId)
+      .populate("user")
       .populate({
         path: "comments",
-        populate: { path: "user", select: "email picture name" },
-        select: "content createdAt user likes replies media",
+        populate: { path: "user" },
       });
 
     if (!post) {

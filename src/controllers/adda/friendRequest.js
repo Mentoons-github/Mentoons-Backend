@@ -7,6 +7,7 @@ const {
 
 const getAllFriendRequest = asyncHandler(async (req, res) => {
   const userId = req.body.userId;
+  
 
   try {
     const [pendingReceived, pendingRequest, acceptedRequest, rejectedRequest] =
