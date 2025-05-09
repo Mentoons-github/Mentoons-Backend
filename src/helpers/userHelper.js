@@ -135,6 +135,17 @@ module.exports = {
             name: 1,
             email: 1,
             picture: 1,
+            bio: 1,
+            location: 1,
+            coverImage: 1,
+            dateOfBirth: 1,
+            joinedDate: 1,
+            lastActive: 1,
+            followers: 1,
+            following: 1,
+            friends: 1,
+            socialLinks: 1,
+            subscription: 1,
             assignedCalls: 1,
           },
         },
@@ -158,6 +169,7 @@ module.exports = {
   },
 
   getUser: async (userId) => {
+    console.log(userId, "userId");
     try {
       console.log("Fetching user with ID:", userId);
       const [user] = await User.aggregate([
@@ -169,7 +181,29 @@ module.exports = {
             foreignField: "_id",
             as: "assignedCalls",
           },
-        }, 
+        },
+        {
+          $project: {
+            _id: 1,
+            clerkId: 1,
+            role: 1,
+            name: 1,
+            email: 1,
+            picture: 1,
+            bio: 1,
+            location: 1,
+            coverImage: 1,
+            dateOfBirth: 1,
+            joinedDate: 1,
+            lastActive: 1,
+            followers: 1,
+            following: 1,
+            friends: 1,
+            socialLinks: 1,
+            subscription: 1,
+            assignedCalls: 1,
+          },
+        },
       ]);
       if (!user) {
         console.error(`User with ID ${userId} not found.`);
@@ -181,6 +215,120 @@ module.exports = {
       throw new Error("Error fetching user from database");
     }
   },
+
+  // Update profile information
+  updateProfile: async (userId, profileData) => {
+    try {
+      const {
+        bio,
+        location,
+        coverImage,
+        dateOfBirth,
+        picture,
+        interests,
+        socialLinks,
+        privacySettings,
+      } = profileData;
+
+      console.log(userId, "userId");
+      console.log(picture, "picture");
+      const clerkProfileImageUpload = await fetch(
+        `https://api.clerk.com/v1/users/${userId}/profile_image`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.CLERK_SECRET_KEY}`,
+          },
+          body: JSON.stringify({ image_url: picture }),
+        }
+      );
+
+      console.log(clerkProfileImageUpload, "clerkProfileImageUpload");
+
+      const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        {
+          $set: {
+            ...(bio && { bio }),
+            ...(location && { location }),
+            ...(coverImage && { coverImage }),
+            ...(dateOfBirth && { dateOfBirth }),
+            ...(interests && { interests }),
+            ...(socialLinks && { socialLinks }),
+            ...(privacySettings && { privacySettings }),
+            lastActive: new Date(),
+          },
+        },
+        { new: true }
+      );
+
+      if (!updatedUser) {
+        throw new Error("User not found");
+      }
+
+      return updatedUser;
+    } catch (error) {
+      console.error("Error updating user profile:", error);
+      throw new Error(`Error updating user profile: ${error.message}`);
+    }
+  },
+
+  // Follow/unfollow user
+  toggleFollow: async (userId, targetUserId) => {
+    try {
+      const user = await User.findById(userId);
+      if (!user) {
+        throw new Error("User not found");
+      }
+
+      const targetUser = await User.findById(targetUserId);
+      if (!targetUser) {
+        throw new Error("Target user not found");
+      }
+
+      // Check if already following
+      const isFollowing = user.following.includes(targetUserId);
+
+      if (isFollowing) {
+        // Unfollow
+        await User.findByIdAndUpdate(userId, {
+          $pull: { following: targetUserId },
+        });
+        await User.findByIdAndUpdate(targetUserId, {
+          $pull: { followers: userId },
+        });
+        return { action: "unfollowed" };
+      } else {
+        // Follow
+        await User.findByIdAndUpdate(userId, {
+          $addToSet: { following: targetUserId },
+        });
+        await User.findByIdAndUpdate(targetUserId, {
+          $addToSet: { followers: userId },
+        });
+
+        // Add notification
+        await User.findByIdAndUpdate(targetUserId, {
+          $push: {
+            notifications: {
+              type: "follow",
+              from: userId,
+              content: "started following you",
+              isRead: false,
+              createdAt: new Date(),
+            },
+          },
+        });
+
+        return { action: "followed" };
+      }
+    } catch (error) {
+      console.error("Error toggling follow:", error);
+      throw new Error(`Error toggling follow: ${error.message}`);
+    }
+  },
+
   viewAllocatedCalls: async (
     userId,
     search = "",
@@ -235,6 +383,28 @@ module.exports = {
     } catch (error) {
       console.error("Error in viewAllocatedCalls:", error);
       throw new Error(error.message);
+    }
+  },
+
+  // Get user stats (followers count, posts count, etc.)
+  getUserStats: async (userId) => {
+    try {
+      const user = await User.findById(userId);
+      if (!user) {
+        throw new Error("User not found");
+      }
+
+      return {
+        followersCount: user.followers.length,
+        followingCount: user.following.length,
+        postsCount: user.posts.length,
+        friendsCount: user.friends.length,
+        groupsCount: user.groups.length,
+        subscription: user.subscription,
+      };
+    } catch (error) {
+      console.error("Error getting user stats:", error);
+      throw new Error(`Error getting user stats: ${error.message}`);
     }
   },
 };
