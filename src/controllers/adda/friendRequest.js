@@ -9,31 +9,69 @@ const { createNotification } = require("../../helpers/adda/createNotification");
 
 const getAllFriendRequest = asyncHandler(async (req, res) => {
   const userId = req.user;
+  const page = Math.max(1, parseInt(req.query.page) || 1);
+  const limit = Math.max(1, parseInt(req.query.limit) || 10);
+  const skip = (page - 1) * limit;
 
   try {
-    const [pendingReceived, pendingRequest, acceptedRequest, rejectedRequest] =
-      await Promise.all([
-        FriendRequest.find({ receiverId: userId, status: "pending" }),
-        FriendRequest.find({ senderId: userId, status: "pending" }),
-        FriendRequest.find({
-          $or: [
-            { senderId: userId, status: "accepted" },
-            { receiverId: userId, status: "accepted" },
-          ],
-        }).sort({ createdAt: -1 }),
-        FriendRequest.find({
-          $or: [
-            { senderId: userId, status: "rejected" },
-            { receiverId: userId, status: "rejected" },
-          ],
-        }),
-      ]);
+    const [
+      pendingReceived,
+      pendingRequest,
+      acceptedRequest,
+      rejectedRequest,
+      totalAcceptedCount,
+    ] = await Promise.all([
+      FriendRequest.find({ receiverId: userId, status: "pending" })
+        .populate("senderId", "_id name picture")
+        .populate("receiverId", "_id name picture"),
+
+      FriendRequest.find({ senderId: userId, status: "pending" })
+        .populate("senderId", "_id name picture")
+        .populate("receiverId", "_id name picture"),
+
+      FriendRequest.find({
+        $or: [
+          { senderId: userId, status: "accepted" },
+          { receiverId: userId, status: "accepted" },
+        ],
+      })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .populate("senderId", "_id name picture")
+        .populate("receiverId", "_id name picture"),
+
+      FriendRequest.find({
+        $or: [
+          { senderId: userId, status: "rejected" },
+          { receiverId: userId, status: "rejected" },
+        ],
+      })
+        .populate("senderId", "_id name picture")
+        .populate("receiverId", "_id name picture"),
+
+      FriendRequest.countDocuments({
+        $or: [
+          { senderId: userId, status: "accepted" },
+          { receiverId: userId, status: "accepted" },
+        ],
+      }),
+    ]);
+
+    console.log("Pending Friend Requests Received:", pendingReceived);
+    console.log("Pending Friend Requests Sent:", pendingRequest);
+    console.log("Accepted Friend Requests:", acceptedRequest);
+    console.log("Rejected Friend Requests:", rejectedRequest);
+    console.log("Total Accepted Count:", totalAcceptedCount);
 
     successResponse(res, 200, "Requests fetch successful", {
       pendingReceived,
       pendingRequest,
       acceptedRequest,
       rejectedRequest,
+      totalAcceptedCount,
+      currentPage: page,
+      totalPages: Math.ceil(totalAcceptedCount / limit),
     });
   } catch (err) {
     errorResponse(res, 500, "Failed to get the requests");
