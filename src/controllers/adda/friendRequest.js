@@ -100,7 +100,7 @@ const sendFriendRequest = asyncHandler(async (req, res) => {
       status: "pending",
     });
 
-    const user = await User.findById({ _id: senderId });
+    const user = await User.findById({ _id: receiverId });
 
     const receiverName = user.name;
     const notificationMessage = `You have received a friend request from ${receiverName}.`;
