@@ -158,6 +158,7 @@ app.post("/api/v1/webhook/clerk", ensureUserExists, async (req, res) => {
 });
 
 app.use(morgan("dev"));
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 app.set("views", __dirname + "/public");
