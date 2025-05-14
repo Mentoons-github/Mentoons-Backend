@@ -3,17 +3,17 @@ const router = express.Router();
 const {
   createLike,
   deleteLike,
-  getLikesByPost,
+  getLikesByTarget,
   checkLike,
 } = require("../controllers/like.controller");
 const { conditionalAuth } = require("../middlewares/auth.middleware");
 
 // Public routes
-router.get("/posts/likes", getLikesByPost);
+router.get("/get-likes", getLikesByTarget);
 
 // Protected routes
-router.post("/posts/like", conditionalAuth, createLike);
-router.post("/posts/unlike", conditionalAuth, deleteLike);
-router.get("/posts/like/check", conditionalAuth, checkLike);
+router.post("/add-like", conditionalAuth, createLike);
+router.post("/remove-like", conditionalAuth, deleteLike);
+router.get("/check-like", conditionalAuth, checkLike);
 
 module.exports = router;

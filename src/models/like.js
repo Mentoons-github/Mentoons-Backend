@@ -12,7 +12,12 @@ const LikeSchema = new Schema(
     post: {
       type: Schema.Types.ObjectId,
       ref: "Post",
-      required: true,
+      required: false,
+    },
+    meme: {
+      type: Schema.Types.ObjectId,
+      ref: "Meme",
+      required: false,
     },
     createdAt: {
       type: Date,
@@ -22,12 +27,21 @@ const LikeSchema = new Schema(
   { timestamps: true }
 );
 
-// Compound index to ensure a user can only like a post once
-LikeSchema.index({ user: 1, post: 1 }, { unique: true });
+// Compound indexes to ensure a user can only like a post or meme once
+LikeSchema.index(
+  { user: 1, post: 1 },
+  { unique: true, partialFilterExpression: { post: { $exists: true } } }
+);
+LikeSchema.index(
+  { user: 1, meme: 1 },
+  { unique: true, partialFilterExpression: { meme: { $exists: true } } }
+);
 
 // Method to check if a like exists
-LikeSchema.statics.findLike = function (userId, postId) {
-  return this.findOne({ user: userId, post: postId });
+LikeSchema.statics.findLike = function (userId, type, id) {
+  if (type === "post") return this.findOne({ user: userId, post: id });
+  if (type === "meme") return this.findOne({ user: userId, meme: id });
+  return null;
 };
 
 // Virtual for like URL

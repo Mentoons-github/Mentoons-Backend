@@ -1,5 +1,6 @@
 const Comment = require("../models/comment");
 const Post = require("../models/post");
+const Meme = require("../models/adda/meme");
 const mongoose = require("mongoose");
 
 /**
@@ -9,22 +10,50 @@ const mongoose = require("mongoose");
  */
 const createComment = async (req, res) => {
   try {
-    const { content, postId, parentCommentId, mentions, media } = req.body;
+    const { content, postId, memeId, parentCommentId, mentions, media } =
+      req.body;
     const userId = req.user.dbUser._id;
 
-    // Check if post exists
-    const post = await Post.findById(postId);
-    if (!post) {
-      return res.status(404).json({
+    // Validate that either postId or memeId is provided, but not both
+    if (!postId && !memeId) {
+      return res.status(400).json({
         success: false,
-        message: "Post not found",
+        message: "Either postId or memeId must be provided",
       });
+    }
+
+    if (postId && memeId) {
+      return res.status(400).json({
+        success: false,
+        message: "Cannot comment on both post and meme simultaneously",
+      });
+    }
+
+    // Check if post or meme exists
+    let target;
+    if (postId) {
+      target = await Post.findById(postId);
+      if (!target) {
+        return res.status(404).json({
+          success: false,
+          message: "Post not found",
+        });
+      }
+    } else {
+      target = await Meme.findById(memeId);
+      if (!target) {
+        return res.status(404).json({
+          success: false,
+          message: "Meme not found",
+        });
+      }
     }
 
     // Create new comment
     const newComment = new Comment({
       user: userId,
       post: postId,
+      meme: memeId,
       content,
       mentions: mentions || [],
       media: media || [],
@@ -50,16 +79,20 @@ const createComment = async (req, res) => {
     const savedComment = await newComment.save();
 
     // Populate user information
-    await savedComment.populate("user", "name picture email");
+    await savedComment.populate("user");
 
-    // Update post comments count
-    await Post.findByIdAndUpdate(postId, {
-      $inc: { commentCount: 1 },
-    });
-
-    await Post.findByIdAndUpdate(postId, {
-      $push: { comments: savedComment._id },
-    });
+    // Update post/meme comments count and add comment reference
+    if (postId) {
+      await Post.findByIdAndUpdate(postId, {
+        $inc: { commentCount: 1 },
+        $push: { comments: savedComment._id },
+      });
+    } else {
+      await Meme.findByIdAndUpdate(memeId, {
+        $inc: { commentCount: 1 },
+        $push: { comments: savedComment._id },
+      });
+    }
 
     res.status(201).json({
       success: true,
@@ -75,40 +108,68 @@ const createComment = async (req, res) => {
 };
 
 /**
- * Get all comments for a post
+ * Get all comments for a post or meme
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  */
-const getCommentsByPost = async (req, res) => {
+const getCommentsByTarget = async (req, res) => {
   try {
-    const { postId } = req.params;
+    const { postId, memeId } = req.params;
     const { page = 1, limit = 10 } = req.query;
 
-    // Check if post exists
-    const post = await Post.findById(postId);
-    if (!post) {
-      return res.status(404).json({
+    // Validate that either postId or memeId is provided, but not both
+    if (!postId && !memeId) {
+      return res.status(400).json({
         success: false,
-        message: "Post not found",
+        message: "Either postId or memeId must be provided",
       });
     }
 
+    if (postId && memeId) {
+      return res.status(400).json({
+        success: false,
+        message: "Cannot get comments for both post and meme simultaneously",
+      });
+    }
+
+    // Check if post or meme exists
+    let target;
+    if (postId) {
+      target = await Post.findById(postId);
+      if (!target) {
+        return res.status(404).json({
+          success: false,
+          message: "Post not found",
+        });
+      }
+    } else {
+      target = await Meme.findById(memeId);
+      if (!target) {
+        return res.status(404).json({
+          success: false,
+          message: "Meme not found",
+        });
+      }
+    }
+
     // Get top-level comments (no parent)
-    const comments = await Comment.find({ post: postId, parentComment: null })
-      .populate("user", "name picture email")
+    const query = {
+      parentComment: null,
+      ...(postId ? { post: postId } : { meme: memeId }),
+    };
+
+    const comments = await Comment.find(query)
+      .populate("user")
       .populate({
         path: "replies",
-        populate: { path: "user", select: "name picture email" },
+        populate: { path: "user" },
       })
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(parseInt(limit));
 
     // Get total count for pagination
-    const totalComments = await Comment.countDocuments({
-      post: postId,
-      parentComment: null,
-    });
+    const totalComments = await Comment.countDocuments(query);
 
     res.status(200).json({
       success: true,
@@ -138,10 +199,10 @@ const getCommentById = async (req, res) => {
     const { commentId } = req.params;
 
     const comment = await Comment.findById(commentId)
-      .populate("user", "name picture email")
+      .populate("user")
       .populate({
         path: "replies",
-        populate: { path: "user", select: "name picture email" },
+        populate: { path: "user" },
       });
 
     if (!comment) {
@@ -198,7 +259,7 @@ const updateComment = async (req, res) => {
     comment.updatedAt = Date.now();
 
     const updatedComment = await comment.save();
-    await updatedComment.populate("user", "name picture email");
+    await updatedComment.populate("user");
 
     res.status(200).json({
       success: true,
@@ -254,10 +315,18 @@ const deleteComment = async (req, res) => {
     // Delete the comment
     await Comment.findByIdAndDelete(commentId);
 
-    // Update post comments count
-    await Post.findByIdAndUpdate(comment.post, {
-      $inc: { commentCount: -1 },
-    });
+    // Update post/meme comments count and remove comment reference
+    if (comment.post) {
+      await Post.findByIdAndUpdate(comment.post, {
+        $inc: { commentCount: -1 },
+        $pull: { comments: commentId },
+      });
+    } else if (comment.meme) {
+      await Meme.findByIdAndUpdate(comment.meme, {
+        $inc: { commentCount: -1 },
+        $pull: { comments: commentId },
+      });
+    }
 
     res.status(200).json({
       success: true,
@@ -375,7 +444,7 @@ const getCommentReplies = async (req, res) => {
 
     // Get replies for the comment
     const replies = await Comment.find({ parentComment: commentId })
-      .populate("user", "name picture email")
+      .populate("user")
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
       .limit(parseInt(limit));
@@ -405,7 +474,7 @@ const getCommentReplies = async (req, res) => {
 
 module.exports = {
   createComment,
-  getCommentsByPost,
+  getCommentsByTarget,
   getCommentById,
   updateComment,
   deleteComment,

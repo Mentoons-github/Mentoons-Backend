@@ -1,5 +1,5 @@
-const Comment = require('../models/comment');
-const mongoose = require('mongoose');
+const Comment = require("../models/comment");
+const mongoose = require("mongoose");
 
 /**
  * Middleware to validate comment creation and check for inappropriate content
@@ -9,13 +9,13 @@ const mongoose = require('mongoose');
  */
 const validateCommentCreation = (req, res, next) => {
   try {
-    const { content, postId, parentCommentId } = req.body;
+    const { content, postId, memeId, parentCommentId } = req.body;
 
     // Check if content exists
-    if (!content || content.trim() === '') {
+    if (!content || content.trim() === "") {
       return res.status(400).json({
         success: false,
-        message: 'Comment content is required'
+        message: "Comment content is required",
       });
     }
 
@@ -23,15 +23,38 @@ const validateCommentCreation = (req, res, next) => {
     if (content.length > 1000) {
       return res.status(400).json({
         success: false,
-        message: 'Comment content cannot exceed 1000 characters'
+        message: "Comment content cannot exceed 1000 characters",
       });
     }
 
-    // Check if postId is valid
-    if (!postId || !mongoose.Types.ObjectId.isValid(postId)) {
+    // Check if either postId or memeId is provided, but not both
+    if (!postId && !memeId) {
       return res.status(400).json({
         success: false,
-        message: 'Valid post ID is required'
+        message: "Either postId or memeId is required",
+      });
+    }
+
+    if (postId && memeId) {
+      return res.status(400).json({
+        success: false,
+        message: "Cannot comment on both post and meme simultaneously",
+      });
+    }
+
+    // Check if postId is valid if provided
+    if (postId && !mongoose.Types.ObjectId.isValid(postId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Valid post ID is required",
+      });
+    }
+
+    // Check if memeId is valid if provided
+    if (memeId && !mongoose.Types.ObjectId.isValid(memeId)) {
+      return res.status(400).json({
+        success: false,
+        message: "Valid meme ID is required",
       });
     }
 
@@ -39,51 +62,89 @@ const validateCommentCreation = (req, res, next) => {
     if (parentCommentId && !mongoose.Types.ObjectId.isValid(parentCommentId)) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid parent comment ID'
+        message: "Invalid parent comment ID",
       });
     }
 
     // Check for inappropriate language and adult content
     const inappropriateWords = [
-      'fuck', 'shit', 'ass', 'bitch', 'dick', 'pussy', 'cunt', 
-      'asshole', 'bastard', 'whore', 'slut', 'motherfucker',
-      'cock', 'bullshit', 'damn', 'hell', 'piss', 'crap',
+      "fuck",
+      "shit",
+      "ass",
+      "bitch",
+      "dick",
+      "pussy",
+      "cunt",
+      "asshole",
+      "bastard",
+      "whore",
+      "slut",
+      "motherfucker",
+      "cock",
+      "bullshit",
+      "damn",
+      "hell",
+      "piss",
+      "crap",
       // Add more inappropriate words as needed
     ];
-    
+
     // Adult content filter words
     const adultContentWords = [
-      'porn', 'xxx', 'sex', 'nude', 'naked', 'boobs', 'tits',
-      'penis', 'vagina', 'masturbate', 'orgasm', 'blowjob',
-      'handjob', 'anal', 'dildo', 'vibrator', 'hentai',
-      'nsfw', 'onlyfans', 'escort', 'hooker', 'stripper',
-      'erotic', 'fetish', 'bdsm', 'kinky', 'horny', 'cum',
+      "porn",
+      "xxx",
+      "sex",
+      "nude",
+      "naked",
+      "boobs",
+      "tits",
+      "penis",
+      "vagina",
+      "masturbate",
+      "orgasm",
+      "blowjob",
+      "handjob",
+      "anal",
+      "dildo",
+      "vibrator",
+      "hentai",
+      "nsfw",
+      "onlyfans",
+      "escort",
+      "hooker",
+      "stripper",
+      "erotic",
+      "fetish",
+      "bdsm",
+      "kinky",
+      "horny",
+      "cum",
       // Add more adult content words as needed
     ];
 
     const contentLowerCase = content.toLowerCase();
-    
+
     // Check for inappropriate language
-    const foundInappropriateWords = inappropriateWords.filter(word => 
+    const foundInappropriateWords = inappropriateWords.filter((word) =>
       new RegExp(`\\b${word}\\b`).test(contentLowerCase)
     );
 
     if (foundInappropriateWords.length > 0) {
       return res.status(400).json({
         success: false,
-        message: 'Comment contains inappropriate language'
+        message: "Comment contains inappropriate language",
       });
     }
-    
+
     // Check for adult content
-    const foundAdultContentWords = adultContentWords.filter(word => 
+    const foundAdultContentWords = adultContentWords.filter((word) =>
       new RegExp(`\\b${word}\\b`).test(contentLowerCase)
     );
-    
+
     if (foundAdultContentWords.length > 0) {
       return res.status(400).json({
         success: false,
-        message: 'Comment contains adult content which is not allowed'
+        message: "Comment contains adult content which is not allowed",
       });
     }
 
@@ -91,7 +152,7 @@ const validateCommentCreation = (req, res, next) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -109,7 +170,7 @@ const validateCommentId = (req, res, next) => {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid comment ID'
+        message: "Invalid comment ID",
       });
     }
 
@@ -117,12 +178,12 @@ const validateCommentId = (req, res, next) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };
 
 module.exports = {
   validateCommentCreation,
-  validateCommentId
+  validateCommentId,
 };

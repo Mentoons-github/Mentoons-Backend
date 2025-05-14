@@ -12,7 +12,12 @@ const ShareSchema = new Schema(
     post: {
       type: Schema.Types.ObjectId,
       ref: "Post",
-      required: true,
+      required: false,
+    },
+    meme: {
+      type: Schema.Types.ObjectId,
+      ref: "Meme",
+      required: false,
     },
     caption: {
       type: String,
@@ -48,8 +53,9 @@ const ShareSchema = new Schema(
   { timestamps: true }
 );
 
-// Compound index to track sharing analytics
+// Compound indexes to track sharing analytics
 ShareSchema.index({ user: 1, post: 1 });
+ShareSchema.index({ user: 1, meme: 1 });
 
 // Virtual for share URL
 ShareSchema.virtual("url").get(function () {
@@ -63,10 +69,39 @@ ShareSchema.statics.findByPost = function (postId) {
     .sort({ createdAt: -1 });
 };
 
+// Static method to find shares by meme ID
+ShareSchema.statics.findByMeme = function (memeId) {
+  return this.find({ meme: memeId })
+    .populate("user", "username profilePicture name")
+    .sort({ createdAt: -1 });
+};
+
 // Static method to find shares by user ID
 ShareSchema.statics.findByUser = function (userId) {
-  return this.find({ user: userId }).populate("post").sort({ createdAt: -1 });
+  return this.find({ user: userId })
+    .populate([
+      {
+        path: "post",
+        populate: { path: "user", select: "name picture email" },
+      },
+      {
+        path: "meme",
+        populate: { path: "user", select: "name picture email" },
+      },
+    ])
+    .sort({ createdAt: -1 });
 };
+
+// Pre-save hook to ensure either post or meme is provided
+ShareSchema.pre("save", function (next) {
+  if (!this.post && !this.meme) {
+    next(new Error("Either post or meme must be provided"));
+  }
+  if (this.post && this.meme) {
+    next(new Error("Cannot share both post and meme at the same time"));
+  }
+  next();
+});
 
 ShareSchema.plugin(mongoosePaginate);
 
