@@ -7,6 +7,8 @@ const {
   requestSuggestions,
   getAllFriends,
   getNotifications,
+  deleteNotification,
+  markReadNotification,
 } = require("../controllers/adda/friendRequest");
 
 const { getUserConversations } = require("../controllers/adda/conversation");
@@ -44,5 +46,17 @@ addaRouter.get("/getConversations", verifyToken, getUserConversations);
 
 //notification
 addaRouter.get("/userNotifications", verifyToken, getNotifications);
+
+addaRouter.delete(
+  "/userNotifications/:notificationId",
+  verifyToken,
+  deleteNotification
+);
+
+addaRouter.post(
+  "/userNotifications/:notificationId",
+  verifyToken,
+  markReadNotification
+);
 
 module.exports = addaRouter;

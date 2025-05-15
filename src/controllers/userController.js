@@ -351,4 +351,17 @@ module.exports = {
       );
     }
   }),
+
+  getOtherUserController: asyncHandler(async (req, res, next) => {
+    const userId = req.params.userId;
+    console.log("User-ID", userId);
+    if (!userId) {
+      return errorResponse(res, 400, "Id is required", userId);
+    }
+    const user = await userHelper.getOtherUserDetails(userId);
+    if (!user) {
+      return errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR, user);
+    }
+    return successResponse(res, 200, "Successfully fetched user", user);
+  }),
 };
