@@ -3,107 +3,122 @@ const Post = require("../models/post");
 const User = require("../models/user");
 const mongoose = require("mongoose");
 
-/**
- * Get or initialize user feed
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- */
 const getUserFeed = async (req, res) => {
   try {
-    const userId = req.user.dbUser._id;
     const { page = 1, limit = 10 } = req.query;
 
-    // Find or create feed for user
-    let userFeed = await Feed.findOne({ user: userId });
+    if (req.user && req.user.dbUser) {
+      const userId = req.user.dbUser._id;
 
-    if (!userFeed) {
-      // Initialize new feed if not exists
-      userFeed = new Feed({
-        user: userId,
-      });
+      let userFeed = await Feed.findOne({ user: userId });
+
+      if (!userFeed) {
+        userFeed = new Feed({ user: userId });
+        await userFeed.save();
+      }
+
+      userFeed.lastViewedAt = Date.now();
       await userFeed.save();
-    }
 
-    // Update last viewed time
-    userFeed.lastViewedAt = Date.now();
-    await userFeed.save();
+      const feedQuery = {
+        $and: [
+          { user: { $nin: userFeed.blockedUsers } },
+          { _id: { $nin: userFeed.hiddenPosts } },
+        ],
+      };
 
-    // Prepare query to get feed posts
-    const feedQuery = {
-      $and: [
-        // Exclude posts from blocked users
-        { user: { $nin: userFeed.blockedUsers } },
-        // Exclude hidden posts
-        { _id: { $nin: userFeed.hiddenPosts } },
-      ],
-    };
+      if (userFeed.preferences.contentTypes.length > 0) {
+        feedQuery.postType = { $in: userFeed.preferences.contentTypes };
+      }
 
-    // Filter by content types if specified in preferences
-    if (userFeed.preferences.contentTypes.length > 0) {
-      feedQuery.postType = { $in: userFeed.preferences.contentTypes };
-    }
+      const sortOptions = { createdAt: -1 };
 
-    // Set up sorting and filters
-    const sortOptions = { createdAt: -1 };
+      if (
+        userFeed.preferences.prioritizeFollowing &&
+        userFeed.followingUsers.length > 0
+      ) {
+        sortOptions.userFollowed = -1;
 
-    // Prioritize posts from followed users if enabled
-    if (
-      userFeed.preferences.prioritizeFollowing &&
-      userFeed.followingUsers.length > 0
-    ) {
-      sortOptions.userFollowed = -1;
-      // Using aggregation to add a field that helps sort followed users first
-      const posts = await Post.aggregate([
-        {
-          $addFields: {
-            userFollowed: {
-              $cond: [
-                {
-                  $in: [
-                    "$user",
-                    userFeed.followingUsers.map((id) =>
-                      mongoose.Types.ObjectId(id)
-                    ),
-                  ],
-                },
-                1,
-                0,
-              ],
+        const posts = await Post.aggregate([
+          {
+            $addFields: {
+              userFollowed: {
+                $cond: [
+                  {
+                    $in: [
+                      "$user",
+                      userFeed.followingUsers.map((id) =>
+                        mongoose.Types.ObjectId(id)
+                      ),
+                    ],
+                  },
+                  1,
+                  0,
+                ],
+              },
             },
           },
-        },
-        { $match: feedQuery },
-        { $sort: sortOptions },
-        { $skip: (parseInt(page, 10) - 1) * parseInt(limit, 10) },
-        { $limit: parseInt(limit, 10) },
-      ]);
+          { $match: feedQuery },
+          { $sort: sortOptions },
+          { $skip: (parseInt(page, 10) - 1) * parseInt(limit, 10) },
+          { $limit: parseInt(limit, 10) },
+        ]);
 
-      // Populate the user and other references
-      const populatedPosts = await Post.populate(posts, [
-        { path: "user", select: "name username picture email" },
-        {
-          path: "comments",
-          populate: { path: "user", select: "email picture name" },
-          select: "content createdAt user likes replies media",
-          options: { limit: 3 },
-        },
-      ]);
+        const populatedPosts = await Post.populate(posts, [
+          { path: "user", select: "name username picture email" },
+          {
+            path: "comments",
+            populate: { path: "user", select: "email picture name" },
+            select: "content createdAt user likes replies media",
+            options: { limit: 3 },
+          },
+        ]);
 
-      return res.status(200).json({
-        success: true,
-        data: populatedPosts,
-        pagination: {
+        return res.status(200).json({
+          success: true,
+          data: populatedPosts,
+          pagination: {
+            page: parseInt(page, 10),
+            limit: parseInt(limit, 10),
+            hasMore: posts.length === parseInt(limit, 10),
+          },
+        });
+      } else {
+        const options = {
           page: parseInt(page, 10),
           limit: parseInt(limit, 10),
-          hasMore: posts.length === parseInt(limit, 10),
-        },
-      });
+          sort: sortOptions,
+          populate: [
+            { path: "user", select: "name username picture email" },
+            {
+              path: "comments",
+              populate: { path: "user", select: "email picture name" },
+              select: "content createdAt user likes replies media",
+              options: { limit: 3 },
+            },
+          ],
+        };
+
+        const posts = await Post.paginate(feedQuery, options);
+
+        return res.status(200).json({
+          success: true,
+          data: posts.docs,
+          pagination: {
+            total: posts.totalDocs,
+            page: posts.page,
+            pages: posts.totalPages,
+            limit: posts.limit,
+          },
+        });
+      }
     } else {
-      // Standard pagination using mongoose-paginate
+      const feedQuery = { publicVisibility: true };
+
       const options = {
         page: parseInt(page, 10),
         limit: parseInt(limit, 10),
-        sort: sortOptions,
+        sort: { createdAt: -1 },
         populate: [
           { path: "user", select: "name username picture email" },
           {
@@ -117,7 +132,7 @@ const getUserFeed = async (req, res) => {
 
       const posts = await Post.paginate(feedQuery, options);
 
-      res.status(200).json({
+      return res.status(200).json({
         success: true,
         data: posts.docs,
         pagination: {
@@ -129,18 +144,13 @@ const getUserFeed = async (req, res) => {
       });
     }
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: error.message,
     });
   }
 };
 
-/**
- * Update feed preferences
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- */
 const updateFeedPreferences = async (req, res) => {
   try {
     const userId = req.user.dbUser._id;
