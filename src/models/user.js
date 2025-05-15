@@ -18,6 +18,11 @@ const UserSchema = new mongoose.Schema(
     },
     picture: {
       type: String,
+      default: "https://via.placeholder.com/150",
+    },
+    phoneNumber: {
+      type: String,
+      default: "",
     },
 
     bio: {
@@ -26,16 +31,20 @@ const UserSchema = new mongoose.Schema(
     },
     location: {
       type: String,
+      default: "",
     },
     coverImage: {
       type: String,
+      default: "https://via.placeholder.com/150",
     },
     dateOfBirth: {
       type: Date,
+      default: "",
     },
     joinedDate: {
       type: Date,
       default: Date.now,
+
     },
     lastActive: {
       type: Date,
@@ -45,6 +54,7 @@ const UserSchema = new mongoose.Schema(
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
+        
       },
     ],
     following: [

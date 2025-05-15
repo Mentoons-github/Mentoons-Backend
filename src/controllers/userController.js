@@ -230,7 +230,7 @@ module.exports = {
   }),
 
   getUserController: asyncHandler(async (req, res, next) => {
-    const  userId  = req.user.dbUser._id;
+    const userId = req.user.dbUser._id;
     if (!userId) {
       return errorResponse(res, 400, "Id is required", userId);
     }
@@ -276,5 +276,79 @@ module.exports = {
       "Successfully fetched allocated calls",
       calls
     );
+  }),
+  updateProfileController: asyncHandler(async (req, res) => {
+    const userId = req.user.dbUser._id;
+    const profileData = req.body;
+
+    if (!userId) {
+      return errorResponse(res, 400, "User ID is required");
+    }
+
+    try {
+      const updatedProfile = await userHelper.updateProfile(
+        userId,
+        profileData
+      );
+      return successResponse(
+        res,
+        200,
+        "Profile updated successfully",
+        updatedProfile
+      );
+    } catch (error) {
+      return errorResponse(
+        res,
+        500,
+        error.message || "Failed to update profile"
+      );
+    }
+  }),
+  toggleFollowController: asyncHandler(async (req, res) => {
+    const userId = req.user.dbUser._id;
+    const { targetUserId } = req.params;
+
+    if (!userId || !targetUserId) {
+      return errorResponse(res, 400, "User ID and target user ID are required");
+    }
+
+    try {
+      const result = await userHelper.toggleFollow(userId, targetUserId);
+      return successResponse(
+        res,
+        200,
+        `Successfully ${result.action} user`,
+        result
+      );
+    } catch (error) {
+      return errorResponse(
+        res,
+        500,
+        error.message || "Failed to toggle follow status"
+      );
+    }
+  }),
+  getUserStatsController: asyncHandler(async (req, res) => {
+    const userId = req.params.userId || req.user.dbUser._id;
+
+    if (!userId) {
+      return errorResponse(res, 400, "User ID is required");
+    }
+
+    try {
+      const stats = await userHelper.getUserStats(userId);
+      return successResponse(
+        res,
+        200,
+        "User stats retrieved successfully",
+        stats
+      );
+    } catch (error) {
+      return errorResponse(
+        res,
+        500,
+        error.message || "Failed to retrieve user stats"
+      );
+    }
   }),
 };

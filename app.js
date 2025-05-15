@@ -30,6 +30,7 @@ const postRoutes = require("./src/routes/post.routes.js");
 const likeRoutes = require("./src/routes/like.routes.js");
 const shareRoutes = require("./src/routes/share.routes.js");
 const feedRoutes = require("./src/routes/feed.routes.js");
+const memeRoutes = require("./src/routes/adda/meme.routes.js");
 // const webhookRoutes = require("./src/routes/webhook.js");
 const evaluationRoutes = require("./src/routes/EvaluationForm.js");
 
@@ -50,6 +51,7 @@ const User = require("./src/models/user"); // Adjust path as needed
 const sessionRoute = require("./src/routes/session.js");
 const addaRouter = require("./src/routes/adda.routes.js");
 const socketSetup = require("./src/socket/socket.js");
+const influencerJobRequestRoutes = require("./src/routes/influencerJobRequest.routes.js");
 // const { requireAuth } = require("@clerk/express");
 dotenv.config();
 const app = express();
@@ -164,6 +166,7 @@ app.use(express.static("public"));
 app.set("views", __dirname + "/public");
 app.engine("html", require("ejs").renderFile);
 app.use("/api/v1/adda", addaRouter);
+app.use("/api/v1/influencer-requests", influencerJobRequestRoutes);
 app.use("/api/v1/email", emailRoutes);
 app.use("/api/v1/whatsapp", whatsappRoutes);
 app.use("/api/v1/products", productRoutes);
@@ -191,6 +194,7 @@ app.use("/api/v1/posts", postRoutes);
 app.use("/api/v1/likes", likeRoutes);
 app.use("/api/v1/shares", shareRoutes);
 app.use("/api/v1/feeds", feedRoutes);
+app.use("/api/v1/memes", memeRoutes);
 app.use("/health", (req, res) => {
   res.json({
     message: "The server is running successfully",

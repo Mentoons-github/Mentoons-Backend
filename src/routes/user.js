@@ -12,6 +12,9 @@ const {
   DeleteUserClerkController,
   changeRoleController,
   viewAllocatedCalls,
+  updateProfileController,
+  toggleFollowController,
+  getUserStatsController,
 } = require("../controllers/userController.js");
 const { isSuperAdminOrAdmin } = require("../middlewares/authMiddleware.js");
 const { conditionalAuth } = require("../middlewares/auth.middleware.js");
@@ -23,31 +26,17 @@ router.post("/login", loginController);
 router.post("/login/verify", verifyUserLoginController);
 router.post("/logout", logoutController);
 router.post("/premium", premiumController);
-router.post(
-  "/update-role/:user_id",
-  requireAuth({ signInUrl: "/sign-in" }),
-  changeRoleController
-);
-router.get(
-  "/allocatedCalls",
-  requireAuth({ signInUrl: "/sign-in" }),
-  viewAllocatedCalls
-);
-router.get(
-  "/all-users",
-  // requireAuth({ signInUrl: "/sign-in" }),
-  getAllUsersController
-);
+router.post("/update-role/:user_id", conditionalAuth, changeRoleController);
+router.get("/allocatedCalls", conditionalAuth, viewAllocatedCalls);
+router.get("/all-users", getAllUsersController);
 
-router.get(
-  "/user/:userId",
-  conditionalAuth,
-  getUserController
-);
-router.delete(
-  "/user/:userId",
-  requireAuth({ signInUrl: "/sign-in" }),
-  DeleteUserClerkController
-);
+router.get("/user/:userId", conditionalAuth, getUserController);
+router.delete("/user/:userId", conditionalAuth, DeleteUserClerkController);
+
+router.put("/profile", conditionalAuth, updateProfileController);
+
+router.post("/follow/:targetUserId", conditionalAuth, toggleFollowController);
+
+router.get("/stats/:userId?", conditionalAuth, getUserStatsController);
 
 module.exports = router;
