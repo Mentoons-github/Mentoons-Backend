@@ -1,37 +1,38 @@
 const { Clerk } = require("@clerk/clerk-sdk-node");
-const User = require("../models/user");
+const User = require("../../models/user");
+
 const clerk = new Clerk({ secretKey: process.env.CLERK_SECRET_KEY });
 
-const conditionalAuth = async (req, res, next) => {
+const addaConditionalAuth = async (req, res, next) => {
   try {
     console.log("Request Query:", req.query);
     console.log("Authorization Header:", req.header("Authorization"));
 
     const authHeader = req.header("Authorization");
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      console.log("req token n ot found");
-      return res.status(401).json({ message: "Missing or invalid token" });
+      console.log("Missing or invalid token");
+      return next();
     }
 
     const token = authHeader.split(" ")[1];
 
     const session = await clerk.verifyToken(token);
     if (!session || !session.sub) {
-      return res.status(401).json({ message: "Invalid or expired token" });
+      console.log("Invalid or expired token");
+      return next();
     }
 
     const user = await clerk.users.getUser(session.sub);
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      console.log("User not found");
+      return next();
     }
 
     const DBUser = await User.findOne({ clerkId: user.id });
 
     if (!DBUser) {
-      return res.status(404).json({
-        status: "error",
-        message: "User not found in the database. Please register first.",
-      });
+      console.log("User not found in the database. Please register first.");
+      return next();
     }
 
     console.log("user clerk :", user);
@@ -48,14 +49,14 @@ const conditionalAuth = async (req, res, next) => {
 
     console.log("Authenticated User:", req.user);
 
-    next();
+    return next();
   } catch (error) {
-    console.error("Authentication Error:", error);
-    return res.status(401).json({ message: "User is not authorized", error });
+    console.log("Authentication Error:", error);
+    return next();
   }
 };
 
 module.exports = {
-  conditionalAuth,
+  addaConditionalAuth,
   clerk,
 };

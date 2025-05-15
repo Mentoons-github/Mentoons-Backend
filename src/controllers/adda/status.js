@@ -35,28 +35,34 @@ const getGroupedStatuses = async (req, res) => {
     statuses.forEach((status) => {
       const userId = status.user._id.toString();
 
+      const statusWithoutViewers = {
+        ...status.toObject(),
+        viewers: undefined,
+      };
+
       if (!userStatusMap.has(userId)) {
         userStatusMap.set(userId, {
           user: status.user,
           statuses: [],
           isRead: true,
-          viewers: status.viewers,
         });
       }
 
       const isReadByCurrentUser = status.viewers.some(
-        (viewer) => viewer.toString() === currentUserId.toString()
+        (viewer) => viewer._id.toString() === currentUserId.toString()
       );
 
       if (!isReadByCurrentUser) {
         userStatusMap.get(userId).isRead = false;
       }
 
-      userStatusMap.get(userId).statuses.push(status);
+      userStatusMap.get(userId).statuses.push(statusWithoutViewers);
     });
+
 
     const myStatuses = await Status.find({ user: currentUserId })
       .populate("user", "_id name picture email")
+      .populate("viewers", "_id name picture email")
       .sort({ createdAt: -1 });
 
     let myStatusGroup = null;
@@ -64,7 +70,10 @@ const getGroupedStatuses = async (req, res) => {
     if (myStatuses && myStatuses.length > 0) {
       myStatusGroup = {
         user: myStatuses[0].user,
-        statuses: myStatuses,
+        statuses: myStatuses.map((status) => ({
+          ...status.toObject(),
+          viewers: status.viewers, 
+        })),
         isRead: true,
         isOwner: true,
       };
@@ -86,8 +95,6 @@ const getGroupedStatuses = async (req, res) => {
     });
 
     const finalResult = [...unreadUsers, ...readUsers];
-
-    console.log("final result :", finalResult);
 
     return successResponse(
       res,

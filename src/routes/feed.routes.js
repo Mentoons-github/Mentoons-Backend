@@ -10,9 +10,10 @@ const {
   checkSavedPost,
 } = require("../controllers/feed.controller");
 const { conditionalAuth } = require("../middlewares/auth.middleware");
+const { addaConditionalAuth } = require("../middlewares/adda/conditionalAuth");
 
 // All feed routes require authentication
-router.get("/", conditionalAuth, getUserFeed);
+router.get("/", addaConditionalAuth, getUserFeed);
 router.put("/preferences", conditionalAuth, updateFeedPreferences);
 router.post("/posts/:postId/hide", conditionalAuth, hidePost);
 router.post("/posts/:postId/save", conditionalAuth, savePost);

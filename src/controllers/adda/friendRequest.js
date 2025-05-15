@@ -270,6 +270,8 @@ const getNotifications = asyncHandler(async (req, res) => {
 
   try {
     const userNotifications = await fetchNotifications(userId);
+
+    console.log(userNotifications);
     return successResponse(
       res,
       200,
