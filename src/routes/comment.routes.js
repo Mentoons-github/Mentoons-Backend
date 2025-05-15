@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const {
   createComment,
-  getCommentsByPost,
+  getCommentsByTarget,
   getCommentById,
   updateComment,
   deleteComment,
@@ -19,7 +19,10 @@ const { conditionalAuth } = require("../middlewares/auth.middleware");
 router.post("/", conditionalAuth, validateCommentCreation, createComment);
 
 // Get all comments for a post
-router.get("/post/:postId", getCommentsByPost);
+router.get("/post/:postId", getCommentsByTarget);
+
+// Get all comments for a meme
+router.get("/meme/:memeId", getCommentsByTarget);
 
 // Get a single comment by ID
 router.get("/:commentId", getCommentById);

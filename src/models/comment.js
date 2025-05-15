@@ -12,7 +12,12 @@ const CommentSchema = new Schema(
     post: {
       type: Schema.Types.ObjectId,
       ref: "Post",
-      required: true,
+      required: false,
+    },
+    meme: {
+      type: Schema.Types.ObjectId,
+      ref: "Meme",
+      required: false,
     },
     content: {
       type: String,
@@ -81,15 +86,27 @@ CommentSchema.methods.isLikedBy = function (userId) {
   return this.likes.some((like) => like.equals(userId));
 };
 
-// Static method to find comments by post ID
-CommentSchema.statics.findByPost = function (postId) {
-  return this.find({ post: postId, parentComment: null })
-    .populate("user", "username profilePicture name")
-    .populate({
-      path: "replies",
-      populate: { path: "user", select: "username profilePicture name" },
-    })
-    .sort({ createdAt: -1 });
+// Static method to find comments by post or meme
+CommentSchema.statics.findByTarget = function (type, id) {
+  if (type === "post") {
+    return this.find({ post: id, parentComment: null })
+      .populate("user", "username profilePicture name")
+      .populate({
+        path: "replies",
+        populate: { path: "user", select: "username profilePicture name" },
+      })
+      .sort({ createdAt: -1 });
+  }
+  if (type === "meme") {
+    return this.find({ meme: id, parentComment: null })
+      .populate("user", "username profilePicture name")
+      .populate({
+        path: "replies",
+        populate: { path: "user", select: "username profilePicture name" },
+      })
+      .sort({ createdAt: -1 });
+  }
+  return null;
 };
 
 // Pre-save hook to update the updatedAt field

@@ -1,5 +1,6 @@
 const Share = require("../models/share");
 const Post = require("../models/post");
+const Meme = require("../models/adda/meme");
 const mongoose = require("mongoose");
 
 /**
@@ -11,6 +12,7 @@ const createShare = async (req, res) => {
   try {
     const {
       postId,
+      memeId,
       caption,
       visibility,
       shareType,
@@ -19,12 +21,39 @@ const createShare = async (req, res) => {
     } = req.body;
     const userId = req.user.dbUser._id;
 
-    // Check if post exists
-    const post = await Post.findById(postId);
-    if (!post) {
+    // Validate that either postId or memeId is provided
+    if (!postId && !memeId) {
+      return res.status(400).json({
+        success: false,
+        message: "Either postId or memeId must be provided",
+      });
+    }
+
+    if (postId && memeId) {
+      return res.status(400).json({
+        success: false,
+        message: "Cannot share both post and meme at the same time",
+      });
+    }
+
+    let content;
+    let contentId;
+    let contentModel;
+
+    if (postId) {
+      content = await Post.findById(postId);
+      contentId = postId;
+      contentModel = Post;
+    } else {
+      content = await Meme.findById(memeId);
+      contentId = memeId;
+      contentModel = Meme;
+    }
+
+    if (!content) {
       return res.status(404).json({
         success: false,
-        message: "Post not found",
+        message: postId ? "Post not found" : "Meme not found",
       });
     }
 
@@ -32,6 +61,7 @@ const createShare = async (req, res) => {
     const newShare = new Share({
       user: userId,
       post: postId,
+      meme: memeId,
       caption,
       visibility,
       shareType,
@@ -41,15 +71,15 @@ const createShare = async (req, res) => {
 
     const savedShare = await newShare.save();
 
-    // Update post shares array
-    await Post.findByIdAndUpdate(postId, {
-      $push: { shares: userId },
+    // Update content shares array
+    await contentModel.findByIdAndUpdate(contentId, {
+      $push: { shares: savedShare._id },
     });
 
     res.status(201).json({
       success: true,
       data: savedShare,
-      message: "Post shared successfully",
+      message: postId ? "Post shared successfully" : "Meme shared successfully",
     });
   } catch (error) {
     res.status(500).json({
@@ -88,10 +118,16 @@ const deleteShare = async (req, res) => {
     // Delete share
     await Share.findByIdAndDelete(shareId);
 
-    // Update post shares array
-    await Post.findByIdAndUpdate(share.post, {
-      $pull: { shares: userId },
-    });
+    // Update content shares array
+    if (share.post) {
+      await Post.findByIdAndUpdate(share.post, {
+        $pull: { shares: shareId },
+      });
+    } else if (share.meme) {
+      await Meme.findByIdAndUpdate(share.meme, {
+        $pull: { shares: shareId },
+      });
+    }
 
     res.status(200).json({
       success: true,
@@ -106,21 +142,37 @@ const deleteShare = async (req, res) => {
 };
 
 /**
- * Get all shares for a post
+ * Get all shares for a post or meme
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  */
-const getSharesByPost = async (req, res) => {
+const getSharesByContent = async (req, res) => {
   try {
-    const { postId } = req.params;
+    const { postId, memeId } = req.params;
     const { page = 1, limit = 10 } = req.query;
 
-    // Check if post exists
-    const post = await Post.findById(postId);
-    if (!post) {
+    if (!postId && !memeId) {
+      return res.status(400).json({
+        success: false,
+        message: "Either postId or memeId must be provided",
+      });
+    }
+
+    let content;
+    let query;
+
+    if (postId) {
+      content = await Post.findById(postId);
+      query = { post: postId };
+    } else {
+      content = await Meme.findById(memeId);
+      query = { meme: memeId };
+    }
+
+    if (!content) {
       return res.status(404).json({
         success: false,
-        message: "Post not found",
+        message: postId ? "Post not found" : "Meme not found",
       });
     }
 
@@ -130,7 +182,7 @@ const getSharesByPost = async (req, res) => {
       populate: { path: "user", select: "name picture email username" },
     };
 
-    const shares = await Share.paginate({ post: postId }, options);
+    const shares = await Share.paginate(query, options);
 
     res.status(200).json({
       success: true,
@@ -169,6 +221,10 @@ const getSharesByUser = async (req, res) => {
           path: "post",
           populate: { path: "user", select: "name picture email username" },
         },
+        {
+          path: "meme",
+          populate: { path: "user", select: "name picture email username" },
+        },
       ],
       sort: { createdAt: -1 },
     };
@@ -194,29 +250,45 @@ const getSharesByUser = async (req, res) => {
 };
 
 /**
- * Get share statistics for a post
+ * Get share statistics for a post or meme
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  */
 const getShareStats = async (req, res) => {
   try {
-    const { postId } = req.params;
+    const { postId, memeId } = req.params;
 
-    // Check if post exists
-    const post = await Post.findById(postId);
-    if (!post) {
+    if (!postId && !memeId) {
+      return res.status(400).json({
+        success: false,
+        message: "Either postId or memeId must be provided",
+      });
+    }
+
+    let content;
+    let query;
+
+    if (postId) {
+      content = await Post.findById(postId);
+      query = { post: postId };
+    } else {
+      content = await Meme.findById(memeId);
+      query = { meme: memeId };
+    }
+
+    if (!content) {
       return res.status(404).json({
         success: false,
-        message: "Post not found",
+        message: postId ? "Post not found" : "Meme not found",
       });
     }
 
     // Get share count
-    const shareCount = await Share.countDocuments({ post: postId });
+    const shareCount = await Share.countDocuments(query);
 
     // Get share type distribution
     const shareTypeStats = await Share.aggregate([
-      { $match: { post: mongoose.Types.ObjectId(postId) } },
+      { $match: query },
       { $group: { _id: "$shareType", count: { $sum: 1 } } },
     ]);
 
@@ -224,7 +296,7 @@ const getShareStats = async (req, res) => {
     const platformStats = await Share.aggregate([
       {
         $match: {
-          post: mongoose.Types.ObjectId(postId),
+          ...query,
           externalPlatform: { $ne: null },
         },
       },
@@ -250,7 +322,7 @@ const getShareStats = async (req, res) => {
 module.exports = {
   createShare,
   deleteShare,
-  getSharesByPost,
+  getSharesByContent,
   getSharesByUser,
   getShareStats,
 };
