@@ -15,7 +15,6 @@ const mongoose = require("mongoose");
 
 const feed = require("../../models/feed");
 
-
 const getAllFriendRequest = asyncHandler(async (req, res) => {
   const userId = req.user;
   const page = Math.max(1, parseInt(req.query.page) || 1);
@@ -382,6 +381,8 @@ const markReadNotification = asyncHandler(async (req, res) => {
   } catch (error) {
     console.log("Error marking notification as read:", error);
     return errorResponse(res, 500, "Failed to mark notification as read");
+  }
+});
 
 const unfriend = asyncHandler(async (req, res) => {
   const userId = req.user._id || req.user;
@@ -449,5 +450,4 @@ module.exports = {
   markReadNotification,
 
   unfriend,
-
 };
