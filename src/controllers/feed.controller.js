@@ -36,6 +36,16 @@ const getUserFeed = async (req, res) => {
         userFeed.preferences.prioritizeFollowing &&
         userFeed.followingUsers.length > 0
       ) {
+        console.log("followers found in feed");
+        console.log(userFeed.followingUsers);
+        feedQuery.$and.push({
+          user: {
+            $in: userFeed.followingUsers.map((id) =>
+              mongoose.Types.ObjectId(id)
+            ),
+          },
+        });
+
         sortOptions.userFollowed = -1;
 
         const posts = await Post.aggregate([
@@ -83,6 +93,7 @@ const getUserFeed = async (req, res) => {
           },
         });
       } else {
+        console.log("followers not found in feed");
         const options = {
           page: parseInt(page, 10),
           limit: parseInt(limit, 10),

@@ -9,6 +9,9 @@ const {
   getNotifications,
   deleteNotification,
   markReadNotification,
+  unfriend,
+  checkFriendStatus,
+  cancelFriendRequest,
 } = require("../controllers/adda/friendRequest");
 
 const { getUserConversations } = require("../controllers/adda/conversation");
@@ -23,6 +26,7 @@ const {
   getUserStatus,
   deleteStatus,
 } = require("../controllers/adda/status");
+const { Verification } = require("@clerk/clerk-sdk-node");
 
 const addaRouter = express.Router();
 
@@ -43,6 +47,13 @@ addaRouter.patch("/acceptRequest/:requestId", acceptFriendRequest);
 addaRouter.patch("/rejectRequest/:requestId", rejectFriendRequest);
 addaRouter.get("/getFriends", verifyToken, getAllFriends);
 addaRouter.get("/getConversations", verifyToken, getUserConversations);
+addaRouter.post("/unfriend/:friendId", verifyToken, unfriend);
+addaRouter.post("/cancelRequest/:friendId", verifyToken, cancelFriendRequest);
+addaRouter.get(
+  "/check-friend-status/:friendId",
+  verifyToken,
+  checkFriendStatus
+);
 
 //notification
 addaRouter.get("/userNotifications", verifyToken, getNotifications);

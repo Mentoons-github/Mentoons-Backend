@@ -86,6 +86,8 @@ const sendFriendRequest = asyncHandler(async (req, res) => {
 
   console.log(senderId, receiverId);
 
+  console.log(senderId, receiverId);
+
   const sender = await User.findById(senderId.toString());
   if (sender.followers.includes(receiverId)) {
     return errorResponse(res, 400, "User is already your friend");
@@ -94,8 +96,15 @@ const sendFriendRequest = asyncHandler(async (req, res) => {
     const exist = await FriendRequest.findOne({
       senderId,
       receiverId,
+      status: "pending",
     }).populate("receiverId");
     if (exist) return errorResponse(res, 400, "Request already exists");
+
+    await FriendRequest.deleteMany({
+      senderId,
+      receiverId,
+      status: { $in: ["cancelled", "rejected", "one_way"] },
+    });
 
     await FriendRequest.create({
       senderId,
@@ -103,10 +112,10 @@ const sendFriendRequest = asyncHandler(async (req, res) => {
       status: "pending",
     });
 
-    const user = await User.findById({ _id: receiverId });
+    const user = await User.findById({ _id: senderId });
 
-    const receiverName = user.name;
-    const notificationMessage = `You have received a friend request from ${receiverName}.`;
+    const senderName = user.name;
+    const notificationMessage = `You have received a friend request from ${senderName}.`;
 
     const noti = await createNotification(
       receiverId,
@@ -257,20 +266,21 @@ const requestSuggestions = asyncHandler(async (req, res) => {
   const limit = 10;
   const skip = (page - 1) * limit;
 
-  console.log("suggstions fetching");
   try {
-    const allRequests = await FriendRequest.find({
+    const activeRequests = await FriendRequest.find({
       $or: [{ senderId: userId }, { receiverId: userId }],
+      status: { $in: ["pending", "accepted"] },
     });
 
-    console.log("all requests : ", allRequests);
+    console.log("Active friend requests: ", activeRequests);
+
     const excludeId = new Set();
-    allRequests.forEach((req) => {
-      excludeId.add(req.senderId.toString());
-      excludeId.add(req.receiverId.toString());
+    activeRequests.forEach((request) => {
+      excludeId.add(request.senderId.toString());
+      excludeId.add(request.receiverId.toString());
     });
 
-    excludeId.add(userId);
+    excludeId.add(userId.toString());
 
     const suggestions = await User.find({
       _id: { $nin: Array.from(excludeId) },
@@ -279,23 +289,22 @@ const requestSuggestions = asyncHandler(async (req, res) => {
       .skip(skip)
       .limit(limit);
 
-    console.log("final sugestions :", suggestions);
-
-    const totalRequests = await FriendRequest.countDocuments({
+    const totalSuggestions = await User.countDocuments({
       _id: { $nin: Array.from(excludeId) },
     });
 
-    const hasMore = skip + suggestions.length < totalRequests;
+    const hasMore = skip + suggestions.length < totalSuggestions;
 
-    console.log("has more :", hasMore);
+    console.log("Final suggestions: ", suggestions);
+    console.log("Has more: ", hasMore);
 
-    return successResponse(res, 200, "suggestions fetched successfully", {
+    return successResponse(res, 200, "Suggestions fetched successfully", {
       suggestions,
       hasMore,
     });
   } catch (err) {
-    console.log(err);
-    return errorResponse(res, 500, "Failed to fetch Suggestions");
+    console.error(err);
+    return errorResponse(res, 500, "Failed to fetch suggestions");
   }
 });
 
@@ -437,6 +446,75 @@ const unfriend = asyncHandler(async (req, res) => {
   }
 });
 
+const checkFriendStatus = asyncHandler(async (req, res) => {
+  const userId = req.user;
+  const { friendId } = req.params;
+
+  try {
+    const sentRequest = await FriendRequest.findOne({
+      senderId: userId,
+      receiverId: friendId,
+    });
+
+    const receivedRequest = await FriendRequest.findOne({
+      senderId: friendId,
+      receiverId: userId,
+    });
+
+    if (!sentRequest && !receivedRequest) {
+      return successResponse(res, 200, "No friend relationship found", {
+        status: "none",
+        isRequester: false,
+      });
+    }
+
+    if (sentRequest) {
+      return successResponse(res, 200, "Friend request status found", {
+        status: sentRequest.status,
+        isRequester: true,
+        requestId: sentRequest._id,
+      });
+    }
+
+    if (receivedRequest) {
+      return successResponse(res, 200, "Friend request status found", {
+        status: receivedRequest.status,
+        isRequester: false,
+        requestId: receivedRequest._id,
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    return errorResponse(res, 500, "Internal server error");
+  }
+});
+
+const cancelFriendRequest = asyncHandler(async (req, res) => {
+  const userId = req.user;
+  const { friendId } = req.params;
+
+  try {
+    const updatedRequest = await FriendRequest.findOneAndUpdate(
+      {
+        senderId: userId,
+        receiverId: friendId,
+        status: "pending",
+      },
+      { $set: { status: "cancelled" } },
+      { new: true }
+    );
+
+    if (!updatedRequest) {
+      return errorResponse(res, 404, "No pending request to cancel");
+    }
+
+    return successResponse(res, 200, "Friend request cancelled");
+  } catch (err) {
+    console.log(err);
+    errorResponse(res, 500, "Internal server error");
+  }
+});
+
 module.exports = {
   getAllFriendRequest,
   sendFriendRequest,
@@ -445,9 +523,9 @@ module.exports = {
   requestSuggestions,
   getAllFriends,
   getNotifications,
-
   deleteNotification,
   markReadNotification,
-
+  checkFriendStatus,
+  cancelFriendRequest,
   unfriend,
 };

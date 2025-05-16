@@ -19,7 +19,7 @@ const createNotification = async (userId, type, message, initiatorId) => {
 const fetchNotifications = async (userId) => {
   try {
     const notifications = await Notification.find({
-      initiatorId: userId,
+      userId: userId,
     }).populate("initiatorId", "name picture _id");
     return notifications;
   } catch (err) {

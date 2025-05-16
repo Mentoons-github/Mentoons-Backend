@@ -354,7 +354,6 @@ module.exports = {
     }
   }),
 
-
   getOtherUserController: asyncHandler(async (req, res, next) => {
     const userId = req.params.userId;
     console.log("User-ID", userId);
@@ -366,6 +365,7 @@ module.exports = {
       return errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR, user);
     }
     return successResponse(res, 200, "Successfully fetched user", user);
+  }),
 
   getUserProfile: asyncHandler(async (req, res, next) => {
     const friendId = req.params.friendId;
