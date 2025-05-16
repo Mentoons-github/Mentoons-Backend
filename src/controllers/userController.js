@@ -6,6 +6,8 @@ const asyncHandler = require("../utils/asyncHandler");
 const userHelper = require("../helpers/userHelper");
 const Auth = require("../utils/auth");
 const { getUsersController } = require("./admin");
+const User = require("../models/user");
+const FriendRequest = require("../models/adda/friendRequest");
 
 module.exports = {
   registerController: asyncHandler(async (req, res) => {
@@ -350,5 +352,30 @@ module.exports = {
         error.message || "Failed to retrieve user stats"
       );
     }
+  }),
+
+  getUserProfile: asyncHandler(async (req, res, next) => {
+    const friendId = req.params.friendId;
+    const userId = req.user.dbUser._id;
+
+    if (!friendId) {
+      return errorResponse(res, 400, "Friend ID is required");
+    }
+
+    const [friendUser, currentUser] = await Promise.all([
+      User.findById(friendId),
+      User.findById(userId),
+    ]);
+
+    if (!friendUser) {
+      return errorResponse(res, 404, "User not found");
+    }
+
+    const isFriend = currentUser.followers.includes(friendId);
+
+    return successResponse(res, 200, "Successfully fetched user", {
+      user: friendUser,
+      isFriend,
+    });
   }),
 };

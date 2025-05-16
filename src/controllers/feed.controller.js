@@ -1,12 +1,11 @@
 const Feed = require("../models/feed");
 const Post = require("../models/post");
-const User = require("../models/user");
 const mongoose = require("mongoose");
 
 const getUserFeed = async (req, res) => {
   try {
     const { page = 1, limit = 10 } = req.query;
-
+    console.log(req.user);
     if (req.user && req.user.dbUser) {
       const userId = req.user.dbUser._id;
 
@@ -113,7 +112,7 @@ const getUserFeed = async (req, res) => {
         });
       }
     } else {
-      const feedQuery = { publicVisibility: true };
+      const feedQuery = { visibility: "public" };
 
       const options = {
         page: parseInt(page, 10),
@@ -131,6 +130,8 @@ const getUserFeed = async (req, res) => {
       };
 
       const posts = await Post.paginate(feedQuery, options);
+
+      console.log(posts);
 
       return res.status(200).json({
         success: true,
