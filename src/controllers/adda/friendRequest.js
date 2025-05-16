@@ -9,7 +9,12 @@ const {
   createNotification,
   fetchNotifications,
 } = require("../../helpers/adda/createNotification");
+
+const Notification = require("../../models/adda/notification");
+const mongoose = require("mongoose");
+
 const feed = require("../../models/feed");
+
 
 const getAllFriendRequest = asyncHandler(async (req, res) => {
   const userId = req.user;
@@ -313,6 +318,70 @@ const getNotifications = asyncHandler(async (req, res) => {
     return errorResponse(res, 500, "Failed to fetch notifications");
   }
 });
+const deleteNotification = asyncHandler(async (req, res) => {
+  const userId = req.user;
+  const notificationId = req.params.notificationId;
+  console.log("Notification ID:", notificationId);
+  console.log("User ID:", userId);
+
+  try {
+    // Convert string ID to ObjectId
+    let objectId;
+    try {
+      objectId = new mongoose.Types.ObjectId(notificationId);
+    } catch (err) {
+      console.log("Invalid ObjectId format:", err);
+      return errorResponse(res, 400, "Invalid notification ID format");
+    }
+
+    // Use deleteOne directly with the ObjectId
+    const result = await Notification.deleteOne({ _id: objectId });
+
+    console.log("Delete result:", result);
+
+    if (result.deletedCount === 0) {
+      return errorResponse(res, 404, "Notification not found");
+    }
+
+    return successResponse(res, 200, "Notification deleted successfully");
+  } catch (err) {
+    console.log("Error deleting notification:", err);
+    return errorResponse(res, 500, "Failed to delete notification");
+  }
+});
+
+const markReadNotification = asyncHandler(async (req, res) => {
+  const userId = req.user;
+  const notificationId = req.params.notificationId;
+  console.log("Mark Read - Notification ID:", notificationId);
+  console.log("Mark Read - User ID:", userId);
+
+  try {
+    // Convert string ID to ObjectId
+    let objectId;
+    try {
+      objectId = new mongoose.Types.ObjectId(notificationId);
+    } catch (err) {
+      console.log("Invalid ObjectId format:", err);
+      return errorResponse(res, 400, "Invalid notification ID format");
+    }
+
+    // Use updateOne directly with the ObjectId
+    const result = await Notification.updateOne(
+      { _id: objectId },
+      { $set: { isRead: true } }
+    );
+
+    console.log("Update result:", result);
+
+    if (result.matchedCount === 0) {
+      return errorResponse(res, 404, "Notification not found");
+    }
+
+    return successResponse(res, 200, "Notification marked as read");
+  } catch (error) {
+    console.log("Error marking notification as read:", error);
+    return errorResponse(res, 500, "Failed to mark notification as read");
 
 const unfriend = asyncHandler(async (req, res) => {
   const userId = req.user._id || req.user;
@@ -375,5 +444,10 @@ module.exports = {
   requestSuggestions,
   getAllFriends,
   getNotifications,
+
+  deleteNotification,
+  markReadNotification,
+
   unfriend,
+
 };

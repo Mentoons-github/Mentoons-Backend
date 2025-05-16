@@ -407,4 +407,50 @@ module.exports = {
       throw new Error(`Error getting user stats: ${error.message}`);
     }
   },
+
+  getOtherUserDetails: async (userId) => {
+    try {
+      console.log("Fetching public details for user with ID:", userId);
+      
+      // Convert string ID to ObjectId
+      const objectId = mongoose.Types.ObjectId.isValid(userId) 
+        ? new mongoose.Types.ObjectId(userId) 
+        : null;
+      
+      if (!objectId) {
+        console.error(`Invalid user ID format: ${userId}`);
+        throw new Error("Invalid user ID format");
+      }
+      
+      const [user] = await User.aggregate([
+        { $match: { _id: objectId } },
+        {
+          $project: {
+            _id: 1,
+            name: 1,
+            picture: 1,
+            bio: 1,
+            location: 1,
+            coverImage: 1,
+            joinedDate: 1,
+            lastActive: 1,
+            followers: { $size: "$followers" },
+            following: { $size: "$following" },
+            friends: { $size: "$friends" },
+            socialLinks: 1
+          },
+        },
+      ]);
+      
+      if (!user) {
+        console.error(`User with ID ${userId} not found in database.`);
+        throw new Error("User not found");
+      }
+      
+      return user;
+    } catch (error) {
+      console.error("Error fetching user public details:", error);
+      throw new Error(`Error fetching user public details: ${error.message}`);
+    }
+  }
 };
