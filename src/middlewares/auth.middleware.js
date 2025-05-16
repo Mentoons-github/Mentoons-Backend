@@ -4,9 +4,6 @@ const clerk = new Clerk({ secretKey: process.env.CLERK_SECRET_KEY });
 
 const conditionalAuth = async (req, res, next) => {
   try {
-    console.log("Request Query:", req.query);
-    console.log("Authorization Header:", req.header("Authorization"));
-
     const authHeader = req.header("Authorization");
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       console.log("req token n ot found");
@@ -34,8 +31,6 @@ const conditionalAuth = async (req, res, next) => {
       });
     }
 
-    console.log("user clerk :", user);
-
     req.user = {
       id: user.id,
       dbUser: DBUser,
@@ -45,8 +40,6 @@ const conditionalAuth = async (req, res, next) => {
       imageUrl: user.imageUrl,
       membership: user.publicMetadata.membership || "FREE",
     };
-
-    console.log("Authenticated User:", req.user);
 
     next();
   } catch (error) {

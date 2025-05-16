@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 const getUserFeed = async (req, res) => {
   try {
     const { page = 1, limit = 10 } = req.query;
-    console.log(req.user);
+    console.log("req user found :", !!req.user);
     if (req.user && req.user.dbUser) {
       const userId = req.user.dbUser._id;
 
