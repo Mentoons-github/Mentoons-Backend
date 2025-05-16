@@ -9,8 +9,12 @@ const {
   createNotification,
   fetchNotifications,
 } = require("../../helpers/adda/createNotification");
+
 const Notification = require("../../models/adda/notification");
 const mongoose = require("mongoose");
+
+const feed = require("../../models/feed");
+
 
 const getAllFriendRequest = asyncHandler(async (req, res) => {
   const userId = req.user;
@@ -63,12 +67,6 @@ const getAllFriendRequest = asyncHandler(async (req, res) => {
       }),
     ]);
 
-    console.log("Pending Friend Requests Received:", pendingReceived);
-    console.log("Pending Friend Requests Sent:", pendingRequest);
-    console.log("Accepted Friend Requests:", acceptedRequest);
-    console.log("Rejected Friend Requests:", rejectedRequest);
-    console.log("Total Accepted Count:", totalAcceptedCount);
-
     successResponse(res, 200, "Requests fetch successful", {
       pendingReceived,
       pendingRequest,
@@ -89,6 +87,10 @@ const sendFriendRequest = asyncHandler(async (req, res) => {
 
   console.log(senderId, receiverId);
 
+  const sender = await User.findById(senderId.toString());
+  if (sender.followers.includes(receiverId)) {
+    return errorResponse(res, 400, "User is already your friend");
+  }
   try {
     const exist = await FriendRequest.findOne({
       senderId,
@@ -128,14 +130,45 @@ const acceptFriendRequest = asyncHandler(async (req, res) => {
 
   console.log(requestId);
   try {
-    const request = await FriendRequest.findById({ _id: requestId }).populate(
-      "receiverId"
+    const request = await FriendRequest.findById(requestId).populate(
+      "receiverId senderId"
     );
     console.log(request);
     if (!request) return errorResponse(res, 404, "No request found");
     request.status = "accepted";
-    console.log("request", request);
+
     await request.save();
+
+    const receiver = request.receiverId;
+    const sender = request.senderId;
+
+    await feed.findOneAndUpdate(
+      { user: sender._id },
+      {
+        $addToSet: { followingUsers: receiver._id },
+      },
+      { upsert: true }
+    );
+
+    await feed.findOneAndUpdate(
+      { user: receiver._id },
+      {
+        $addToSet: { followingUsers: sender._id },
+      },
+      { upsert: true }
+    );
+
+    if (!receiver.followers.includes(sender._id)) {
+      receiver.followers.push(sender._id);
+    }
+    if (!sender.followers.includes(receiver._id)) {
+      sender.followers.push(receiver._id);
+    }
+
+    const request1 = await receiver.save();
+    const request2 = await sender.save();
+
+    console.log("saved==================>", request1, request2);
 
     const receiverName = request.receiverId.name;
     const notificationMessage = `Your friend request to ${receiverName} has been accepted.`;
@@ -285,7 +318,6 @@ const getNotifications = asyncHandler(async (req, res) => {
     return errorResponse(res, 500, "Failed to fetch notifications");
   }
 });
-
 const deleteNotification = asyncHandler(async (req, res) => {
   const userId = req.user;
   const notificationId = req.params.notificationId;
@@ -350,6 +382,57 @@ const markReadNotification = asyncHandler(async (req, res) => {
   } catch (error) {
     console.log("Error marking notification as read:", error);
     return errorResponse(res, 500, "Failed to mark notification as read");
+
+const unfriend = asyncHandler(async (req, res) => {
+  const userId = req.user._id || req.user;
+  const { friendId } = req.params;
+
+  try {
+    const checkFriendRequest = await FriendRequest.findOne({
+      $or: [
+        {
+          senderId: userId,
+          receiverId: friendId,
+          status: { $in: ["accepted", "one_way"] },
+        },
+        {
+          senderId: friendId,
+          receiverId: userId,
+          status: { $in: ["accepted", "one_way"] },
+        },
+      ],
+    });
+
+    if (!checkFriendRequest) {
+      return errorResponse(res, 404, "No friend request found");
+    }
+
+    if (checkFriendRequest.status === "one_way") {
+      await FriendRequest.deleteOne({ _id: checkFriendRequest._id });
+    } else {
+      const isUserSender =
+        checkFriendRequest.senderId.toString() === userId.toString();
+
+      await FriendRequest.findByIdAndUpdate(checkFriendRequest._id, {
+        status: "one_way",
+        senderId: isUserSender ? friendId : userId,
+        receiverId: isUserSender ? userId : friendId,
+      });
+    }
+
+    await Promise.all([
+      User.findByIdAndUpdate(userId, {
+        $pull: { followers: friendId },
+      }),
+      feed.findByIdAndUpdate(userId, {
+        $pull: { followingUsers: friendId },
+      }),
+    ]);
+
+    return successResponse(res, 200, "Unfriend/Unfollow successful");
+  } catch (err) {
+    console.log("Error found:", err);
+    return errorResponse(res, 500, "Internal server error");
   }
 });
 
@@ -361,6 +444,10 @@ module.exports = {
   requestSuggestions,
   getAllFriends,
   getNotifications,
+
   deleteNotification,
   markReadNotification,
+
+  unfriend,
+
 };

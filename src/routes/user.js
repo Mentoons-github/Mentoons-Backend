@@ -15,7 +15,11 @@ const {
   updateProfileController,
   toggleFollowController,
   getUserStatsController,
+
   getOtherUserController
+
+  getUserProfile,
+
 } = require("../controllers/userController.js");
 const { isSuperAdminOrAdmin } = require("../middlewares/authMiddleware.js");
 const { conditionalAuth } = require("../middlewares/auth.middleware.js");
@@ -40,5 +44,7 @@ router.post("/follow/:targetUserId", conditionalAuth, toggleFollowController);
 
 router.get("/stats/:userId?", conditionalAuth, getUserStatsController);
 router.get("/other-user/:userId", conditionalAuth, getOtherUserController);
+
+router.get("/friend/:friendId", conditionalAuth, getUserProfile);
 
 module.exports = router;

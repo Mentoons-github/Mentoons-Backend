@@ -44,7 +44,6 @@ const UserSchema = new mongoose.Schema(
     joinedDate: {
       type: Date,
       default: Date.now,
-
     },
     lastActive: {
       type: Date,
@@ -54,7 +53,6 @@ const UserSchema = new mongoose.Schema(
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
-        
       },
     ],
     following: [
