@@ -315,7 +315,7 @@ const getNotifications = asyncHandler(async (req, res) => {
 });
 
 const unfriend = asyncHandler(async (req, res) => {
-  const userId = req.user;
+  const userId = req.user._id || req.user;
   const { friendId } = req.params;
 
   try {
@@ -333,8 +333,9 @@ const unfriend = asyncHandler(async (req, res) => {
         },
       ],
     });
+
     if (!checkFriendRequest) {
-      return errorResponse(res, 404, "No friend Request found");
+      return errorResponse(res, 404, "No friend request found");
     }
 
     if (checkFriendRequest.status === "one_way") {
@@ -350,20 +351,22 @@ const unfriend = asyncHandler(async (req, res) => {
       });
     }
 
-    await User.findByIdAndUpdate(userId, {
-      $pull: { followers: friendId },
-    });
-
-    await feed.findByIdAndUpdate(userId, {
-      $pull: { followingUsers: friendId },
-    });
+    await Promise.all([
+      User.findByIdAndUpdate(userId, {
+        $pull: { followers: friendId },
+      }),
+      feed.findByIdAndUpdate(userId, {
+        $pull: { followingUsers: friendId },
+      }),
+    ]);
 
     return successResponse(res, 200, "Unfriend/Unfollow successful");
   } catch (err) {
-    console.log("error found :", err);
-    errorResponse(res, 500, "Internal server error");
+    console.log("Error found:", err);
+    return errorResponse(res, 500, "Internal server error");
   }
 });
+
 module.exports = {
   getAllFriendRequest,
   sendFriendRequest,
@@ -372,4 +375,5 @@ module.exports = {
   requestSuggestions,
   getAllFriends,
   getNotifications,
+  unfriend,
 };

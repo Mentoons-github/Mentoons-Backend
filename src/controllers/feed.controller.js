@@ -1,6 +1,5 @@
 const Feed = require("../models/feed");
 const Post = require("../models/post");
-const User = require("../models/user");
 const mongoose = require("mongoose");
 
 const getUserFeed = async (req, res) => {
