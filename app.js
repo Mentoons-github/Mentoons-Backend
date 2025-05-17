@@ -36,10 +36,11 @@ const rewardRoutes = require("./src/routes/rewardRoutes.js");
 const adminRewardRoutes = require("./src/routes/adminRewardRoutes.js");
 // const webhookRoutes = require("./src/routes/webhook.js");
 const evaluationRoutes = require("./src/routes/EvaluationForm.js");
-
+const { clerkMiddleware } = require("@clerk/express");
 const ensureUserExists = require("./src/middlewares/ensureUserExists");
 const { Webhook, WebhookVerificationError } = require("svix");
 
+app.use(clerkMiddleware());
 const bodyParser = require("body-parser");
 const dashboardRoutes = require("./src/routes/dashboard");
 const dotenv = require("dotenv");
