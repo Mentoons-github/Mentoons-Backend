@@ -126,6 +126,8 @@ app.post("/api/v1/webhook/clerk", ensureUserExists, async (req, res) => {
 
     // Webhook verified successfully
     const eventType = evt.type;
+
+    console.log("event type :", eventType);
     switch (eventType) {
       case "user.created":
         // Check if user already exists (for idempotency)
