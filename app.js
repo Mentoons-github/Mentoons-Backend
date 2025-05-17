@@ -34,11 +34,12 @@ const memeRoutes = require("./src/routes/adda/meme.routes.js");
 const memeFeedRoutes = require("./src/routes/adda/memeFeed.routes.js");
 // const webhookRoutes = require("./src/routes/webhook.js");
 const evaluationRoutes = require("./src/routes/EvaluationForm.js");
-
+const { clerkMiddleware } = require("@clerk/express");
 const ensureUserExists = require("./src/middlewares/ensureUserExists");
 
 const { Webhook, WebhookVerificationError } = require("svix");
 
+app.use(clerkMiddleware());
 const bodyParser = require("body-parser");
 const dashboardRoutes = require("./src/routes/dashboard");
 const dotenv = require("dotenv");
