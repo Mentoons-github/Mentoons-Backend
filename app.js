@@ -32,11 +32,12 @@ const shareRoutes = require("./src/routes/share.routes.js");
 const feedRoutes = require("./src/routes/feed.routes.js");
 const memeRoutes = require("./src/routes/adda/meme.routes.js");
 const memeFeedRoutes = require("./src/routes/adda/memeFeed.routes.js");
+const rewardRoutes = require("./src/routes/rewardRoutes.js");
+const adminRewardRoutes = require("./src/routes/adminRewardRoutes.js");
 // const webhookRoutes = require("./src/routes/webhook.js");
 const evaluationRoutes = require("./src/routes/EvaluationForm.js");
 
 const ensureUserExists = require("./src/middlewares/ensureUserExists");
-
 const { Webhook, WebhookVerificationError } = require("svix");
 
 const bodyParser = require("body-parser");
@@ -198,7 +199,10 @@ app.use("/api/v1/shares", shareRoutes);
 app.use("/api/v1/feeds", feedRoutes);
 app.use("/api/v1/memes", memeRoutes);
 app.use("/api/v1/memeFeed", memeFeedRoutes);
-app.use("/health", (req, res) => {
+app.use("/api/v1/rewards", rewardRoutes);
+app.use("/api/v1/admin/rewards", adminRewardRoutes);
+
+app.use("/health", (req, res) => { 
   res.json({
     message: "The server is running successfully",
   });
