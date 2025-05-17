@@ -39,7 +39,6 @@ const ensureUserExists = require("./src/middlewares/ensureUserExists");
 
 const { Webhook, WebhookVerificationError } = require("svix");
 
-app.use(clerkMiddleware());
 const bodyParser = require("body-parser");
 const dashboardRoutes = require("./src/routes/dashboard");
 const dotenv = require("dotenv");
@@ -77,6 +76,8 @@ app.use(
     credentials: true,
   })
 );
+
+app.use(clerkMiddleware());
 
 app.use(bodyParser.json());
 
