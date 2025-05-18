@@ -21,6 +21,14 @@ const createPost = async (req, res) => {
       visibility,
     } = req.body;
 
+    console.log(
+      "media =====================================================================================> :",
+      media
+    );
+    console.log(
+      "req.body =========================================================================================>:",
+      req.body
+    );
     const user = await User.findOne({ clerkId: req.user.id });
 
     if (!user) {

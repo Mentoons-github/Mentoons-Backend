@@ -141,7 +141,7 @@ const acceptFriendRequest = asyncHandler(async (req, res) => {
     const request = await FriendRequest.findById(requestId).populate(
       "receiverId senderId"
     );
-    console.log(request);
+    console.log("requstId got :", request);
     if (!request) return errorResponse(res, 404, "No request found");
     request.status = "accepted";
 
@@ -265,6 +265,9 @@ const requestSuggestions = asyncHandler(async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const limit = 10;
   const skip = (page - 1) * limit;
+  const searchTerm = req.query.search || "";
+
+  console.log(searchTerm);
 
   try {
     const activeRequests = await FriendRequest.find({
@@ -282,16 +285,20 @@ const requestSuggestions = asyncHandler(async (req, res) => {
 
     excludeId.add(userId.toString());
 
-    const suggestions = await User.find({
+    const query = {
       _id: { $nin: Array.from(excludeId) },
-    })
+    };
+    
+    if (searchTerm) {
+      query.name = { $regex: searchTerm, $options: "i" };
+    }
+
+    const suggestions = await User.find(query)
       .select("_id name picture")
       .skip(skip)
       .limit(limit);
 
-    const totalSuggestions = await User.countDocuments({
-      _id: { $nin: Array.from(excludeId) },
-    });
+    const totalSuggestions = await User.countDocuments(query);
 
     const hasMore = skip + suggestions.length < totalSuggestions;
 
