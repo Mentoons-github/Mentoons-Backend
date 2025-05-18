@@ -12,6 +12,9 @@ const {
   unfriend,
   checkFriendStatus,
   cancelFriendRequest,
+  getFollowBackUsers,
+  declineFollowBack,
+  followBackUser,
 } = require("../controllers/adda/friendRequest");
 
 const { getUserConversations } = require("../controllers/adda/conversation");
@@ -54,8 +57,10 @@ addaRouter.get(
   verifyToken,
   checkFriendStatus
 );
+addaRouter.get("/getFollowBackUsers", verifyToken, getFollowBackUsers);
+addaRouter.post("/declineFollowBack", verifyToken, declineFollowBack);
+addaRouter.post("/follow-back", verifyToken, followBackUser);
 
-//notification
 addaRouter.get("/userNotifications", verifyToken, getNotifications);
 
 addaRouter.delete(

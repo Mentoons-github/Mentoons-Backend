@@ -86,35 +86,50 @@ const sendFriendRequest = asyncHandler(async (req, res) => {
 
   console.log(senderId, receiverId);
 
-  console.log(senderId, receiverId);
-
   const sender = await User.findById(senderId.toString());
-  if (sender.followers.includes(receiverId)) {
+
+  // Check if already mutual (i.e., receiver is following sender and vice versa)
+  if (
+    sender.following.includes(receiverId) &&
+    sender.followers.includes(receiverId)
+  ) {
     return errorResponse(res, 400, "User is already your friend");
   }
+
   try {
     const exist = await FriendRequest.findOne({
       senderId,
       receiverId,
       status: "pending",
     }).populate("receiverId");
+
     if (exist) return errorResponse(res, 400, "Request already exists");
 
+    // Clean up old requests
     await FriendRequest.deleteMany({
       senderId,
       receiverId,
       status: { $in: ["cancelled", "rejected", "one_way"] },
     });
 
+    // Create new friend request
     await FriendRequest.create({
       senderId,
       receiverId,
       status: "pending",
     });
 
-    const user = await User.findById({ _id: senderId });
+    // ⬇️ Add follow relationship (one-way: sender follows receiver)
+    await User.findByIdAndUpdate(senderId, {
+      $addToSet: { following: receiverId },
+    });
 
-    const senderName = user.name;
+    await User.findByIdAndUpdate(receiverId, {
+      $addToSet: { followers: senderId },
+    });
+
+    // Notification logic
+    const senderName = sender.name;
     const notificationMessage = `You have received a friend request from ${senderName}.`;
 
     const noti = await createNotification(
@@ -126,7 +141,7 @@ const sendFriendRequest = asyncHandler(async (req, res) => {
 
     console.log("notification :", noti);
 
-    successResponse(res, 200, "Friend request send successfully");
+    successResponse(res, 200, "Friend request sent successfully");
   } catch (err) {
     console.log(err);
     errorResponse(res, 500, "Error making request");
@@ -288,7 +303,7 @@ const requestSuggestions = asyncHandler(async (req, res) => {
     const query = {
       _id: { $nin: Array.from(excludeId) },
     };
-    
+
     if (searchTerm) {
       query.name = { $regex: searchTerm, $options: "i" };
     }
@@ -522,6 +537,143 @@ const cancelFriendRequest = asyncHandler(async (req, res) => {
   }
 });
 
+const getFollowBackUsers = asyncHandler(async (req, res) => {
+  const userId = req.user._id;
+
+  try {
+    const followers = await FriendRequest.find({
+      receiverId: userId,
+      status: "accepted",
+    }).select("senderId");
+
+    const followerIds = followers.map((req) => req.senderId.toString());
+
+    if (followerIds.length === 0) {
+      return res.status(200).json([]);
+    }
+
+    const followingBack = await FriendRequest.find({
+      senderId: userId,
+      receiverId: { $in: followerIds },
+      status: "accepted",
+    }).select("receiverId");
+
+    const alreadyFollowingIds = new Set(
+      followingBack.map((req) => req.receiverId.toString())
+    );
+
+    const rejectedRequests = await FriendRequest.find({
+      senderId: userId,
+      receiverId: { $in: followerIds },
+      status: "rejected",
+    }).select("receiverId");
+
+    const rejectedIds = new Set(
+      rejectedRequests.map((req) => req.receiverId.toString())
+    );
+
+    const followBackUserIds = followerIds.filter(
+      (id) => !alreadyFollowingIds.has(id) && !rejectedIds.has(id)
+    );
+
+    const followBackUsers = await User.find(
+      { _id: { $in: followBackUserIds } },
+      { name: 1, picture: 1 }
+    );
+
+    successResponse(
+      res,
+      200,
+      "Users available to follow back fetched successfully",
+      followBackUsers
+    );
+  } catch (err) {
+    console.error(err);
+    errorResponse(res, 500, "Internal server error");
+  }
+});
+
+const declineFollowBack = asyncHandler(async (req, res) => {
+  const userId = req.user._id;
+  const { targetUserId } = req.body;
+
+  try {
+    const incomingRequest = await FriendRequest.findOne({
+      senderId: targetUserId,
+      receiverId: userId,
+      status: { $in: ["pending", "accepted"] },
+    });
+
+    if (!incomingRequest) {
+      return errorResponse(res, 404, "No follow request to decline.");
+    }
+
+    let request = await FriendRequest.findOne({
+      senderId: userId,
+      receiverId: targetUserId,
+    });
+
+    if (request) {
+      if (request.status === "rejected") {
+        return successResponse(res, 200, "Already declined.");
+      }
+      request.status = "rejected";
+      await request.save();
+    } else {
+      request = new FriendRequest({
+        senderId: userId,
+        receiverId: targetUserId,
+        status: "rejected",
+      });
+      await request.save();
+    }
+
+    successResponse(res, 200, "Follow back declined successfully.");
+  } catch (err) {
+    console.error(err);
+    errorResponse(res, 500, "Internal server error");
+  }
+});
+
+const followBackUser = asyncHandler(async (req, res) => {
+  const senderId = req.user._id;
+  const { receiverId } = req.params;
+
+  try {
+    const existing = await FriendRequest.findOne({
+      senderId,
+      receiverId,
+    });
+
+    if (existing && existing.status === "accepted") {
+      return errorResponse(res, 400, "Already following this user");
+    }
+
+    if (existing && existing.status === "pending") {
+      return errorResponse(res, 400, "Request already sent");
+    }
+
+    await FriendRequest.create({
+      senderId,
+      receiverId,
+      status: "pending",
+    });
+
+    const sender = await User.findById(senderId);
+    await createNotification(
+      receiverId,
+      "follow_back",
+      `${sender.name} has followed you back.`,
+      senderId
+    );
+
+    return successResponse(res, 200, "Follow back request sent");
+  } catch (err) {
+    console.log(err);
+    errorResponse(res, 500, "Failed to send follow back request");
+  }
+});
+
 module.exports = {
   getAllFriendRequest,
   sendFriendRequest,
@@ -534,5 +686,8 @@ module.exports = {
   markReadNotification,
   checkFriendStatus,
   cancelFriendRequest,
+  getFollowBackUsers,
+  declineFollowBack,
+  followBackUser,
   unfriend,
 };
