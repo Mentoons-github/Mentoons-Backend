@@ -59,8 +59,7 @@ addaRouter.get(
 );
 addaRouter.get("/getFollowBackUsers", verifyToken, getFollowBackUsers);
 addaRouter.post("/declineFollowBack", verifyToken, declineFollowBack);
-addaRouter.post("/follow-back", verifyToken, followBackUser);
-
+addaRouter.post("/follow-back/:receiverId", verifyToken, followBackUser);
 addaRouter.get("/userNotifications", verifyToken, getNotifications);
 
 addaRouter.delete(

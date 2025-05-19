@@ -6,6 +6,9 @@ const getUserFeed = async (req, res) => {
   try {
     const { page = 1, limit = 10 } = req.query;
     console.log("req user found :", !!req.user);
+
+    const sortOptions = { createdAt: -1 };
+
     if (req.user && req.user.dbUser) {
       const userId = req.user.dbUser._id;
 
@@ -36,8 +39,6 @@ const getUserFeed = async (req, res) => {
         const followedUserIds = userFeed.followingUsers.map(
           (id) => new mongoose.Types.ObjectId(id)
         );
-
-        const sortOptions = { createdAt: -1 };
 
         const followedPosts = await Post.aggregate([
           {
@@ -96,6 +97,7 @@ const getUserFeed = async (req, res) => {
         });
       } else {
         console.log("followers not found in feed");
+
         const options = {
           page: parseInt(page, 10),
           limit: parseInt(limit, 10),
@@ -125,12 +127,13 @@ const getUserFeed = async (req, res) => {
         });
       }
     } else {
+      // For guest users (not logged in)
       const feedQuery = { visibility: "public" };
 
       const options = {
         page: parseInt(page, 10),
         limit: parseInt(limit, 10),
-        sort: { createdAt: -1 },
+        sort: sortOptions,
         populate: [
           { path: "user", select: "name username picture email" },
           {
