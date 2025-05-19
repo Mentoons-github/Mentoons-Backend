@@ -53,27 +53,37 @@ const getUserRewards = async (req, res) => {
   }
 };
 
-/**
- * Add points for a user activity
- */
+
 const addPoints = async (req, res) => {
   try {
     const { eventType, reference, description } = req.body;
-    const userId = req.user.dbUser_id; // Assuming auth middleware attaches user to req
+    const userId = req.user.dbUser_id; // Ensure this is correct and matches schema
 
     // Validate event type
     if (!POINTS_CONFIG[eventType]) {
       return res.status(400).json({ message: "Invalid event type" });
     }
 
-    // Get points for this event
     const points = POINTS_CONFIG[eventType];
 
-    // Find or create user reward
-    let userReward = await Reward.findOne({ userId });
-    if (!userReward) {
-      userReward = new Reward({ userId: req.user.dbUser._id });
-    }
+    // Atomically find or create user reward
+    let userReward = await Reward.findOneAndUpdate(
+      { userId },
+      {
+        $setOnInsert: {
+          userId,
+          totalPoints: 0,
+          transactions: [],
+          dailyLoginCount: 0,
+        },
+      },
+      { new: true, upsert: true }
+    );
+
+    // Ensure default fields exist in case document was just created
+    if (!userReward.transactions) userReward.transactions = [];
+    if (!userReward.totalPoints) userReward.totalPoints = 0;
+    if (!userReward.dailyLoginCount) userReward.dailyLoginCount = 0;
 
     // Check for daily login special case
     if (eventType === "daily_login") {
@@ -85,11 +95,12 @@ const addPoints = async (req, res) => {
           .status(400)
           .json({ message: "Daily login reward already claimed today" });
       }
+
       userReward.lastLogin = new Date();
       userReward.dailyLoginCount += 1;
     }
 
-    // Create new transaction
+    // Create transaction entry
     const newTransaction = {
       eventType,
       points,
@@ -100,14 +111,14 @@ const addPoints = async (req, res) => {
       createdAt: new Date(),
     };
 
-    // Add transaction and update total points
+    // Update user reward data
     userReward.transactions.unshift(newTransaction);
     userReward.totalPoints += points;
 
-    // Save updates
+    // Save reward data
     await userReward.save();
 
-    // Calculate new tier info
+    // Compute tier info
     const pointsToNextTier = userReward.calculatePointsToNextTier();
 
     return res.status(200).json({
