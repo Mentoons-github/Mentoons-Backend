@@ -84,132 +84,103 @@ const sendFriendRequest = asyncHandler(async (req, res) => {
   const senderId = req.user;
   const { receiverId } = req.params;
 
-  console.log(senderId, receiverId);
+  const sender = await User.findById(senderId);
+  const receiver = await User.findById(receiverId);
 
-  const sender = await User.findById(senderId.toString());
+  if (!receiver) {
+    return errorResponse(res, 404, "Receiver user not found");
+  }
 
-  // Check if already mutual (i.e., receiver is following sender and vice versa)
-  if (
+  const isAlreadyFriend =
     sender.following.includes(receiverId) &&
-    sender.followers.includes(receiverId)
-  ) {
+    sender.followers.includes(receiverId);
+
+  if (isAlreadyFriend) {
     return errorResponse(res, 400, "User is already your friend");
   }
 
-  try {
-    const exist = await FriendRequest.findOne({
-      senderId,
-      receiverId,
-      status: "pending",
-    }).populate("receiverId");
+  const existingRequest = await FriendRequest.findOne({
+    senderId,
+    receiverId,
+    status: "pending",
+  });
 
-    if (exist) return errorResponse(res, 400, "Request already exists");
-
-    // Clean up old requests
-    await FriendRequest.deleteMany({
-      senderId,
-      receiverId,
-      status: { $in: ["cancelled", "rejected", "one_way"] },
-    });
-
-    // Create new friend request
-    await FriendRequest.create({
-      senderId,
-      receiverId,
-      status: "pending",
-    });
-
-    // ⬇️ Add follow relationship (one-way: sender follows receiver)
-    await User.findByIdAndUpdate(senderId, {
-      $addToSet: { following: receiverId },
-    });
-
-    await User.findByIdAndUpdate(receiverId, {
-      $addToSet: { followers: senderId },
-    });
-
-    // Notification logic
-    const senderName = sender.name;
-    const notificationMessage = `You have received a friend request from ${senderName}.`;
-
-    const noti = await createNotification(
-      receiverId,
-      "friend_request",
-      notificationMessage,
-      senderId
-    );
-
-    console.log("notification :", noti);
-
-    successResponse(res, 200, "Friend request sent successfully");
-  } catch (err) {
-    console.log(err);
-    errorResponse(res, 500, "Error making request");
+  if (existingRequest) {
+    return errorResponse(res, 400, "Friend request already sent");
   }
+
+  await FriendRequest.deleteMany({
+    senderId,
+    receiverId,
+    status: { $in: ["cancelled", "rejected", "one_way"] },
+  });
+
+  await FriendRequest.create({
+    senderId,
+    receiverId,
+    status: "pending",
+  });
+
+  await createNotification(
+    receiverId,
+    "friend_request",
+    `You have received a friend request from ${sender.name}.`,
+    senderId
+  );
+
+  return successResponse(res, 200, "Friend request sent successfully");
 });
 
 const acceptFriendRequest = asyncHandler(async (req, res) => {
   const { requestId } = req.params;
 
-  console.log(requestId);
   try {
     const request = await FriendRequest.findById(requestId).populate(
       "receiverId senderId"
     );
-    console.log("requstId got :", request);
-    if (!request) return errorResponse(res, 404, "No request found");
-    request.status = "accepted";
 
+    if (!request) {
+      return errorResponse(res, 404, "No request found");
+    }
+
+    if (request.status === "accepted") {
+      return successResponse(res, 200, "Friend request already accepted");
+    }
+
+    request.status = "accepted";
     await request.save();
 
     const receiver = request.receiverId;
     const sender = request.senderId;
 
-    await feed.findOneAndUpdate(
-      { user: sender._id },
-      {
-        $addToSet: { followingUsers: receiver._id },
-      },
-      { upsert: true }
-    );
-
-    await feed.findOneAndUpdate(
-      { user: receiver._id },
-      {
-        $addToSet: { followingUsers: sender._id },
-      },
-      { upsert: true }
-    );
+    if (!sender.following.includes(receiver._id)) {
+      sender.following.push(receiver._id);
+    }
 
     if (!receiver.followers.includes(sender._id)) {
       receiver.followers.push(sender._id);
     }
-    if (!sender.followers.includes(receiver._id)) {
-      sender.followers.push(receiver._id);
-    }
 
-    const request1 = await receiver.save();
-    const request2 = await sender.save();
+    await sender.save();
+    await receiver.save();
 
-    console.log("saved==================>", request1, request2);
-
-    const receiverName = request.receiverId.name;
-    const notificationMessage = `Your friend request to ${receiverName} has been accepted.`;
-
-    const noti = await createNotification(
-      request.receiverId._id,
-      "friend_request_accepted",
-      notificationMessage,
-      request.senderId
+    await feed.findOneAndUpdate(
+      { user: sender._id },
+      { $addToSet: { followingUsers: receiver._id } },
+      { upsert: true }
     );
 
-    console.log(noti);
+    await createNotification(
+      sender._id,
+      "friend_request_accepted",
+      `${receiver.name} accepted your friend request.`,
+      receiver._id
+    );
 
-    console.log("notification created");
     return successResponse(res, 200, "Friend request accepted successfully");
   } catch (err) {
     console.log(err);
-    errorResponse(res, 500, "Failed to accept friendRequest");
+    return errorResponse(res, 500, "Failed to accept friend request");
   }
 });
 
@@ -244,33 +215,26 @@ const rejectFriendRequest = asyncHandler(async (req, res) => {
 const getAllFriends = asyncHandler(async (req, res) => {
   try {
     const userId = req.user;
-    const friends = await FriendRequest.find({
-      $or: [
-        { senderId: userId, status: "accepted" },
-        { receiverId: userId, status: "accepted" },
-      ],
-    })
-      .populate("senderId", "_id name picture")
-      .populate("receiverId", "_id name picture");
 
-    const friendList = friends.map((friend) => {
-      return friend.senderId.toString() === userId
-        ? { ...friend.receiverId.toObject(), _id: friend.receiverId._id }
-        : { ...friend.senderId.toObject(), _id: friend.senderId._id };
-    });
+    const user = await User.findById(userId).select("followers following");
 
-    if (friendList.length === 0) {
+    const followers = user.followers.map((id) => id.toString());
+    const following = user.following.map((id) => id.toString());
+
+    const mutualIds = followers.filter((id) => following.includes(id));
+
+    if (mutualIds.length === 0) {
       return successResponse(res, 200, "No friends found", []);
     }
 
-    return successResponse(
-      res,
-      200,
-      "Friends fetched successfully",
-      friendList
+    const friends = await User.find(
+      { _id: { $in: mutualIds } },
+      { name: 1, picture: 1 }
     );
+
+    return successResponse(res, 200, "Friends fetched successfully", friends);
   } catch (err) {
-    console.log(err);
+    console.error("Error in getAllFriends:", err);
     return errorResponse(res, 500, "Failed to fetch friends");
   }
 });
@@ -316,9 +280,6 @@ const requestSuggestions = asyncHandler(async (req, res) => {
     const totalSuggestions = await User.countDocuments(query);
 
     const hasMore = skip + suggestions.length < totalSuggestions;
-
-    console.log("Final suggestions: ", suggestions);
-    console.log("Has more: ", hasMore);
 
     return successResponse(res, 200, "Suggestions fetched successfully", {
       suggestions,
@@ -549,17 +510,17 @@ const getFollowBackUsers = asyncHandler(async (req, res) => {
     const followerIds = followers.map((req) => req.senderId.toString());
 
     if (followerIds.length === 0) {
-      return res.status(200).json([]);
+      return successResponse(res, 200, "No followers found", []);
     }
 
-    const followingBack = await FriendRequest.find({
+    const existingFollowBacks = await FriendRequest.find({
       senderId: userId,
       receiverId: { $in: followerIds },
-      status: "accepted",
+      status: { $in: ["accepted", "pending"] },
     }).select("receiverId");
 
-    const alreadyFollowingIds = new Set(
-      followingBack.map((req) => req.receiverId.toString())
+    const alreadyOrPendingFollowIds = new Set(
+      existingFollowBacks.map((req) => req.receiverId.toString())
     );
 
     const rejectedRequests = await FriendRequest.find({
@@ -573,7 +534,7 @@ const getFollowBackUsers = asyncHandler(async (req, res) => {
     );
 
     const followBackUserIds = followerIds.filter(
-      (id) => !alreadyFollowingIds.has(id) && !rejectedIds.has(id)
+      (id) => !alreadyOrPendingFollowIds.has(id) && !rejectedIds.has(id)
     );
 
     const followBackUsers = await User.find(
@@ -588,7 +549,7 @@ const getFollowBackUsers = asyncHandler(async (req, res) => {
       followBackUsers
     );
   } catch (err) {
-    console.error(err);
+    console.error("Error fetching follow-back users:", err);
     errorResponse(res, 500, "Internal server error");
   }
 });
@@ -639,38 +600,68 @@ const followBackUser = asyncHandler(async (req, res) => {
   const senderId = req.user._id;
   const { receiverId } = req.params;
 
+  console.log("Follow back initiated");
+  console.log("Sender ID:", senderId);
+  console.log("Receiver ID:", receiverId);
+
   try {
-    const existing = await FriendRequest.findOne({
-      senderId,
-      receiverId,
-    });
+    const existing = await FriendRequest.findOne({ senderId, receiverId });
+    console.log("Existing FriendRequest:", existing);
 
     if (existing && existing.status === "accepted") {
+      console.log("Already following this user");
       return errorResponse(res, 400, "Already following this user");
     }
 
     if (existing && existing.status === "pending") {
+      console.log("Friend request already sent");
       return errorResponse(res, 400, "Request already sent");
     }
 
-    await FriendRequest.create({
+    const newRequest = await FriendRequest.create({
       senderId,
       receiverId,
-      status: "pending",
+      status: "accepted",
     });
 
+    console.log("New FriendRequest created:", newRequest);
+
+    const updatedSender = await User.findByIdAndUpdate(
+      senderId,
+      { $addToSet: { following: receiverId } },
+      { new: true }
+    );
+    console.log("Updated sender (following added):", updatedSender);
+
+    const updatedReceiver = await User.findByIdAndUpdate(
+      receiverId,
+      { $addToSet: { followers: senderId } },
+      { new: true }
+    );
+    console.log("Updated receiver (followers added):", updatedReceiver);
+
+    const updatedFeed = await feed.findOneAndUpdate(
+      { user: senderId },
+      { $addToSet: { followingUsers: receiverId } },
+      { upsert: true, new: true }
+    );
+    console.log("Updated sender feed (followingUsers):", updatedFeed);
+
     const sender = await User.findById(senderId);
+    console.log("Sender details for notification:", sender);
+
     await createNotification(
       receiverId,
       "follow_back",
       `${sender.name} has followed you back.`,
       senderId
     );
+    console.log("Follow back notification sent");
 
-    return successResponse(res, 200, "Follow back request sent");
+    return successResponse(res, 200, "Follow back completed successfully");
   } catch (err) {
-    console.log(err);
-    errorResponse(res, 500, "Failed to send follow back request");
+    console.log("Error in followBackUser:", err);
+    return errorResponse(res, 500, "Failed to follow back user");
   }
 });
 
