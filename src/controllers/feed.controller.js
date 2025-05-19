@@ -26,54 +26,56 @@ const getUserFeed = async (req, res) => {
         ],
       };
 
-      if (userFeed.preferences.contentTypes.length > 0) {
-        feedQuery.postType = { $in: userFeed.preferences.contentTypes };
-      }
-
-      const sortOptions = { createdAt: -1 };
-
       if (
         userFeed.preferences.prioritizeFollowing &&
         userFeed.followingUsers.length > 0
       ) {
         console.log("followers found in feed");
         console.log(userFeed.followingUsers);
-        feedQuery.$and.push({
-          user: {
-            $in: userFeed.followingUsers.map((id) =>
-              mongoose.Types.ObjectId(id)
-            ),
-          },
-        });
 
-        sortOptions.userFollowed = -1;
+        const followedUserIds = userFeed.followingUsers.map(
+          (id) => new mongoose.Types.ObjectId(id)
+        );
 
-        const posts = await Post.aggregate([
+        const sortOptions = { createdAt: -1 };
+
+        const followedPosts = await Post.aggregate([
           {
-            $addFields: {
-              userFollowed: {
-                $cond: [
-                  {
-                    $in: [
-                      "$user",
-                      userFeed.followingUsers.map((id) =>
-                        mongoose.Types.ObjectId(id)
-                      ),
-                    ],
-                  },
-                  1,
-                  0,
-                ],
-              },
+            $match: {
+              user: { $in: followedUserIds },
+              _id: { $nin: userFeed.hiddenPosts },
+              user: { $nin: userFeed.blockedUsers },
             },
           },
-          { $match: feedQuery },
+          {
+            $addFields: { userFollowed: 1 },
+          },
           { $sort: sortOptions },
-          { $skip: (parseInt(page, 10) - 1) * parseInt(limit, 10) },
-          { $limit: parseInt(limit, 10) },
         ]);
 
-        const populatedPosts = await Post.populate(posts, [
+        const publicPosts = await Post.aggregate([
+          {
+            $match: {
+              visibility: "public",
+              user: { $nin: followedUserIds },
+              _id: { $nin: userFeed.hiddenPosts },
+              user: { $nin: userFeed.blockedUsers },
+            },
+          },
+          {
+            $addFields: { userFollowed: 0 },
+          },
+          { $sort: sortOptions },
+        ]);
+
+        const combinedPosts = [...followedPosts, ...publicPosts];
+        const startIndex = (parseInt(page, 10) - 1) * parseInt(limit, 10);
+        const paginatedPosts = combinedPosts.slice(
+          startIndex,
+          startIndex + parseInt(limit, 10)
+        );
+
+        const populatedPosts = await Post.populate(paginatedPosts, [
           { path: "user", select: "name username picture email" },
           {
             path: "comments",
@@ -89,7 +91,7 @@ const getUserFeed = async (req, res) => {
           pagination: {
             page: parseInt(page, 10),
             limit: parseInt(limit, 10),
-            hasMore: posts.length === parseInt(limit, 10),
+            hasMore: combinedPosts.length > startIndex + parseInt(limit, 10),
           },
         });
       } else {
@@ -156,6 +158,7 @@ const getUserFeed = async (req, res) => {
       });
     }
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       success: false,
       message: error.message,
@@ -175,7 +178,6 @@ const updateFeedPreferences = async (req, res) => {
       refreshRate,
     } = req.body;
 
-    // Find or create feed for user
     let userFeed = await Feed.findOne({ user: userId });
 
     if (!userFeed) {
@@ -184,7 +186,6 @@ const updateFeedPreferences = async (req, res) => {
       });
     }
 
-    // Update preferences if provided
     if (showLikes !== undefined) userFeed.preferences.showLikes = showLikes;
     if (showComments !== undefined)
       userFeed.preferences.showComments = showComments;

@@ -283,6 +283,8 @@ module.exports = {
     const userId = req.user.dbUser._id;
     const profileData = req.body;
 
+    console.log(userId);
+
     if (!userId) {
       return errorResponse(res, 400, "User ID is required");
     }

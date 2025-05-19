@@ -21,6 +21,7 @@ const fetchNotifications = async (userId) => {
     const notifications = await Notification.find({
       userId: userId,
     }).populate("initiatorId", "name picture _id");
+    console.log(notifications);
     return notifications;
   } catch (err) {
     console.log(err);
