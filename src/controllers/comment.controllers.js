@@ -1,7 +1,7 @@
 const Comment = require("../models/comment");
 const Post = require("../models/post");
 const Meme = require("../models/adda/meme");
-const mongoose = require("mongoose");
+const User = require("../models/user");
 
 /**
  * Create a new comment
@@ -15,6 +15,17 @@ const createComment = async (req, res) => {
     const userId = req.user.dbUser._id;
 
     // Validate that either postId or memeId is provided, but not both
+
+    const user = await User.findById({ _id: userId });
+    console.log(user);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
     if (!postId && !memeId) {
       return res.status(400).json({
         success: false,
