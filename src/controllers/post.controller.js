@@ -270,8 +270,10 @@ const deletePost = async (req, res) => {
       });
     }
 
+    console.log(req.user.dbUser._id);
+
     // Check if user is the owner of the post
-    if (!post.user.equals(req.user._id)) {
+    if (!post.user.equals(req.user.dbUser._id)) {
       return res.status(403).json({
         success: false,
         message: "You do not have permission to delete this post",
@@ -340,11 +342,6 @@ const likePost = async (req, res) => {
   }
 };
 
-/**
- * Get posts by user ID
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- */
 const getPostsByUser = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -365,10 +362,8 @@ const getPostsByUser = async (req, res) => {
 
     const query = { user: req.user.dbUser._id };
 
-    // If viewing someone else's posts, only show public ones
     if (!req.user || !req.user.dbUser._id.equals(userId)) {
       query.visibility = "public";
-      // This would need to be expanded with friend logic for 'friends' visibility
     }
 
     const posts = await Post.paginate(query, options);
