@@ -8,6 +8,7 @@ const {
   deletePost,
   likePost,
   getPostsByUser,
+  friendPost,
 } = require("../controllers/post.controller");
 const {
   validatePostCreation,
@@ -25,5 +26,6 @@ router.post("/", conditionalAuth, createPost);
 router.put("/:id", conditionalAuth, validatePostId, updatePost);
 router.delete("/:id", conditionalAuth, validatePostId, deletePost);
 router.post("/:id/like", conditionalAuth, validatePostId, likePost);
+router.get("/friends-post/:friendId", conditionalAuth, friendPost);
 
 module.exports = router;
