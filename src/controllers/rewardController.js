@@ -53,11 +53,10 @@ const getUserRewards = async (req, res) => {
   }
 };
 
-
 const addPoints = async (req, res) => {
   try {
     const { eventType, reference, description } = req.body;
-    const userId = req.user.dbUser_id; // Ensure this is correct and matches schema
+    const userId = req.user.dbUser._id; // Ensure this is correct and matches schema
 
     // Validate event type
     if (!POINTS_CONFIG[eventType]) {
