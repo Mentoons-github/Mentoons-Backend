@@ -1,7 +1,6 @@
 const Like = require("../models/like");
 const Post = require("../models/post");
 const Meme = require("../models/adda/meme");
-const mongoose = require("mongoose");
 
 /**
  * Create a new like (for post or meme)
@@ -13,57 +12,59 @@ const createLike = async (req, res) => {
     const { type, id } = req.body; // type: 'post' or 'meme', id: postId or memeId
     const userId = req.user.dbUser._id;
 
-    let targetDoc, updateTarget;
-    if (type === "post") {
-      targetDoc = await Post.findById(id);
-      updateTarget = Post;
-    } else if (type === "meme") {
-      targetDoc = await Meme.findById(id);
-      updateTarget = Meme;
-    } else {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Invalid type. Must be 'post' or 'meme'.",
-        });
+    // Validate type
+    if (type !== "post" && type !== "meme") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid type. Must be 'post' or 'meme'.",
+      });
     }
+
+    // Find the target document (post or meme)
+    let targetModel = type === "post" ? Post : Meme;
+    const targetDoc = await targetModel.findById(id);
+
     if (!targetDoc) {
-      return res
-        .status(404)
-        .json({
-          success: false,
-          message: `${type.charAt(0).toUpperCase() + type.slice(1)} not found`,
-        });
+      return res.status(404).json({
+        success: false,
+        message: `${type.charAt(0).toUpperCase() + type.slice(1)} not found`,
+      });
     }
 
     // Check if like already exists
     const existingLike = await Like.findLike(userId, type, id);
     if (existingLike) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: `You have already liked this ${type}`,
-        });
+      return res.status(400).json({
+        success: false,
+        message: `You have already liked this ${type}`,
+      });
     }
 
-    // Create new like
-    const newLike = new Like({ user: userId, [type]: id });
-    const savedLike = await newLike.save();
+    // Create new like in the Like collection
+    const newLike = new Like({
+      user: userId,
+      [type]: id,
+    });
+    await newLike.save();
 
-    // Update likes array in target
-    await updateTarget.findByIdAndUpdate(id, { $push: { likes: userId } });
-
-    res
-      .status(201)
-      .json({
-        success: true,
-        data: savedLike,
-        message: `${
-          type.charAt(0).toUpperCase() + type.slice(1)
-        } liked successfully`,
+    // Update the target document based on type
+    if (type === "post") {
+      await Post.findByIdAndUpdate(id, {
+        $push: { likes: userId },
       });
+    } else if (type === "meme") {
+      await Meme.findByIdAndUpdate(id, {
+        $push: { likes: userId },
+        $inc: { likeCount: 1 },
+      });
+    }
+
+    res.status(201).json({
+      success: true,
+      message: `${
+        type.charAt(0).toUpperCase() + type.slice(1)
+      } liked successfully`,
+    });
   } catch (error) {
     if (error.code === 11000) {
       return res
@@ -84,28 +85,23 @@ const deleteLike = async (req, res) => {
     const { type, id } = req.body; // type: 'post' or 'meme', id: postId or memeId
     const userId = req.user.dbUser._id;
 
-    let targetDoc, updateTarget;
-    if (type === "post") {
-      targetDoc = await Post.findById(id);
-      updateTarget = Post;
-    } else if (type === "meme") {
-      targetDoc = await Meme.findById(id);
-      updateTarget = Meme;
-    } else {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Invalid type. Must be 'post' or 'meme'.",
-        });
+    // Validate type
+    if (type !== "post" && type !== "meme") {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid type. Must be 'post' or 'meme'.",
+      });
     }
+
+    // Find the target document (post or meme)
+    let targetModel = type === "post" ? Post : Meme;
+    const targetDoc = await targetModel.findById(id);
+
     if (!targetDoc) {
-      return res
-        .status(404)
-        .json({
-          success: false,
-          message: `${type.charAt(0).toUpperCase() + type.slice(1)} not found`,
-        });
+      return res.status(404).json({
+        success: false,
+        message: `${type.charAt(0).toUpperCase() + type.slice(1)} not found`,
+      });
     }
 
     // Find and remove the like
@@ -113,14 +109,24 @@ const deleteLike = async (req, res) => {
       user: userId,
       [type]: id,
     });
+
     if (!deletedLike) {
       return res
         .status(404)
         .json({ success: false, message: "Like not found" });
     }
 
-    // Update likes array in target
-    await updateTarget.findByIdAndUpdate(id, { $pull: { likes: userId } });
+    // Update the target document based on type
+    if (type === "post") {
+      await Post.findByIdAndUpdate(id, {
+        $pull: { likes: userId },
+      });
+    } else if (type === "meme") {
+      await Meme.findByIdAndUpdate(id, {
+        $pull: { likes: userId },
+        $inc: { likeCount: -1 },
+      });
+    }
 
     res
       .status(200)
@@ -146,20 +152,16 @@ const getLikesByTarget = async (req, res) => {
     } else if (type === "meme") {
       targetDoc = await Meme.findById(id);
     } else {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Invalid type. Must be 'post' or 'meme'.",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Invalid type. Must be 'post' or 'meme'.",
+      });
     }
     if (!targetDoc) {
-      return res
-        .status(404)
-        .json({
-          success: false,
-          message: `${type.charAt(0).toUpperCase() + type.slice(1)} not found`,
-        });
+      return res.status(404).json({
+        success: false,
+        message: `${type.charAt(0).toUpperCase() + type.slice(1)} not found`,
+      });
     }
 
     const options = {
@@ -201,20 +203,16 @@ const checkLike = async (req, res) => {
     } else if (type === "meme") {
       targetDoc = await Meme.findById(id);
     } else {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Invalid type. Must be 'post' or 'meme'.",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Invalid type. Must be 'post' or 'meme'.",
+      });
     }
     if (!targetDoc) {
-      return res
-        .status(404)
-        .json({
-          success: false,
-          message: `${type.charAt(0).toUpperCase() + type.slice(1)} not found`,
-        });
+      return res.status(404).json({
+        success: false,
+        message: `${type.charAt(0).toUpperCase() + type.slice(1)} not found`,
+      });
     }
 
     const like = await Like.findLike(userId, type, id);

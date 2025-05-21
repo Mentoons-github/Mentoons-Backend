@@ -33,6 +33,14 @@ const UserSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    education: {
+      type: String,
+      default: "",
+    },
+    occupation: {
+      type: String,
+      default: "",
+    },
     coverImage: {
       type: String,
       default: "https://via.placeholder.com/150",

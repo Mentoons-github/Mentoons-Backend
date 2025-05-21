@@ -12,6 +12,9 @@ const POINTS_CONFIG = {
 
   // Content interaction
   like_post: 2,
+  create_post: 10,
+  create_meme: 10,
+  saved_post: 5,
   comment_post: 5,
   share_post: 10,
   create_status: 8,
@@ -68,6 +71,9 @@ const TIER_BENEFITS = {
 // Daily limits for certain actions to prevent abuse
 const DAILY_LIMITS = {
   like_post: 30,
+  create_post: 10,
+  create_meme: 10,
+  saved_post: 5,
   comment_post: 20,
   share_post: 10,
   follow_user: 20,

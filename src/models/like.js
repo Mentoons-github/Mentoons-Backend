@@ -1,6 +1,9 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const mongoosePaginate = require("mongoose-paginate-v2");
+const {
+  ConversationContextImpl,
+} = require("twilio/lib/rest/conversations/v1/conversation");
 
 const LikeSchema = new Schema(
   {
@@ -19,6 +22,7 @@ const LikeSchema = new Schema(
       ref: "Meme",
       required: false,
     },
+
     createdAt: {
       type: Date,
       default: Date.now,
@@ -27,20 +31,16 @@ const LikeSchema = new Schema(
   { timestamps: true }
 );
 
-// Compound indexes to ensure a user can only like a post or meme once
-LikeSchema.index(
-  { user: 1, post: 1 },
-  { unique: true, partialFilterExpression: { post: { $exists: true } } }
-);
-LikeSchema.index(
-  { user: 1, meme: 1 },
-  { unique: true, partialFilterExpression: { meme: { $exists: true } } }
-);
+
 
 // Method to check if a like exists
 LikeSchema.statics.findLike = function (userId, type, id) {
+  console.log(userId, type, id);
   if (type === "post") return this.findOne({ user: userId, post: id });
-  if (type === "meme") return this.findOne({ user: userId, meme: id });
+  if (type === "meme") {
+    console.log(this.findOne({ user: userId, meme: id }));
+    return this.findOne({ user: userId, meme: id });
+  }
   return null;
 };
 

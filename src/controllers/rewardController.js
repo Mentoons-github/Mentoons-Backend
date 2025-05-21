@@ -100,6 +100,19 @@ const addPoints = async (req, res) => {
       userReward.dailyLoginCount += 1;
     }
 
+    // Check if this reference has already been used for this event type
+    const existingTransaction = userReward.transactions.find(
+      (transaction) =>
+        transaction.eventType === eventType &&
+        transaction.reference === reference
+    );
+
+    if (existingTransaction) {
+      return res.status(400).json({
+        message: "Points for this reference have already been awarded",
+      });
+    }
+
     // Create transaction entry
     const newTransaction = {
       eventType,
