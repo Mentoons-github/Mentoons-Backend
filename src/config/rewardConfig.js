@@ -12,11 +12,12 @@ const POINTS_CONFIG = {
 
   // Content interaction
   like_post: 2,
+  love_post: 3,
   create_post: 10,
   create_meme: 10,
   saved_post: 5,
   comment_post: 5,
-  share_post: 10,
+  share_post: 5,
   create_status: 8,
 
   // Group interaction

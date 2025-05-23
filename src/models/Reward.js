@@ -18,6 +18,7 @@ const transactionSchema = new Schema({
       "registration",
       "profile_completion",
       "like_post",
+      "love_post",
       "create_post",
       "create_meme",
       "saved_post",

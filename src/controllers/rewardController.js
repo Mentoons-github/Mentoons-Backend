@@ -99,20 +99,50 @@ const addPoints = async (req, res) => {
       userReward.dailyLoginCount += 1;
     }
 
-    // Check if this reference has already been used for this event type
-    const existingTransaction = userReward.transactions.find(
-      (transaction) =>
-        transaction.eventType === eventType &&
-        transaction.reference === reference
+    // Check if any transaction with this reference exists (regardless of event type)
+    const existingTransactionIndex = userReward.transactions.findIndex(
+      (transaction) => transaction.reference === reference
     );
 
-    if (existingTransaction) {
-      return res.status(400).json({
-        message: "Points for this reference have already been awarded",
+    if (existingTransactionIndex !== -1) {
+      const existingTransaction =
+        userReward.transactions[existingTransactionIndex];
+
+      // If the same event type, don't allow points again
+      if (existingTransaction.eventType === eventType) {
+        return res.status(400).json({
+          message: "Points for this action have already been awarded",
+        });
+      }
+
+      // If different event type, update the existing transaction instead of creating new one
+      // First, deduct the old points
+      userReward.totalPoints -= existingTransaction.points;
+
+      // Update the transaction with new event type and points
+      existingTransaction.eventType = eventType;
+      existingTransaction.points = points;
+      existingTransaction.description =
+        description ||
+        `Updated to ${points} points for ${eventType.replace(/_/g, " ")}`;
+      existingTransaction.updatedAt = new Date();
+
+      // Add the new points
+      userReward.totalPoints += points;
+
+      // Save the updated document
+      await userReward.save();
+
+      return res.status(200).json({
+        message: "Action type updated for this content",
+        totalPoints: userReward.totalPoints,
+        currentTier: userReward.currentTier,
+        pointsToNextTier: userReward.calculatePointsToNextTier(),
+        updatedTransaction: existingTransaction,
       });
     }
 
-    // Create transaction entry
+    // Create transaction entry for new reference
     const newTransaction = {
       eventType,
       points,
