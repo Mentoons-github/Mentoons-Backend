@@ -281,6 +281,7 @@ const requestSuggestions = asyncHandler(async (req, res) => {
 
     const hasMore = skip + suggestions.length < totalSuggestions;
 
+    console.log(suggestions);
     return successResponse(res, 200, "Suggestions fetched successfully", {
       suggestions,
       hasMore,

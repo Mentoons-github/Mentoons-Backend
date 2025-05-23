@@ -30,6 +30,7 @@ const {
   deleteStatus,
 } = require("../controllers/adda/status");
 const { Verification } = require("@clerk/clerk-sdk-node");
+const { conditionalAuth } = require("../middlewares/auth.middleware");
 
 const addaRouter = express.Router();
 
@@ -62,16 +63,17 @@ addaRouter.post("/declineFollowBack", verifyToken, declineFollowBack);
 addaRouter.post("/follow-back/:receiverId", verifyToken, followBackUser);
 addaRouter.get("/userNotifications", verifyToken, getNotifications);
 
+//notification
 addaRouter.delete(
   "/userNotifications/:notificationId",
   verifyToken,
   deleteNotification
 );
-
 addaRouter.post(
   "/userNotifications/:notificationId",
   verifyToken,
   markReadNotification
 );
+
 
 module.exports = addaRouter;

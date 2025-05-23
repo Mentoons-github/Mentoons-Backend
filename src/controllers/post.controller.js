@@ -386,6 +386,35 @@ const getPostsByUser = async (req, res) => {
   }
 };
 
+const friendPost = async (req, res) => {
+  try {
+    const { friendId } = req.params;
+    const page = parseInt(req.query.page) || 1;
+    const limit = 5;
+    const skip = (page - 1) * limit;
+
+    const friendsPost = await Post.find({ user: friendId })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const totalPosts = await Post.countDocuments({ user: friendId });
+    const hasMore = page * limit < totalPosts;
+
+    res.status(200).json({
+      success: true,
+      data: friendsPost,
+      currentPage: page,
+      hasMore,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 module.exports = {
   createPost,
   getAllPosts,
@@ -394,4 +423,5 @@ module.exports = {
   deletePost,
   likePost,
   getPostsByUser,
+  friendPost,
 };

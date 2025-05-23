@@ -99,7 +99,8 @@ const removeItemFromCart = async (req, res) => {
 const updateItemQuantity = async (req, res) => {
   try {
     const { userId, productId, quantity } = req.body;
-    
+
+    console.log(quantity);
 
     if (!userId || !productId || !quantity) {
       return res
