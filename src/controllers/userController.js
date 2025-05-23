@@ -393,4 +393,125 @@ module.exports = {
       isFriend,
     });
   }),
+
+  searchFriend: asyncHandler(async (req, res) => {
+    const { search, page = 1, limit = 10 } = req.query;
+    const currentUserId = req.user?.dbUser?._id;
+    console.log(req.user);
+    console.log("current userId :", currentUserId);
+
+    try {
+      if (!search) {
+        return errorResponse(res, 400, "Search term is required");
+      }
+
+      let following = [];
+      let followers = [];
+
+      if (currentUserId) {
+        const currentUser = await User.findById(currentUserId).select(
+          "following followers"
+        );
+        if (!currentUser) {
+          console.error(`User not found for ID: ${currentUserId}`);
+          return errorResponse(res, 404, "Current user not found");
+        }
+        following = currentUser.following.map((id) => {
+          const idStr = id.toString();
+          console.log(`Following ID: ${idStr}`);
+          return idStr;
+        });
+        followers = currentUser.followers.map((id) => {
+          const idStr = id.toString();
+          console.log(`Follower ID: ${idStr}`);
+          return idStr;
+        });
+      } else {
+        console.error("No currentUserId provided");
+      }
+
+      const skip = (Number(page) - 1) * Number(limit);
+      const users = await User.find({
+        name: { $regex: search, $options: "i" },
+        _id: { $ne: currentUserId },
+      })
+        .select("name picture")
+        .skip(skip)
+        .limit(Number(limit));
+
+      console.log("users found :", users);
+
+      const total = await User.countDocuments({
+        name: { $regex: search, $options: "i" },
+        _id: { $ne: currentUserId },
+      });
+
+      const response = await Promise.all(
+        users.map(async (user) => {
+          const userIdStr = user._id.toString();
+          console.log(`Checking user ID: ${userIdStr}`);
+          console.log(`Following array: ${following}`);
+          console.log(`Followers array: ${followers}`);
+
+          const youFollow = following.includes(userIdStr);
+          const theyFollow = followers.includes(userIdStr);
+
+          // Check for friend requests (pending or accepted)
+          let requestStatus = null;
+          let requestId = null;
+          let isSender = false;
+          if (currentUserId) {
+            const friendRequest = await FriendRequest.findOne({
+              $or: [
+                { senderId: currentUserId, receiverId: user._id },
+                { senderId: user._id, receiverId: currentUserId },
+              ],
+            });
+            if (friendRequest) {
+              requestStatus = friendRequest.status;
+              requestId = friendRequest._id.toString();
+              isSender =
+                friendRequest.senderId.toString() === currentUserId.toString();
+            }
+          }
+
+          console.log(`youFollow: ${youFollow}, theyFollow: ${theyFollow}`);
+          console.log(
+            `Friend request status: ${requestStatus || "none"}, requestId: ${
+              requestId || "none"
+            }`
+          );
+
+          let status = "connect";
+          if (requestStatus === "pending") {
+            status = isSender ? "pendingSent" : "pendingReceived";
+          } else if (
+            requestStatus === "accepted" ||
+            (youFollow && theyFollow)
+          ) {
+            status = "friends";
+          } else if (theyFollow && !youFollow) {
+            status = "followBack";
+          }
+
+          return {
+            _id: user._id,
+            name: user.name,
+            picture: user.picture,
+            status,
+            requestId: requestStatus === "pending" ? requestId : undefined,
+          };
+        })
+      );
+
+      successResponse(res, 200, "Users fetched successfully", {
+        suggestions: response,
+        hasMore: skip + users.length < total,
+        total,
+      });
+    } catch (err) {
+      console.error("Error in searchFriend:", err);
+      errorResponse(res, 500, "Internal server error");
+    }
+  }),
 };
