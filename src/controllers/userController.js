@@ -363,6 +363,7 @@ module.exports = {
       return errorResponse(res, 400, "Id is required", userId);
     }
     const user = await userHelper.getOtherUserDetails(userId);
+    console.log("user found :", user);
     if (!user) {
       return errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR, user);
     }

@@ -386,7 +386,7 @@ module.exports = {
     }
   },
 
-  // Get user stats (followers count, posts count, etc.)
+  
   getUserStats: async (userId) => {
     try {
       const user = await User.findById(userId);
@@ -412,7 +412,6 @@ module.exports = {
     try {
       console.log("Fetching public details for user with ID:", userId);
 
-      // Convert string ID to ObjectId
       const objectId = mongoose.Types.ObjectId.isValid(userId)
         ? new mongoose.Types.ObjectId(userId)
         : null;
@@ -434,9 +433,9 @@ module.exports = {
             coverImage: 1,
             joinedDate: 1,
             lastActive: 1,
-            followers: { $size: "$followers" },
-            following: { $size: "$following" },
-            friends: { $size: "$friends" },
+            followers: { $size: { $ifNull: ["$followers", []] } },
+            following: { $size: { $ifNull: ["$following", []] } },
+            friends: { $size: { $ifNull: ["$friends", []] } },
             socialLinks: 1,
           },
         },
