@@ -183,7 +183,7 @@ const addPoints = async (req, res) => {
 const redeemReward = async (req, res) => {
   try {
     const { rewardId } = req.body;
-    const userId = req.user._id; // Assuming auth middleware attaches user to req
+    const userId = req.user.dbUser._id; // Assuming auth middleware attaches user to req
 
     // Find the reward item
     const rewardItem = await RewardItem.findById(rewardId);
