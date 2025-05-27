@@ -516,4 +516,28 @@ module.exports = {
       errorResponse(res, 500, "Internal server error");
     }
   }),
+
+  getFriends: asyncHandler(async (req, res) => {
+    let { userIds } = req.body;
+
+    console.log(userIds);
+
+    if (!userIds) {
+      return res.status(400).json({ message: "userIds is required" });
+    }
+
+    if (!Array.isArray(userIds)) {
+      userIds = [userIds];
+    }
+
+    if (userIds.length === 0) {
+      return res.status(400).json({ message: "userIds cannot be empty" });
+    }
+
+    const friends = await User.find({ _id: { $in: userIds } }).select(
+      "_id name picture"
+    );
+
+    return res.status(200).json({ data: friends });
+  }),
 };

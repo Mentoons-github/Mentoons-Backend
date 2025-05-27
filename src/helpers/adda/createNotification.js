@@ -1,12 +1,22 @@
 const Notification = require("../../models/adda/notification");
 
-const createNotification = async (userId, type, message, initiatorId) => {
+const createNotification = async (
+  userId,
+  type,
+  message,
+  initiatorId,
+  referenceId,
+  referenceModel
+) => {
   try {
+    console.log(referenceId);
     const notification = new Notification({
       userId,
       type,
       message,
       initiatorId,
+      referenceId,
+      referenceModel,
     });
     await notification.save();
     return notification;
@@ -28,4 +38,22 @@ const fetchNotifications = async (userId) => {
     throw new Error("Failed to fetch notifications");
   }
 };
-module.exports = { createNotification, fetchNotifications };
+
+const deleteNotificationHelper = async (userId, initiatorId, type) => {
+  try {
+    await Notification.deleteMany({
+      userId,
+      initiatorId,
+      type,
+    });
+    return true;
+  } catch (err) {
+    console.log(err);
+    throw new Error("Failed to fetch notifications");
+  }
+};
+module.exports = {
+  createNotification,
+  fetchNotifications,
+  deleteNotificationHelper,
+};

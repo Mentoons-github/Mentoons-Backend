@@ -8,6 +8,7 @@ const {
 const {
   createNotification,
   fetchNotifications,
+  deleteNotificationHelper,
 } = require("../../helpers/adda/createNotification");
 
 const Notification = require("../../models/adda/notification");
@@ -115,7 +116,7 @@ const sendFriendRequest = asyncHandler(async (req, res) => {
     status: { $in: ["cancelled", "rejected", "one_way"] },
   });
 
-  await FriendRequest.create({
+  const request = await FriendRequest.create({
     senderId,
     receiverId,
     status: "pending",
@@ -125,7 +126,9 @@ const sendFriendRequest = asyncHandler(async (req, res) => {
     receiverId,
     "friend_request",
     `You have received a friend request from ${sender.name}.`,
-    senderId
+    senderId,
+    request._id,
+    "FriendRequest"
   );
 
   return successResponse(res, 200, "Friend request sent successfully");
@@ -170,11 +173,15 @@ const acceptFriendRequest = asyncHandler(async (req, res) => {
       { upsert: true }
     );
 
+    await deleteNotificationHelper(sender._id, receiver._id, "friend_request");
+
     await createNotification(
       sender._id,
       "friend_request_accepted",
       `${receiver.name} accepted your friend request.`,
-      receiver._id
+      receiver._id,
+      request._id,
+      "FriendRequest"
     );
 
     return successResponse(res, 200, "Friend request accepted successfully");
@@ -202,7 +209,9 @@ const rejectFriendRequest = asyncHandler(async (req, res) => {
       request.receiverId._id,
       "friend_request_rejected",
       notificationMessage,
-      request.senderId
+      request.senderId,
+      request._id,
+      "FriendRequest"
     );
 
     return successResponse(res, 200, "Friend request accepted successfully");
@@ -215,24 +224,68 @@ const rejectFriendRequest = asyncHandler(async (req, res) => {
 const getAllFriends = asyncHandler(async (req, res) => {
   try {
     const userId = req.user;
+    const { page = 1, limit = 10 } = req.query;
+
+    const pageNum = parseInt(page, 10);
+    const limitNum = parseInt(limit, 10);
+
+    if (isNaN(pageNum) || pageNum < 1) {
+      console.log("Invalid page number:", page);
+      return errorResponse(res, 400, "Invalid page number");
+    }
+    if (isNaN(limitNum) || limitNum < 1) {
+      console.log("Invalid limit value:", limit);
+      return errorResponse(res, 400, "Invalid limit value");
+    }
 
     const user = await User.findById(userId).select("followers following");
+
+    if (!user) {
+      console.log("User not found:", userId);
+      return errorResponse(res, 404, "User not found");
+    }
+
+    console.log("User followers:", user.followers);
+    console.log("User following:", user.following);
 
     const followers = user.followers.map((id) => id.toString());
     const following = user.following.map((id) => id.toString());
 
     const mutualIds = followers.filter((id) => following.includes(id));
+    console.log("Mutual friend IDs:", mutualIds);
 
     if (mutualIds.length === 0) {
-      return successResponse(res, 200, "No friends found", []);
+      console.log("No mutual friends found");
+      return successResponse(res, 200, "No friends found", {
+        friends: [],
+        totalCount: 0,
+        currentPage: pageNum,
+        totalPages: 0,
+      });
     }
+
+    const skip = (pageNum - 1) * limitNum;
+    const totalCount = mutualIds.length;
+    const totalPages = Math.ceil(totalCount / limitNum);
+
+    console.log("Pagination - skip:", skip, "limit:", limitNum);
+    console.log("Total friends:", totalCount, "Total pages:", totalPages);
 
     const friends = await User.find(
       { _id: { $in: mutualIds } },
-      { name: 1, picture: 1 }
-    );
+      { name: 1, picture: 1, following: 1, followers: 1 }
+    )
+      .skip(skip)
+      .limit(limitNum);
 
-    return successResponse(res, 200, "Friends fetched successfully", friends);
+    console.log("Fetched friends:", friends);
+
+    return successResponse(res, 200, "Friends fetched successfully", {
+      friends,
+      totalCount,
+      currentPage: pageNum,
+      totalPages,
+    });
   } catch (err) {
     console.error("Error in getAllFriends:", err);
     return errorResponse(res, 500, "Failed to fetch friends");
@@ -317,7 +370,6 @@ const deleteNotification = asyncHandler(async (req, res) => {
   console.log("User ID:", userId);
 
   try {
-    // Convert string ID to ObjectId
     let objectId;
     try {
       objectId = new mongoose.Types.ObjectId(notificationId);
@@ -326,7 +378,6 @@ const deleteNotification = asyncHandler(async (req, res) => {
       return errorResponse(res, 400, "Invalid notification ID format");
     }
 
-    // Use deleteOne directly with the ObjectId
     const result = await Notification.deleteOne({ _id: objectId });
 
     console.log("Delete result:", result);
@@ -590,10 +641,21 @@ const declineFollowBack = asyncHandler(async (req, res) => {
       await request.save();
     }
 
-    successResponse(res, 200, "Follow back declined successfully.");
+    const decliner = await User.findById(userId);
+
+    await createNotification(
+      targetUserId,
+      "friend_request_rejected",
+      `${decliner.name} has declined your follow request.`,
+      userId,
+      request._id,
+      "FriendRequest"
+    );
+
+    return successResponse(res, 200, "Follow back declined successfully.");
   } catch (err) {
     console.error(err);
-    errorResponse(res, 500, "Internal server error");
+    return errorResponse(res, 500, "Internal server error");
   }
 });
 
@@ -655,7 +717,9 @@ const followBackUser = asyncHandler(async (req, res) => {
       receiverId,
       "follow_back",
       `${sender.name} has followed you back.`,
-      senderId
+      senderId,
+      newRequest._id,
+      "FriendRequest"
     );
     console.log("Follow back notification sent");
 
