@@ -215,8 +215,24 @@ const rejectFriendRequest = asyncHandler(async (req, res) => {
 const getAllFriends = asyncHandler(async (req, res) => {
   try {
     const userId = req.user;
+    const { page = 1, limit = 10 } = req.query;
+  
+
+    const pageNum = parseInt(page, 10);
+    const limitNum = parseInt(limit, 10);
+
+    if (isNaN(pageNum) || pageNum < 1) {
+      return errorResponse(res, 400, "Invalid page number");
+    }
+    if (isNaN(limitNum) || limitNum < 1) {
+      return errorResponse(res, 400, "Invalid limit value");
+    }
 
     const user = await User.findById(userId).select("followers following");
+
+    if (!user) {
+      return errorResponse(res, 404, "User not found");
+    }
 
     const followers = user.followers.map((id) => id.toString());
     const following = user.following.map((id) => id.toString());
@@ -224,15 +240,34 @@ const getAllFriends = asyncHandler(async (req, res) => {
     const mutualIds = followers.filter((id) => following.includes(id));
 
     if (mutualIds.length === 0) {
-      return successResponse(res, 200, "No friends found", []);
+      return successResponse(res, 200, "No friends found", {
+        friends: [],
+        totalCount: 0,
+        currentPage: pageNum,
+        totalPages: 0,
+      });
     }
+
+    const skip = (pageNum - 1) * limitNum;
+    const totalCount = mutualIds.length;
 
     const friends = await User.find(
       { _id: { $in: mutualIds } },
-      { name: 1, picture: 1 }
-    );
+      { name: 1, picture: 1, following: 1, followers: 1 }
+    )
+      .skip(skip)
+      .limit(limitNum);
 
-    return successResponse(res, 200, "Friends fetched successfully", friends);
+    console.log("friends found:", friends);
+
+    const totalPages = Math.ceil(totalCount / limitNum);
+
+    return successResponse(res, 200, "Friends fetched successfully", {
+      friends,
+      totalCount,
+      currentPage: pageNum,
+      totalPages,
+    });
   } catch (err) {
     console.error("Error in getAllFriends:", err);
     return errorResponse(res, 500, "Failed to fetch friends");

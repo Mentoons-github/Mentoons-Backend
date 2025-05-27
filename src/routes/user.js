@@ -18,6 +18,7 @@ const {
   getOtherUserController,
   getUserProfile,
   searchFriend,
+  getFriends,
 } = require("../controllers/userController.js");
 const { isSuperAdminOrAdmin } = require("../middlewares/authMiddleware.js");
 const { conditionalAuth } = require("../middlewares/auth.middleware.js");
@@ -32,6 +33,7 @@ router.post("/premium", premiumController);
 router.post("/update-role/:user_id", conditionalAuth, changeRoleController);
 router.get("/allocatedCalls", conditionalAuth, viewAllocatedCalls);
 router.get("/all-users", getAllUsersController);
+router.post("/bulk", conditionalAuth, getFriends);
 
 router.get("/user/:userId", conditionalAuth, getUserController);
 router.delete("/user/:userId", conditionalAuth, DeleteUserClerkController);
