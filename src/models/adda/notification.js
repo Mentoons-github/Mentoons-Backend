@@ -48,6 +48,15 @@ const notificationSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    referenceId: {
+      type: String,
+      required: false,
+    },
+    referenceModel: {
+      type: String,
+      required: false,
+      enum: ["User", "Post", "FriendRequest", "Comment"],
+    },
     isRead: {
       type: Boolean,
       default: false,
