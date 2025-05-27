@@ -183,6 +183,30 @@ module.exports = {
           },
         },
         {
+          $lookup: {
+            from: "users",
+            localField: "followers",
+            foreignField: "_id",
+            as: "followers",
+          },
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "following",
+            foreignField: "_id",
+            as: "following",
+          },
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "friends",
+            foreignField: "_id",
+            as: "friends",
+          },
+        },
+        {
           $project: {
             _id: 1,
             clerkId: 1,
@@ -202,6 +226,12 @@ module.exports = {
             socialLinks: 1,
             subscription: 1,
             assignedCalls: 1,
+            interests: 1,
+            privacySettings: 1,
+            education: 1,
+            gender: 1,
+            phoneNumber: 1,
+            occupation: 1,
           },
         },
       ]);
@@ -209,6 +239,7 @@ module.exports = {
         console.error(`User with ID ${userId} not found.`);
         throw new Error("User not found");
       }
+
       return user;
     } catch (error) {
       console.error("Error fetching user:", error);
@@ -222,38 +253,30 @@ module.exports = {
       const {
         bio,
         location,
-        coverImage,
+        coverPhoto: coverImage,
         dateOfBirth,
         picture,
         interests,
         socialLinks,
+        phoneNumber,
+        occupation,
+        education,
+        gender,
         privacySettings,
       } = profileData;
-
-      console.log(userId, "userId");
-      console.log(picture, "picture");
-      const clerkProfileImageUpload = await fetch(
-        `https://api.clerk.com/v1/users/${userId}/profile_image`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${process.env.CLERK_SECRET_KEY}`,
-          },
-          body: JSON.stringify({ image_url: picture }),
-        }
-      );
-
-      console.log(clerkProfileImageUpload, "clerkProfileImageUpload");
-
       const updatedUser = await User.findByIdAndUpdate(
         userId,
         {
           $set: {
             ...(bio && { bio }),
+            ...(picture && { picture }),
             ...(location && { location }),
             ...(coverImage && { coverImage }),
             ...(dateOfBirth && { dateOfBirth }),
+            ...(phoneNumber && { phoneNumber }),
+            ...(occupation && { occupation }),
+            ...(education && { education }),
+            ...(gender && { gender }),
             ...(interests && { interests }),
             ...(socialLinks && { socialLinks }),
             ...(privacySettings && { privacySettings }),

@@ -282,6 +282,7 @@ module.exports = {
   updateProfileController: asyncHandler(async (req, res) => {
     const userId = req.user.dbUser._id;
     const profileData = req.body;
+    console.log(profileData);
 
     console.log(userId);
 
