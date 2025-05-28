@@ -137,6 +137,10 @@ const sendFriendRequest = asyncHandler(async (req, res) => {
 const acceptFriendRequest = asyncHandler(async (req, res) => {
   const { requestId } = req.params;
 
+  console.log(requestId);
+
+  console.log("request for accepting");
+
   try {
     const request = await FriendRequest.findById(requestId).populate(
       "receiverId senderId"
