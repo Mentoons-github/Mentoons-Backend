@@ -533,6 +533,11 @@ const cancelFriendRequest = asyncHandler(async (req, res) => {
   const { friendId } = req.params;
 
   try {
+    const user = await User.findById(userId).select("name");
+
+    if (!user) {
+      return errorResponse(res, 404, "User not found");
+    }
     const updatedRequest = await FriendRequest.findOneAndUpdate(
       {
         senderId: userId,
@@ -541,6 +546,16 @@ const cancelFriendRequest = asyncHandler(async (req, res) => {
       },
       { $set: { status: "cancelled" } },
       { new: true }
+    );
+    await deleteNotificationHelper(friendId, userId, "friend_request");
+
+    await createNotification(
+      friendId,
+      "friend_request_rejected",
+      `${user.name} has cancelled the friend request.`,
+      userId,
+      updatedRequest._id.toString(),
+      "FriendRequest"
     );
 
     if (!updatedRequest) {
@@ -716,6 +731,8 @@ const followBackUser = asyncHandler(async (req, res) => {
 
     const sender = await User.findById(senderId);
     console.log("Sender details for notification:", sender);
+
+    await deleteNotificationHelper(receiverId, senderId, "friend_request");
 
     await createNotification(
       receiverId,

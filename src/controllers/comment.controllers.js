@@ -2,19 +2,13 @@ const Comment = require("../models/comment");
 const Post = require("../models/post");
 const Meme = require("../models/adda/meme");
 const User = require("../models/user");
+const Notification = require("../models/adda/notification");
 
-/**
- * Create a new comment
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- */
 const createComment = async (req, res) => {
   try {
     const { content, postId, memeId, parentCommentId, mentions, media } =
       req.body;
     const userId = req.user.dbUser._id;
-
-    // Validate that either postId or memeId is provided, but not both
 
     const user = await User.findById({ _id: userId });
     console.log(user);
@@ -103,6 +97,18 @@ const createComment = async (req, res) => {
         $inc: { commentCount: 1 },
         $push: { comments: savedComment._id },
       });
+    }
+
+    if (target.user && !target.user.equals(userId)) {
+      const notification = new Notification({
+        userId: target.user,
+        initiatorId: userId,
+        type: "comment",
+        message: `Your ${postId ? "post" : "meme"} received a new comment.`,
+        referenceId: savedComment._id,
+        referenceModel: "Comment",
+      });
+      await notification.save();
     }
 
     res.status(201).json({
@@ -381,6 +387,18 @@ const likeComment = async (req, res) => {
     comment.likes.push(userId);
     await comment.save();
 
+    if (comment.user && !comment.user.equals(userId)) {
+      const notification = new Notification({
+        userId: comment.user,
+        initiatorId: userId,
+        type: "like",
+        message: "Your comment was liked.",
+        referenceId: comment._id,
+        referenceModel: "Comment",
+      });
+      await notification.save();
+    }
+
     res.status(200).json({
       success: true,
       message: "Comment liked successfully",
@@ -422,6 +440,14 @@ const unlikeComment = async (req, res) => {
     // Remove user from likes array
     comment.likes = comment.likes.filter((like) => !like.equals(userId));
     await comment.save();
+
+    await Notification.findOneAndDelete({
+      userId: comment.user,
+      initiatorId: userId,
+      type: "like",
+      referenceId: comment._id,
+      referenceModel: "Comment",
+    });
 
     res.status(200).json({
       success: true,

@@ -46,6 +46,7 @@ const deleteNotificationHelper = async (userId, initiatorId, type) => {
       initiatorId,
       type,
     });
+
     return true;
   } catch (err) {
     console.log(err);
