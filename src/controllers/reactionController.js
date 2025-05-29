@@ -1,6 +1,5 @@
 const Reaction = require("../models/Reaction");
 
-
 /**
  * Controller functions for handling reactions
  */
@@ -34,17 +33,50 @@ const reactionController = {
         return res.status(400).json({ message: "Invalid reaction type" });
       }
 
-      // Upsert the reaction (create or update)
       await Reaction.findOneAndUpdate(
         { userId, contentType: type, contentId: id },
         { reactionType },
         { upsert: true, new: true }
       );
 
-      // Get updated reaction counts
       const reactionCounts = await Reaction.getReactionCounts(type, id);
 
-      // Return success response with updated counts
+      let contentDoc;
+      let referenceModel;
+
+      if (type === "post") {
+        contentDoc = await Post.findById(id).populate("user", "name");
+        referenceModel = "Post";
+      } else if (type === "meme") {
+        contentDoc = await Meme.findById(id).populate("user", "name");
+        referenceModel = "Meme";
+      } else {
+        return res.status(400).json({ message: "Unsupported content type" });
+      }
+
+      if (!contentDoc) {
+        return res.status(404).json({ message: `${type} not found` });
+      }
+
+      const initiatorUser = await User.findById(userId);
+      const initiatorName = initiatorUser?.name || "Someone";
+
+      if (String(contentDoc.user._id) !== String(userId)) {
+        const action =
+          reactionType === "like" ? "liked" : `reacted (${reactionType}) to`;
+
+        const message = `${initiatorName} ${action} your ${type}.`;
+
+        await Notification.create({
+          userId: contentDoc.user._id,
+          initiatorId: userId,
+          type: "like",
+          message,
+          referenceId: id,
+          referenceModel,
+        });
+      }
+
       return res.status(200).json({
         message: "Reaction added successfully",
         reactionCounts,
