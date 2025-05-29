@@ -1,6 +1,8 @@
 const meme = require("../models/adda/meme");
+const Notification = require("../models/adda/notification");
 const post = require("../models/post");
 const Reaction = require("../models/Reaction");
+const User = require("../models/user");
 
 /**
  * Controller functions for handling reactions
