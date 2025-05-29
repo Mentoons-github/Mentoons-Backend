@@ -67,7 +67,7 @@ const reactionController = {
 
         const message = `${initiatorName} ${action} your ${type}.`;
 
-        await Notification.create({
+        const noti = await Notification.create({
           userId: contentDoc.user._id,
           initiatorId: userId,
           type: "like",
@@ -75,6 +75,8 @@ const reactionController = {
           referenceId: id,
           referenceModel,
         });
+
+        console.log("notification created :", noti);
       }
 
       return res.status(200).json({
