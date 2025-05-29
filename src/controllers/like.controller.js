@@ -1,18 +1,13 @@
 const Like = require("../models/like");
 const Post = require("../models/post");
 const Meme = require("../models/adda/meme");
+const Notification = require("../models/adda/notification");
 
-/**
- * Create a new like (for post or meme)
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- */
 const createLike = async (req, res) => {
   try {
-    const { type, id } = req.body; // type: 'post' or 'meme', id: postId or memeId
+    const { type, id } = req.body;
     const userId = req.user.dbUser._id;
 
-    // Validate type
     if (type !== "post" && type !== "meme") {
       return res.status(400).json({
         success: false,
@@ -20,7 +15,6 @@ const createLike = async (req, res) => {
       });
     }
 
-    // Find the target document (post or meme)
     let targetModel = type === "post" ? Post : Meme;
     const targetDoc = await targetModel.findById(id);
 
@@ -31,7 +25,6 @@ const createLike = async (req, res) => {
       });
     }
 
-    // Check if like already exists
     const existingLike = await Like.findLike(userId, type, id);
     if (existingLike) {
       return res.status(400).json({
@@ -40,14 +33,12 @@ const createLike = async (req, res) => {
       });
     }
 
-    // Create new like in the Like collection
     const newLike = new Like({
       user: userId,
       [type]: id,
     });
     await newLike.save();
 
-    // Update the target document based on type
     if (type === "post") {
       await Post.findByIdAndUpdate(id, {
         $push: { likes: userId },
@@ -57,6 +48,18 @@ const createLike = async (req, res) => {
         $push: { likes: userId },
         $inc: { likeCount: 1 },
       });
+    }
+
+    if (targetDoc.user && !targetDoc.user.equals(userId)) {
+      const notification = new Notification({
+        userId: targetDoc.user,
+        initiatorId: userId,
+        type: "like",
+        message: `Your ${type} was liked.`,
+        referenceId: id,
+        referenceModel: type === "post" ? "Post" : "Meme",
+      });
+      await notification.save();
     }
 
     res.status(201).json({
@@ -75,17 +78,11 @@ const createLike = async (req, res) => {
   }
 };
 
-/**
- * Delete a like (unlike) for post or meme
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- */
 const deleteLike = async (req, res) => {
   try {
-    const { type, id } = req.body; // type: 'post' or 'meme', id: postId or memeId
+    const { type, id } = req.body;
     const userId = req.user.dbUser._id;
 
-    // Validate type
     if (type !== "post" && type !== "meme") {
       return res.status(400).json({
         success: false,
@@ -93,7 +90,6 @@ const deleteLike = async (req, res) => {
       });
     }
 
-    // Find the target document (post or meme)
     let targetModel = type === "post" ? Post : Meme;
     const targetDoc = await targetModel.findById(id);
 
@@ -104,7 +100,6 @@ const deleteLike = async (req, res) => {
       });
     }
 
-    // Find and remove the like
     const deletedLike = await Like.findOneAndDelete({
       user: userId,
       [type]: id,
@@ -116,7 +111,6 @@ const deleteLike = async (req, res) => {
         .json({ success: false, message: "Like not found" });
     }
 
-    // Update the target document based on type
     if (type === "post") {
       await Post.findByIdAndUpdate(id, {
         $pull: { likes: userId },
@@ -127,6 +121,13 @@ const deleteLike = async (req, res) => {
         $inc: { likeCount: -1 },
       });
     }
+    await Notification.findOneAndDelete({
+      userId: targetDoc.user,
+      initiatorId: userId,
+      type: "like",
+      referenceId: id,
+      referenceModel: type === "post" ? "Post" : "Meme",
+    });
 
     res
       .status(200)
@@ -136,14 +137,9 @@ const deleteLike = async (req, res) => {
   }
 };
 
-/**
- * Get all likes for a post or meme
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- */
 const getLikesByTarget = async (req, res) => {
   try {
-    const { type, id } = req.query; // type: 'post' or 'meme', id: postId or memeId
+    const { type, id } = req.query;
     const { page = 1, limit = 10 } = req.query;
 
     let targetDoc;
@@ -187,11 +183,6 @@ const getLikesByTarget = async (req, res) => {
   }
 };
 
-/**
- * Check if user has liked a post or meme
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- */
 const checkLike = async (req, res) => {
   try {
     const { type, id } = req.query;
