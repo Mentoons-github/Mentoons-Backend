@@ -1,5 +1,6 @@
 const dotenv = require("dotenv");
 dotenv.config();
+const Feed = require("../models/feed");
 const messageHelper = require("../utils/messageHelper");
 const { errorResponse, successResponse } = require("../utils/responseHelper");
 const asyncHandler = require("../utils/asyncHandler");
@@ -539,5 +540,106 @@ module.exports = {
     );
 
     return res.status(200).json({ data: friends });
+  }),
+
+  blockUser: asyncHandler(async (req, res) => {
+    const { userId: targetUserId } = req.body;
+    const requesterId = req.user;
+
+    console.log("🔒 Block request initiated", { requesterId, targetUserId });
+
+    if (!targetUserId) {
+      res.status(400);
+      throw new Error("Target user ID is required");
+    }
+
+    if (targetUserId === requesterId) {
+      res.status(400);
+      throw new Error("You cannot block yourself");
+    }
+
+    const [targetUser, requester] = await Promise.all([
+      User.findById(targetUserId),
+      User.findById(requesterId),
+    ]);
+
+    if (!targetUser || !requester) {
+      res.status(404);
+      throw new Error("One or both users not found");
+    }
+
+    if (requester.blockedUsers.includes(targetUserId)) {
+      res.status(400);
+      throw new Error("User already blocked");
+    }
+
+    requester.blockedUsers.push(targetUserId);
+    await requester.save();
+
+    await Feed.findOneAndUpdate(
+      { user: requesterId },
+      { $addToSet: { blockedUsers: targetUserId } },
+      { upsert: true }
+    );
+
+    console.log(
+      `✅ ${targetUser.username || targetUserId} blocked by ${requesterId}`
+    );
+
+    res.status(200).json({
+      success: true,
+      message: `Blocked user ${targetUser.username || targetUserId}`,
+    });
+  }),
+
+  unblockUser: asyncHandler(async (req, res) => {
+    const { userId: targetUserId } = req.body;
+    const requesterId = req.user;
+
+    console.log("🔓 Unblock request initiated", { requesterId, targetUserId });
+
+    if (!targetUserId) {
+      res.status(400);
+      throw new Error("Target user ID is required");
+    }
+
+    if (targetUserId === requesterId) {
+      res.status(400);
+      throw new Error("You cannot unblock yourself");
+    }
+
+    const [targetUser, requester] = await Promise.all([
+      User.findById(targetUserId),
+      User.findById(requesterId),
+    ]);
+
+    if (!targetUser || !requester) {
+      res.status(404);
+      throw new Error("One or both users not found");
+    }
+
+    if (!requester.blockedUsers.includes(targetUserId)) {
+      res.status(400);
+      throw new Error("User is not blocked");
+    }
+
+    requester.blockedUsers = requester.blockedUsers.filter(
+      (id) => id.toString() !== targetUserId.toString()
+    );
+    await requester.save();
+
+    await Feed.findOneAndUpdate(
+      { user: requesterId },
+      { $pull: { blockedUsers: targetUserId } }
+    );
+
+    console.log(
+      `✅ ${targetUser.username || targetUserId} unblocked by ${requesterId}`
+    );
+
+    res.status(200).json({
+      success: true,
+      message: `Unblocked user ${targetUser.username || targetUserId}`,
+    });
   }),
 };

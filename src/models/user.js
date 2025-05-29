@@ -164,6 +164,12 @@ const UserSchema = new mongoose.Schema(
         },
       },
     },
+    blockedUsers: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
     activeSession: {
       type: Date,
       required: true,

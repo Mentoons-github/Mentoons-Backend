@@ -19,9 +19,12 @@ const {
   getUserProfile,
   searchFriend,
   getFriends,
+  blockUser,
+  unblockUser,
 } = require("../controllers/userController.js");
 const { isSuperAdminOrAdmin } = require("../middlewares/authMiddleware.js");
 const { conditionalAuth } = require("../middlewares/auth.middleware.js");
+const verifyToken = require("../middlewares/addaMiddleware.js");
 
 const router = express.Router();
 router.post("/register", registerController);
@@ -49,5 +52,9 @@ router.get("/friend/:friendId", conditionalAuth, getUserProfile);
 
 //search
 router.get("/search-friend", conditionalAuth, searchFriend);
+
+//block and unblock
+router.post("/block", verifyToken, blockUser)
+router.post("/unblock", verifyToken, unblockUser)
 
 module.exports = router;

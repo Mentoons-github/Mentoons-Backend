@@ -30,10 +30,10 @@ const {
   deleteStatus,
 } = require("../controllers/adda/status");
 const { Verification } = require("@clerk/clerk-sdk-node");
-const { conditionalAuth } = require("../middlewares/auth.middleware");
 const {
   markAllNotificationsRead,
 } = require("../controllers/adda/notification");
+const { reportUserPost } = require("../controllers/adda/report");
 
 const addaRouter = express.Router();
 
@@ -83,5 +83,9 @@ addaRouter.patch(
   verifyToken,
   markAllNotificationsRead
 );
+
+//Report
+
+addaRouter.post("/report-user", verifyToken, reportUserPost);
 
 module.exports = addaRouter;
