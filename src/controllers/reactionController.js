@@ -1,3 +1,5 @@
+const meme = require("../models/adda/meme");
+const post = require("../models/post");
 const Reaction = require("../models/Reaction");
 
 /**
@@ -45,10 +47,10 @@ const reactionController = {
       let referenceModel;
 
       if (type === "post") {
-        contentDoc = await Post.findById(id).populate("user", "name");
+        contentDoc = await post.findById(id).populate("user", "name");
         referenceModel = "Post";
       } else if (type === "meme") {
-        contentDoc = await Meme.findById(id).populate("user", "name");
+        contentDoc = await meme.findById(id).populate("user", "name");
         referenceModel = "Meme";
       } else {
         return res.status(400).json({ message: "Unsupported content type" });
