@@ -62,7 +62,7 @@ const reactionController = {
         return res.status(404).json({ message: `${type} not found` });
       }
 
-      const initiatorUser = await User.findById(userId);
+      const initiatorUser = await User.findOne({ clerkId: userId });
       const initiatorName = initiatorUser?.name || "Someone";
 
       if (String(contentDoc.user._id) !== String(userId)) {
@@ -73,7 +73,7 @@ const reactionController = {
 
         const noti = await Notification.create({
           userId: contentDoc.user._id,
-          initiatorId: userId,
+          initiatorId: initiatorUser._id,
           type: "like",
           message,
           referenceId: id,
