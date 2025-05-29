@@ -60,6 +60,8 @@ const createLike = async (req, res) => {
         referenceModel: type === "post" ? "Post" : "Meme",
       });
       await notification.save();
+
+      console.log("notification created : ", notification);
     }
 
     res.status(201).json({
