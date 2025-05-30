@@ -1,4 +1,13 @@
-const { Product } = require("../models/product.js");
+const FriendRequest = require("../models/adda/friendRequest.js");
+const {
+  Product,
+  AudioComic,
+  Podcast,
+  Comic,
+  MentoonsCard,
+  MentoonsBook,
+} = require("../models/product.js");
+const User = require("../models/user.js");
 
 // GET /api/products
 const getProducts = async (req, res, next) => {
@@ -108,6 +117,7 @@ const getAllProducts = async (req, res, next) => {
 
 // GET /api/products/:id
 const getProductById = async (req, res, next) => {
+  console.log("reached productId");
   try {
     const { id } = req.params;
     const product = await Product.findById(id);
@@ -179,6 +189,129 @@ const deleteProduct = async (req, res, next) => {
   }
 };
 
+const getMatchingAgeCategory = (age, categories) => {
+  for (const category of categories) {
+    if (category === "20+" && age >= 20) return category;
+    const [min, max] = category.split("-").map(Number);
+    if (!isNaN(min) && !isNaN(max) && age >= min && age <= max) {
+      return category;
+    }
+  }
+  return null;
+};
+
+const globalSearch = async (req, res) => {
+  const { search } = req.query;
+
+  const userId = req.user.dbUser._id;
+
+  console.log("userId:", userId);
+
+  if (!search || search.trim() === "") {
+    return res.status(400).json({ error: "Search query is required." });
+  }
+
+  try {
+    // Age ranges in your system
+    const ageRanges = ["6-12", "13-16", "16-19", "20+"];
+    const ageFromQuery = parseInt(search.match(/\d+/)?.[0], 10);
+    const matchedAgeCategory = !isNaN(ageFromQuery)
+      ? getMatchingAgeCategory(ageFromQuery, ageRanges)
+      : null;
+
+    // Remove age number from search if found
+    let searchText = search;
+    if (matchedAgeCategory && !isNaN(ageFromQuery)) {
+      searchText = search.replace(ageFromQuery.toString(), "").trim();
+    }
+
+    const textFilter = searchText
+      ? {
+          $or: [
+            { title: { $regex: searchText, $options: "i" } },
+            { tags: { $regex: searchText, $options: "i" } },
+          ],
+        }
+      : {};
+
+    // Helper to build product filters
+    const buildFilter = () => {
+      if (matchedAgeCategory) {
+        return { ...textFilter, ageCategory: matchedAgeCategory };
+      }
+      return textFilter;
+    };
+
+    // Fetch products in parallel
+    const [audioComics, podcasts, comics, mentoonsCards, mentoonsBooks] =
+      await Promise.all([
+        AudioComic.find(buildFilter()).limit(10),
+        Podcast.find(buildFilter()).limit(10),
+        Comic.find(buildFilter()).limit(10),
+        MentoonsCard.find(buildFilter()).limit(10),
+        MentoonsBook.find(buildFilter()).limit(10),
+      ]);
+
+    // Search users by name or email
+    const matchedUsers = await User.find({
+      name: { $regex: searchText, $options: "i" },
+    }).limit(10);
+
+    // Calculate follow status for each user
+    const enhancedUsers = await Promise.all(
+      matchedUsers.map(async (user) => {
+        if (user._id.equals(userId)) {
+          return { ...user.toObject(), followStatus: "self" };
+        }
+
+        const isFollowing = await User.exists({
+          _id: userId,
+          following: user._id,
+        });
+
+        const isFollower = await User.exists({
+          _id: user._id,
+          following: userId,
+        });
+
+        const isFriend = await User.exists({
+          _id: userId,
+          friends: user._id,
+        });
+
+        const hasRequest = await FriendRequest.exists({
+          senderId: userId,
+          receiverId: user._id,
+        });
+
+        let followStatus = "connect";
+        if (isFriend) followStatus = "friend";
+        else if (isFollowing && isFollower) followStatus = "friend";
+        else if (isFollowing) followStatus = "following";
+        else if (isFollower) followStatus = "follow back";
+        else if (hasRequest) followStatus = "pending";
+
+        return {
+          ...user.toObject(),
+          followStatus,
+        };
+      })
+    );
+
+    return res.status(200).json({
+      audioComics,
+      podcasts,
+      comics,
+      mentoonsCards,
+      mentoonsBooks,
+      users: enhancedUsers,
+    });
+  } catch (err) {
+    console.error("Search Error:", err);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 module.exports = {
   createProduct,
   deleteProduct,
@@ -186,4 +319,5 @@ module.exports = {
   getProducts,
   getAllProducts,
   updateProduct,
+  globalSearch,
 };
