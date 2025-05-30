@@ -6,7 +6,9 @@ const {
   getProducts,
   updateProduct,
   getAllProducts,
+  globalSearch,
 } = require("../controllers/product.controller");
+const { conditionalAuth } = require("../middlewares/auth.middleware");
 
 const router = express.Router();
 
@@ -15,6 +17,8 @@ router.post("/", createProduct);
 
 // GET /api/products -> list with search, sort, pagination
 router.get("/", getProducts);
+
+router.get("/search", conditionalAuth, globalSearch);
 
 router.get("/all", getAllProducts);
 
