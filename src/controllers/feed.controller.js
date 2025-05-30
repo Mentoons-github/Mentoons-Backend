@@ -84,6 +84,21 @@ const getUserFeed = async (req, res) => {
             select: "content createdAt user likes replies media",
             options: { limit: 3 },
           },
+          {
+            path: "like",
+            populate: { path: "user", select: "email picture name" },
+            select: "user",
+          },
+          {
+            path: "reactions",
+            populate: { path: "user", select: "email picture name" },
+            select: "user",
+          },
+          {
+            path: "shares",
+            populate: { path: "user", select: "email picture name" },
+            select: "user",
+          },
         ]);
 
         return res.status(200).json({

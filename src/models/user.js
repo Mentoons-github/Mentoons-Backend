@@ -189,6 +189,59 @@ const UserSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Auto-update subscription status middleware
+// This runs before any find query
+UserSchema.pre("find", async function () {
+  const now = new Date();
+
+  // First update any expired subscriptions in the database
+  await mongoose.model("User").updateMany(
+    {
+      "subscription.validUntil": { $lt: now },
+      "subscription.status": "active",
+    },
+    {
+      $set: {
+        "subscription.status": "cancelled",
+        "subscription.plan": "free",
+      },
+    }
+  );
+});
+
+// Also run before findOne, findById, etc.
+UserSchema.pre("findOne", async function () {
+  const now = new Date();
+
+  await mongoose.model("User").updateMany(
+    {
+      "subscription.validUntil": { $lt: now },
+      "subscription.status": "active",
+    },
+    {
+      $set: {
+        "subscription.status": "cancelled",
+        "subscription.plan": "free",
+      },
+    }
+  );
+});
+
+// Pre-save hook to ensure subscription status is correct before saving
+UserSchema.pre("save", function (next) {
+  const now = new Date();
+
+  if (
+    now > this.subscription.validUntil &&
+    this.subscription.status === "active"
+  ) {
+    this.subscription.status = "cancelled";
+    this.subscription.plan = "free";
+  }
+
+  next();
+});
+
 const User = mongoose.model("User", UserSchema);
 
 module.exports = User;
