@@ -15,7 +15,7 @@ const reactionController = {
   addReaction: async (req, res) => {
     try {
       const { type, id, reactionType = "like" } = req.body;
-      const userId = req.user.id; // Assumes authentication middleware sets req.user
+      const user = req.user.dbUser.id; // Assumes authentication middleware sets req.user
 
       // Validate input
       if (!type || !id) {
@@ -38,7 +38,7 @@ const reactionController = {
       }
 
       await Reaction.findOneAndUpdate(
-        { userId, contentType: type, contentId: id },
+        { user: user, contentType: type, contentId: id },
         { reactionType },
         { upsert: true, new: true }
       );
@@ -103,7 +103,7 @@ const reactionController = {
   removeReaction: async (req, res) => {
     try {
       const { type, id } = req.body;
-      const userId = req.user.id; // Assumes authentication middleware
+      const user = req.user.dbUser.id; // Assumes authentication middleware
 
       // Validate input
       if (!type || !id) {
@@ -114,7 +114,7 @@ const reactionController = {
 
       // Remove the reaction
       await Reaction.findOneAndDelete({
-        userId,
+        user: user,
         contentType: type,
         contentId: id,
       });
@@ -143,7 +143,7 @@ const reactionController = {
   checkReaction: async (req, res) => {
     try {
       const { type, id } = req.query;
-      const userId = req.user.id; // Assumes authentication middleware
+      const user = req.user.dbUser.id; // Assumes authentication middleware
 
       // Validate input
       if (!type || !id) {
@@ -153,7 +153,7 @@ const reactionController = {
       }
 
       // Get the user's reaction if any
-      const userReaction = await Reaction.getUserReaction(userId, type, id);
+      const userReaction = await Reaction.getUserReaction(user, type, id);
 
       // Get reaction counts
       const reactionCounts = await Reaction.getReactionCounts(type, id);
@@ -197,7 +197,8 @@ const reactionController = {
         contentType: type,
         contentId: id,
       })
-        .select("userId reactionType createdAt")
+        .select("user reactionType createdAt")
+        .populate("user", "email picture name")
         .sort("-createdAt");
 
       // Get reaction counts

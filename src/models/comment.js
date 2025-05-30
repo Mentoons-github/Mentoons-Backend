@@ -43,6 +43,12 @@ const CommentSchema = new Schema(
         ref: "User",
       },
     ],
+    reactions: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Reaction",
+      },
+    ],
     replies: [
       {
         type: Schema.Types.ObjectId,

@@ -11,7 +11,7 @@ const {
 } = require("../../controllers/adda/memeFeed.controller");
 
 // Get user's meme feed
-router.get("/", conditionalAuth, getUserFeed);
+router.get("/", getUserFeed);
 
 // Get user's saved memes
 router.get("/saved", conditionalAuth, getSavedMemes);

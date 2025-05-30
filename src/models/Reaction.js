@@ -7,8 +7,9 @@ const mongoose = require("mongoose");
 const reactionSchema = new mongoose.Schema(
   {
     // User who made the reaction
-    userId: {
-      type: String,
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
       required: true,
       index: true,
     },
@@ -55,7 +56,7 @@ const reactionSchema = new mongoose.Schema(
 
 // Create a compound index for efficient querying of reactions
 reactionSchema.index(
-  { userId: 1, contentType: 1, contentId: 1 },
+  { user: 1, contentType: 1, contentId: 1 },
   { unique: true }
 );
 
@@ -103,12 +104,12 @@ reactionSchema.statics.getReactionCounts = async function (
  * Static method to check if a user has reacted to a piece of content
  */
 reactionSchema.statics.getUserReaction = async function (
-  userId,
+  user,
   contentType,
   contentId
 ) {
   const reaction = await this.findOne({
-    userId,
+    user,
     contentType,
     contentId: contentId.toString(),
   });

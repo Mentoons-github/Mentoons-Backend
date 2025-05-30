@@ -10,148 +10,213 @@ const mongoose = require("mongoose");
  */
 const getUserFeed = async (req, res) => {
   try {
-    const userId = req.user.dbUser._id;
     const { page = 1, limit = 10 } = req.query;
-
-    // Find or create feed for user
-    let feed = await MemeFeed.findOne({ user: userId });
-    console.log(feed);
-    console.log(userId);
-
-    if (!feed) {
-      feed = new MemeFeed({ user: userId });
-      await feed.save();
-
-      // Populate feed with recent public memes
-      const recentMemes = await Meme.find({ visibility: "public" })
-        .sort({ createdAt: -1 })
-        .limit(20);
-
-      if (recentMemes.length > 0) {
-        feed.memes = recentMemes.map((meme) => meme._id);
-        await feed.save();
-      }
-    }
-
-    // If feed is empty, populate it with recent public memes
-    if (!feed.memes || feed.memes.length === 0) {
-      const recentMemes = await Meme.find({ visibility: "public" })
-        .sort({ createdAt: -1 })
-        .limit(20);
-
-      if (recentMemes.length > 0) {
-        feed.memes = recentMemes.map((meme) => meme._id);
-        await feed.save();
-      }
-    }
-
-    // Check for new memes that aren't in the feed yet
-    const lastFeedUpdate = feed.updatedAt || feed.createdAt;
-    const newMemes = await Meme.find({
-      visibility: "public",
-      createdAt: { $gt: lastFeedUpdate }
-    }).sort({ createdAt: -1 });
-
-    // Add new memes to the feed
-    if (newMemes.length > 0) {
-      const newMemeIds = newMemes.map(meme => meme._id);
-      feed.memes = [...newMemeIds, ...feed.memes];
-      await feed.save();
-    }
-
-    // Prepare query to get feed memes
-    const feedQuery = {
-      _id: { $in: feed.memes },
-    };
-
-    // Filter by content types if specified in preferences
-    if (feed.preferences?.contentTypes?.length > 0) {
-      feedQuery.tags = { $in: feed.preferences.contentTypes };
-    }
+    console.log("req user found :", !!req.user);
 
     // Set up sorting and filters
     const sortOptions = { createdAt: -1 };
 
-    // Prioritize memes from followed users if enabled
-    if (
-      feed.preferences?.prioritizeFollowing &&
-      feed.followingUsers?.length > 0
-    ) {
-      sortOptions.userFollowed = -1;
+    // Handle logged in users
+    if (req.user && req.user.dbUser) {
+      const userId = req.user.dbUser._id;
 
-      const memes = await Meme.aggregate([
-        {
-          $addFields: {
-            userFollowed: {
-              $cond: [
-                {
-                  $in: [
-                    "$user",
-                    feed.followingUsers.map((id) =>
-                      mongoose.Types.ObjectId(id)
-                    ),
-                  ],
-                },
-                1,
-                0,
-              ],
+      // Find or create feed for user
+      let feed = await MemeFeed.findOne({ user: userId });
+
+      if (!feed) {
+        feed = new MemeFeed({ user: userId });
+        await feed.save();
+
+        // Populate feed with recent public memes
+        const recentMemes = await Meme.find({ visibility: "public" })
+          .sort({ createdAt: -1 })
+          .limit(20);
+
+        if (recentMemes.length > 0) {
+          feed.memes = recentMemes.map((meme) => meme._id);
+          await feed.save();
+        }
+      }
+
+      // If feed is empty, populate it with recent public memes
+      if (!feed.memes || feed.memes.length === 0) {
+        const recentMemes = await Meme.find({ visibility: "public" })
+          .sort({ createdAt: -1 })
+          .limit(20);
+
+        if (recentMemes.length > 0) {
+          feed.memes = recentMemes.map((meme) => meme._id);
+          await feed.save();
+        }
+      }
+
+      // Update lastViewedAt timestamp
+      feed.lastViewedAt = Date.now();
+      await feed.save();
+
+      // Check for new memes that aren't in the feed yet
+      const lastFeedUpdate = feed.updatedAt || feed.createdAt;
+      const newMemes = await Meme.find({
+        visibility: "public",
+        createdAt: { $gt: lastFeedUpdate },
+      }).sort({ createdAt: -1 });
+
+      // Add new memes to the feed
+      if (newMemes.length > 0) {
+        const newMemeIds = newMemes.map((meme) => meme._id);
+        feed.memes = [...newMemeIds, ...feed.memes];
+        await feed.save();
+      }
+
+      // Prepare query to get feed memes
+      const feedQuery = {
+        $and: [
+          { _id: { $in: feed.memes } },
+          { user: { $nin: feed.blockedUsers || [] } },
+        ],
+      };
+
+      // Filter by content types if specified in preferences
+      if (feed.preferences?.contentTypes?.length > 0) {
+        feedQuery.$and.push({ tags: { $in: feed.preferences.contentTypes } });
+      }
+
+      // Prioritize memes from followed users if enabled
+      if (
+        feed.preferences?.prioritizeFollowing &&
+        feed.followingUsers?.length > 0
+      ) {
+        console.log("followers found in feed");
+        console.log(feed.followingUsers);
+
+        const followedUserIds = feed.followingUsers.map(
+          (id) => new mongoose.Types.ObjectId(id)
+        );
+
+        const followedMemes = await Meme.aggregate([
+          {
+            $match: {
+              user: { $in: followedUserIds },
+              _id: {
+                $in: feed.memes.map((id) => new mongoose.Types.ObjectId(id)),
+              },
+              user: { $nin: feed.blockedUsers || [] },
             },
           },
-        },
-        { $match: feedQuery },
-        { $sort: sortOptions },
-        { $skip: (parseInt(page, 10) - 1) * parseInt(limit, 10) },
-        { $limit: parseInt(limit, 10) },
-      ]);
+          {
+            $addFields: { userFollowed: 1 },
+          },
+          { $sort: sortOptions },
+        ]);
 
-      const populatedMemes = await Meme.populate(memes, [
-        { path: "user" },
-        {
-          path: "comments",
-          populate: { path: "user" },
-        },
-      ]);
+        const otherMemes = await Meme.aggregate([
+          {
+            $match: {
+              visibility: "public",
+              user: { $nin: followedUserIds },
+              _id: {
+                $in: feed.memes.map((id) => new mongoose.Types.ObjectId(id)),
+              },
+              user: { $nin: feed.blockedUsers || [] },
+            },
+          },
+          {
+            $addFields: { userFollowed: 0 },
+          },
+          { $sort: sortOptions },
+        ]);
 
-      console.log(populatedMemes);
+        const combinedMemes = [...followedMemes, ...otherMemes];
+        const startIndex = (parseInt(page, 10) - 1) * parseInt(limit, 10);
+        const paginatedMemes = combinedMemes.slice(
+          startIndex,
+          startIndex + parseInt(limit, 10)
+        );
+
+        const populatedMemes = await Meme.populate(paginatedMemes, [
+          { path: "user" },
+          {
+            path: "comments",
+            populate: { path: "user" },
+            options: { limit: 3 },
+          },
+        ]);
+
+        return res.status(200).json({
+          success: true,
+          data: populatedMemes,
+          pagination: {
+            page: parseInt(page, 10),
+            limit: parseInt(limit, 10),
+            hasMore: combinedMemes.length > startIndex + parseInt(limit, 10),
+          },
+        });
+      } else {
+        console.log("followers not found in feed");
+
+        // Standard pagination
+        const options = {
+          page: parseInt(page, 10),
+          limit: parseInt(limit, 10),
+          sort: sortOptions,
+          populate: [
+            { path: "user" },
+            {
+              path: "comments",
+              populate: { path: "user" },
+              options: { limit: 3 },
+            },
+          ],
+        };
+
+        const memes = await Meme.paginate(feedQuery, options);
+
+        return res.status(200).json({
+          success: true,
+          data: memes.docs,
+          pagination: {
+            total: memes.totalDocs,
+            page: memes.page,
+            pages: memes.totalPages,
+            limit: memes.limit,
+          },
+        });
+      }
+    } else {
+      // For guest users (not logged in)
+      const feedQuery = { visibility: "public" };
+
+      const options = {
+        page: parseInt(page, 10),
+        limit: parseInt(limit, 10),
+        sort: sortOptions,
+        populate: [
+          { path: "user" },
+          {
+            path: "comments",
+            populate: { path: "user" },
+            options: { limit: 3 },
+          },
+        ],
+      };
+
+      const memes = await Meme.paginate(feedQuery, options);
+
+      console.log("Guest user feed generated");
 
       return res.status(200).json({
         success: true,
-        data: populatedMemes,
+        data: memes.docs,
         pagination: {
-          page: parseInt(page, 10),
-          limit: parseInt(limit, 10),
-          hasMore: memes.length === parseInt(limit, 10),
+          total: memes.totalDocs,
+          page: memes.page,
+          pages: memes.totalPages,
+          limit: memes.limit,
         },
       });
     }
-
-    // Standard pagination
-    const options = {
-      page: parseInt(page, 10),
-      limit: parseInt(limit, 10),
-      sort: sortOptions,
-      populate: [
-        { path: "user" },
-        {
-          path: "comments",
-          populate: { path: "user" },
-        },
-      ],
-    };
-
-    const memes = await Meme.paginate(feedQuery, options);
-
-    res.status(200).json({
-      success: true,
-      data: memes.docs,
-      pagination: {
-        total: memes.totalDocs,
-        page: memes.page,
-        pages: memes.totalPages,
-        limit: memes.limit,
-      },
-    });
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       success: false,
       message: error.message,
