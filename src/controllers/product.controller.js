@@ -177,7 +177,6 @@ const updateProduct = async (req, res, next) => {
   }
 };
 
-// DELETE /api/products/:id
 const deleteProduct = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -189,104 +188,158 @@ const deleteProduct = async (req, res, next) => {
   }
 };
 
-const getMatchingAgeCategory = (age, categories) => {
-  for (const category of categories) {
-    if (category === "20+" && age >= 20) return category;
-    const [min, max] = category.split("-").map(Number);
-    if (!isNaN(min) && !isNaN(max) && age >= min && age <= max) {
-      return category;
-    }
+const getMatchingAgeCategory = (age, ageRanges) => {
+  for (let range of ageRanges) {
+    const [min, max] = range.split("-").map(Number);
+    if (!isNaN(max) && age >= min && age <= max) return range;
+    if (isNaN(max) && age >= min) return range;
   }
   return null;
 };
 
 const globalSearch = async (req, res) => {
   const { search } = req.query;
-
   const userId = req.user.dbUser._id;
-
-  console.log("userId:", userId);
 
   if (!search || search.trim() === "") {
     return res.status(400).json({ error: "Search query is required." });
   }
 
   try {
-    // Age ranges in your system
     const ageRanges = ["6-12", "13-16", "16-19", "20+"];
     const ageFromQuery = parseInt(search.match(/\d+/)?.[0], 10);
     const matchedAgeCategory = !isNaN(ageFromQuery)
       ? getMatchingAgeCategory(ageFromQuery, ageRanges)
       : null;
 
-    // Remove age number from search if found
     let searchText = search;
     if (matchedAgeCategory && !isNaN(ageFromQuery)) {
       searchText = search.replace(ageFromQuery.toString(), "").trim();
     }
 
-    const textFilter = searchText
-      ? {
-          $or: [
-            { title: { $regex: searchText, $options: "i" } },
-            { tags: { $regex: searchText, $options: "i" } },
-          ],
-        }
-      : {};
+    const normalizeSearch = (text = "") =>
+      text
+        .toLowerCase()
+        .replace(/[^a-z0-9]/gi, "")
+        .trim();
 
-    // Helper to build product filters
-    const buildFilter = () => {
-      if (matchedAgeCategory) {
-        return { ...textFilter, ageCategory: matchedAgeCategory };
-      }
-      return textFilter;
+    const normalizedSearch = normalizeSearch(searchText);
+
+    // Basic keyword mapping for collections
+    const collectionKeywords = {
+      podcast: ["podcasts"],
+      mentooncard: ["mentoonsCards"],
+      mentoonsbook: ["mentoonsBooks"],
+      book: ["mentoonsBooks"],
+      books: ["mentoonsBooks"],
+      card: ["mentoonsCards"],
+      comic: ["comics", "audioComics"],
+      comics: ["comics", "audioComics"],
+      product: ["products"],
+      products: ["products"],
     };
 
-    // Fetch products in parallel
-    const [audioComics, podcasts, comics, mentoonsCards, mentoonsBooks] =
-      await Promise.all([
-        AudioComic.find(buildFilter()).limit(10),
-        Podcast.find(buildFilter()).limit(10),
-        Comic.find(buildFilter()).limit(10),
-        MentoonsCard.find(buildFilter()).limit(10),
-        MentoonsBook.find(buildFilter()).limit(10),
-      ]);
+    // Determine matched collections based on search query
+    let matchedCollections = [
+      ...new Set(
+        Object.entries(collectionKeywords)
+          .filter(([key]) => normalizedSearch.includes(key))
+          .flatMap(([, collections]) =>
+            Array.isArray(collections) ? collections : [collections]
+          )
+      ),
+    ];
 
-    // Search users by name or email
+    // If no specific collection keywords are matched, search all collections
+    const collectionsToSearch = matchedCollections.length
+      ? matchedCollections
+      : [
+          "audioComics",
+          "podcasts",
+          "comics",
+          "mentoonsCards",
+          "mentoonsBooks",
+          "products",
+        ];
+
+    console.log("🔎 Raw Search Query:", search);
+    console.log("🔤 Normalized:", normalizedSearch);
+    console.log("📁 Collections Matched:", matchedCollections);
+    console.log("📁 Final Collections to Search:", collectionsToSearch);
+    console.log("🧒 Age Category:", matchedAgeCategory);
+
+    // Build filter: If a collection keyword is matched, return all documents in that collection
+    const buildFilter = () => {
+      if (matchedCollections.length > 0) {
+        // If specific collection keywords are matched, only apply age filter if present
+        return matchedAgeCategory ? { ageCategory: matchedAgeCategory } : {};
+      }
+      // Otherwise, apply text and age filters
+      const textFilter = searchText
+        ? {
+            $or: [
+              { title: { $regex: searchText, $options: "i" } },
+              { tags: { $regex: searchText, $options: "i" } },
+            ],
+          }
+        : {};
+      return matchedAgeCategory
+        ? { ...textFilter, ageCategory: matchedAgeCategory }
+        : textFilter;
+    };
+
+    const [
+      audioComics,
+      podcasts,
+      comics,
+      mentoonsCards,
+      mentoonsBooks,
+      products,
+    ] = await Promise.all([
+      collectionsToSearch.includes("audioComics")
+        ? AudioComic.find(buildFilter()).limit(10)
+        : [],
+      collectionsToSearch.includes("podcasts")
+        ? Podcast.find(buildFilter()).limit(10)
+        : [],
+      collectionsToSearch.includes("comics")
+        ? Comic.find(buildFilter()).limit(10)
+        : [],
+      collectionsToSearch.includes("mentoonsCards")
+        ? MentoonsCard.find(buildFilter()).limit(10)
+        : [],
+      collectionsToSearch.includes("mentoonsBooks")
+        ? MentoonsBook.find(buildFilter()).limit(10)
+        : [],
+      collectionsToSearch.includes("products")
+        ? Product.find(buildFilter()).limit(10)
+        : [],
+    ]);
+
+    // User search remains unchanged
     const matchedUsers = await User.find({
       name: { $regex: searchText, $options: "i" },
     }).limit(10);
 
-    // Calculate follow status for each user
     const enhancedUsers = await Promise.all(
       matchedUsers.map(async (user) => {
         if (user._id.equals(userId)) {
           return { ...user.toObject(), followStatus: "self" };
         }
 
-        const isFollowing = await User.exists({
-          _id: userId,
-          following: user._id,
-        });
-
-        const isFollower = await User.exists({
-          _id: user._id,
-          following: userId,
-        });
-
-        const isFriend = await User.exists({
-          _id: userId,
-          friends: user._id,
-        });
-
-        const hasRequest = await FriendRequest.exists({
-          senderId: userId,
-          receiverId: user._id,
-        });
+        const [isFollowing, isFollower, isFriend, hasRequest] =
+          await Promise.all([
+            User.exists({ _id: userId, following: user._id }),
+            User.exists({ _id: user._id, following: userId }),
+            User.exists({ _id: userId, friends: user._id }),
+            FriendRequest.exists({
+              senderId: userId,
+              receiverId: user._id,
+            }),
+          ]);
 
         let followStatus = "connect";
-        if (isFriend) followStatus = "friend";
-        else if (isFollowing && isFollower) followStatus = "friend";
+        if (isFriend || (isFollowing && isFollower)) followStatus = "friend";
         else if (isFollowing) followStatus = "following";
         else if (isFollower) followStatus = "follow back";
         else if (hasRequest) followStatus = "pending";
@@ -298,16 +351,25 @@ const globalSearch = async (req, res) => {
       })
     );
 
+    console.log("🎯 AudioComics:", audioComics.length);
+    console.log("🎯 Podcasts:", podcasts.length);
+    console.log("🎯 Comics:", comics.length);
+    console.log("🎯 MentoonsCards:", mentoonsCards.length);
+    console.log("🎯 MentoonsBooks:", mentoonsBooks.length);
+    console.log("🎯 Products:", products.length);
+    console.log("👥 Users:", enhancedUsers.length);
+
     return res.status(200).json({
       audioComics,
       podcasts,
       comics,
       mentoonsCards,
       mentoonsBooks,
+      products,
       users: enhancedUsers,
     });
   } catch (err) {
-    console.error("Search Error:", err);
+    console.error("❌ Search Error:", err);
     return res.status(500).json({ error: "Internal server error" });
   }
 };
