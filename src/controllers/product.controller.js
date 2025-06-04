@@ -206,7 +206,7 @@ const globalSearch = async (req, res) => {
   }
 
   try {
-    const ageRanges = ["6-12", "13-16", "16-19", "20+"];
+    const ageRanges = ["6-12", "13-16", "17-19", "20+"];
     const ageFromQuery = parseInt(search.match(/\d+/)?.[0], 10);
     const matchedAgeCategory = !isNaN(ageFromQuery)
       ? getMatchingAgeCategory(ageFromQuery, ageRanges)
@@ -225,7 +225,6 @@ const globalSearch = async (req, res) => {
 
     const normalizedSearch = normalizeSearch(searchText);
 
-    // Basic keyword mapping for collections
     const collectionKeywords = {
       podcast: ["podcasts"],
       mentooncard: ["mentoonsCards"],
@@ -239,7 +238,6 @@ const globalSearch = async (req, res) => {
       products: ["products"],
     };
 
-    // Determine matched collections based on search query
     let matchedCollections = [
       ...new Set(
         Object.entries(collectionKeywords)
@@ -250,7 +248,6 @@ const globalSearch = async (req, res) => {
       ),
     ];
 
-    // If no specific collection keywords are matched, search all collections
     const collectionsToSearch = matchedCollections.length
       ? matchedCollections
       : [
@@ -268,13 +265,15 @@ const globalSearch = async (req, res) => {
     console.log("📁 Final Collections to Search:", collectionsToSearch);
     console.log("🧒 Age Category:", matchedAgeCategory);
 
-    // Build filter: If a collection keyword is matched, return all documents in that collection
-    const buildFilter = () => {
-      if (matchedCollections.length > 0) {
-        // If specific collection keywords are matched, only apply age filter if present
-        return matchedAgeCategory ? { ageCategory: matchedAgeCategory } : {};
+    const buildFilter = (collectionName) => {
+      const collectionKeys = Object.keys(collectionKeywords);
+      if (
+        collectionKeys.includes(normalizedSearch) &&
+        matchedCollections.includes(collectionName)
+      ) {
+        return {};
       }
-      // Otherwise, apply text and age filters
+
       const textFilter = searchText
         ? {
             $or: [
@@ -283,7 +282,20 @@ const globalSearch = async (req, res) => {
             ],
           }
         : {};
-      return matchedAgeCategory
+
+      const collectionsWithAge = [
+        "audioComics",
+        "podcasts",
+        "comics",
+        "mentoonsCards",
+        "mentoonsBooks",
+        "products",
+      ];
+
+      const shouldFilterByAge =
+        matchedAgeCategory && collectionsWithAge.includes(collectionName);
+
+      return shouldFilterByAge
         ? { ...textFilter, ageCategory: matchedAgeCategory }
         : textFilter;
     };
@@ -297,29 +309,32 @@ const globalSearch = async (req, res) => {
       products,
     ] = await Promise.all([
       collectionsToSearch.includes("audioComics")
-        ? AudioComic.find(buildFilter()).limit(10)
+        ? AudioComic.find(buildFilter("audioComics")).limit(10)
         : [],
       collectionsToSearch.includes("podcasts")
-        ? Podcast.find(buildFilter()).limit(10)
+        ? Podcast.find(buildFilter("podcasts")).limit(10)
         : [],
       collectionsToSearch.includes("comics")
-        ? Comic.find(buildFilter()).limit(10)
+        ? Comic.find(buildFilter("comics")).limit(10)
         : [],
       collectionsToSearch.includes("mentoonsCards")
-        ? MentoonsCard.find(buildFilter()).limit(10)
+        ? MentoonsCard.find(buildFilter("mentoonsCards")).limit(10)
         : [],
       collectionsToSearch.includes("mentoonsBooks")
-        ? MentoonsBook.find(buildFilter()).limit(10)
+        ? MentoonsBook.find(buildFilter("mentoonsBooks")).limit(10)
         : [],
       collectionsToSearch.includes("products")
-        ? Product.find(buildFilter()).limit(10)
+        ? Product.find(buildFilter("products"))
         : [],
     ]);
 
-    // User search remains unchanged
-    const matchedUsers = await User.find({
-      name: { $regex: searchText, $options: "i" },
-    }).limit(10);
+    let matchedUsers = [];
+
+    if (searchText && isNaN(searchText)) {
+      matchedUsers = await User.find({
+        name: { $regex: "^" + searchText, $options: "i" },
+      }).limit(10);
+    }
 
     const enhancedUsers = await Promise.all(
       matchedUsers.map(async (user) => {
