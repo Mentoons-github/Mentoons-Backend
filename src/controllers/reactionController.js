@@ -62,17 +62,17 @@ const reactionController = {
         return res.status(404).json({ message: `${type} not found` });
       }
 
-      const initiatorUser = await User.findOne({ clerkId: userId });
+      const initiatorUser = await User.findOne({ _id: user });
       const initiatorName = initiatorUser?.name || "Someone";
 
-      if (String(contentDoc.user._id) !== String(userId)) {
+      if (String(contentDoc.user) !== String(user)) {
         const action =
           reactionType === "like" ? "liked" : `reacted (${reactionType}) to`;
 
         const message = `${initiatorName} ${action} your ${type}.`;
 
         const noti = await Notification.create({
-          userId: contentDoc.user._id,
+          userId: contentDoc.user,
           initiatorId: initiatorUser._id,
           type: "like",
           message,
