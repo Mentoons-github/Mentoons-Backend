@@ -40,6 +40,8 @@ const getProducts = async (req, res, next) => {
       ];
     }
 
+    console.log("search query : ", queryFilter);
+
     // Add filter conditions
     if (ageCategory) queryFilter.ageCategory = ageCategory;
     if (type) queryFilter.type = type;
@@ -90,7 +92,6 @@ const getProducts = async (req, res, next) => {
         $limit: limitNumber,
       },
     ]);
-    console.log("Products", products);
 
     const total = await Product.countDocuments(matchStage);
 
@@ -117,7 +118,6 @@ const getAllProducts = async (req, res, next) => {
 
 // GET /api/products/:id
 const getProductById = async (req, res, next) => {
-  console.log("reached productId");
   try {
     const { id } = req.params;
     const product = await Product.findById(id);

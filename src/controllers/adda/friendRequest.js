@@ -355,7 +355,6 @@ const getNotifications = asyncHandler(async (req, res) => {
   try {
     const userNotifications = await fetchNotifications(userId);
 
-    console.log(userNotifications);
     return successResponse(
       res,
       200,
@@ -393,6 +392,16 @@ const deleteNotification = asyncHandler(async (req, res) => {
     return successResponse(res, 200, "Notification deleted successfully");
   } catch (err) {
     console.log("Error deleting notification:", err);
+    return errorResponse(res, 500, "Failed to delete notification");
+  }
+});
+
+const ClearAllNotification = asyncHandler(async (req, res) => {
+  const userId = req.user;
+  try {
+    await Notification.deleteMany({ userId });
+    return successResponse(res, 200, "Notification Cleared successfully");
+  } catch (err) {
     return errorResponse(res, 500, "Failed to delete notification");
   }
 });
@@ -763,6 +772,7 @@ module.exports = {
   markReadNotification,
   checkFriendStatus,
   cancelFriendRequest,
+  ClearAllNotification,
   getFollowBackUsers,
   declineFollowBack,
   followBackUser,
