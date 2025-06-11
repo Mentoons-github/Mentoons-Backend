@@ -35,6 +35,7 @@ const memeFeedRoutes = require("./src/routes/adda/memeFeed.routes.js");
 const rewardRoutes = require("./src/routes/rewardRoutes.js");
 const adminRewardRoutes = require("./src/routes/adminRewardRoutes.js");
 const reactionRoutes = require("./src/routes/reactionRoutes");
+const orderRouter = require("./src/routes/orders.routes.js");
 // const webhookRoutes = require("./src/routes/webhook.js");
 const evaluationRoutes = require("./src/routes/EvaluationForm.js");
 const { clerkMiddleware } = require("@clerk/express");
@@ -207,6 +208,7 @@ app.use("/api/v1/memeFeed", memeFeedRoutes);
 app.use("/api/v1/rewards", rewardRoutes);
 app.use("/api/v1/admin/rewards", adminRewardRoutes);
 app.use("/api/v1/reactions", reactionRoutes);
+app.use("/api/v1/order", orderRouter);
 app.use("/health", (req, res) => {
   res.json({
     message: "The server is running successfully",

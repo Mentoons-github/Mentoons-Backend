@@ -96,33 +96,49 @@ const reactionController = {
     }
   },
 
-  /**
-   * Remove a reaction
-   * POST /api/v1/reactions/remove-reaction
-   */
+  
   removeReaction: async (req, res) => {
     try {
       const { type, id } = req.body;
-      const user = req.user.dbUser.id; // Assumes authentication middleware
+      const userId = req.user.dbUser.id; 
 
-      // Validate input
       if (!type || !id) {
         return res
           .status(400)
           .json({ message: "Content type and ID are required" });
       }
 
-      // Remove the reaction
-      await Reaction.findOneAndDelete({
-        user: user,
+      const deletedReaction = await Reaction.findOneAndDelete({
+        user: userId,
         contentType: type,
         contentId: id,
       });
 
-      // Get updated reaction counts
+      if (deletedReaction) {
+        let contentDoc;
+        let referenceModel;
+
+        if (type === "post") {
+          contentDoc = await post.findById(id);
+          referenceModel = "Post";
+        } else if (type === "meme") {
+          contentDoc = await meme.findById(id);
+          referenceModel = "Meme";
+        }
+
+        if (contentDoc) {
+          await Notification.findOneAndDelete({
+            userId: contentDoc.user,
+            initiatorId: userId,
+            referenceId: id,
+            referenceModel,
+            type: "like", 
+          });
+        }
+      }
+
       const reactionCounts = await Reaction.getReactionCounts(type, id);
 
-      // Return success response with updated counts
       return res.status(200).json({
         message: "Reaction removed successfully",
         reactionCounts,
@@ -136,10 +152,6 @@ const reactionController = {
     }
   },
 
-  /**
-   * Check if user has reacted to content
-   * GET /api/v1/reactions/check-reaction
-   */
   checkReaction: async (req, res) => {
     try {
       const { type, id } = req.query;

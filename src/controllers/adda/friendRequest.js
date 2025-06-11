@@ -209,11 +209,17 @@ const rejectFriendRequest = asyncHandler(async (req, res) => {
     const receiverName = request.receiverId.name;
     const notificationMessage = `Your friend request to ${receiverName} has been rejected.`;
 
-    await createNotification(
+    await deleteNotificationHelper(
+      request.senderId._id,
       request.receiverId._id,
+      "friend_request"
+    );
+
+    await createNotification(
+      request.senderId._id,
       "friend_request_rejected",
       notificationMessage,
-      request.senderId,
+      request.receiverId._id,
       request._id,
       "FriendRequest"
     );
