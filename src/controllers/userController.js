@@ -642,4 +642,24 @@ module.exports = {
       message: `Unblocked user ${targetUser.username || targetUserId}`,
     });
   }),
+
+  updateSubscriptionLimits: asyncHandler(async (req, res) => {
+    const userId = req.user.dbUser._id;
+    const { subscriptionLimits } = req.body;
+    console.log("Inside controller");
+    console.log(userId);
+    console.log(subscriptionLimits);
+
+    const updatedUser = await userHelper.updateSubscriptionLimits(
+      userId,
+      subscriptionLimits
+    );
+    console.log(updatedUser, "updatedUser");
+    return successResponse(
+      res,
+      200,
+      "Subscription limits updated successfully",
+      updatedUser
+    );
+  }),
 };

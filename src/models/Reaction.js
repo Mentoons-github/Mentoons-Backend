@@ -54,12 +54,6 @@ const reactionSchema = new mongoose.Schema(
   }
 );
 
-// Create a compound index for efficient querying of reactions
-reactionSchema.index(
-  { user: 1, contentType: 1, contentId: 1 },
-  { unique: true }
-);
-
 /**
  * Static method to get reaction counts for a piece of content
  */

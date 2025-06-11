@@ -232,6 +232,7 @@ module.exports = {
             gender: 1,
             phoneNumber: 1,
             occupation: 1,
+            subscriptionLimits: 1,
           },
         },
       ]);
@@ -280,6 +281,7 @@ module.exports = {
             ...(interests && { interests }),
             ...(socialLinks && { socialLinks }),
             ...(privacySettings && { privacySettings }),
+
             lastActive: new Date(),
           },
         },
@@ -409,7 +411,6 @@ module.exports = {
     }
   },
 
-  
   getUserStats: async (userId) => {
     try {
       const user = await User.findById(userId);
@@ -474,5 +475,23 @@ module.exports = {
       console.error("Error fetching user public details:", error);
       throw new Error(`Error fetching user public details: ${error.message}`);
     }
+  },
+
+  updateSubscriptionLimits: async (userId, subscriptionLimits) => {
+    console.log("Inside helper");
+    console.log(userId, "userId");
+    console.log(subscriptionLimits, "subscriptionLimits");
+    const user = await User.findOneAndUpdate(
+      { _id: userId },
+      {
+        $set: {
+          subscriptionLimits: {
+            ...subscriptionLimits,
+          },
+        },
+      },
+      { new: true }
+    );
+    return user;
   },
 };
