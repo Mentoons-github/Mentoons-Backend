@@ -2,8 +2,6 @@ const mongoose = require("mongoose");
 
 const { AgeCategory, ProductType, CardType } = require("../utils/enum");
 
-
-// Base Product Schema
 const ProductSchema = new mongoose.Schema(
   {
     title: { type: String, required: true },
@@ -11,8 +9,8 @@ const ProductSchema = new mongoose.Schema(
     price: {
       type: Number,
       required: true,
-      get: (v) => parseFloat(v.toFixed(2)), // Round to 2 decimal places when retrieved
-      set: (v) => parseFloat(v), // Ensure it's stored as a float
+      get: (v) => parseFloat(v.toFixed(2)),
+      set: (v) => parseFloat(v),
     },
     orignalProductSrc: {
       type: String,
@@ -43,27 +41,24 @@ const ProductSchema = new mongoose.Schema(
     ],
     productVideos: [
       {
-        videoUrl: { type: String }, // URL to the video file
+        videoUrl: { type: String },
       },
     ],
     isFeatured: { type: Boolean, default: false },
 
-    // details is a flexible field that will be refined in discriminator schemas
     details: { type: mongoose.Schema.Types.Mixed, required: true },
   },
   {
     timestamps: true,
-    discriminatorKey: "type", // this key differentiates product types
+    discriminatorKey: "type",
     toJSON: { getters: true },
     toObject: { getters: true },
   }
 );
 
-// Check if model exists before defining
 const Product =
   mongoose.models.Product || mongoose.model("Product", ProductSchema);
 
-/* ----- Comic Discriminator ----- */
 const ComicSchema = new mongoose.Schema({
   details: {
     pages: { type: Number, required: true },
@@ -77,7 +72,6 @@ const ComicSchema = new mongoose.Schema({
 });
 const Comic = Product.discriminator(ProductType.COMIC, ComicSchema);
 
-/* ----- Audio Comic Discriminator ----- */
 const AudioComicSchema = new mongoose.Schema({
   details: {
     duration: { type: String, required: true },
@@ -94,12 +88,11 @@ const AudioComic = Product.discriminator(
   AudioComicSchema
 );
 
-/* ----- Podcast Discriminator ----- */
 const PodcastSchema = new mongoose.Schema({
   details: {
     category: { type: String, required: true },
     episodeNumber: { type: Number, required: true },
-    duration: { type: String }, // in minutes
+    duration: { type: String },
     language: { type: String, default: "en" },
     host: { type: String },
     sampleUrl: { type: String },
@@ -108,13 +101,12 @@ const PodcastSchema = new mongoose.Schema({
 });
 const Podcast = Product.discriminator(ProductType.PODCAST, PodcastSchema);
 
-/* ----- Workshop Discriminator ----- */
 const WorkshopSchema = new mongoose.Schema({
   details: {
     instructor: { type: String, required: true },
     location: { type: String },
     schedule: { type: Date, required: true },
-    duration: { type: Number, required: true }, // in hours
+    duration: { type: Number, required: true },
     capacity: { type: Number },
     materials: { type: [String], default: [] },
     logoUrl: { type: String },
@@ -139,7 +131,6 @@ const WorkshopSchema = new mongoose.Schema({
 });
 const Workshop = Product.discriminator(ProductType.WORKSHOP, WorkshopSchema);
 
-/* ----- Assessment Discriminator ----- */
 const AssessmentSchema = new mongoose.Schema({
   details: {
     color: { type: String },
@@ -163,7 +154,6 @@ const Assessment = Product.discriminator(
   AssessmentSchema
 );
 
-/* ----- MentoonsCard Discriminator ----- */
 const MentoonsCardSchema = new mongoose.Schema({
   details: {
     cardType: {
@@ -184,7 +174,7 @@ const MentoonsCardSchema = new mongoose.Schema({
         label: { type: String },
         descriptionList: [
           {
-            description: { type: String }, // Fixed: Added proper type definition
+            description: { type: String },
           },
         ],
       },
@@ -196,7 +186,6 @@ const MentoonsCard = Product.discriminator(
   MentoonsCardSchema
 );
 
-/* ----- Merchandise Discriminator ----- */
 const MerchandiseSchema = new mongoose.Schema({
   details: {
     size: { type: String },
@@ -236,7 +225,6 @@ const MentoonsBook = Product.discriminator(
   MentoonsBookSchema
 );
 
-/* ----- Export Models ----- */
 module.exports = {
   Assessment,
   AudioComic,

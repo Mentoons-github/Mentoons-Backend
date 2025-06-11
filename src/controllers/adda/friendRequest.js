@@ -209,11 +209,17 @@ const rejectFriendRequest = asyncHandler(async (req, res) => {
     const receiverName = request.receiverId.name;
     const notificationMessage = `Your friend request to ${receiverName} has been rejected.`;
 
-    await createNotification(
+    await deleteNotificationHelper(
+      request.senderId._id,
       request.receiverId._id,
+      "friend_request"
+    );
+
+    await createNotification(
+      request.senderId._id,
       "friend_request_rejected",
       notificationMessage,
-      request.senderId,
+      request.receiverId._id,
       request._id,
       "FriendRequest"
     );
@@ -355,7 +361,6 @@ const getNotifications = asyncHandler(async (req, res) => {
   try {
     const userNotifications = await fetchNotifications(userId);
 
-    console.log(userNotifications);
     return successResponse(
       res,
       200,
@@ -393,6 +398,16 @@ const deleteNotification = asyncHandler(async (req, res) => {
     return successResponse(res, 200, "Notification deleted successfully");
   } catch (err) {
     console.log("Error deleting notification:", err);
+    return errorResponse(res, 500, "Failed to delete notification");
+  }
+});
+
+const ClearAllNotification = asyncHandler(async (req, res) => {
+  const userId = req.user;
+  try {
+    await Notification.deleteMany({ userId });
+    return successResponse(res, 200, "Notification Cleared successfully");
+  } catch (err) {
     return errorResponse(res, 500, "Failed to delete notification");
   }
 });
@@ -763,6 +778,7 @@ module.exports = {
   markReadNotification,
   checkFriendStatus,
   cancelFriendRequest,
+  ClearAllNotification,
   getFollowBackUsers,
   declineFollowBack,
   followBackUser,

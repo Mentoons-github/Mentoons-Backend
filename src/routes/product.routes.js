@@ -12,11 +12,11 @@ const { conditionalAuth } = require("../middlewares/auth.middleware");
 
 const router = express.Router();
 
+router.get("/", getProducts);
 // POST /api/products -> create a new product
 router.post("/", createProduct);
 
 // GET /api/products -> list with search, sort, pagination
-router.get("/", getProducts);
 
 router.get("/search", conditionalAuth, globalSearch);
 

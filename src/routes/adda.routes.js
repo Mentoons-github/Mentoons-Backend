@@ -15,6 +15,7 @@ const {
   getFollowBackUsers,
   declineFollowBack,
   followBackUser,
+  ClearAllNotification,
 } = require("../controllers/adda/friendRequest");
 
 const { getUserConversations } = require("../controllers/adda/conversation");
@@ -76,6 +77,12 @@ addaRouter.post(
   "/userNotifications/:notificationId",
   verifyToken,
   markReadNotification
+);
+
+addaRouter.delete(
+  "/delete-usernotifications",
+  verifyToken,
+  ClearAllNotification
 );
 
 addaRouter.patch(
