@@ -5,8 +5,6 @@ const { clerk } = require("./auth.middleware");
 const verifyToken = async (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1];
 
-  console.log(token);
-
   if (!token) {
     return errorResponse(res, 401, "Authorization token is required.");
   }

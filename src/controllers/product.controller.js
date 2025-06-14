@@ -259,12 +259,6 @@ const globalSearch = async (req, res) => {
           "products",
         ];
 
-    console.log("🔎 Raw Search Query:", search);
-    console.log("🔤 Normalized:", normalizedSearch);
-    console.log("📁 Collections Matched:", matchedCollections);
-    console.log("📁 Final Collections to Search:", collectionsToSearch);
-    console.log("🧒 Age Category:", matchedAgeCategory);
-
     const buildFilter = (collectionName) => {
       const collectionKeys = Object.keys(collectionKeywords);
       if (
@@ -279,6 +273,7 @@ const globalSearch = async (req, res) => {
             $or: [
               { title: { $regex: searchText, $options: "i" } },
               { tags: { $regex: searchText, $options: "i" } },
+              { type: { $regex: searchText, $options: "i" } },
             ],
           }
         : {};
