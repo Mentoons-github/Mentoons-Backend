@@ -16,7 +16,7 @@ const reactionController = {
     try {
       const { type, id, reactionType = "like" } = req.body;
       const user = req.user.dbUser.id; // Assumes authentication middleware sets req.user
-
+      console.log("userID :", user);
       // Validate input
       if (!type || !id) {
         return res
@@ -64,8 +64,8 @@ const reactionController = {
 
       const initiatorUser = await User.findOne({ _id: user });
       const initiatorName = initiatorUser?.name || "Someone";
-
-      if (String(contentDoc.user) !== String(user)) {
+      
+      if (String(contentDoc.user._id) !== String(user)) {
         const action =
           reactionType === "like" ? "liked" : `reacted (${reactionType}) to`;
 
@@ -96,11 +96,10 @@ const reactionController = {
     }
   },
 
-  
   removeReaction: async (req, res) => {
     try {
       const { type, id } = req.body;
-      const userId = req.user.dbUser.id; 
+      const userId = req.user.dbUser.id;
 
       if (!type || !id) {
         return res
@@ -132,7 +131,7 @@ const reactionController = {
             initiatorId: userId,
             referenceId: id,
             referenceModel,
-            type: "like", 
+            type: "like",
           });
         }
       }
