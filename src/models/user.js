@@ -10,6 +10,10 @@ const UserSchema = new mongoose.Schema(
       required: true,
       default: "USER",
     },
+    socketIds: {
+      type: [String],
+      default: [],
+    },
     name: {
       type: String,
     },
