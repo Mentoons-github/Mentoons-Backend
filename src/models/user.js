@@ -168,6 +168,24 @@ const UserSchema = new mongoose.Schema(
         },
       },
     },
+    subscriptionLimits: {
+      freeTrialEndDate: {
+        type: Date,
+        default: Date.now,
+      },
+      comicsReadThisMonth: {
+        type: Number,
+        default: 0,
+      },
+      monthlyReset: {
+        type: Date,
+        default: Date.now,
+      },
+      audioComicsListenedThisMonth: {
+        type: Number,
+        default: 0,
+      },
+    },
     blockedUsers: [
       {
         type: mongoose.Schema.Types.ObjectId,

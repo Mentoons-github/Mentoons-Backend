@@ -64,7 +64,7 @@ const reactionController = {
 
       const initiatorUser = await User.findOne({ _id: user });
       const initiatorName = initiatorUser?.name || "Someone";
-
+      
       if (String(contentDoc.user._id) !== String(user)) {
         const action =
           reactionType === "like" ? "liked" : `reacted (${reactionType}) to`;
@@ -72,7 +72,7 @@ const reactionController = {
         const message = `${initiatorName} ${action} your ${type}.`;
 
         const noti = await Notification.create({
-          userId: contentDoc.user._id,
+          userId: contentDoc.user,
           initiatorId: initiatorUser._id,
           type: "like",
           message,

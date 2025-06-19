@@ -21,6 +21,7 @@ const {
   getFriends,
   blockUser,
   unblockUser,
+  updateSubscriptionLimits,
 } = require("../controllers/userController.js");
 const { isSuperAdminOrAdmin } = require("../middlewares/authMiddleware.js");
 const { conditionalAuth } = require("../middlewares/auth.middleware.js");
@@ -54,7 +55,14 @@ router.get("/friend/:friendId", conditionalAuth, getUserProfile);
 router.get("/search-friend", conditionalAuth, searchFriend);
 
 //block and unblock
-router.post("/block", verifyToken, blockUser)
-router.post("/unblock", verifyToken, unblockUser)
+router.post("/block", verifyToken, blockUser);
+router.post("/unblock", verifyToken, unblockUser);
+
+//update subscription limits
+router.patch(
+  "/update-subscription-limits/:userId",
+  conditionalAuth,
+  updateSubscriptionLimits
+);
 
 module.exports = router;
