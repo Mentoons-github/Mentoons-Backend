@@ -2,11 +2,7 @@ const Conversations = require("../../models/adda/conversation");
 const FriendRequest = require("../../models/adda/friendRequest");
 const Message = require("../../models/adda/message");
 
-const createConversationAndMessage = async ({
-  senderId,
-  receiverId,
-  message = "",
-}) => {
+const createConversationAndMessage = async ({ senderId, receiverId }) => {
   try {
     const checkFriendRequest = await FriendRequest.findOne({
       $or: [
@@ -30,17 +26,7 @@ const createConversationAndMessage = async ({
       await conversation.save();
     }
 
-    const newMessage = await Message.create({
-      conversationId: conversation._id,
-      senderId,
-      receiverId,
-      message,
-    });
-
-    conversation.lastMessage = message;
-
-    await conversation.save();
-    return newMessage;
+    return conversation;
   } catch (error) {
     console.log(error);
     throw new Error("Error creating conversation and message");

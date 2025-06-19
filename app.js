@@ -36,6 +36,7 @@ const rewardRoutes = require("./src/routes/rewardRoutes.js");
 const adminRewardRoutes = require("./src/routes/adminRewardRoutes.js");
 const reactionRoutes = require("./src/routes/reactionRoutes");
 const orderRouter = require("./src/routes/orders.routes.js");
+const conversationRouter = require("./src/routes/adda/conversation.routes.js");
 // const webhookRoutes = require("./src/routes/webhook.js");
 const evaluationRoutes = require("./src/routes/EvaluationForm.js");
 const { clerkMiddleware } = require("@clerk/express");
@@ -51,7 +52,7 @@ const {
   deleteUser,
 } = require("./src/helpers/userHelper.js");
 const queryRoutes = require("./src/routes/query.routes.js");
-const User = require("./src/models/user"); // Adjust path as needed
+const User = require("./src/models/user");
 const sessionRoute = require("./src/routes/session.js");
 const addaRouter = require("./src/routes/adda.routes.js");
 const socketSetup = require("./src/socket/socket.js");
@@ -209,6 +210,7 @@ app.use("/api/v1/rewards", rewardRoutes);
 app.use("/api/v1/admin/rewards", adminRewardRoutes);
 app.use("/api/v1/reactions", reactionRoutes);
 app.use("/api/v1/order", orderRouter);
+app.use("/api/v1/conversation", conversationRouter);
 app.use("/health", (req, res) => {
   res.json({
     message: "The server is running successfully",
