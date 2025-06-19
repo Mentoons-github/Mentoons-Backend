@@ -13,19 +13,18 @@ const {
 const newConversationAndMessage = asyncHandler(async (req, res) => {
   const senderId = req.userId;
   const receiverId = req.body.receiverId;
-  const message = req.body.message;
+
   try {
-    const newConversationAndMessage = await createConversationAndMessage({
+    const newConversation = await createConversationAndMessage({
       senderId,
       receiverId,
-      message,
     });
 
     return successResponse(
       res,
       200,
       "Conversation and message added successfully",
-      newConversationAndMessage
+      newConversation
     );
   } catch (err) {
     console.log("message creation error :", err);
@@ -35,23 +34,44 @@ const newConversationAndMessage = asyncHandler(async (req, res) => {
 
 const getUserConversations = asyncHandler(async (req, res) => {
   const userId = req.user;
+
   try {
     const userConversations = await Conversations.find({
       members: { $in: [userId] },
+    }).populate("members", "name profilePicture email bio socketIds");
+
+    const formattedConversations = userConversations.map((convo) => {
+      const friend = convo.members.find(
+        (member) => member._id.toString() !== userId.toString()
+      );
+
+      return {
+        conversation_id: convo._id,
+        friend: {
+          _id: friend._id,
+          name: friend.name,
+          profilePicture: friend.profilePicture,
+          email: friend.email,
+          bio: friend.bio,
+          isOnline: friend.socketIds && friend.socketIds.length > 0,
+        },
+        lastMessage: convo.lastMessage || null,
+        updatedAt: convo.updatedAt,
+        createdAt: convo.createdAt,
+      };
     });
 
     return successResponse(
       res,
       200,
-      `${
-        userConversations.length === 0
-          ? "No conversations found"
-          : "Conversations fetched successfully"
-      }`,
-      userConversations
+      formattedConversations.length === 0
+        ? "No conversations found"
+        : "Conversations fetched successfully",
+      formattedConversations
     );
   } catch (err) {
-    return errorResponse(res, 500, "Failed Get conversations");
+    console.error("Failed to get conversations:", err);
+    return errorResponse(res, 500, "Failed to get conversations");
   }
 });
 
@@ -61,28 +81,19 @@ const getMessageInConversation = asyncHandler(async (req, res) => {
   const limit = 50;
 
   try {
-    let messagesQuery = Message.find({ conversationId })
+    let query = { conversationId };
+
+    if (before) {
+      query.createdAt = { $lt: new Date(before) };
+    }
+
+    const messages = await Message.find(query)
       .sort({ createdAt: -1 })
       .limit(limit);
 
-    if (before) {
-      messagesQuery = messagesQuery.where("createdAt").lt(new Date(before));
-    }
-
-    const allMessages = await messagesQuery;
-
-    const sortedMessages = allMessages.sort(
-      (a, b) => a.createdAt - b.createdAt
-    );
-
-    return successResponse(
-      res,
-      200,
-      "Messages fetched successfully",
-      sortedMessages
-    );
+    return successResponse(res, 200, "Messages fetched successfully", messages);
   } catch (err) {
-    console.log("Error fetching messages:", err);
+    console.error("Error fetching messages:", err);
     return errorResponse(res, 500, "Failed to get messages");
   }
 });
