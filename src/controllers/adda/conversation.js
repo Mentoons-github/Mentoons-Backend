@@ -34,11 +34,12 @@ const newConversationAndMessage = asyncHandler(async (req, res) => {
 
 const getUserConversations = asyncHandler(async (req, res) => {
   const userId = req.user;
+  console.log(userId)
 
   try {
     const userConversations = await Conversations.find({
-      members: { $in: [userId] },
-    }).populate("members", "name profilePicture email bio socketIds");
+      members:userId 
+    }).populate("members", "name picture email bio socketIds");
 
     const formattedConversations = userConversations.map((convo) => {
       const friend = convo.members.find(
@@ -50,7 +51,7 @@ const getUserConversations = asyncHandler(async (req, res) => {
         friend: {
           _id: friend._id,
           name: friend.name,
-          profilePicture: friend.profilePicture,
+          picture: friend.picture,
           email: friend.email,
           bio: friend.bio,
           isOnline: friend.socketIds && friend.socketIds.length > 0,

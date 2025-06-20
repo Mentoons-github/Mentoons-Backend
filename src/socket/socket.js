@@ -59,41 +59,62 @@ const socketSetup = (server) => {
     broadCastOnlineUsers(io);
 
     //send message
-    socket.on(
-      "send_message",
-      async ({ conversationId, receiverId, message }) => {
-        try {
-          const conversation = await Conversations.findById(conversationId);
-          if (!conversation || !conversation.members.includes(socket.userId)) {
-            return socket.emit("error", {
-              message: "Unauthorized conversation access",
-            });
-          }
+    socket.on("send_message", async ({ receiverId, message, fileType }) => {
+      try {
+        let conversation = await Conversations.findOne({
+          members: { $all: [socket.userId.toString(), receiverId] },
+        });
 
-          const chat = await Chat.create({
-            senderId: socket.userId,
-            receiverId,
-            message,
+        if (!conversation) {
+          conversation = await Conversations.create({
+            members: [socket.userId.toString(), receiverId],
+            lastMessage: message,
           });
-
-          const receiver = await User.findById(receiverId);
-          if (receiver && receiver.socketIds.length > 0) {
-            receiver.socketIds.forEach((id) => {
-              io.to(id).emit("receive_message", {
-                chatId: chat._id,
-                senderId: socket.userId,
-                message,
-                timestamp: chat.createdAt,
-              });
-            });
-          } else {
-            console.log("Receiver is offline message stored in Database");
-          }
-        } catch (err) {
-          console.log("Error sending message :", err);
+        } else {
+          conversation.lastMessage = message;
+          await conversation.save();
         }
+
+        const chat = await Chat.create({
+          conversationId: conversation._id,
+          senderId: socket.userId,
+          receiverId,
+          message,
+          fileType, // new fields
+          // fileName, // new fields
+        });
+
+        // 5️⃣ Send to receiver
+        const receiver = await User.findById(receiverId);
+        if (receiver && receiver.socketIds.length > 0) {
+          receiver.socketIds.forEach((id) => {
+            io.to(id).emit("receive_message", {
+              chatId: chat._id,
+              conversationId: conversation._id,
+              senderId: socket.userId,
+              message,
+              timestamp: chat.createdAt,
+              fileType,
+              // fileName,
+            });
+          });
+        } else {
+          console.log("Receiver offline, message saved.");
+        }
+
+        socket.emit("receive_message", {
+          chatId: chat._id,
+          conversationId: conversation._id,
+          senderId: socket.userId,
+          message,
+          timestamp: chat.createdAt,
+          fileType,
+          // fileName,
+        });
+      } catch (err) {
+        console.error("Error sending message:", err);
       }
-    );
+    });
 
     //notification
     socket.on(
@@ -132,7 +153,7 @@ const socketSetup = (server) => {
     socket.on("disconnect", async () => {
       console.log("a user disconnected");
       await User.findByIdAndUpdate(socket.userId, {
-        $pull: { socketIds: socket.id },
+        $set: { socketIds: [] },
       });
       broadCastOnlineUsers(io);
     });
