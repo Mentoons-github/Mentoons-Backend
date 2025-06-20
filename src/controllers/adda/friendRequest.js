@@ -1,6 +1,7 @@
 const User = require("../../models/user");
 const FriendRequest = require("../../models/adda/friendRequest");
 const asyncHandler = require("../../utils/asyncHandler");
+const { getIO } = require("../../socket/socket");
 const {
   errorResponse,
   successResponse,
@@ -122,7 +123,7 @@ const sendFriendRequest = asyncHandler(async (req, res) => {
     status: "pending",
   });
 
-  await createNotification(
+  const notification = await createNotification(
     receiverId,
     "friend_request",
     `You have received a friend request from ${sender.name}.`,
@@ -136,10 +137,6 @@ const sendFriendRequest = asyncHandler(async (req, res) => {
 
 const acceptFriendRequest = asyncHandler(async (req, res) => {
   const { requestId } = req.params;
-
-  console.log(requestId);
-
-  console.log("request for accepting");
 
   try {
     const request = await FriendRequest.findById(requestId).populate(
@@ -179,7 +176,7 @@ const acceptFriendRequest = asyncHandler(async (req, res) => {
 
     await deleteNotificationHelper(sender._id, receiver._id, "friend_request");
 
-    await createNotification(
+    const notification = await createNotification(
       sender._id,
       "friend_request_accepted",
       `${receiver.name} accepted your friend request.`,

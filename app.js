@@ -55,7 +55,7 @@ const queryRoutes = require("./src/routes/query.routes.js");
 const User = require("./src/models/user");
 const sessionRoute = require("./src/routes/session.js");
 const addaRouter = require("./src/routes/adda.routes.js");
-const socketSetup = require("./src/socket/socket.js");
+const { socketSetup } = require("./src/socket/socket.js");
 const influencerJobRequestRoutes = require("./src/routes/influencerJobRequest.routes.js");
 // const { requireAuth } = require("@clerk/express");
 dotenv.config();
