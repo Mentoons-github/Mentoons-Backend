@@ -18,6 +18,7 @@ const messageSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    fileType: { type: String, enum: ["text", "image", "audio", "file"], default: "text" },
     isRead: {
       type: Boolean,
       required: false,
