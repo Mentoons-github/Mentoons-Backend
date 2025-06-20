@@ -1,3 +1,4 @@
+const { createNotification } = require("../helpers/adda/createNotification");
 const meme = require("../models/adda/meme");
 const Notification = require("../models/adda/notification");
 const post = require("../models/post");
@@ -64,21 +65,21 @@ const reactionController = {
 
       const initiatorUser = await User.findOne({ _id: user });
       const initiatorName = initiatorUser?.name || "Someone";
-      
+
       if (String(contentDoc.user._id) !== String(user)) {
         const action =
           reactionType === "like" ? "liked" : `reacted (${reactionType}) to`;
 
         const message = `${initiatorName} ${action} your ${type}.`;
 
-        const noti = await Notification.create({
-          userId: contentDoc.user,
-          initiatorId: initiatorUser._id,
-          type: "like",
+        const noti = await createNotification(
+          contentDoc.user,
+          "like",
           message,
-          referenceId: id,
-          referenceModel,
-        });
+          initiatorUser._id,
+          id,
+          referenceModel
+        );
 
         console.log("notification created :", noti);
       }

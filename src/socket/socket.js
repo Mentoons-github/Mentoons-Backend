@@ -5,9 +5,11 @@ const Notification = require("../models/adda/notification");
 const { clerk } = require("../middlewares/auth.middleware");
 const Conversations = require("../models/adda/conversation");
 
+let io;
+
 const socketSetup = (server) => {
   console.log("socket connecting");
-  const io = socketIo(server, {
+  io = socketIo(server, {
     cors: {
       origin: [
         "https://mentoons.com",
@@ -58,6 +60,9 @@ const socketSetup = (server) => {
 
     broadCastOnlineUsers(io);
 
+    //sample
+    socket.emit("hello", "hey hello");
+
     //send message
     socket.on(
       "send_message",
@@ -71,9 +76,11 @@ const socketSetup = (server) => {
           }
 
           const chat = await Chat.create({
+            conversationId,
             senderId: socket.userId,
             receiverId,
             message,
+            isDelivered: false,
           });
 
           const receiver = await User.findById(receiverId);
@@ -82,10 +89,14 @@ const socketSetup = (server) => {
               io.to(id).emit("receive_message", {
                 chatId: chat._id,
                 senderId: socket.userId,
+                conversationId: conversationId,
                 message,
                 timestamp: chat.createdAt,
               });
             });
+
+            chat.isDelivered = true;
+            await chat.save();
           } else {
             console.log("Receiver is offline message stored in Database");
           }
@@ -95,38 +106,43 @@ const socketSetup = (server) => {
       }
     );
 
-    //notification
-    socket.on(
-      "new_notification",
-      async ({ message, receiverId, type, referenceId, referenceModel }) => {
-        try {
-          const notificationData = {
-            userId: receiverId,
-            message,
-            isRead: false,
-            type,
-            initiatorId: socket.userId,
-          };
+    //typing...
+    socket.on("typing", async ({ receiverId, conversationId }) => {
+      const receiver = await User.findById(receiverId);
 
-          if (referenceId) notificationData.referenceId = referenceId;
-          if (referenceModel) notificationData.referenceModel = referenceModel;
-
-          const notification = await Notification.create(notificationData);
-
-          const receiver = await User.findById(receiverId);
-
-          if (receiver && receiver.socketIds.length > 0) {
-            receiver.socketIds.forEach((id) => {
-              io.to(id).emit("receive_notification", notification);
-            });
-          } else {
-            console.log("user is offline notification saved in Database");
-          }
-        } catch (err) {
-          console.log(err);
-        }
+      if (receiver && receiver.socketIds.length > 0) {
+        receiver.socketIds.forEach((socketId) => {
+          io.to(socketId).emit("typing", {
+            conversationId,
+            userId: socket.userId,
+          });
+        });
       }
-    );
+    });
+
+    socket.on("stopped_typing", async ({ receiverId, conversationId }) => {
+      const receiver = await User.findById(receiverId);
+
+      if (receiver && receiver.socketIds.length > 0) {
+        receiver.socketIds.forEach((socketId) => {
+          io.to(socketId).emit("stopped_typing", {
+            conversationId,
+            userId: socket.userId,
+          });
+        });
+      }
+    });
+
+    //mark as Read
+    socket.on("mark_as_read", async ({ conversationId }) => {
+      const userId = socket.userId;
+      await Chat.updateMany(
+        { conversationId, receiverId: userId, isRead: { $ne: true } },
+        { $set: { isRead: true } }
+      );
+
+      io.emit("messages_read", { conversationId, userId });
+    });
 
     //disconnect
     socket.on("disconnect", async () => {
@@ -150,4 +166,12 @@ const broadCastOnlineUsers = async (io) => {
   io.emit("online_users", onlineUsers);
 };
 
-module.exports = socketSetup;
+const getIO = () => {
+  if (!io) {
+    throw new Error("Socket.io not initialized");
+  }
+
+  return io;
+};
+
+module.exports = { socketSetup, getIO };

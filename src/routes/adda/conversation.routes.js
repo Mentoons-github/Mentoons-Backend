@@ -18,4 +18,4 @@ conversationRouter.get(
   getMessageInConversation
 );
 
-return conversationRouter;
+module.exports = conversationRouter;
