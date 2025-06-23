@@ -82,13 +82,8 @@ const socketSetup = (server) => {
           senderId: socket.userId,
           receiverId,
           message,
-<<<<<<< HEAD
-          fileType,
-          isDelivered: false, // new fields
-=======
           fileType, // new fields
           isDelivered:true
->>>>>>> upstream/main
           // fileName, // new fields
         });
 
@@ -106,10 +101,7 @@ const socketSetup = (server) => {
               // fileName,
             });
           });
-
-          chat.isDelivered = true;
-
-          await chat.save();
+          
         } else {
           console.log("Receiver offline, message saved.");
         }
