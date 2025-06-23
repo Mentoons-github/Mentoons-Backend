@@ -71,9 +71,11 @@ const socketSetup = (server) => {
           conversation = await Conversations.create({
             members: [socket.userId.toString(), receiverId],
             lastMessage: message,
+            messageType:fileType,
           });
         } else {
           conversation.lastMessage = message;
+          conversation.messageType = fileType
           await conversation.save();
         }
 
@@ -96,7 +98,7 @@ const socketSetup = (server) => {
               senderId: socket.userId,
               receiverId,
               message,
-              timestamp: chat.createdAt,
+              createdAt: chat.createdAt,
               fileType,
               // fileName,
             });
