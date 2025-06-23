@@ -285,8 +285,6 @@ const getAllFriends = asyncHandler(async (req, res) => {
       .skip(skip)
       .limit(limitNum);
 
-    console.log("Fetched friends:", friends);
-
     return successResponse(res, 200, "Friends fetched successfully", {
       friends,
       totalCount,
