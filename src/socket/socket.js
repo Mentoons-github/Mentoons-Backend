@@ -86,6 +86,7 @@ const socketSetup = (server) => {
           receiverId,
           message,
           fileType, // new fields
+          isDelivered:true
           // fileName, // new fields
         });
 
@@ -97,6 +98,7 @@ const socketSetup = (server) => {
               chatId: chat._id,
               conversationId: conversation._id,
               senderId: socket.userId,
+              receiverId,
               message,
               timestamp: chat.createdAt,
               fileType,
@@ -111,6 +113,7 @@ const socketSetup = (server) => {
           chatId: chat._id,
           conversationId: conversation._id,
           senderId: socket.userId,
+          receiverId,
           message,
           timestamp: chat.createdAt,
           fileType,
@@ -141,15 +144,19 @@ const socketSetup = (server) => {
 
           const receiver = await User.findById(receiverId);
 
-      if (receiver && receiver.socketIds.length > 0) {
-        receiver.socketIds.forEach((socketId) => {
-          io.to(socketId).emit("typing", {
-            conversationId,
-            userId: socket.userId,
-          });
-        });
+          if (receiver && receiver.socketIds.length > 0) {
+            receiver.socketIds.forEach((socketId) => {
+              io.to(socketId).emit("typing", {
+                conversationId,
+                userId: socket.userId,
+              });
+            });
+          }
+        } catch (error) {
+          console.log(error);
+        }
       }
-    });
+    );
 
     socket.on("stopped_typing", async ({ receiverId, conversationId }) => {
       const receiver = await User.findById(receiverId);
