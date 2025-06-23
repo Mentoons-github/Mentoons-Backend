@@ -1,7 +1,6 @@
 const socketIo = require("socket.io");
 const User = require("../models/user");
 const Chat = require("../models/adda/message");
-const Notification = require("../models/adda/notification");
 const { clerk } = require("../middlewares/auth.middleware");
 const Conversations = require("../models/adda/conversation");
 
@@ -60,12 +59,10 @@ const socketSetup = (server) => {
 
     broadCastOnlineUsers(io);
 
-    //sample
-    socket.emit("hello", "hey hello");
-
     //send message
     socket.on("send_message", async ({ receiverId, message, fileType }) => {
       try {
+        console.log("message received :", message);
         let conversation = await Conversations.findOne({
           members: { $all: [socket.userId.toString(), receiverId] },
         });
@@ -85,11 +82,11 @@ const socketSetup = (server) => {
           senderId: socket.userId,
           receiverId,
           message,
-          fileType, // new fields
+          fileType,
+          isDelivered: false, // new fields
           // fileName, // new fields
         });
 
-        // 5️⃣ Send to receiver
         const receiver = await User.findById(receiverId);
         if (receiver && receiver.socketIds.length > 0) {
           receiver.socketIds.forEach((id) => {
@@ -103,6 +100,10 @@ const socketSetup = (server) => {
               // fileName,
             });
           });
+
+          chat.isDelivered = true;
+
+          await chat.save();
         } else {
           console.log("Receiver offline, message saved.");
         }
@@ -121,43 +122,27 @@ const socketSetup = (server) => {
       }
     });
 
-    //notification
-    socket.on(
-      "new_notification",
-      async ({ message, receiverId, type, referenceId, referenceModel }) => {
-        try {
-          const notificationData = {
-            userId: receiverId,
-            message,
-            isRead: false,
-            type,
-            initiatorId: socket.userId,
-          };
-
-          if (referenceId) notificationData.referenceId = referenceId;
-          if (referenceModel) notificationData.referenceModel = referenceModel;
-
-          const notification = await Notification.create(notificationData);
-
-          const receiver = await User.findById(receiverId);
+    //typing
+    socket.on("typing", async ({ receiverId }) => {
+      console.log("user is typing");
+      const receiver = await User.findById(receiverId);
 
       if (receiver && receiver.socketIds.length > 0) {
         receiver.socketIds.forEach((socketId) => {
           io.to(socketId).emit("typing", {
-            conversationId,
             userId: socket.userId,
           });
         });
       }
     });
 
-    socket.on("stopped_typing", async ({ receiverId, conversationId }) => {
+    socket.on("stopped_typing", async ({ receiverId }) => {
+      console.log("user stopped typing");
       const receiver = await User.findById(receiverId);
 
       if (receiver && receiver.socketIds.length > 0) {
         receiver.socketIds.forEach((socketId) => {
           io.to(socketId).emit("stopped_typing", {
-            conversationId,
             userId: socket.userId,
           });
         });
