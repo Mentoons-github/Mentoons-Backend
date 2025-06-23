@@ -82,8 +82,13 @@ const socketSetup = (server) => {
           senderId: socket.userId,
           receiverId,
           message,
+<<<<<<< HEAD
           fileType,
           isDelivered: false, // new fields
+=======
+          fileType, // new fields
+          isDelivered:true
+>>>>>>> upstream/main
           // fileName, // new fields
         });
 
@@ -94,6 +99,7 @@ const socketSetup = (server) => {
               chatId: chat._id,
               conversationId: conversation._id,
               senderId: socket.userId,
+              receiverId,
               message,
               timestamp: chat.createdAt,
               fileType,
@@ -112,6 +118,7 @@ const socketSetup = (server) => {
           chatId: chat._id,
           conversationId: conversation._id,
           senderId: socket.userId,
+          receiverId,
           message,
           timestamp: chat.createdAt,
           fileType,
