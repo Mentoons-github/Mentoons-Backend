@@ -62,64 +62,68 @@ const socketSetup = (server) => {
 
     notifyFollowersAboutOnlineStatus(socket.userId);
 
-    //send message
     socket.on("send_message", async ({ receiverId, message, fileType }) => {
       try {
         console.log("message received :", message);
-        let conversation = await Conversations.findOne({
-          members: { $all: [socket.userId.toString(), receiverId] },
-        });
 
-        if (!conversation) {
-          conversation = await Conversations.create({
-            members: [socket.userId.toString(), receiverId],
-            lastMessage: message,
+        const receiverIds = Array.isArray(receiverId)
+          ? receiverId
+          : [receiverId];
+
+        for (const receiver of receiverIds) {
+          let conversation = await Conversations.findOne({
+            members: { $all: [socket.userId.toString(), receiver] },
           });
-        } else {
-          conversation.lastMessage = message;
-          await conversation.save();
-        }
 
-        const chat = await Chat.create({
-          conversationId: conversation._id,
-          senderId: socket.userId,
-          receiverId,
-          message,
-          fileType, // new fields
-          isDelivered: true,
-          isRead: false, // fileName, // new fields
-        });
-
-        const receiver = await User.findById(receiverId);
-        if (receiver && receiver.socketIds.length > 0) {
-          chat.isRead = true;
-          await chat.save();
-          receiver.socketIds.forEach((id) => {
-            io.to(id).emit("receive_message", {
-              chatId: chat._id,
-              conversationId: conversation._id,
-              senderId: socket.userId,
-              receiverId,
-              message,
-              timestamp: chat.createdAt,
-              fileType,
-              // fileName,
+          if (!conversation) {
+            conversation = await Conversations.create({
+              members: [socket.userId.toString(), receiver],
+              lastMessage: message,
             });
-          });
-        } else {
-          console.log("Receiver offline, message saved.");
-        }
+          } else {
+            conversation.lastMessage = message;
+            await conversation.save();
+          }
 
-        socket.emit("receive_message", {
-          chatId: chat._id,
-          conversationId: conversation._id,
-          senderId: socket.userId,
-          receiverId,
-          message,
-          timestamp: chat.createdAt,
-          fileType,
-          // fileName,
-        });
+          const chat = await Chat.create({
+            conversationId: conversation._id,
+            senderId: socket.userId,
+            receiverId: receiver,
+            message,
+            fileType,
+            isDelivered: true,
+            isRead: false,
+          });
+
+          const receiverUser = await User.findById(receiver);
+          if (receiverUser && receiverUser.socketIds.length > 0) {
+            chat.isRead = true;
+            await chat.save();
+            receiverUser.socketIds.forEach((id) => {
+              io.to(id).emit("receive_message", {
+                chatId: chat._id,
+                conversationId: conversation._id,
+                senderId: socket.userId,
+                receiverId: receiver,
+                message,
+                timestamp: chat.createdAt,
+                fileType,
+              });
+            });
+          } else {
+            console.log("Receiver offline, message saved.");
+          }
+
+          socket.emit("receive_message", {
+            chatId: chat._id,
+            conversationId: conversation._id,
+            senderId: socket.userId,
+            receiverId: receiver,
+            message,
+            timestamp: chat.createdAt,
+            fileType,
+          });
+        }
       } catch (err) {
         console.error("Error sending message:", err);
       }
