@@ -7,7 +7,7 @@ const Conversations = require("../models/adda/conversation");
 let io;
 
 const socketSetup = (server) => {
-  console.log("socket connecting");
+  console.log("Socket connecting...");
   io = socketIo(server, {
     cors: {
       origin: [
@@ -21,13 +21,11 @@ const socketSetup = (server) => {
     },
   });
 
-  //Auth
+  // Auth middleware
   io.use(async (socket, next) => {
     const token = socket.handshake.auth.token;
-    console.log("entering to middleware");
-    if (!token) {
-      return next(new Error("Authentication token missing"));
-    }
+    console.log("Entering auth middleware");
+    if (!token) return next(new Error("Authentication token missing"));
 
     try {
       const session = await clerk.verifyToken(token);
@@ -39,10 +37,7 @@ const socketSetup = (server) => {
         { new: true }
       );
 
-      if (!user) {
-        return next(new Error("User not found in DB"));
-      }
-
+      if (!user) return next(new Error("User not found in DB"));
       socket.userId = user._id;
       next();
     } catch (err) {
@@ -51,20 +46,26 @@ const socketSetup = (server) => {
     }
   });
 
-  //connection
-  io.on("connection", (socket) => {
-    console.log(
-      `socket is connected with socket id ${socket.id}, user is ${socket.userId}`
-    );
+  io.on("connection", async (socket) => {
+    console.log(`Socket connected: ${socket.id}, user: ${socket.userId}`);
+    broadCastOnlineUsers(io);
 
-    broadCastOnlineUsers(socket);
+    const undeliveredMessages = await Chat.find({
+      receiverId: socket.userId,
+      isDelivered: false,
+    });
 
-    notifyFollowersAboutOnlineStatus(socket.userId);
+    if (undeliveredMessages.length > 0) {
+      await Chat.updateMany(
+        { receiverId: socket.userId, isDelivered: false },
+        { $set: { isDelivered: true } }
+      );
+    }
 
+    // Send message
     socket.on("send_message", async ({ receiverId, message, fileType }) => {
       try {
-        console.log("message received :", message);
-
+        console.log("Message received:", message);
         const receiverIds = Array.isArray(receiverId)
           ? receiverId
           : [receiverId];
@@ -78,12 +79,18 @@ const socketSetup = (server) => {
             conversation = await Conversations.create({
               members: [socket.userId.toString(), receiver],
               lastMessage: message,
-              messageType: fileType
+              messageType: fileType,
             });
           } else {
             conversation.lastMessage = message;
-            conversation.messageType = fileType
+            conversation.messageType = fileType;
             await conversation.save();
+          }
+
+          let isDelivered = false;
+          const receiverUser = await User.findById(receiver);
+          if (receiverUser && receiverUser.socketIds.length > 0) {
+            isDelivered = true;
           }
 
           const chat = await Chat.create({
@@ -92,14 +99,12 @@ const socketSetup = (server) => {
             receiverId: receiver,
             message,
             fileType,
-            isDelivered: true,
+            isDelivered,
             isRead: false,
           });
 
-          const receiverUser = await User.findById(receiver);
-          if (receiverUser && receiverUser.socketIds.length > 0) {
-            chat.isRead = true;
-            await chat.save();
+          // Emit to receiver if online
+          if (isDelivered) {
             receiverUser.socketIds.forEach((id) => {
               io.to(id).emit("receive_message", {
                 chatId: chat._id,
@@ -107,22 +112,27 @@ const socketSetup = (server) => {
                 senderId: socket.userId,
                 receiverId: receiver,
                 message,
-                timestamp: chat.createdAt,
+                createdAt: chat.createdAt,
                 fileType,
+                isDelivered,
+                isRead: false,
               });
             });
           } else {
             console.log("Receiver offline, message saved.");
           }
 
+          // Emit back to sender also
           socket.emit("receive_message", {
             chatId: chat._id,
             conversationId: conversation._id,
             senderId: socket.userId,
             receiverId: receiver,
             message,
-            timestamp: chat.createdAt,
+            createdAt: chat.createdAt,
             fileType,
+            isDelivered,
+            isRead: false,
           });
         }
       } catch (err) {
@@ -130,237 +140,75 @@ const socketSetup = (server) => {
       }
     });
 
-    //typing
+    // Typing indicators
     socket.on("typing", async ({ receiverId }) => {
-      console.log("user is typing");
       const receiver = await User.findById(receiverId);
-
       if (receiver && receiver.socketIds.length > 0) {
         receiver.socketIds.forEach((socketId) => {
-          io.to(socketId).emit("typing", {
-            userId: socket.userId,
-          });
+          io.to(socketId).emit("typing", { userId: socket.userId });
         });
       }
     });
 
     socket.on("stopped_typing", async ({ receiverId }) => {
-      console.log("user stopped typing");
       const receiver = await User.findById(receiverId);
-
       if (receiver && receiver.socketIds.length > 0) {
         receiver.socketIds.forEach((socketId) => {
-          io.to(socketId).emit("stopped_typing", {
-            userId: socket.userId,
-          });
+          io.to(socketId).emit("stopped_typing", { userId: socket.userId });
         });
       }
     });
 
-    // //mark as Read
-    // socket.on("mark_as_read", async ({ conversationId }) => {
-    //   const userId = socket.userId;
-    //   await Chat.updateMany(
-    //     { conversationId, receiverId: userId, isRead: { $ne: true } },
-    //     { $set: { isRead: true } }
-    //   );
+    // Mark as Read
+    socket.on("mark_as_read", async ({ conversationId }) => {
+      const userId = socket.userId;
 
-    //   io.emit("messages_read", { conversationId, userId });
-    // });
-
-    //online users
-    socket.on("online_users", async () => {
-      console.log(
-        "reached online users======================================================>"
+      // Update unread messages for this user
+      await Chat.updateMany(
+        { conversationId, receiverId: userId, isRead: { $ne: true } },
+        { $set: { isRead: true } }
       );
-      try {
-        const currentUser = await User.findById(socket.userId).select(
-          "followers"
+
+      // Notify sender(s) that receiver read messages
+      const conversation = await Conversations.findById(conversationId);
+      if (conversation) {
+        const otherMemberIds = conversation.members.filter(
+          (id) => id.toString() !== userId.toString()
         );
-        if (!currentUser) {
-          return socket.emit("online_users", []);
-        }
 
-        const onlineFollowers = await User.find({
-          _id: { $in: currentUser.followers },
-          socketIds: { $exists: true, $ne: [] },
-        }).select("_id name picture email bio");
-
-        const result = [];
-
-        for (const follower of onlineFollowers) {
-          const conversation = await Conversations.findOne({
-            members: {
-              $all: [socket.userId.toString(), follower._id.toString()],
-            },
-          }).sort({ updatedAt: -1 });
-
-          if (conversation) {
-            result.push({
-              conversation_id: conversation._id,
-              friend: {
-                _id: follower._id,
-                name: follower.name,
-                picture: follower.picture,
-                email: follower.email,
-                bio: follower.bio,
-                isOnline: true,
-              },
-              lastMessage: conversation.lastMessage || "",
-              updatedAt: conversation.updatedAt,
-              createdAt: conversation.createdAt,
-              isRead: false,
-            });
-          } else {
-            result.push({
-              _id: follower._id,
-              name: follower.name,
-              picture: follower.picture,
-              email: follower.email,
-              bio: follower.bio,
-              isOnline: true,
+        for (const senderId of otherMemberIds) {
+          const sender = await User.findById(senderId);
+          if (sender && sender.socketIds.length > 0) {
+            sender.socketIds.forEach((socketId) => {
+              io.to(socketId).emit("messages_read", { conversationId, userId });
             });
           }
         }
-        console.log("result getting");
-
-        socket.emit("online_users", result);
-      } catch (error) {
-        console.error("Error fetching online followers:", error);
-        socket.emit("online_users", []);
       }
     });
 
-    //disconnect
+    // Disconnect
     socket.on("disconnect", async () => {
       console.log("a user disconnected");
-      const user = await User.findByIdAndUpdate(socket.userId, {
-        $pull: { socketIds: socket.id },
+      await User.findByIdAndUpdate(socket.userId, {
+        $set: { socketIds: [] },
       });
-
-      console.log("disconnected user :", user.email);
-
-      broadCastOnlineUsers(socket);
-      await notifyFollowersAboutOnlineStatus(socket.userId);
+      broadCastOnlineUsers(io);
     });
   });
 
   return io;
 };
 
-//passing online users
-const broadCastOnlineUsers = async (socket) => {
-  try {
-    console.log(`[broadCastOnlineUsers] Started for userId: ${socket.userId}`);
-
-    const currentUser = await User.findById(socket.userId).select("followers");
-    if (!currentUser) {
-      console.warn(
-        `[broadCastOnlineUsers] User not found for userId: ${socket.userId}`
-      );
-      return socket.emit("online_users", []);
-    }
-
-    console.log(
-      `[broadCastOnlineUsers] Found user. Total followers: ${currentUser.followers.length}`
-    );
-
-    const onlineFollowers = await User.find({
-      _id: { $in: currentUser.followers },
-      socketIds: { $exists: true, $ne: [] },
-    }).select("_id name picture email bio");
-
-    console.log(
-      `[broadCastOnlineUsers] Found ${onlineFollowers.length} online followers`
-    );
-
-    const result = [];
-
-    for (const follower of onlineFollowers) {
-      console.log(
-        `[broadCastOnlineUsers] Processing follower: ${follower._id}`
-      );
-
-      const conversation = await Conversations.findOne({
-        members: {
-          $all: [socket.userId.toString(), follower._id.toString()],
-        },
-      }).sort({ updatedAt: -1 });
-
-      if (conversation) {
-        console.log(
-          `[broadCastOnlineUsers] Found conversation with follower: ${follower._id}, conversationId: ${conversation._id}, user name : ${follower.email}`
-        );
-
-        result.push({
-          conversation_id: conversation._id,
-          friend: {
-            _id: follower._id,
-            name: follower.name,
-            picture: follower.picture,
-            email: follower.email,
-            bio: follower.bio,
-            isOnline: true,
-          },
-          lastMessage: conversation.lastMessage || "",
-          updatedAt: conversation.updatedAt,
-          createdAt: conversation.createdAt,
-          isRead: false,
-        });
-      } else {
-        console.log(
-          `[broadCastOnlineUsers] No conversation found with follower: ${follower._id}`
-        );
-
-        console.log("online friend found", follower.email);
-
-        result.push({
-          _id: follower._id,
-          name: follower.name,
-          picture: follower.picture,
-          email: follower.email,
-          bio: follower.bio,
-          isOnline: true,
-        });
-      }
-    }
-
-    console.log(
-      `[broadCastOnlineUsers] Final result prepared: ${result.length} entries`
-    );
-
-    console.log("result ");
-    socket.emit("online_users", result);
-  } catch (error) {
-    console.error(
-      "[broadCastOnlineUsers] Error fetching online followers:",
-      error
-    );
-    socket.emit("online_users", []);
-  }
-};
-
-//notify
-const notifyFollowersAboutOnlineStatus = async (userId) => {
-  const currentUser = await User.findById(userId).select("followers");
-
-  if (!currentUser) return;
-
-  for (const followerId of currentUser.followers) {
-    const follower = await User.findById(followerId);
-    if (!follower || !follower.socketIds.length) continue;
-
-    follower.socketIds.forEach((socketId) => {
-      io.to(socketId).emit("refresh_online_users");
-    });
-  }
+const broadCastOnlineUsers = async (io) => {
+  const onlineUsers = await User.find({
+    socketIds: { $exists: true, $ne: [] },
+  });
+  io.emit("online_users", onlineUsers);
 };
 
 const getIO = () => {
-  if (!io) {
-    throw new Error("Socket.io not initialized");
-  }
-
+  if (!io) throw new Error("Socket.io not initialized");
   return io;
 };
 

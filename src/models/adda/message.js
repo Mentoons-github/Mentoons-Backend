@@ -26,6 +26,7 @@ const messageSchema = new mongoose.Schema(
     isDelivered: {
       type: Boolean,
       required: true,
+      default:false
     },
   },
   {
