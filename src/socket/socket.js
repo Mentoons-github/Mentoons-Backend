@@ -3,7 +3,6 @@ const User = require("../models/user");
 const Chat = require("../models/adda/message");
 const { clerk } = require("../middlewares/auth.middleware");
 const Conversations = require("../models/adda/conversation");
-const { Conversation } = require("twilio/lib/twiml/VoiceResponse");
 
 let io;
 
@@ -79,9 +78,11 @@ const socketSetup = (server) => {
             conversation = await Conversations.create({
               members: [socket.userId.toString(), receiver],
               lastMessage: message,
+              messageType: fileType
             });
           } else {
             conversation.lastMessage = message;
+            conversation.messageType = fileType
             await conversation.save();
           }
 

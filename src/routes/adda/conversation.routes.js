@@ -4,6 +4,7 @@ const {
   getUserConversations,
   getMessageInConversation,
   deleteMessageInConversation,
+  getConversationId,
 } = require("../../controllers/adda/conversation");
 
 const conversationRouter = express.Router();
@@ -16,6 +17,7 @@ conversationRouter.get(
   "/:conversationId",
   verifyToken,
   getMessageInConversation
-);
+)
+.get("/conversationId/:friendId",verifyToken,getConversationId)
 
 module.exports = conversationRouter;
