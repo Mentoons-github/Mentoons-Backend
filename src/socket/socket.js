@@ -48,7 +48,7 @@ const socketSetup = (server) => {
 
   io.on("connection", async (socket) => {
     console.log(`Socket connected: ${socket.id}, user: ${socket.userId}`);
-    broadCastOnlineUsers(io);
+    broadCastOnlineUsers(socket);
 
     const undeliveredMessages = await Chat.find({
       receiverId: socket.userId,
@@ -193,18 +193,23 @@ const socketSetup = (server) => {
       await User.findByIdAndUpdate(socket.userId, {
         $set: { socketIds: [] },
       });
-      broadCastOnlineUsers(io);
+      broadCastOnlineUsers(socket);
     });
   });
 
   return io;
 };
 
-const broadCastOnlineUsers = async (io) => {
+const broadCastOnlineUsers = async (socket) => {
+  const currentUser = await User.findById(socket.userId);
+  if (!currentUser) return;
+
   const onlineUsers = await User.find({
+    _id: { $in: currentUser.following },
     socketIds: { $exists: true, $ne: [] },
-  });
-  io.emit("online_users", onlineUsers);
+  }).select("_id");
+
+  io.to(socket.id).emit("online_users", onlineUsers);
 };
 
 const getIO = () => {

@@ -3,6 +3,7 @@ const cors = require("cors");
 const dbConnection = require("./src/config/dbConfig");
 const errorHandler = require("./src/middlewares/errorHandler");
 const morgan = require("morgan");
+const conditionalClerkMiddleware = require("./src/middlewares/clerkConditionalMiddleware.js");
 
 require("./src/cron/sessionNotifer.js");
 
@@ -81,7 +82,7 @@ app.use(
   })
 );
 
-app.use(clerkMiddleware());
+app.use(conditionalClerkMiddleware);
 
 app.use(bodyParser.json());
 
