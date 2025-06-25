@@ -66,9 +66,7 @@ const socketSetup = (server) => {
     socket.on("send_message", async ({ receiverId, message, fileType }) => {
       try {
         console.log("Message received:", message);
-        const receiverIds = Array.isArray(receiverId)
-          ? receiverId
-          : [receiverId];
+        const receiverIds = Array.isArray(receiverId) ? receiverId : [receiverId];
 
         for (const receiver of receiverIds) {
           let conversation = await Conversations.findOne({
@@ -79,7 +77,7 @@ const socketSetup = (server) => {
             conversation = await Conversations.create({
               members: [socket.userId.toString(), receiver],
               lastMessage: message,
-              messageType: fileType,
+              messageType: fileType
             });
           } else {
             conversation.lastMessage = message;
@@ -188,7 +186,7 @@ const socketSetup = (server) => {
     });
 
     // Disconnect
-    socket.on("disconnect", async () => {
+     socket.on("disconnect", async () => {
       console.log("a user disconnected");
       await User.findByIdAndUpdate(socket.userId, {
         $set: { socketIds: [] },
