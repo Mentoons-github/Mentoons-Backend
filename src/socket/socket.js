@@ -48,6 +48,8 @@ const socketSetup = (server) => {
 
   io.on("connection", async (socket) => {
     console.log(`Socket connected: ${socket.id}, user: ${socket.userId}`);
+
+     socket.emit("mongo_user_id", { userId: socket.userId });
     broadCastOnlineUsers(socket);
 
     const undeliveredMessages = await Chat.find({
@@ -66,7 +68,9 @@ const socketSetup = (server) => {
     socket.on("send_message", async ({ receiverId, message, fileType }) => {
       try {
         console.log("Message received:", message);
-        const receiverIds = Array.isArray(receiverId) ? receiverId : [receiverId];
+        const receiverIds = Array.isArray(receiverId)
+          ? receiverId
+          : [receiverId];
 
         for (const receiver of receiverIds) {
           let conversation = await Conversations.findOne({
@@ -77,12 +81,18 @@ const socketSetup = (server) => {
             conversation = await Conversations.create({
               members: [socket.userId.toString(), receiver],
               lastMessage: message,
-              messageType: fileType
+              messageType: fileType,
             });
           } else {
             conversation.lastMessage = message;
             conversation.messageType = fileType;
+            const receiverIdStr = receiver.toString();
+            console.log(receiverIdStr,'receiveeeerrrrr')
+            const currentCount =
+              conversation.unreadCounts.get(receiverIdStr) || 0;
+            conversation.unreadCounts.set(receiverIdStr, currentCount + 1);
             await conversation.save();
+            
           }
 
           let isDelivered = false;
@@ -170,6 +180,9 @@ const socketSetup = (server) => {
       // Notify sender(s) that receiver read messages
       const conversation = await Conversations.findById(conversationId);
       if (conversation) {
+        conversation.unreadCounts.set(userId.toString(), 0);
+        await conversation.save();
+
         const otherMemberIds = conversation.members.filter(
           (id) => id.toString() !== userId.toString()
         );
@@ -186,7 +199,7 @@ const socketSetup = (server) => {
     });
 
     // Disconnect
-     socket.on("disconnect", async () => {
+    socket.on("disconnect", async () => {
       console.log("a user disconnected");
       await User.findByIdAndUpdate(socket.userId, {
         $set: { socketIds: [] },
