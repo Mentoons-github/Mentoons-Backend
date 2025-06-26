@@ -6,6 +6,11 @@ const conversationSchema = new mongoose.Schema(
     lastMessage: { type: String, default: "" },
     messageType: { type: String, default: "text" },
     isBlocked: { type: Boolean, required: false },
+    unreadCounts: {
+      type: Map,
+      of: Number,
+      default: {},
+    },
   },
   {
     timestamps: true,
