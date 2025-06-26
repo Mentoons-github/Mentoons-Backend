@@ -117,7 +117,7 @@ const getMessageInConversation = asyncHandler(async (req, res) => {
 
     const messages = await Message.find(query)
       .sort({ createdAt: -1 })
-      .limit(limit);
+      // .limit(limit);
 
     return successResponse(res, 200, "Messages fetched successfully", messages);
   } catch (err) {
