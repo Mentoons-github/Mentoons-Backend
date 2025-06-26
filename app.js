@@ -58,6 +58,7 @@ const sessionRoute = require("./src/routes/session.js");
 const addaRouter = require("./src/routes/adda.routes.js");
 const { socketSetup } = require("./src/socket/socket.js");
 const influencerJobRequestRoutes = require("./src/routes/influencerJobRequest.routes.js");
+const subscriptionRouter = require("./src/routes/subscription.routes.js");
 // const { requireAuth } = require("@clerk/express");
 dotenv.config();
 const app = express();
@@ -211,6 +212,7 @@ app.use("/api/v1/rewards", rewardRoutes);
 app.use("/api/v1/admin/rewards", adminRewardRoutes);
 app.use("/api/v1/reactions", reactionRoutes);
 app.use("/api/v1/order", orderRouter);
+app.use("/api/v1/subscription", subscriptionRouter);
 app.use("/api/v1/conversation", conversationRouter);
 app.use("/health", (req, res) => {
   res.json({

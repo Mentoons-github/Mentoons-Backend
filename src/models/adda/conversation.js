@@ -4,7 +4,8 @@ const conversationSchema = new mongoose.Schema(
   {
     members: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     lastMessage: { type: String, default: "" },
-    messageType: { type: String, default:'text' },
+    messageType: { type: String, default: "text" },
+    isBlocked: { type: Boolean, required: false },
   },
   {
     timestamps: true,

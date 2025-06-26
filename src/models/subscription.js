@@ -3,14 +3,14 @@ const mongoose = require("mongoose");
 const subscriptionSchema = new mongoose.Schema(
   {
     firstname: {
-      tyep: String,
+      type: String,
       required: [true, "First name is required"],
       trim: true,
       minLength: 2,
       maxLength: 100,
     },
     lastname: {
-      tyep: String,
+      type: String,
       required: [true, "Last name is required"],
       trim: true,
       minLength: 2,

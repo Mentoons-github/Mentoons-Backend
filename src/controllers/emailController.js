@@ -335,6 +335,8 @@ module.exports = {
 
   freeDownloadComic: asyncHandler(async (req, res, next) => {
     const { email, data } = req.body;
+    console.log("pdf from froentend :", data);
+    console.log("email from frontend : ", email);
 
     if (!email || !data) {
       throw new Error("Missing fields are required fields");
@@ -352,19 +354,86 @@ module.exports = {
       to: email,
       subject: "Enjoy your Free Downloads from Mentoons!",
       html: `
-                  <div style="font-family: 'Futura', sans-serif; background-color: #f7bbc3; padding: 20px; border-radius: 8px; border: 2px solid #eb3f56;">
-                      <h1 style="color: #eb3f56;">Thank you for subscribing!</h1>
-                      <p style="color: #6c757d; font-size: 16px;">We're thrilled to have you! Click the thumbnail below to download your free PDF:</p>
-                      <a href="${data.pdf}" download style="display: inline-block; text-decoration: none;">
-                          <img src="${data.thumbnail}" alt="PDF Thumbnail" style="max-width: 50%; height: auto; border: 2px solid #eb3f56; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);" />
-                      </a>
-                      <p style="font-size: 14px; color: #6c757d; margin-top: 10px;">Happy reading!</p>
-                  </div>
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Your Free Comic Download</title>
+        </head>
+        <body style="margin: 0; padding: 0; font-family: 'Arial', 'Helvetica', sans-serif; background-color: #f5f5f5;">
+            <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);">
+                <!-- Header -->
+                <div style="background: linear-gradient(135deg, #eb3f56 0%, #f7bbc3 100%); padding: 40px 30px; text-align: center;">
+                    <h1 style="color: #ffffff; font-size: 32px; font-weight: bold; margin: 0; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);">
+                        🎉 Thank You for Subscribing!
+                    </h1>
+                    <p style="color: #ffffff; font-size: 18px; margin: 15px 0 0 0; opacity: 0.95;">
+                        Your free comic is ready for download
+                    </p>
+                </div>
+                
+                <!-- Main Content -->
+                <div style="padding: 40px 30px;">
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <p style="color: #333333; font-size: 18px; line-height: 1.6; margin: 0 0 25px 0;">
+                            We're thrilled to have you as part of the <strong style="color: #eb3f56;">Mentoons</strong> community! 
+                            Your free comic download is waiting for you below.
+                        </p>
+                    </div>
+                    
+                    <!-- Download Section -->
+                    <div style="background-color: #f8f9fa; padding: 30px; border-radius: 12px; border: 2px solid #eb3f56; text-align: center; margin-bottom: 30px;">
+                        <p style="color: #555555; font-size: 16px; margin: 0 0 20px 0; font-weight: 600;">
+                            Click the image below to download your comic:
+                        </p>
+                        
+                        <a href="${data.pdf}" download style="display: inline-block; text-decoration: none; transition: transform 0.3s ease;">
+                            <div style="position: relative; display: inline-block;">
+                                <img src="${data.thumbnail}" 
+                                     alt="Comic Thumbnail" 
+                                     style="max-width: 280px; width: 100%; height: auto; border: 3px solid #eb3f56; border-radius: 15px; box-shadow: 0 8px 25px rgba(235, 63, 86, 0.3); transition: transform 0.3s ease;" />
+                                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: rgba(235, 63, 86, 0.9); color: white; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: bold; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);">
+                                    📥 Download Now
+                                </div>
+                            </div>
+                        </a>
+                        
+                        <p style="color: #666666; font-size: 14px; margin: 15px 0 0 0; font-style: italic;">
+                            High-quality PDF • Ready to read offline
+                        </p>
+                    </div>
+                    
+                    <!-- Additional Message -->
+                    <div style="background: linear-gradient(135deg, #fff5f6 0%, #ffeef0 100%); padding: 25px; border-radius: 10px; border-left: 4px solid #eb3f56;">
+                        <p style="color: #333333; font-size: 16px; line-height: 1.6; margin: 0;">
+                            <strong>Happy Reading! 📚</strong><br>
+                            We hope you enjoy this comic and look forward to bringing you more amazing content. 
+                            Don't forget to share it with friends and family!
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Footer -->
+                <div style="background-color: #f8f9fa; padding: 25px 30px; border-top: 1px solid #e9ecef; text-align: center;">
+                    <p style="color: #666666; font-size: 14px; margin: 0; line-height: 1.5;">
+                        Thank you for choosing <strong style="color: #eb3f56;">Mentoons</strong><br>
+                        Stay tuned for more exciting content and updates!
+                    </p>
+                </div>
+            </div>
+        </body>
+        </html>
               `,
     };
 
-    await sendEmail(userOptions);
-    await sendEmail(adminOptions);
+    const userEmailSent = await sendEmail(userOptions);
+    const adminEmailSent = await sendEmail(adminOptions);
+
+    if (!userEmailSent || !adminEmailSent) {
+      return errorResponse(res, 500, "Failed to send one or more emails");
+    }
+
     return successResponse(
       res,
       200,

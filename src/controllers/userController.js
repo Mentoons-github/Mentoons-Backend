@@ -9,6 +9,7 @@ const Auth = require("../utils/auth");
 const { getUsersController } = require("./admin");
 const User = require("../models/user");
 const FriendRequest = require("../models/adda/friendRequest");
+const Conversations = require("../models/adda/conversation");
 
 module.exports = {
   registerController: asyncHandler(async (req, res) => {
@@ -543,7 +544,7 @@ module.exports = {
   }),
 
   blockUser: asyncHandler(async (req, res) => {
-    const { userId: targetUserId } = req.body;
+    const { userId: targetUserId, conversationId } = req.body;
     const requesterId = req.user;
 
     console.log("🔒 Block request initiated", { requesterId, targetUserId });
@@ -582,6 +583,16 @@ module.exports = {
       { upsert: true }
     );
 
+    if (conversationId) {
+      const conversation = await Conversations.findById(conversationId);
+      if (conversation) {
+        conversation.isBlocked = true;
+        await conversation.save();
+      } else {
+        console.warn(`⚠️ Conversation with ID ${conversationId} not found`);
+      }
+    }
+
     console.log(
       `✅ ${targetUser.username || targetUserId} blocked by ${requesterId}`
     );
@@ -593,7 +604,7 @@ module.exports = {
   }),
 
   unblockUser: asyncHandler(async (req, res) => {
-    const { userId: targetUserId } = req.body;
+    const { userId: targetUserId, conversationId } = req.body;
     const requesterId = req.user;
 
     console.log("🔓 Unblock request initiated", { requesterId, targetUserId });
@@ -633,6 +644,16 @@ module.exports = {
       { $pull: { blockedUsers: targetUserId } }
     );
 
+    if (conversationId) {
+      const conversation = await Conversations.findById(conversationId);
+      if (conversation) {
+        conversation.isBlocked = false;
+        await conversation.save();
+      } else {
+        console.warn(`⚠️ Conversation with ID ${conversationId} not found`);
+      }
+    }
+
     console.log(
       `✅ ${targetUser.username || targetUserId} unblocked by ${requesterId}`
     );
@@ -661,5 +682,30 @@ module.exports = {
       "Subscription limits updated successfully",
       updatedUser
     );
+  }),
+
+  checkSubscriptionStatus: asyncHandler(async (req, res) => {
+    const userId = req.user;
+
+    const user = await User.findById(userId).select("subscription");
+
+    if (!user) {
+      return errorResponse(res, 404, "No user found");
+    }
+
+    const { plan, status, startDate, validUntil } = user.subscription || {};
+    const now = new Date();
+
+    const isValid =
+      status === "active" &&
+      startDate &&
+      validUntil &&
+      new Date(startDate) <= now &&
+      new Date(validUntil) >= now;
+
+    return successResponse(res, 200, "User subscription status fetched", {
+      isValid,
+      plan: user.subscription.plan,
+    });
   }),
 };
