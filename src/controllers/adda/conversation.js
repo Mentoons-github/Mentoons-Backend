@@ -34,11 +34,11 @@ const newConversationAndMessage = asyncHandler(async (req, res) => {
 
 const getUserConversations = asyncHandler(async (req, res) => {
   const userId = req.user;
-  console.log(userId)
+  console.log(userId);
 
   try {
     const userConversations = await Conversations.find({
-      members:userId 
+      members: userId,
     }).populate("members", "name picture email bio socketIds");
 
     const formattedConversations = userConversations.map((convo) => {
@@ -57,7 +57,8 @@ const getUserConversations = asyncHandler(async (req, res) => {
           isOnline: friend.socketIds && friend.socketIds.length > 0,
         },
         lastMessage: convo.lastMessage || null,
-        messageType:convo.messageType,
+        unreadCounts: convo.unreadCounts,
+        messageType: convo.messageType,
         updatedAt: convo.updatedAt,
         createdAt: convo.createdAt,
       };
@@ -77,25 +78,30 @@ const getUserConversations = asyncHandler(async (req, res) => {
   }
 });
 
-const getConversationId = asyncHandler(async(req,res)=> {
-  const userId = req.user
-  const friend = req.params.friendId
+const getConversationId = asyncHandler(async (req, res) => {
+  const userId = req.user;
+  const friend = req.params.friendId;
 
   try {
     let conversation = await Conversations.findOne({
-      members: { $all: [userId, friend] }
+      members: { $all: [userId, friend] },
     });
 
-     if (!conversation) {
+    if (!conversation) {
       conversation = await Conversations.create({
-        participants: [userId, friend]
+        participants: [userId, friend],
       });
     }
-    return successResponse(res, 200, "Get the conversation Id", conversation._id);
+    return successResponse(
+      res,
+      200,
+      "Get the conversation Id",
+      conversation._id
+    );
   } catch (error) {
-     return errorResponse(res, 500, "Failed to get messages");
+    return errorResponse(res, 500, "Failed to get messages");
   }
-})
+});
 
 const getMessageInConversation = asyncHandler(async (req, res) => {
   const conversationId = req.params.conversationId;
@@ -110,8 +116,8 @@ const getMessageInConversation = asyncHandler(async (req, res) => {
     }
 
     const messages = await Message.find(query)
-      // .sort({ createdAt: -1 })
-      .limit(limit);
+      .sort({ createdAt: -1 })
+      // .limit(limit);
 
     return successResponse(res, 200, "Messages fetched successfully", messages);
   } catch (err) {
@@ -144,5 +150,5 @@ module.exports = {
   getUserConversations,
   getMessageInConversation,
   deleteMessageInConversation,
-  getConversationId
+  getConversationId,
 };

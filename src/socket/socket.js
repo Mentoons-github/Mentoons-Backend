@@ -48,6 +48,8 @@ const socketSetup = (server) => {
 
   io.on("connection", async (socket) => {
     console.log(`Socket connected: ${socket.id}, user: ${socket.userId}`);
+
+     socket.emit("mongo_user_id", { userId: socket.userId });
     broadCastOnlineUsers(socket);
 
     const undeliveredMessages = await Chat.find({
@@ -84,7 +86,13 @@ const socketSetup = (server) => {
           } else {
             conversation.lastMessage = message;
             conversation.messageType = fileType;
+            const receiverIdStr = receiver.toString();
+            console.log(receiverIdStr,'receiveeeerrrrr')
+            const currentCount =
+              conversation.unreadCounts.get(receiverIdStr) || 0;
+            conversation.unreadCounts.set(receiverIdStr, currentCount + 1);
             await conversation.save();
+            
           }
 
           let isDelivered = false;
@@ -172,6 +180,9 @@ const socketSetup = (server) => {
       // Notify sender(s) that receiver read messages
       const conversation = await Conversations.findById(conversationId);
       if (conversation) {
+        conversation.unreadCounts.set(userId.toString(), 0);
+        await conversation.save();
+
         const otherMemberIds = conversation.members.filter(
           (id) => id.toString() !== userId.toString()
         );

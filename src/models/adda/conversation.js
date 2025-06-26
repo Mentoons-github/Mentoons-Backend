@@ -4,7 +4,12 @@ const conversationSchema = new mongoose.Schema(
   {
     members: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     lastMessage: { type: String, default: "" },
-    messageType: { type: String, default:'text' },
+    messageType: { type: String, default: "text" },
+    unreadCounts: {
+      type: Map,
+      of: Number,
+      default: {},
+    },
   },
   {
     timestamps: true,
