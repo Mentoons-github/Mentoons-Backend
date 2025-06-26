@@ -186,6 +186,15 @@ const UserSchema = new mongoose.Schema(
         default: 0,
       },
     },
+    //recentlu aded for change in subscription
+    accessed: {
+      comics: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comic" }],
+      audioComics: [
+        { type: mongoose.Schema.Types.ObjectId, ref: "AudioComic" },
+      ],
+      podcasts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Podcast" }],
+    },
+    lastReset: { type: Date, default: Date.now },
     blockedUsers: [
       {
         type: mongoose.Schema.Types.ObjectId,

@@ -9,9 +9,15 @@ const reportSchema = new mongoose.Schema({
   reportedUser: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-    required: true,
+    required: false,
+    default: null,
   },
   postId: { type: mongoose.Schema.Types.ObjectId, ref: "Post" },
+  conversationId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Conversation",
+    default: null,
+  },
   reason: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },
 });

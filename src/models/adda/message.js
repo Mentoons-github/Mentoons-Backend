@@ -18,7 +18,11 @@ const messageSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    fileType: { type: String, enum: ["text", "image", "audio", "file", "video"], default: "text" },
+    fileType: {
+      type: String,
+      enum: ["text", "image", "audio", "file", "video"],
+      default: "text",
+    },
     isRead: {
       type: Boolean,
       required: false,
@@ -26,7 +30,11 @@ const messageSchema = new mongoose.Schema(
     isDelivered: {
       type: Boolean,
       required: true,
-      default:false
+      default: false,
+    },
+    isForwarded: {
+      type: Boolean,
+      required: false,
     },
   },
   {

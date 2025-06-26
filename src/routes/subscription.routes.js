@@ -1,7 +1,9 @@
 const express = require("express");
-const {createSubscription,getSubscriptions} = require("../controllers/subscription.controller")
+const { productAccessCheck } = require("../controllers/subscription");
+const verifyToken = require("../middlewares/addaMiddleware");
 
-const router = express.Router();
+const subscriptionRouter = express.Router();
 
-router.post("/subscribe", createSubscription);
-router.get("/subscriptions", getSubscriptions);
+subscriptionRouter.post("/access", verifyToken, productAccessCheck);
+
+module.exports = subscriptionRouter;

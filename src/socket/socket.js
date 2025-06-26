@@ -49,12 +49,21 @@ const socketSetup = (server) => {
   io.on("connection", async (socket) => {
     console.log(`Socket connected: ${socket.id}, user: ${socket.userId}`);
 
-     socket.emit("mongo_user_id", { userId: socket.userId });
+    socket.emit("mongo_user_id", { userId: socket.userId });
     broadCastOnlineUsers(socket);
 
     const undeliveredMessages = await Chat.find({
       receiverId: socket.userId,
       isDelivered: false,
+    });
+
+    const unreadMessage = await Chat.countDocuments({
+      receiverId: socket.userId,
+      isRead: false,
+    });
+
+    io.to(socket.id).emit("unread_message_count", {
+      count: unreadMessage,
     });
 
     if (undeliveredMessages.length > 0) {
@@ -65,88 +74,101 @@ const socketSetup = (server) => {
     }
 
     // Send message
-    socket.on("send_message", async ({ receiverId, message, fileType }) => {
-      try {
-        console.log("Message received:", message);
-        const receiverIds = Array.isArray(receiverId)
-          ? receiverId
-          : [receiverId];
+    socket.on(
+      "send_message",
+      async ({ receiverId, message, fileType, isForwarded = false }) => {
+        try {
+          console.log("Message received:", message);
+          const receiverIds = Array.isArray(receiverId)
+            ? receiverId
+            : [receiverId];
 
-        for (const receiver of receiverIds) {
-          let conversation = await Conversations.findOne({
-            members: { $all: [socket.userId.toString(), receiver] },
-          });
-
-          if (!conversation) {
-            conversation = await Conversations.create({
-              members: [socket.userId.toString(), receiver],
-              lastMessage: message,
-              messageType: fileType,
+          for (const receiver of receiverIds) {
+            let conversation = await Conversations.findOne({
+              members: { $all: [socket.userId.toString(), receiver] },
             });
-          } else {
-            conversation.lastMessage = message;
-            conversation.messageType = fileType;
-            const receiverIdStr = receiver.toString();
-            console.log(receiverIdStr,'receiveeeerrrrr')
-            const currentCount =
-              conversation.unreadCounts.get(receiverIdStr) || 0;
-            conversation.unreadCounts.set(receiverIdStr, currentCount + 1);
-            await conversation.save();
-            
-          }
 
-          let isDelivered = false;
-          const receiverUser = await User.findById(receiver);
-          if (receiverUser && receiverUser.socketIds.length > 0) {
-            isDelivered = true;
-          }
-
-          const chat = await Chat.create({
-            conversationId: conversation._id,
-            senderId: socket.userId,
-            receiverId: receiver,
-            message,
-            fileType,
-            isDelivered,
-            isRead: false,
-          });
-
-          // Emit to receiver if online
-          if (isDelivered) {
-            receiverUser.socketIds.forEach((id) => {
-              io.to(id).emit("receive_message", {
-                chatId: chat._id,
-                conversationId: conversation._id,
-                senderId: socket.userId,
-                receiverId: receiver,
-                message,
-                createdAt: chat.createdAt,
-                fileType,
-                isDelivered,
-                isRead: false,
+            if (!conversation) {
+              conversation = await Conversations.create({
+                members: [socket.userId.toString(), receiver],
+                lastMessage: message,
+                messageType: fileType,
               });
-            });
-          } else {
-            console.log("Receiver offline, message saved.");
-          }
+            } else {
+              conversation.lastMessage = message;
+              conversation.messageType = fileType;
+              const receiverIdStr = receiver.toString();
+              console.log(receiverIdStr, "receiveeeerrrrr");
+              const currentCount =
+                conversation.unreadCounts.get(receiverIdStr) || 0;
+              conversation.unreadCounts.set(receiverIdStr, currentCount + 1);
+              await conversation.save();
+            }
 
-          // Emit back to sender also
-          socket.emit("receive_message", {
-            chatId: chat._id,
-            conversationId: conversation._id,
-            senderId: socket.userId,
-            receiverId: receiver,
-            message,
-            createdAt: chat.createdAt,
-            fileType,
-            isDelivered,
-            isRead: false,
-          });
+            let isDelivered = false;
+            const receiverUser = await User.findById(receiver);
+            if (receiverUser && receiverUser.socketIds.length > 0) {
+              isDelivered = true;
+            }
+
+            const chat = await Chat.create({
+              conversationId: conversation._id,
+              senderId: socket.userId,
+              receiverId: receiver,
+              message,
+              fileType,
+              isDelivered,
+              isRead: false,
+              isForwarded,
+            });
+
+            const unreadCount = await Chat.countDocuments({
+              receiverId: receiver,
+              isRead: false,
+            });
+
+            // Emit to receiver if online
+            if (isDelivered) {
+              receiverUser.socketIds.forEach((id) => {
+                io.to(id).emit("unread_message_count", {
+                  count: unreadCount,
+                });
+                io.to(id).emit("receive_message", {
+                  chatId: chat._id,
+                  conversationId: conversation._id,
+                  senderId: socket.userId,
+                  receiverId: receiver,
+                  message,
+                  createdAt: chat.createdAt,
+                  fileType,
+                  isDelivered,
+                  isRead: false,
+                  isForwarded,
+                });
+              });
+            } else {
+              console.log("Receiver offline, message saved.");
+            }
+
+            // Emit back to sender also
+            socket.emit("receive_message", {
+              chatId: chat._id,
+              conversationId: conversation._id,
+              senderId: socket.userId,
+              receiverId: receiver,
+              message,
+              createdAt: chat.createdAt,
+              fileType,
+              isDelivered,
+              isRead: false,
+              isForwarded,
+            });
+          }
+        } catch (err) {
+          console.error("Error sending message:", err);
         }
-      } catch (err) {
-        console.error("Error sending message:", err);
       }
-    });
+    );
 
     // Typing indicators
     socket.on("typing", async ({ receiverId }) => {
@@ -176,6 +198,14 @@ const socketSetup = (server) => {
         { conversationId, receiverId: userId, isRead: { $ne: true } },
         { $set: { isRead: true } }
       );
+
+      const newUnreadCount = await Chat.countDocuments({
+        receiverId: userId,
+        isRead: false,
+      });
+      io.to(socket.id).emit("unread_message_count", {
+        count: newUnreadCount,
+      });
 
       // Notify sender(s) that receiver read messages
       const conversation = await Conversations.findById(conversationId);
