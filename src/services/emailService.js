@@ -2,7 +2,7 @@ const nodemailer = require("nodemailer");
 require("dotenv").config();
 
 const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
+  host: "smtpout.secureserver.net",
   port: 465,
   secure: true,
   auth: {
@@ -21,11 +21,6 @@ transporter.verify((err, success) => {
 
 const sendEmail = async (mailOptions) => {
   try {
-    console.log(
-      "data =========>",
-      process.env.EMAIL_PASS,
-      process.env.EMAIL_USER
-    );
     const info = await transporter.sendMail(mailOptions);
     console.log("Email sent: " + info.response);
     return true;
