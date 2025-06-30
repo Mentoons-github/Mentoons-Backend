@@ -50,7 +50,11 @@ const socketSetup = (server) => {
     console.log(`Socket connected: ${socket.id}, user: ${socket.userId}`);
 
     socket.emit("mongo_user_id", { userId: socket.userId });
-    broadCastOnlineUsers(socket);
+    
+    // Broadcast online status after connection
+    await updateUserOnlineStatus(socket.userId, socket.id, true);
+    await broadCastOnlineUsersToAll();
+
 
     const undeliveredMessages = await Chat.find({
       receiverId: socket.userId,
@@ -111,6 +115,7 @@ const socketSetup = (server) => {
               isDelivered = true;
             }
 
+
             const chat = await Chat.create({
               conversationId: conversation._id,
               senderId: socket.userId,
@@ -164,6 +169,7 @@ const socketSetup = (server) => {
               isForwarded,
             });
           }
+
         } catch (err) {
           console.error("Error sending message:", err);
         }
@@ -228,29 +234,133 @@ const socketSetup = (server) => {
       }
     });
 
-    // Disconnect
-    socket.on("disconnect", async () => {
-      console.log("a user disconnected");
-      await User.findByIdAndUpdate(socket.userId, {
-        $set: { socketIds: [] },
-      });
-      broadCastOnlineUsers(socket);
+    socket.on("disconnect", async (reason) => {
+      console.log(`User disconnected: ${socket.id}, userId: ${socket.userId}, reason: ${reason}`);
+      
+      try {
+        await updateUserOnlineStatus(socket.userId, socket.id, false);
+        setTimeout(async () => {
+          await broadCastOnlineUsersToAll();
+        }, 100);
+      } catch (error) {
+        console.error("Error handling disconnect:", error);
+      }
+    });
+
+    socket.on("disconnecting", async (reason) => {
+      console.log(`User disconnecting: ${socket.id}, userId: ${socket.userId}, reason: ${reason}`);
+      
+      try {
+        await updateUserOnlineStatus(socket.userId, socket.id, false);
+      } catch (error) {
+        console.error("Error handling disconnecting:", error);
+      }
     });
   });
 
   return io;
 };
 
+const updateUserOnlineStatus = async (userId, socketId, isConnecting) => {
+  try {
+    if (isConnecting) {
+      await User.findByIdAndUpdate(
+        userId,
+        { $addToSet: { socketIds: socketId } },
+        { new: true }
+      );
+      console.log(`Added socket ${socketId} for user ${userId}`);
+    } else {
+      const user = await User.findById(userId);
+      if (user) {
+        const updatedSocketIds = user.socketIds.filter(id => id !== socketId);
+        
+        await User.findByIdAndUpdate(
+          userId,
+          { $set: { socketIds: updatedSocketIds } },
+          { new: true }
+        );
+        
+        console.log(`Removed socket ${socketId} for user ${userId}. Remaining sockets: ${updatedSocketIds.length}`);
+      }
+    }
+  } catch (error) {
+    console.error("Error updating user online status:", error);
+  }
+};
+
+// Clean up stale socket connections (run periodically)
+const cleanupStaleConnections = async () => {
+  try {
+    const users = await User.find({ socketIds: { $exists: true, $ne: [] } });
+    
+    for (const user of users) {
+      const activeSocketIds = [];
+      
+      for (const socketId of user.socketIds) {
+        const socket = io.sockets.sockets.get(socketId);
+        if (socket && socket.connected) {
+          activeSocketIds.push(socketId);
+        }
+      }
+      
+      if (activeSocketIds.length !== user.socketIds.length) {
+        await User.findByIdAndUpdate(
+          user._id,
+          { $set: { socketIds: activeSocketIds } },
+          { new: true }
+        );
+        console.log(`Cleaned up stale connections for user ${user._id}`);
+      }
+    }
+  } catch (error) {
+    console.error("Error cleaning up stale connections:", error);
+  }
+};
+
+// Run cleanup every 5 minutes
+setInterval(cleanupStaleConnections, 5 * 60 * 1000);
+
+const broadCastOnlineUsersToAll = async () => {
+  try {
+    await cleanupStaleConnections();
+    
+    const onlineUsers = await User.find({
+      socketIds: { $exists: true, $ne: [] }
+    }).select("_id socketIds");
+
+    console.log(`Broadcasting online users to all: ${onlineUsers.length} users online`);
+
+    const connectedSockets = await io.fetchSockets();
+    
+    for (const socket of connectedSockets) {
+      if (socket.userId) {
+        await broadCastOnlineUsersToSpecificUser(socket.id, socket.userId);
+      }
+    }
+  } catch (error) {
+    console.error("Error broadcasting online users to all:", error);
+  }
+};
+
+const broadCastOnlineUsersToSpecificUser = async (socketId, userId) => {
+  try {
+    const currentUser = await User.findById(userId);
+    if (!currentUser) return;
+
+    const onlineUsers = await User.find({
+      _id: { $in: currentUser.following },
+      socketIds: { $exists: true, $ne: [] },
+    }).select("_id");
+
+    io.to(socketId).emit("online_users", onlineUsers);
+  } catch (error) {
+    console.error("Error broadcasting to specific user:", error);
+  }
+};
+
 const broadCastOnlineUsers = async (socket) => {
-  const currentUser = await User.findById(socket.userId);
-  if (!currentUser) return;
-
-  const onlineUsers = await User.find({
-    _id: { $in: currentUser.following },
-    socketIds: { $exists: true, $ne: [] },
-  }).select("_id");
-
-  io.to(socket.id).emit("online_users", onlineUsers);
+  await broadCastOnlineUsersToSpecificUser(socket.id, socket.userId);
 };
 
 const getIO = () => {
