@@ -1,4 +1,4 @@
-const Subscription = requrie("../models/subscription");
+const Subscription = require("../models/subscription");
 
 const createSubscription = async (req, res, next) => {
   try {

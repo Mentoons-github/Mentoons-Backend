@@ -11,12 +11,22 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+transporter.verify((err, success) => {
+  if (err) {
+    console.error("❌ Failed to connect to Gmail:", err);
+  } else {
+    console.log("✅ Email server is ready");
+  }
+});
+
 const sendEmail = async (mailOptions) => {
   try {
     const info = await transporter.sendMail(mailOptions);
     console.log("Email sent: " + info.response);
+    return true;
   } catch (error) {
     console.error("Error sending email:", error);
+    return false;
   }
 };
 

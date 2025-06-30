@@ -22,6 +22,7 @@ const {
   blockUser,
   unblockUser,
   updateSubscriptionLimits,
+  checkSubscriptionStatus,
 } = require("../controllers/userController.js");
 const { isSuperAdminOrAdmin } = require("../middlewares/authMiddleware.js");
 const { conditionalAuth } = require("../middlewares/auth.middleware.js");
@@ -64,5 +65,7 @@ router.patch(
   conditionalAuth,
   updateSubscriptionLimits
 );
+
+router.get("/subscription-status", verifyToken, checkSubscriptionStatus);
 
 module.exports = router;
