@@ -199,7 +199,7 @@ const getMatchingAgeCategory = (age, ageRanges) => {
 
 const globalSearch = async (req, res) => {
   const { search } = req.query;
-  const userId = req.user.dbUser._id;
+  const userId = req.user?.dbUser?._id;
 
   if (!search || search.trim() === "") {
     return res.status(400).json({ error: "Search query is required." });
@@ -331,43 +331,49 @@ const globalSearch = async (req, res) => {
       }).limit(10);
     }
 
-    const enhancedUsers = await Promise.all(
-      matchedUsers.map(async (user) => {
-        if (user._id.equals(userId)) {
-          return { ...user.toObject(), followStatus: "self" };
-        }
+    let enhancedUsers = [];
 
-        const [isFollowing, isFollower, isFriend, hasRequest] =
-          await Promise.all([
-            User.exists({ _id: userId, following: user._id }),
-            User.exists({ _id: user._id, following: userId }),
-            User.exists({ _id: userId, friends: user._id }),
-            FriendRequest.exists({
-              senderId: userId,
-              receiverId: user._id,
-            }),
-          ]);
+    if (matchedUsers.length > 0) {
+      if (userId) {
+        enhancedUsers = await Promise.all(
+          matchedUsers.map(async (user) => {
+            if (user._id.equals(userId)) {
+              return { ...user.toObject(), followStatus: "self" };
+            }
 
-        let followStatus = "connect";
-        if (isFriend || (isFollowing && isFollower)) followStatus = "friend";
-        else if (isFollowing) followStatus = "following";
-        else if (isFollower) followStatus = "follow back";
-        else if (hasRequest) followStatus = "pending";
+            const [isFollowing, isFollower, isFriend, hasRequest] =
+              await Promise.all([
+                User.exists({ _id: userId, following: user._id }),
+                User.exists({ _id: user._id, following: userId }),
+                User.exists({ _id: userId, friends: user._id }),
+                FriendRequest.exists({
+                  senderId: userId,
+                  receiverId: user._id,
+                }),
+              ]);
 
-        return {
+            let followStatus = "connect";
+            if (isFriend || (isFollowing && isFollower))
+              followStatus = "friend";
+            else if (isFollowing) followStatus = "following";
+            else if (isFollower) followStatus = "follow back";
+            else if (hasRequest) followStatus = "pending";
+
+            return {
+              ...user.toObject(),
+              followStatus,
+            };
+          })
+        );
+      } else {
+        enhancedUsers = matchedUsers.map((user) => ({
           ...user.toObject(),
-          followStatus,
-        };
-      })
-    );
+          followStatus: undefined,
+        }));
+      }
+    }
 
-    console.log("🎯 AudioComics:", audioComics.length);
-    console.log("🎯 Podcasts:", podcasts.length);
-    console.log("🎯 Comics:", comics.length);
-    console.log("🎯 MentoonsCards:", mentoonsCards.length);
-    console.log("🎯 MentoonsBooks:", mentoonsBooks.length);
-    console.log("🎯 Products:", products.length);
-    console.log("👥 Users:", enhancedUsers.length);
+    console.log("enhanced user :", enhancedUsers);
 
     return res.status(200).json({
       audioComics,
