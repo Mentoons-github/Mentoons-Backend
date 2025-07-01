@@ -63,6 +63,8 @@ const subscriptionRouter = require("./src/routes/subscription.routes.js");
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 4000;
+
+app.use(conditionalClerkMiddleware);
 app.use(
   cors({
     origin: [
@@ -82,8 +84,6 @@ app.use(
     credentials: true,
   })
 );
-
-app.use(conditionalClerkMiddleware);
 
 app.use(bodyParser.json());
 
