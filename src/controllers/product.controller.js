@@ -132,32 +132,75 @@ const getProductById = async (req, res, next) => {
 const createProduct = async (req, res, next) => {
   try {
     const productData = req.body;
+
+    // Process videos
     const videoUrls = Array.isArray(productData.videos)
       ? productData.videos.map((url) => ({ videoUrl: url }))
       : productData.videos
       ? [{ videoUrl: productData.videos }]
       : [];
 
-    console.log("Product Data", productData);
+    // Process images
+    const imageUrls = Array.isArray(productData.productImages)
+      ? productData.productImages.map((img) =>
+          typeof img === "string"
+            ? { imageUrl: img }
+            : { imageUrl: img?.url || img?.imageUrl }
+        )
+      : productData.productImages
+      ? [
+          {
+            imageUrl:
+              typeof productData.productImages === "string"
+                ? productData.productImages
+                : productData.productImages?.url ||
+                  productData.productImages?.imageUrl,
+          },
+        ]
+      : [];
+
+    // Build final product data
     const data = {
-      title: productData.productTitle,
-      description: productData.productDescription,
-      price: productData.price,
-      orignalProductSrc: productData.productFile,
-      ageCategory: productData.age,
-      type: productData.productCategory,
-      product_type: productData.subscription,
-      tags: productData.tags,
+      title:
+        productData.productTitle || productData.title || "Untitled Product",
+      description:
+        productData.productDescription || productData.description || "",
+      price: productData.price || "0",
+      orignalProductSrc:
+        productData.productFile || productData.orignalProductSrc || "",
+      ageCategory: productData.age || productData.ageCategory || "all",
+      type: productData.productCategory || productData.type || "misc",
+      product_type:
+        productData.subscription || productData.product_type || "Free",
+      isFeatured: productData.isFeatured || false,
+      rating: productData.rating || "0",
+      tags: productData.tags || [],
       productVideos: videoUrls,
-      productImages: {
-        imageUrl: productData.productThumbnail,
+      productImages: imageUrls,
+      details: productData.details || {
+        pages: "0",
+        author: "",
+        publisher: "",
+        language: "en",
+        sampleUrl: "",
+        releaseDate: "",
+        series: "",
+        bookType: "",
+        isbn: "",
+        edition: "",
+        dimensions: { height: "0", width: "0", depth: "0" },
       },
     };
-    const product = new Product(productData);
+
+    console.log("✅ Final Data being saved:", data);
+
+    const product = new Product(data);
     await product.save();
+
     res.status(201).json(product);
   } catch (error) {
-    next(error);
+    console.error("❌ Product creation error:", error);
+    next(error); // Pass to error middleware
   }
 };
 
