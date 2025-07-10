@@ -208,12 +208,45 @@ const createProduct = async (req, res, next) => {
 const updateProduct = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const updatedData = req.body;
+    const updatedData = { ...req.body };
+    
+    if (Array.isArray(updatedData.productImages)) {
+      updatedData.productImages = updatedData.productImages
+        .map((img) => {
+          if (typeof img === "string") {
+            return { imageUrl: img };
+          }
+          if (typeof img === "object" && img.imageUrl) {
+            return img;
+          }
+          return null;
+        })
+        .filter(Boolean);
+    }
+
+    if (Array.isArray(updatedData.productVideos)) {
+      updatedData.productVideos = updatedData.productVideos
+        .map((vid) => {
+          if (typeof vid === "string") {
+            return { videoUrl: vid };
+          }
+          if (typeof vid === "object" && vid.videoUrl) {
+            return vid;
+          }
+          return null;
+        })
+        .filter(Boolean);
+    }
+
     const product = await Product.findByIdAndUpdate(id, updatedData, {
       new: true,
       runValidators: true,
     });
-    if (!product) return res.status(404).json({ message: "Product not found" });
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
     res.json(product);
   } catch (error) {
     next(error);

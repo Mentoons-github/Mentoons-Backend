@@ -171,7 +171,7 @@ const UserSchema = new mongoose.Schema(
     subscriptionLimits: {
       freeTrialEndDate: {
         type: Date,
-        default: Date.now,
+        default: () => new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
       },
       comicsReadThisMonth: {
         type: Number,
@@ -185,6 +185,8 @@ const UserSchema = new mongoose.Schema(
         type: Number,
         default: 0,
       },
+      freeFollowerCount: { type: Number, default: 0 },
+      freeFollowingCount: { type: Number, default: 0 },
     },
     //recentlu aded for change in subscription
     accessed: {

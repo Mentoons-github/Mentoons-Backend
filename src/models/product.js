@@ -31,6 +31,7 @@ const ProductSchema = new mongoose.Schema(
       type: String,
       enum: ["Free", "Prime", "Platinum"],
     },
+    isNew: { type: Boolean, required: false },
     tags: { type: [String], default: [] },
     rating: { type: Number, default: 0 },
 
