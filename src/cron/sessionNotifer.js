@@ -3,6 +3,28 @@ const cron = require("node-cron");
 const SessionModal = require("../models/session");
 const { sendEmail } = require("../services/emailService");
 const { findAvailablePsychologist } = require("../controllers/session");
+const Product = require("../models/product");
+
+cron.schedule("0 3 * * *", async () => {
+  try {
+    const now = new Date();
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+    const result = await Product.updateMany(
+      {
+        isNew: true,
+        createdAt: { $lt: sevenDaysAgo },
+      },
+      { $set: { isNew: false } }
+    );
+
+    console.log(
+      `[CRON] Updated ${result.modifiedCount} products to isNew: false`
+    );
+  } catch (err) {
+    console.error("[CRON] Error updating isNew status:", err.message);
+  }
+});
 
 cron.schedule("*/10 * * * *", async () => {
   try {

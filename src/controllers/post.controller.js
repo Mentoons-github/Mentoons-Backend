@@ -29,7 +29,7 @@ const createPost = async (req, res) => {
       "req.body =========================================================================================>:",
       req.body
     );
-    const user = await User.findOne({ clerkId: req.user.id });
+    const user = await User.findOne({ clerkId: req.user.dbUser.clerkId });
 
     if (!user) {
       return res.status(404).json({
@@ -61,6 +61,7 @@ const createPost = async (req, res) => {
       message: "Post created successfully",
     });
   } catch (error) {
+    console.log("error found :", error);
     res.status(500).json({
       success: false,
       message: error.message,

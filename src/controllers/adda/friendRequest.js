@@ -1,7 +1,6 @@
 const User = require("../../models/user");
 const FriendRequest = require("../../models/adda/friendRequest");
 const asyncHandler = require("../../utils/asyncHandler");
-const { getIO } = require("../../socket/socket");
 const {
   errorResponse,
   successResponse,
@@ -16,6 +15,11 @@ const Notification = require("../../models/adda/notification");
 const mongoose = require("mongoose");
 
 const feed = require("../../models/feed");
+const {
+  checkFriendRequestAccess,
+  incrementFreeSubscriptionCounts,
+  decrementFreeSubscriptionCounts,
+} = require("../../helpers/adda/subscription");
 
 const getAllFriendRequest = asyncHandler(async (req, res) => {
   const userId = req.user;
@@ -93,6 +97,18 @@ const sendFriendRequest = asyncHandler(async (req, res) => {
     return errorResponse(res, 404, "Receiver user not found");
   }
 
+  const accessCheck = checkFriendRequestAccess(sender);
+  console.log("accessCheck from backend ==============>", accessCheck);
+  if (!accessCheck.allowed) {
+    return errorResponse(res, 403, {
+      upgradeRequired: accessCheck.upgradeRequired,
+      upgradeTo: accessCheck.upgradeTo,
+      planType: accessCheck.planType,
+      modalType: accessCheck.modalType,
+      message: accessCheck.message,
+    });
+  }
+
   const isAlreadyFriend =
     sender.following.includes(receiverId) &&
     sender.followers.includes(receiverId);
@@ -123,7 +139,7 @@ const sendFriendRequest = asyncHandler(async (req, res) => {
     status: "pending",
   });
 
-  const notification = await createNotification(
+  await createNotification(
     receiverId,
     "friend_request",
     `You have received a friend request from ${sender.name}.`,
@@ -151,11 +167,25 @@ const acceptFriendRequest = asyncHandler(async (req, res) => {
       return successResponse(res, 200, "Friend request already accepted");
     }
 
-    request.status = "accepted";
-    await request.save();
-
     const receiver = request.receiverId;
     const sender = request.senderId;
+
+    await incrementFreeSubscriptionCounts(sender._id, "following");
+    await incrementFreeSubscriptionCounts(receiver._id, "follower");
+
+    const accessCheck = checkFriendRequestAccess(receiver);
+    if (!accessCheck.allowed) {
+      return errorResponse(res, 403, accessCheck.message, {
+        upgradeRequired: accessCheck.upgradeRequired,
+        upgradeTo: accessCheck.upgradeTo,
+        planType: accessCheck.planType,
+        modalType: accessCheck.modalType,
+        message: accessCheck.message,
+      });
+    }
+
+    request.status = "accepted";
+    await request.save();
 
     if (!sender.following.includes(receiver._id)) {
       sender.following.push(receiver._id);
@@ -488,6 +518,18 @@ const unfriend = asyncHandler(async (req, res) => {
       }),
     ]);
 
+    const [user, friend] = await Promise.all([
+      User.findById(userId),
+      User.findById(friendId),
+    ]);
+
+    if (user.subscription?.plan === "free") {
+      await decrementFreeSubscriptionCounts(userId, "following");
+    }
+    if (friend.subscription?.plan === "free") {
+      await decrementFreeSubscriptionCounts(friendId, "follower");
+    }
+
     return successResponse(res, 200, "Unfriend/Unfollow successful");
   } catch (err) {
     console.log("Error found:", err);
@@ -697,6 +739,28 @@ const followBackUser = asyncHandler(async (req, res) => {
   console.log("Receiver ID:", receiverId);
 
   try {
+    const sender = await User.findById(senderId).select(
+      "subscription subscriptionLimits followers following name"
+    );
+
+    if (!sender) {
+      return errorResponse(res, 404, "User not found");
+    }
+
+    await incrementFreeSubscriptionCounts(sender._id, "following");
+    await incrementFreeSubscriptionCounts(receiverId, "follower");
+
+    const accessCheck = checkFriendRequestAccess(sender);
+    if (!accessCheck.allowed) {
+      return errorResponse(res, 403, accessCheck.message, {
+        upgradeRequired: accessCheck.upgradeRequired,
+        upgradeTo: accessCheck.upgradeTo,
+        planType: accessCheck.planType,
+        modalType: accessCheck.modalType,
+        message: accessCheck.message,
+      });
+    }
+
     const existing = await FriendRequest.findOne({ senderId, receiverId });
     console.log("Existing FriendRequest:", existing);
 
@@ -739,8 +803,7 @@ const followBackUser = asyncHandler(async (req, res) => {
     );
     console.log("Updated sender feed (followingUsers):", updatedFeed);
 
-    const sender = await User.findById(senderId);
-    console.log("Sender details for notification:", sender);
+    await User.findById(senderId);
 
     await deleteNotificationHelper(receiverId, senderId, "friend_request");
 

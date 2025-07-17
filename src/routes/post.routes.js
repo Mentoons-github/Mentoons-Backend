@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const checkProfileCompletion = require("../middlewares/adda/profileCompletionCheck");
 const {
   createPost,
   getAllPosts,
@@ -22,7 +23,7 @@ router.get("/:postId", getPostById);
 router.get("/user/:userId?", conditionalAuth, getPostsByUser);
 
 // Protected routes
-router.post("/", conditionalAuth, createPost);
+router.post("/", conditionalAuth, checkProfileCompletion, createPost);
 router.put("/:id", conditionalAuth, validatePostId, updatePost);
 router.delete("/:id", conditionalAuth, validatePostId, deletePost);
 router.post("/:id/like", conditionalAuth, validatePostId, likePost);

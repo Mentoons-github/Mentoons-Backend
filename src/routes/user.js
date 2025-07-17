@@ -40,6 +40,8 @@ router.get("/allocatedCalls", conditionalAuth, viewAllocatedCalls);
 router.get("/all-users", getAllUsersController);
 router.post("/bulk", conditionalAuth, getFriends);
 
+router.get("/check-profile-completion", verifyToken)
+
 router.get("/user/:userId", conditionalAuth, getUserController);
 router.delete("/user/:userId", conditionalAuth, DeleteUserClerkController);
 
