@@ -20,6 +20,7 @@ const initiatePayment = async (req, res) => {
       lastName,
     } = req.body;
 
+    // Validate required fields
     if (!amount || !productInfo || !email || !orderId) {
       return res.status(400).json({
         status: "error",
@@ -30,12 +31,25 @@ const initiatePayment = async (req, res) => {
     let productId = [];
     const userId = req.user?.id;
 
-    console.log(userId);
+    if (!userId) {
+      return res.status(401).json({
+        status: "error",
+        message: "User not authenticated",
+      });
+    }
+
     const user = await User.findOne({ clerkId: userId });
+    if (!user) {
+      return res.status(404).json({
+        status: "error",
+        message: "User not found",
+      });
+    }
 
     let assignedPsychologistId = "";
 
     if (order_type === "consultancy_purchase") {
+      // Handle consultancy purchase (unchanged)
       const consultancyItem = Array.isArray(items) ? items[0] : items;
       const sessionDate = new Date(consultancyItem.date);
       const sessionTime = consultancyItem.time;
@@ -70,43 +84,53 @@ const initiatePayment = async (req, res) => {
       });
 
       productId = [createdSession._id.toString()];
+    } else if (order_type === "QUIZ_PURCHASE") {
+      // For quiz purchases, use the product ID directly from items without database validation
+      productId = Array.isArray(items)
+        ? items.map((item) => item.product)
+        : [items.product];
     } else {
+      // For other order types, assume products are ObjectIds (unchanged)
       productId = Array.isArray(items)
         ? items.map((products) => products.product)
         : [items.product];
     }
 
-    console.log("moving to payment initiating");
-    const orderData = {
-      orderId,
-      amount,
-      productInfo,
-      customerName: `${firstName} ${lastName || ""}`.trim() || user.name,
-      email,
-      user: user._id,
-      products: productId,
-      phone,
-      order_type,
-      status: "PENDING",
-      createdAt: new Date(),
-    };
+    // For QUIZ_PURCHASE, skip database storage and proceed directly to CCAvenue
+    let order;
+    if (order_type !== "QUIZ_PURCHASE") {
+      const orderData = {
+        orderId,
+        amount,
+        productInfo,
+        customerName: `${firstName} ${lastName || ""}`.trim() || user.name,
+        email,
+        user: user._id,
+        products: productId,
+        phone,
+        order_type,
+        status: "PENDING",
+        createdAt: new Date(),
+      };
 
-    if (order_type !== "consultancy_purchase") {
-      orderData.items = Array.isArray(items) ? items : [items];
+      if (order_type !== "consultancy_purchase") {
+        orderData.items = Array.isArray(items) ? items : [items];
+      }
+
+      order = await Order.findOneAndUpdate({ orderId }, orderData, {
+        new: true,
+        upsert: true,
+      });
     }
 
-    const order = await Order.findOneAndUpdate({ orderId }, orderData, {
-      new: true,
-      upsert: true,
-    });
-
+    // Prepare CCAvenue parameters
     const redirect_cancel_url = `https://mentoons-backend-zlx3.onrender.com/api/v1/payment/ccavenue-response?userId=${encodeURIComponent(
       user.clerkId
     )}`;
 
     const ccavenueParams = {
       merchant_id: process.env.CCAVENUE_MERCHANT_ID,
-      order_id: order.orderId,
+      order_id: orderId,
       currency: "INR",
       amount: amount.toString(),
       redirect_url: redirect_cancel_url,
@@ -118,9 +142,9 @@ const initiatePayment = async (req, res) => {
       merchant_param1: productInfo,
       merchant_param2: productId.join(","),
       ...(Array.isArray(items) && items.length > 0
-        ? { merchant_param3: items[0].name || "" }
+        ? { merchant_param3: items[0].productName || "" }
         : typeof items === "object" && items !== null
-        ? { merchant_param3: items.name || "" }
+        ? { merchant_param3: items.productName || "" }
         : {}),
       merchant_param4: assignedPsychologistId || "",
     };
@@ -132,7 +156,7 @@ const initiatePayment = async (req, res) => {
     req.ccavenueParams = paramString;
     ccavRequestHandler.postReq(req, res);
   } catch (error) {
-    console.log("error found :", error);
+    console.error("Payment initiation error:", error);
     res.status(500).json({
       status: "error",
       message: "Failed to initiate payment",
