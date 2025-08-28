@@ -42,6 +42,7 @@ const conversationRouter = require("./src/routes/adda/conversation.routes.js");
 const evaluationRoutes = require("./src/routes/EvaluationForm.js");
 const { clerkMiddleware } = require("@clerk/express");
 const ensureUserExists = require("./src/middlewares/ensureUserExists");
+const employeeRouter = require("./src/routes/employee/empoyee.routes");
 const { Webhook, WebhookVerificationError } = require("svix");
 
 const bodyParser = require("body-parser");
@@ -59,6 +60,7 @@ const addaRouter = require("./src/routes/adda.routes.js");
 const { socketSetup } = require("./src/socket/socket.js");
 const influencerJobRequestRoutes = require("./src/routes/influencerJobRequest.routes.js");
 const subscriptionRouter = require("./src/routes/subscription.routes.js");
+const { loginEmployee } = require("./src/helpers/employee/auth.js");
 // const { requireAuth } = require("@clerk/express");
 dotenv.config();
 const app = express();
@@ -152,6 +154,15 @@ app.post("/api/v1/webhook/clerk", ensureUserExists, async (req, res) => {
       case "user.deleted":
         await deleteUser(evt.data);
         break;
+      case "session.created":
+        const { id, email_addresses } = evt.data;
+        const email = email_addresses[0]?.email_address;
+
+        const user = await User.findOne({ clerkId: id, email: email });
+        if (user && user.role === "EMPLOYEE") {
+          await loginEmployee(evt.data);
+        }
+        break;
       default:
         console.log(`Unhandled event type: ${eventType}`);
     }
@@ -214,6 +225,7 @@ app.use("/api/v1/reactions", reactionRoutes);
 app.use("/api/v1/order", orderRouter);
 app.use("/api/v1/subscription", subscriptionRouter);
 app.use("/api/v1/conversation", conversationRouter);
+app.use("/api/v1/employee", employeeRouter);
 app.use("/health", (req, res) => {
   res.json({
     message: "The server is running successfully",

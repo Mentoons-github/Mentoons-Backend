@@ -47,7 +47,7 @@ const uploadFileController = asyncHandler(async (req, res) => {
   try {
     const uploadResult = await uploadFile(
       fileBuffer,
-      userId,
+      "OpinionJournal",
       mimetype,
       originalname
     );

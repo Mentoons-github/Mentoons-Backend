@@ -23,7 +23,7 @@ const getProducts = async (req, res, next) => {
       ageCategory = "",
     } = req.query;
 
-    console.log("Query Params", req.query);
+    console.log("👉 Incoming Query Params:", req.query);
 
     // Parse pagination values
     const pageNumber = parseInt(page, 10);
@@ -31,7 +31,9 @@ const getProducts = async (req, res, next) => {
     const skip = (pageNumber - 1) * limitNumber;
     const sortOrder = order === "asc" ? 1 : -1;
 
-    // Build search filter (searching in title and description)
+    console.log("📌 Pagination:", { pageNumber, limitNumber, skip });
+    console.log("📌 Sorting:", { sortBy, sortOrder });
+
     const queryFilter = {};
     if (search) {
       queryFilter.$or = [
@@ -40,31 +42,44 @@ const getProducts = async (req, res, next) => {
       ];
     }
 
-    console.log("search query : ", queryFilter);
-
-    // Add filter conditions
     if (ageCategory) queryFilter.ageCategory = ageCategory;
     if (type) queryFilter.type = type;
     if (cardType) queryFilter.cardType = cardType;
 
-    const matchStage = {
-      ...queryFilter,
-      ...(queryFilter.cardType && {
-        "details.cardType": { $regex: queryFilter.cardType, $options: "i" },
-      }),
-    };
+    console.log(
+      "🔍 queryFilter before matchStage:",
+      JSON.stringify(queryFilter, null, 2)
+    );
 
-    delete matchStage.cardType; // Remove the top-level cardType since we're using it in details
+    const specialCardTypes = [
+      "conversation starter cards",
+      "story re-teller card",
+      "silent stories",
+      "conversation story cards",
+    ];
 
-    const products = await Product.aggregate([
-      {
-        $match: matchStage,
-      },
-      {
-        $project: {
-          orignalProductSrc: 0,
-        },
-      },
+    let matchStage = { ...queryFilter };
+
+    if (queryFilter.cardType) {
+      if (specialCardTypes.includes(queryFilter.cardType.toLowerCase())) {
+        matchStage.title = {
+          $regex: queryFilter.cardType,
+          $options: "i",
+        };
+      } else {
+        matchStage["details.cardType"] = {
+          $regex: queryFilter.cardType,
+          $options: "i",
+        };
+      }
+
+      // remove raw cardType to avoid duplicate field
+      delete matchStage.cardType;
+    }
+
+    const pipeline = [
+      { $match: matchStage },
+      { $project: { orignalProductSrc: 0 } },
       {
         $addFields: {
           productTypeOrder: {
@@ -79,21 +94,17 @@ const getProducts = async (req, res, next) => {
           },
         },
       },
-      {
-        $sort: {
-          productTypeOrder: 1,
-          [sortBy]: sortOrder,
-        },
-      },
-      {
-        $skip: skip,
-      },
-      {
-        $limit: limitNumber,
-      },
-    ]);
+      { $sort: { productTypeOrder: 1, [sortBy]: sortOrder } },
+      { $skip: skip },
+      { $limit: limitNumber },
+    ];
+
+    const products = await Product.aggregate(pipeline);
+
+    console.log("✅ Products Fetched:", products.length);
 
     const total = await Product.countDocuments(matchStage);
+    console.log("📊 Total Matching Documents:", total);
 
     res.json({
       data: products,
@@ -103,6 +114,7 @@ const getProducts = async (req, res, next) => {
       totalPages: Math.ceil(total / limitNumber),
     });
   } catch (error) {
+    console.error("❌ Error in getProducts:", error);
     next(error);
   }
 };
@@ -209,7 +221,7 @@ const updateProduct = async (req, res, next) => {
   try {
     const { id } = req.params;
     const updatedData = { ...req.body };
-    
+
     if (Array.isArray(updatedData.productImages)) {
       updatedData.productImages = updatedData.productImages
         .map((img) => {

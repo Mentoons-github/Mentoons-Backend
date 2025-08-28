@@ -37,4 +37,8 @@ router.get("/users/:userId", getOneUserController);
 router.delete("/users/:userId", blacklistUserController);
 router.get("/checkrole", adminAuthMiddleware);
 
+
+//v2
+router.get
+
 module.exports = router;
