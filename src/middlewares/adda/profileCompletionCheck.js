@@ -1,7 +1,7 @@
 const User = require("../../models/user");
 const { errorResponse } = require("../../utils/responseHelper");
 
-const checkProfileCompletion = async (req, res) => {
+const checkProfileCompletion = async (req, res, next) => {
   try {
     const userId = req.user.dbUser._id;
 
@@ -16,12 +16,11 @@ const checkProfileCompletion = async (req, res) => {
 
     const requiredFields = [
       "name",
-      "bio",
+      "email",
+      "phoneNumber",
       "location",
-      "gender",
       "dateOfBirth",
-      "education",
-      "occupation",
+      "gender",
     ];
 
     const incompleteFields = requiredFields.filter((field) => {

@@ -3,14 +3,17 @@ const JobApplication = require("../models/jobApplication");
 const messageHelper = require("../utils/messageHelper");
 const mongoose = require("mongoose");
 
-const addJob = async (
+const addJob = async ({
   jobTitle,
   jobDescription,
   skillsRequired,
   location,
   jobType,
-  thumbnail
-) => {
+  thumbnail,
+  responsibilities = [],
+  requirements = [],
+  whatWeOffer = [],
+}) => {
   try {
     const job = await Job.create({
       jobTitle,
@@ -19,6 +22,9 @@ const addJob = async (
       location,
       jobType,
       thumbnail,
+      responsibilities,
+      requirements,
+      whatWeOffer,
     });
     return job;
   } catch (error) {
@@ -27,8 +33,12 @@ const addJob = async (
 };
 const getJobs = async (page = 1, limit = 10, search = "") => {
   try {
-    const skip = (page - 1) * Number(limit);
+    const pageNum = Math.max(1, Number(page) || 1);
+    const limitNum = Math.max(1, Number(limit) || 10);
+    const skip = (pageNum - 1) * limitNum;
     const searchRegex = new RegExp(search, "i");
+
+    console.log("Fetching jobs with:", { pageNum, limitNum, skip, search });
 
     const jobs = await Job.aggregate([
       {
@@ -49,12 +59,19 @@ const getJobs = async (page = 1, limit = 10, search = "") => {
           location: 1,
           jobType: 1,
           thumbnail: 1,
-          applicationCount: { $size: "$applications" },
+          applications: 1,
+          status: 1,
+          responsibilities: 1,
+          requirements: 1,
+          whatWeOffer: 1,
+          createdAt: 1,
+          updatedAt: 1,
+          applicationCount: { $size: { $ifNull: ["$applications", []] } }
         },
       },
       { $sort: { createdAt: -1 } },
       { $skip: skip },
-      { $limit: Number(limit) },
+      { $limit: limitNum },
     ]);
 
     const totalJobs = await Job.countDocuments({
@@ -66,16 +83,26 @@ const getJobs = async (page = 1, limit = 10, search = "") => {
       ],
     });
 
+    console.log("Fetched jobs:", {
+      jobCount: jobs.length,
+      jobIds: jobs.map((job) => job._id),
+      currentPage: pageNum,
+      totalPages: Math.ceil(totalJobs / limitNum),
+      totalJobs,
+    });
+
     return {
       jobs,
-      currentPage: page,
-      totalPages: Math.ceil(totalJobs / limit),
+      currentPage: pageNum,
+      totalPages: Math.ceil(totalJobs / limitNum),
       totalJobs,
     };
   } catch (error) {
+    console.error("Error fetching jobs:", error);
     throw error;
   }
 };
+
 
 const getJobById = async (id) => {
   try {
@@ -109,33 +136,40 @@ const getJobById = async (id) => {
   }
 };
 
-const editJob = async (
-  id,
+const editJob = async ({
+  _id,
   jobTitle,
   jobDescription,
   skillsRequired,
   location,
   jobType,
-  thumbnail
-) => {
+  thumbnail,
+  responsibilities = [],
+  requirements = [],
+  whatWeOffer = [],
+}) => {
   try {
-    const jobListing = await Job.findById(id);
+    const jobListing = await Job.findById(_id);
     if (!jobListing) {
       throw new Error(messageHelper.JOB_NOT_FOUND);
     }
-    const job = await Job.findByIdAndUpdate(id, {
+    const job = await Job.findByIdAndUpdate(_id, {
       jobTitle,
       jobDescription,
       skillsRequired,
       location,
       jobType,
       thumbnail,
+      responsibilities,
+      requirements,
+      whatWeOffer,
     });
     return job;
   } catch (error) {
     throw error;
   }
 };
+
 const deleteJob = async (id) => {
   try {
     const jobListing = await Job.findById(id);

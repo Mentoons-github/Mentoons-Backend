@@ -39,6 +39,18 @@ const jobSchema = new mongoose.Schema(
       enum: ["open", "closed", "pause"],
       default: "open",
     },
+    responsibilities: {
+      type: [String],
+      default: [],
+    },
+    requirements: {
+      type: [String],
+      default: [],
+    },
+    whatWeOffer: {
+      type: [String],
+      default: [],
+    },
   },
   { timestamps: true }
 );
