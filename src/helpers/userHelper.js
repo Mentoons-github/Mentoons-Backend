@@ -251,37 +251,111 @@ module.exports = {
   // Update profile information
   updateProfile: async (userId, profileData) => {
     try {
+      console.log("Incoming profile data:", profileData);
+
       const {
-        bio,
+        name,
+        email,
+        phoneNumber,
         location,
-        coverPhoto: coverImage,
         dateOfBirth,
-        picture,
+        gender,
+        bio,
+        education,
+        occupation,
         interests,
         socialLinks,
-        phoneNumber,
-        occupation,
-        education,
-        gender,
+        picture,
+        coverPhoto: coverImage,
         privacySettings,
       } = profileData;
+
+      const mandatoryFields = [
+        { key: "name", value: name, message: "Name is required" },
+        { key: "email", value: email, message: "Email is required" },
+        {
+          key: "phoneNumber",
+          value: phoneNumber,
+          message: "Phone number is required",
+        },
+        { key: "location", value: location, message: "Location is required" },
+        {
+          key: "dateOfBirth",
+          value: dateOfBirth,
+          message: "Date of birth is required",
+        },
+        { key: "gender", value: gender, message: "Gender is required" },
+      ];
+
+      for (const field of mandatoryFields) {
+        if (!field.value || String(field.value).trim() === "") {
+          console.log(`Validation error: ${field.message}`);
+          throw new Error(field.message);
+        }
+      }
+
+      if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        console.log("Validation error: Invalid email format");
+        throw new Error("Invalid email format");
+      }
+
+      if (phoneNumber && !/^\+?[\d\s-]{10,}$/.test(phoneNumber)) {
+        console.log("Validation error: Invalid phone number format");
+        throw new Error("Invalid phone number format");
+      }
+
+      const validGenders = ["male", "female", "other", "prefer-not-to-say"];
+      if (gender && !validGenders.includes(gender)) {
+        console.log("Validation error: Invalid gender value");
+        throw new Error("Invalid gender value");
+      }
+
+      if (socialLinks) {
+        if (!Array.isArray(socialLinks)) {
+          console.log("Validation error: Social links must be an array");
+          throw new Error("Social links must be an array");
+        }
+        for (const link of socialLinks) {
+          if (!link.label || !link.url) {
+            console.log(
+              "Validation error: Each social link must have a label and URL"
+            );
+            throw new Error("Each social link must have a label and URL");
+          }
+          try {
+            new URL(link.url);
+          } catch {
+            console.log(
+              `Validation error: Invalid URL format for social link: ${link.url}`
+            );
+            throw new Error(`Invalid URL format for social link: ${link.url}`);
+          }
+        }
+      }
+
+      if (interests && !Array.isArray(interests)) {
+        console.log("Validation error: Interests must be an array");
+        throw new Error("Interests must be an array");
+      }
+
       const updatedUser = await User.findByIdAndUpdate(
         userId,
         {
           $set: {
+            name,
+            email,
+            phoneNumber,
+            location,
+            dateOfBirth,
+            gender,
             ...(bio && { bio }),
-            ...(picture && { picture }),
-            ...(location && { location }),
-            ...(coverImage && { coverImage }),
-            ...(dateOfBirth && { dateOfBirth }),
-            ...(phoneNumber && { phoneNumber }),
-            ...(occupation && { occupation }),
             ...(education && { education }),
-            ...(gender && { gender }),
+            ...(occupation && { occupation }),
             ...(interests && { interests }),
             ...(socialLinks && { socialLinks }),
+            ...(picture && { picture }),
+            ...(coverImage && { coverImage }),
             ...(privacySettings && { privacySettings }),
-
             lastActive: new Date(),
           },
         },
@@ -289,12 +363,14 @@ module.exports = {
       );
 
       if (!updatedUser) {
+        console.log("Error: User not found for ID:", userId);
         throw new Error("User not found");
       }
 
+      console.log("Updated user:", updatedUser);
       return updatedUser;
     } catch (error) {
-      console.error("Error updating user profile:", error);
+      console.error("Error updating user profile:", error.message);
       throw new Error(`Error updating user profile: ${error.message}`);
     }
   },

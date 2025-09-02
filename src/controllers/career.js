@@ -22,20 +22,26 @@ module.exports = {
         location,
         jobType,
         thumbnail,
+        responsibilities,
+        requirements,
+        whatWeOffer,
       } = req.body;
       console.log("data from :", req.body);
       if (!jobTitle || !jobDescription || !skillsRequired || !thumbnail) {
         console.log(req.body);
         return errorResponse(res, 400, messageHelper.BAD_REQUEST);
       }
-      const job = await addJob(
+      const job = await addJob({
         jobTitle,
         jobDescription,
         skillsRequired,
         location,
         jobType,
-        thumbnail
-      );
+        thumbnail,
+        responsibilities: responsibilities || [],
+        requirements: requirements || [],
+        whatWeOffer: whatWeOffer || [],
+      });
       return successResponse(res, 200, messageHelper.JOB_CREATED, job);
     }
   }),
@@ -44,7 +50,7 @@ module.exports = {
     {
       const { page, limit, search } = req.query;
 
-      console.log("reached get jobs controller");
+      console.log("reached get jobs controller", page, limit, search);
 
       const { jobs, currentPage, totalPages, totalJobs } = await getJobs(
         page,
@@ -52,7 +58,7 @@ module.exports = {
         search
       );
 
-      console.log("jobs got :", jobs);
+      console.log("jobs got :", jobs.length);
       if (!jobs) {
         return errorResponse(res, 404, messageHelper.JOB_NOT_FOUND);
       }
@@ -76,39 +82,47 @@ module.exports = {
   }),
 
   editJob: asyncHandler(async (req, res, next) => {
-    const {
-      jobTitle,
-      jobDescription,
-      skillsRequired,
-      location,
-      jobType,
-      thumbnail,
-    } = req.body;
-    const id = req.params.id;
-    if (
-      !jobTitle ||
-      !jobDescription ||
-      !skillsRequired ||
-      !location ||
-      !jobType ||
-      !thumbnail ||
-      !id
-    ) {
-      return errorResponse(res, 400, messageHelper.BAD_REQUEST);
+    {
+      const {
+        jobTitle,
+        jobDescription,
+        skillsRequired,
+        location,
+        jobType,
+        thumbnail,
+        responsibilities,
+        requirements,
+        whatWeOffer,
+      } = req.body;
+      const id = req.params.id;
+      if (
+        !jobTitle ||
+        !jobDescription ||
+        !skillsRequired ||
+        !location ||
+        !jobType ||
+        !thumbnail ||
+        !id
+      ) {
+        return errorResponse(res, 400, messageHelper.BAD_REQUEST);
+      }
+      const job = await editJob({
+        _id: id,
+        jobTitle,
+        jobDescription,
+        skillsRequired,
+        location,
+        jobType,
+        thumbnail,
+        responsibilities: responsibilities || [],
+        requirements: requirements || [],
+        whatWeOffer: whatWeOffer || [],
+      });
+      if (!job) {
+        return errorResponse(res, 404, messageHelper.JOB_NOT_FOUND);
+      }
+      return successResponse(res, 200, messageHelper.JOB_UPDATED, job);
     }
-    const job = await editJob(
-      id,
-      jobTitle,
-      jobDescription,
-      skillsRequired,
-      location,
-      jobType,
-      thumbnail
-    );
-    if (!job) {
-      return errorResponse(res, 404, messageHelper.JOB_NOT_FOUND);
-    }
-    return successResponse(res, 200, messageHelper.JOB_UPDATED, job);
   }),
 
   deleteJob: asyncHandler(async (req, res, next) => {
