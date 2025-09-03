@@ -209,7 +209,7 @@ module.exports = {
             <a href="${portfolioLink}" class="button" style="color: #ffffff;">Visit Your Portfolio</a>
           </div>
           <div class="footer">
-            <p>Best regards,<br>Mentoons</p>
+            <p>Best regards,<br>Team Mentoons</p>
             <p>&copy; ${new Date().getFullYear()} Mentoons. All rights reserved.</p>
           </div>
         </div>
