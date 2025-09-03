@@ -51,7 +51,7 @@ const UserSchema = new mongoose.Schema(
     },
     coverImage: {
       type: String,
-      default: "https://via.placeholder.com/150",
+      required: false,
     },
     dateOfBirth: {
       type: Date,
@@ -189,7 +189,6 @@ const UserSchema = new mongoose.Schema(
       freeFollowerCount: { type: Number, default: 0 },
       freeFollowingCount: { type: Number, default: 0 },
     },
-    //recentlu aded for change in subscription
     accessed: {
       comics: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comic" }],
       audioComics: [
