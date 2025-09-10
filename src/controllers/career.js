@@ -224,11 +224,20 @@ module.exports = {
   }),
 
   getAppliedJobs: asyncHandler(async (req, res, next) => {
-    const { search, page, limit } = req.query;
-    const jobs = await getAppliedJobs(search, page, limit);
-    if (!jobs) {
+    const { search, page, limit, sortField, sortOrder } = req.query;
+
+    const jobs = await getAppliedJobs(
+      search,
+      page,
+      limit,
+      parseInt(sortOrder) || -1,
+      sortField || "createdAt"
+    );
+
+    if (!jobs || jobs.jobs.length === 0) {
       return errorResponse(res, 404, messageHelper.JOB_NOT_FOUND);
     }
+
     return successResponse(res, 200, messageHelper.JOB_FETCHED, jobs);
   }),
 

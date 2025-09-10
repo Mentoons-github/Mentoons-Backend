@@ -66,7 +66,7 @@ const getJobs = async (page = 1, limit = 10, search = "") => {
           whatWeOffer: 1,
           createdAt: 1,
           updatedAt: 1,
-          applicationCount: { $size: { $ifNull: ["$applications", []] } }
+          applicationCount: { $size: { $ifNull: ["$applications", []] } },
         },
       },
       { $sort: { createdAt: -1 } },
@@ -102,7 +102,6 @@ const getJobs = async (page = 1, limit = 10, search = "") => {
     throw error;
   }
 };
-
 
 const getJobById = async (id) => {
   try {
@@ -219,7 +218,7 @@ const applyJob = async (
 };
 
 const getAppliedJobs = async (
-  search,
+  search = "",
   page = 1,
   limit = 10,
   sortOrder = -1,
@@ -241,6 +240,18 @@ const getAppliedJobs = async (
         { "jobDetails.company": { $regex: searchRegex } },
       ],
     };
+
+    const allowedSortFields = ["createdAt", "name", "email", "jobTitle"];
+    const validSortField = allowedSortFields.includes(sortField)
+      ? sortField
+      : "createdAt";
+
+    const sortStage = {};
+    if (validSortField === "jobTitle") {
+      sortStage["jobDetails.jobTitle"] = sortOrder;
+    } else {
+      sortStage[validSortField] = sortOrder;
+    }
 
     const jobs = await JobApplication.aggregate([
       {
@@ -267,11 +278,12 @@ const getAppliedJobs = async (
           portfolioLink: 1,
           coverNote: 1,
           resume: 1,
+          coverLetterLink: 1,
           jobTitle: "$jobDetails.jobTitle",
           createdAt: 1,
         },
       },
-      { $sort: { createdAt: sortOrder } },
+      { $sort: sortStage },
       { $skip: skip },
       { $limit: validLimit },
     ]);
@@ -303,7 +315,7 @@ const getAppliedJobs = async (
       totalJobs: totalCount,
     };
   } catch (error) {
-    throw error;
+    throw new Error(`Failed to fetch applied jobs: ${error.message}`);
   }
 };
 

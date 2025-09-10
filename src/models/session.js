@@ -12,7 +12,7 @@ const sessionSchema = new mongoose.Schema(
     psychologistId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Employee",
-      required: true,
+      required: false,
     },
     status: {
       type: String,

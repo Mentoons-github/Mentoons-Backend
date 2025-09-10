@@ -6,6 +6,19 @@ const {
 const asyncHandler = require("../../utils/asyncHandler");
 const Task = require("../../models/employee/task");
 
+const fetchTasks = asyncHandler(async (req, res) => {
+  const employeeId = req.employee._id;
+
+  const tasks = await Task.find({ assignedTo: employeeId })
+    .sort({ createdAt: -1 })
+    .lean();
+
+  res.status(200).json({
+    success: true,
+    count: tasks.length,
+    tasks,
+  });
+});
 const assignTask = asyncHandler(async (req, res) => {
   const data = req.body;
 
@@ -19,4 +32,5 @@ const assignTask = asyncHandler(async (req, res) => {
 
 module.exports = {
   assignTask,
+  fetchTasks,
 };
