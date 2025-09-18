@@ -190,6 +190,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 app.set("views", __dirname + "/public");
 app.engine("html", require("ejs").renderFile);
+
 app.use("/api/v1/adda", addaRouter);
 app.use("/api/v1/influencer-requests", influencerJobRequestRoutes);
 app.use("/api/v1/email", emailRoutes);

@@ -9,10 +9,11 @@ const {
   globalSearch,
 } = require("../controllers/product.controller");
 const { addaConditionalAuth } = require("../middlewares/adda/conditionalAuth");
+const adminAuthMiddleware = require("../middlewares/adminAuthMiddleware");
 
 const router = express.Router();
 
-router.get("/", getProducts);
+router.get("/", adminAuthMiddleware.optionalAdminMiddleware, getProducts);
 // POST /api/products -> create a new product
 router.post("/", createProduct);
 
@@ -30,5 +31,7 @@ router.put("/:id", updateProduct);
 
 // DELETE /api/products/:id -> delete a product
 router.delete("/:id", deleteProduct);
+
+router.delete("/image/:imageId", adminAuthMiddleware.adminAuthMiddleware);
 
 module.exports = router;

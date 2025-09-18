@@ -1,7 +1,9 @@
 const requestCall = require("../models/requestCall");
 const User = require("../models/user");
 const workshopEnquiries = require("../models/workshopEnquiries");
+const Workshop = require("../models/workshop");
 const mongoose = require("mongoose");
+
 module.exports = {
   saveWorkshopEnquiriesToDB: async ({
     firstname,
@@ -303,6 +305,76 @@ module.exports = {
       return { updatedUser, updatedCall };
     } catch (error) {
       throw new Error(error.message);
+    }
+  },
+
+  saveWorkshop: async (data) => {
+    try {
+      const { workshopName, whyChooseUs, ageGroups } = data;
+
+      if (!workshopName) {
+        throw new Error("Workshop name is required");
+      }
+
+      if (
+        !whyChooseUs ||
+        !Array.isArray(whyChooseUs) ||
+        whyChooseUs.length === 0
+      ) {
+        throw new Error("At least one 'Why Choose Us' item is required");
+      }
+
+      for (const item of whyChooseUs) {
+        if (!item.heading || !item.description) {
+          throw new Error(
+            `Each 'Why Choose Us' item must have a heading and description`
+          );
+        }
+      }
+      
+      if (!ageGroups || !Array.isArray(ageGroups) || ageGroups.length === 0) {
+        throw new Error("At least one age group is required");
+      }
+
+      for (const group of ageGroups) {
+        if (!group.ageRange || !group.serviceOverview) {
+          throw new Error(
+            `Invalid data for age group ${
+              group.ageRange || "unknown"
+            }: ageRange and serviceOverview are required`
+          );
+        }
+
+        if (
+          !group.benefits ||
+          !Array.isArray(group.benefits) ||
+          group.benefits.length === 0
+        ) {
+          throw new Error(
+            `Invalid data for age group ${group.ageRange}: benefits must be a non-empty array`
+          );
+        }
+
+        for (const benefit of group.benefits) {
+          if (!benefit.title || !benefit.description) {
+            throw new Error(
+              `Each benefit in age group ${group.ageRange} must have a title and description`
+            );
+          }
+        }
+      }
+
+      const existingWorkshop = await Workshop.findOne({ workshopName });
+      if (existingWorkshop) {
+        throw new Error("Workshop with this name already exists");
+      }
+
+      const workshop = await Workshop.create(data);
+      console.log("Workshop created:", workshop);
+      return { workshop };
+    } catch (error) {
+      console.error("Error in saveWorkshop:", error.message);
+      throw error;
     }
   },
 };

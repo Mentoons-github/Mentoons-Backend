@@ -21,6 +21,16 @@ const sessionSchema = new mongoose.Schema(
     },
     completedAt: { type: Date, default: null, expires: 86400 },
     description: { type: String },
+    diagnosis: {
+      type: {
+        _id: { type: String, required: false },
+        symptoms: { type: String, required: false },
+        remedies: { type: String, required: false },
+        addedAt: { type: Date, default: Date.now },
+      },
+      required: false,
+      default: null,
+    },
   },
   { timestamps: true }
 );

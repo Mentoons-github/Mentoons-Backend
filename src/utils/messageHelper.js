@@ -71,4 +71,8 @@ module.exports = {
   //posts
   SUCCESSFULLY_CREATED_POST: "Post created successfully",
   FETCH_POSTS_SUCCESS: "Posts fetched successfully",
+
+  //workshop
+  WORKSHOP_ADDED: "Workshop created successfully",
+  WORKSHOP_FETCHED: "All workshops have been fetched",
 };
