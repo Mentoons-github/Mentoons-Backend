@@ -24,21 +24,10 @@ router.get("/sessioncalls", viewSessionCalls);
 router.post("/sign-in", adminRegisterController);
 router.post("/login", adminLoginController);
 router.get("/create-admin", adminAuthMiddleware, makeAdmin);
-// router.get(
-//   "/private-content",
-//   adminAuthMiddleware(),
-//   isAdmin,
-//   (req, res, next) => {
-//     return successResponse(res, 200, "Private Content");
-//   }
-// );
 router.get("/users", getUsersController);
 router.get("/users/:userId", getOneUserController);
 router.delete("/users/:userId", blacklistUserController);
 router.get("/checkrole", adminAuthMiddleware);
 
-
-//v2
-router.get
 
 module.exports = router;

@@ -8,9 +8,11 @@ const {
   MentoonsBook,
 } = require("../models/product.js");
 const User = require("../models/user.js");
+const asyncHandler = require("../utils/asyncHandler.js");
 
 // GET /api/products
 const getProducts = async (req, res, next) => {
+  const user = req.user;
   try {
     const {
       search,
@@ -25,7 +27,6 @@ const getProducts = async (req, res, next) => {
 
     console.log("👉 Incoming Query Params:", req.query);
 
-    // Parse pagination values
     const pageNumber = parseInt(page, 10);
     const limitNumber = parseInt(limit, 10);
     const skip = (pageNumber - 1) * limitNumber;
@@ -72,14 +73,13 @@ const getProducts = async (req, res, next) => {
           $options: "i",
         };
       }
-
-      // remove raw cardType to avoid duplicate field
       delete matchStage.cardType;
     }
 
     const pipeline = [
       { $match: matchStage },
-      { $project: { orignalProductSrc: 0 } },
+      // only add $project when user is NOT logged in
+      ...(user ? [] : [{ $project: { orignalProductSrc: 0 } }]),
       {
         $addFields: {
           productTypeOrder: {
@@ -478,6 +478,47 @@ const globalSearch = async (req, res) => {
   }
 };
 
+const deleteProductImage = asyncHandler(async (req, res) => {
+  const { imageId } = req.params;
+  const { productId } = req.body;
+
+  if (!productId || !imageId) {
+    return res.status(400).json({
+      success: false,
+      message: "productId and imageId are required",
+    });
+  }
+
+  const product = await Product.findById(productId);
+  if (!product) {
+    return res.status(404).json({
+      success: false,
+      message: "Product not found",
+    });
+  }
+
+  const image = product.productImages.find(
+    (img) => img.imageUrl._id.toString() === imageId
+  );
+  if (!image) {
+    return res.status(404).json({
+      success: false,
+      message: "Image not found",
+    });
+  }
+
+  product.productImages = product.productImages.filter(
+    (img) => img.imageUrl._id.toString() !== imageId
+  );
+
+  await product.save();
+
+  return res.status(200).json({
+    success: true,
+    message: "Image deleted successfully",
+  });
+});
+
 module.exports = {
   createProduct,
   deleteProduct,
@@ -486,4 +527,5 @@ module.exports = {
   getAllProducts,
   updateProduct,
   globalSearch,
+  deleteProductImage,
 };
