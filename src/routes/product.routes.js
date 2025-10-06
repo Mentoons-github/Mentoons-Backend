@@ -7,6 +7,7 @@ const {
   updateProduct,
   getAllProducts,
   globalSearch,
+  deleteProductImage,
 } = require("../controllers/product.controller");
 const { addaConditionalAuth } = require("../middlewares/adda/conditionalAuth");
 const adminAuthMiddleware = require("../middlewares/adminAuthMiddleware");
@@ -32,6 +33,11 @@ router.put("/:id", updateProduct);
 // DELETE /api/products/:id -> delete a product
 router.delete("/:id", deleteProduct);
 
-router.delete("/image/:imageId", adminAuthMiddleware.adminAuthMiddleware);
+router.delete(
+  "/image/:imageId",
+  adminAuthMiddleware.adminAuthMiddleware,
+  deleteProductImage
+);
+router.delete("/remove-file", adminAuthMiddleware.adminAuthMiddleware);
 
 module.exports = router;

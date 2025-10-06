@@ -201,12 +201,130 @@ module.exports = {
 
   editWorkshop: asyncHandler(async (req, res) => {
     const { workshopId } = req.params;
-    console.log("reached edit workshop");
     const updateContent = req.body;
 
+    const { categoryName, subtitle, workshops } = updateContent;
+
+    if (!categoryName) {
+      return res.status(400).json({
+        success: false,
+        message: "Category name is required",
+      });
+    }
+
+    if (!subtitle) {
+      return res.status(400).json({
+        success: false,
+        message: "Subtitle is required",
+      });
+    }
+
+    if (!workshops || !Array.isArray(workshops) || workshops.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "At least one workshop is required",
+      });
+    }
+
+    for (const workshop of workshops) {
+      const { workshopName, whyChooseUs, ageGroups } = workshop;
+
+      if (!workshopName) {
+        return res.status(400).json({
+          success: false,
+          message: "Workshop name is required",
+        });
+      }
+
+      if (
+        !whyChooseUs ||
+        !Array.isArray(whyChooseUs) ||
+        whyChooseUs.length === 0
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: `At least one 'Why Choose Us' item is required for workshop ${workshopName}`,
+        });
+      }
+
+      for (const item of whyChooseUs) {
+        if (!item.heading || !item.description) {
+          return res.status(400).json({
+            success: false,
+            message: `Each 'Why Choose Us' item in workshop ${workshopName} must have a heading and description`,
+          });
+        }
+      }
+
+      if (!ageGroups || !Array.isArray(ageGroups) || ageGroups.length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: `At least one age group is required for workshop ${workshopName}`,
+        });
+      }
+
+      for (const group of ageGroups) {
+        if (
+          !group.ageRange ||
+          !["6-12", "13-19", "20+"].includes(group.ageRange)
+        ) {
+          return res.status(400).json({
+            success: false,
+            message: `Invalid age range for workshop ${workshopName}: must be one of '6-12', '13-19', or '20+'`,
+          });
+        }
+
+        if (!group.serviceOverview) {
+          return res.status(400).json({
+            success: false,
+            message: `Service overview is required for age group ${group.ageRange} in workshop ${workshopName}`,
+          });
+        }
+
+        if (
+          !group.benefits ||
+          !Array.isArray(group.benefits) ||
+          group.benefits.length === 0
+        ) {
+          return res.status(400).json({
+            success: false,
+            message: `At least one benefit is required for age group ${group.ageRange} in workshop ${workshopName}`,
+          });
+        }
+
+        for (const benefit of group.benefits) {
+          if (!benefit.title || !benefit.description) {
+            return res.status(400).json({
+              success: false,
+              message: `Each benefit in age group ${group.ageRange} of workshop ${workshopName} must have a title and description`,
+            });
+          }
+        }
+
+        if (!group.image) {
+          return res.status(400).json({
+            success: false,
+            message: `Image is required for age group ${group.ageRange} in workshop ${workshopName}`,
+          });
+        }
+      }
+    }
+
+    const existingWorkshop = await Workshop.findOne({
+      categoryName,
+      _id: { $ne: workshopId },
+    });
+
+    if (existingWorkshop) {
+      return res.status(400).json({
+        success: false,
+        message: "Workshop category with this name already exists",
+      });
+    }
+
     const workshop = await Workshop.findByIdAndUpdate(
-      { _id: workshopId },
-      { $set: updateContent },
+      workshopId,
+      { $set: { categoryName, subtitle, workshops } },
       { new: true, runValidators: true }
     );
 

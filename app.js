@@ -39,11 +39,13 @@ const reactionRoutes = require("./src/routes/reactionRoutes");
 const sessionCallRoutes = require("./src/routes/admin/sessionCall.js");
 const orderRouter = require("./src/routes/orders.routes.js");
 const conversationRouter = require("./src/routes/adda/conversation.routes.js");
+const groupRoutes = require("./src/routes/adda/group.routes.js");
 // const webhookRoutes = require("./src/routes/webhook.js");
 const evaluationRoutes = require("./src/routes/EvaluationForm.js");
 const { clerkMiddleware } = require("@clerk/express");
 const ensureUserExists = require("./src/middlewares/ensureUserExists");
 const employeeRouter = require("./src/routes/employee/empoyee.routes");
+const meetupRoutes = require("./src/routes/adda/meetup.routes.js");
 const { Webhook, WebhookVerificationError } = require("svix");
 
 const bodyParser = require("body-parser");
@@ -62,6 +64,7 @@ const { socketSetup } = require("./src/socket/socket.js");
 const influencerJobRequestRoutes = require("./src/routes/influencerJobRequest.routes.js");
 const subscriptionRouter = require("./src/routes/subscription.routes.js");
 const { loginEmployee } = require("./src/helpers/employee/auth.js");
+const Employee = require("./src/models/employee/employee.js");
 // const { requireAuth } = require("@clerk/express");
 dotenv.config();
 const app = express();
@@ -148,7 +151,25 @@ app.post("/api/v1/webhook/clerk", ensureUserExists, async (req, res) => {
             .status(200)
             .json({ received: true, status: "user_exists" });
         }
-        await createUser(evt.data);
+        const newUser = await createUser(evt.data);
+
+        const email =
+          evt.data.primary_email_address?.email_address ||
+          evt.data.email_addresses?.[0]?.email_address;
+
+        if (email) {
+          const employee = await Employee.findOne({
+            "user.email": email,
+            inviteStatus: "pending",
+          });
+          if (employee) {
+            employee.user = newUser._id;
+            employee.inviteStatus = "accepted";
+            await employee.save();
+            console.log(`Employee linked with Clerk user ${evt.data.id}`);
+          }
+        }
+
         break;
       case "user.updated":
         await updateUser(evt.data);
@@ -158,9 +179,9 @@ app.post("/api/v1/webhook/clerk", ensureUserExists, async (req, res) => {
         break;
       case "session.created":
         const { id, email_addresses } = evt.data;
-        const email = email_addresses[0]?.email_address;
+        const userEmail = email_addresses[0]?.email_address;
 
-        const user = await User.findOne({ clerkId: id, email: email });
+        const user = await User.findOne({ clerkId: id, email: userEmail });
         if (user && user.role === "EMPLOYEE") {
           await loginEmployee(evt.data);
         }
@@ -230,6 +251,9 @@ app.use("/api/v1/subscription", subscriptionRouter);
 app.use("/api/v1/conversation", conversationRouter);
 app.use("/api/v1/employee", employeeRouter);
 app.use("/api/v1/sessions", sessionCallRoutes);
+app.use("/api/v1/meetup", meetupRoutes);
+app.use("/api/v1/groups", groupRoutes);
+
 app.use("/health", (req, res) => {
   res.json({
     message: "The server is running successfully",

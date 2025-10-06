@@ -270,6 +270,7 @@ module.exports = {
         privacySettings,
       } = profileData;
 
+      // Only validate fields that are provided in profileData
       const mandatoryFields = [
         { key: "name", value: name, message: "Name is required" },
         { key: "email", value: email, message: "Email is required" },
@@ -287,8 +288,12 @@ module.exports = {
         { key: "gender", value: gender, message: "Gender is required" },
       ];
 
+      // Validate only if the field is provided
       for (const field of mandatoryFields) {
-        if (!field.value || String(field.value).trim() === "") {
+        if (
+          field.value !== undefined &&
+          (field.value === null || String(field.value).trim() === "")
+        ) {
           console.log(`Validation error: ${field.message}`);
           throw new Error(field.message);
         }
@@ -342,12 +347,12 @@ module.exports = {
         userId,
         {
           $set: {
-            name,
-            email,
-            phoneNumber,
-            location,
-            dateOfBirth,
-            gender,
+            ...(name && { name }),
+            ...(email && { email }),
+            ...(phoneNumber && { phoneNumber }),
+            ...(location && { location }),
+            ...(dateOfBirth && { dateOfBirth }),
+            ...(gender && { gender }),
             ...(bio && { bio }),
             ...(education && { education }),
             ...(occupation && { occupation }),
