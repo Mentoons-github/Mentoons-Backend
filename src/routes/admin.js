@@ -1,5 +1,8 @@
 const express = require("express");
-const { requireAuth } = require("@clerk/clerk-sdk-node");
+const {
+  createInvitation,
+  setPassword,
+} = require("../controllers/admin/employee");
 const employeeRouter = require("./employee.js");
 const {
   adminRegisterController,
@@ -29,5 +32,7 @@ router.get("/users/:userId", getOneUserController);
 router.delete("/users/:userId", blacklistUserController);
 router.get("/checkrole", adminAuthMiddleware);
 
+router.post("/create-employee", adminAuthMiddleware, createInvitation);
+router.post("/set-password", setPassword);
 
 module.exports = router;

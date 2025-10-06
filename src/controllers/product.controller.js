@@ -519,6 +519,40 @@ const deleteProductImage = asyncHandler(async (req, res) => {
   });
 });
 
+const deleteProductFile = asyncHandler(async (req, res) => {
+  const { productId } = req.body;
+
+  if (!productId) {
+    return res.status(404).json({
+      success: false,
+      message: "Product is empty",
+    });
+  }
+
+  const product = await Product.findByIdAndUpdate(
+    {
+      _id: productId,
+    },
+    { $set: { orignalProductSrc: "" } },
+    {
+      new: true,
+    }
+  );
+
+  if (!product) {
+    return res.status(404).json({
+      success: false,
+      message: "Product not found",
+    });
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "File removed successfully",
+    product,
+  });
+});
+
 module.exports = {
   createProduct,
   deleteProduct,
@@ -528,4 +562,5 @@ module.exports = {
   updateProduct,
   globalSearch,
   deleteProductImage,
+  deleteProductFile,
 };

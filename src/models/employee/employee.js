@@ -4,7 +4,7 @@ const EmployeesSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-    required: true,
+    required: false,
   },
   department: {
     type: String,
@@ -19,6 +19,8 @@ const EmployeesSchema = new mongoose.Schema({
     required: true,
     default: false,
   },
+  inviteId: { type: String, required: true },
+  inviteStatus: { type: String, default: "pending" },
 });
 
 const Employee = mongoose.model("Employees", EmployeesSchema);

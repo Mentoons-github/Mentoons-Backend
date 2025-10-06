@@ -310,68 +310,119 @@ module.exports = {
 
   saveWorkshop: async (data) => {
     try {
-      const { workshopName, whyChooseUs, ageGroups } = data;
+      const { categoryName, subtitle, workshops } = data;
 
-      if (!workshopName) {
-        throw new Error("Workshop name is required");
+      if (!categoryName) {
+        throw new Error("Category name is required");
       }
 
-      if (
-        !whyChooseUs ||
-        !Array.isArray(whyChooseUs) ||
-        whyChooseUs.length === 0
-      ) {
-        throw new Error("At least one 'Why Choose Us' item is required");
+      if (!subtitle) {
+        throw new Error("Subtitle is required");
       }
 
-      for (const item of whyChooseUs) {
-        if (!item.heading || !item.description) {
-          throw new Error(
-            `Each 'Why Choose Us' item must have a heading and description`
-          );
-        }
-      }
-      
-      if (!ageGroups || !Array.isArray(ageGroups) || ageGroups.length === 0) {
-        throw new Error("At least one age group is required");
+      if (!workshops || !Array.isArray(workshops) || workshops.length === 0) {
+        throw new Error("At least one workshop is required");
       }
 
-      for (const group of ageGroups) {
-        if (!group.ageRange || !group.serviceOverview) {
-          throw new Error(
-            `Invalid data for age group ${
-              group.ageRange || "unknown"
-            }: ageRange and serviceOverview are required`
-          );
+      for (const workshop of workshops) {
+        const { workshopName, whyChooseUs, ageGroups } = workshop;
+
+        if (!workshopName) {
+          throw new Error("Workshop name is required");
         }
 
         if (
-          !group.benefits ||
-          !Array.isArray(group.benefits) ||
-          group.benefits.length === 0
+          !whyChooseUs ||
+          !Array.isArray(whyChooseUs) ||
+          whyChooseUs.length === 0
         ) {
           throw new Error(
-            `Invalid data for age group ${group.ageRange}: benefits must be a non-empty array`
+            `At least one 'Why Choose Us' item is required for workshop ${workshopName}`
           );
         }
 
-        for (const benefit of group.benefits) {
-          if (!benefit.title || !benefit.description) {
+        for (const item of whyChooseUs) {
+          if (!item.heading || !item.description) {
             throw new Error(
-              `Each benefit in age group ${group.ageRange} must have a title and description`
+              `Each 'Why Choose Us' item in workshop ${workshopName} must have a heading and description`
+            );
+          }
+        }
+
+        if (!ageGroups || !Array.isArray(ageGroups) || ageGroups.length === 0) {
+          throw new Error(
+            `At least one age group is required for workshop ${workshopName}`
+          );
+        }
+
+        for (const group of ageGroups) {
+          if (
+            !group.ageRange ||
+            !["6-12", "13-19", "20+"].includes(group.ageRange)
+          ) {
+            throw new Error(
+              `Invalid age range for workshop ${workshopName}: must be one of '6-12', '13-19', or '20+'`
+            );
+          }
+
+          if (!group.serviceOverview) {
+            throw new Error(
+              `Service overview is required for age group ${group.ageRange} in workshop ${workshopName}`
+            );
+          }
+
+          if (
+            !group.benefits ||
+            !Array.isArray(group.benefits) ||
+            group.benefits.length === 0
+          ) {
+            throw new Error(
+              `At least one benefit is required for age group ${group.ageRange} in workshop ${workshopName}`
+            );
+          }
+
+          for (const benefit of group.benefits) {
+            if (!benefit.title || !benefit.description) {
+              throw new Error(
+                `Each benefit in age group ${group.ageRange} of workshop ${workshopName} must have a title and description`
+              );
+            }
+          }
+
+          if (!group.image) {
+            throw new Error(
+              `Image is required for age group ${group.ageRange} in workshop ${workshopName}`
             );
           }
         }
       }
 
-      const existingWorkshop = await Workshop.findOne({ workshopName });
-      if (existingWorkshop) {
-        throw new Error("Workshop with this name already exists");
-      }
+      let category = await Workshop.findOne({ categoryName });
 
-      const workshop = await Workshop.create(data);
-      console.log("Workshop created:", workshop);
-      return { workshop };
+      if (category) {
+        for (const workshop of workshops) {
+          const existingWorkshop = category.workshops.find(
+            (w) => w.workshopName === workshop.workshopName
+          );
+          if (existingWorkshop) {
+            throw new Error(
+              `Workshop with name '${workshop.workshopName}' already exists in category '${categoryName}'`
+            );
+          }
+        }
+
+        category.workshops.push(...workshops);
+        category.subtitle = subtitle;
+        await category.save();
+        return { category };
+      } else {
+        const newCategory = await Workshop.create({
+          categoryName,
+          subtitle,
+          workshops,
+        });
+        return { category: newCategory };
+      }
     } catch (error) {
       console.error("Error in saveWorkshop:", error.message);
       throw error;

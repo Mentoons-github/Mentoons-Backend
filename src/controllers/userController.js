@@ -305,6 +305,7 @@ module.exports = {
         updatedProfile
       );
     } catch (error) {
+      console.log(error);
       return errorResponse(
         res,
         500,
