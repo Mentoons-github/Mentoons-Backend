@@ -2,10 +2,13 @@ const Employee = require("../../models/employee/employee");
 const User = require("../../models/user");
 const asyncHandler = require("../../utils/asyncHandler");
 const messageHelper = require("../../utils/messageHelper");
+const Task = require("../../models/employee/task");
+const Notifications = require("../../models/adda/notification");
 const {
   successResponse,
   errorResponse,
 } = require("../../utils/responseHelper");
+const { default: mongoose } = require("mongoose");
 
 const createEmployee = asyncHandler(async (req, res) => {
   const employeeData = req.body;
@@ -74,7 +77,6 @@ const getEmployees = asyncHandler(async (req, res) => {
   console.log("Pagination values:", { skip, limit });
   console.log("Search regex:", searchRegex);
 
-  // 1️⃣ $lookup
   let pipeline = [
     {
       $lookup: {
@@ -121,6 +123,7 @@ const getEmployees = asyncHandler(async (req, res) => {
       joinDate: 1,
       place: 1,
       profilePicture: 1,
+      profileEditRequest: 1,
       "userInfo.name": 1,
       "userInfo.email": 1,
       "userInfo.role": 1,
@@ -150,19 +153,30 @@ const getEmployees = asyncHandler(async (req, res) => {
     return errorResponse(res, 404, messageHelper.EMPLOYEE_NOT_FOUND);
   }
 
-  const formattedEmployees = employees.map((emp) => ({
-    _id: emp._id,
-    name: emp.userInfo.name,
-    email: emp.userInfo.email,
-    phone: emp.userInfo.phoneNumber,
-    role: emp.userInfo.role,
-    department: emp.department,
-    joinDate: emp.joinDate,
-    isActive: emp.isActive,
-    salary: emp.salary,
-    place: emp.place,
-    profilePicture: emp.profilePicture,
-  }));
+  const formattedEmployees = employees.map((emp) => {
+    const formatted = {
+      _id: emp._id,
+      name: emp.userInfo.name,
+      email: emp.userInfo.email,
+      phone: emp.userInfo.phoneNumber,
+      role: emp.userInfo.role,
+      department: emp.department,
+      joinDate: emp.joinDate,
+      isActive: emp.isActive,
+      salary: emp.salary,
+      place: emp.place,
+      profilePicture: emp.profilePicture,
+    };
+
+    if (
+      emp.profileEditRequest &&
+      Object.keys(emp.profileEditRequest).length > 0
+    ) {
+      formatted.profileEditRequest = emp.profileEditRequest;
+    }
+
+    return formatted;
+  });
 
   console.log("Formatted employees to return:", formattedEmployees);
 
@@ -174,7 +188,262 @@ const getEmployees = asyncHandler(async (req, res) => {
   });
 });
 
+const getEmployeeById = async (req, res) => {
+  try {
+    console.log(req.params);
+    const { id } = req.params;
+    console.log(id);
+
+    const employee = await Employee.findById(id).populate(
+      "user",
+      "name email role"
+    );
+
+    console.log(employee);
+
+    if (!employee) {
+      return res.status(404).json({
+        success: false,
+        message: "Employee not found",
+      });
+    }
+
+    if (employee.user?.role !== "EMPLOYEE") {
+      return res.status(401).json({
+        success: false,
+        message: "User is not an employee",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: {
+        id: employee._id,
+        name: employee.user.name,
+        email: employee.user.email,
+        role: employee.user.role,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching employee:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const getEmployeeProfile = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const user = await User.findById(userId);
+
+    const employeeDoc = await Employee.findOne({ user: user._id }).populate(
+      "user",
+      "-password -__v -createdAt -updatedAt"
+    );
+    if (!employeeDoc) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+    console.log("employeeDoc :", employeeDoc);
+
+    const employee = {
+      department: employeeDoc.department,
+      salary: employeeDoc.salary,
+      active: employeeDoc.active,
+      jobRole: employeeDoc.jobRole,
+      user: {
+        name: employeeDoc.user?.name || "",
+        email: employeeDoc.user?.email || "",
+        role: employeeDoc.user?.role || "employee",
+        picture: employeeDoc.user?.picture || "",
+        gender: employeeDoc.user?.gender || "other",
+        phoneNumber: employeeDoc.user?.phoneNumber || null,
+      },
+    };
+
+    if (employeeDoc.profileEditRequest) {
+      console.log("profilerequest found");
+      employee.profileEditRequest = employeeDoc.profileEditRequest;
+    }
+
+    console.log("employeefetched :", employee);
+    const tasks = await Task.find({ assignedTo: employeeDoc._id });
+
+    const stats = {
+      assigned: tasks.length,
+      submitted: tasks.filter((t) => t.status === "completed").length,
+      completed: tasks.filter((t) => t.status === "completed").length,
+      inProgress: tasks.filter((t) => t.status === "in-progress").length,
+      overdue: tasks.filter((t) => t.status === "overdue").length,
+    };
+
+    const recentTasks = tasks
+      .sort((a, b) => b.createdAt - a.createdAt)
+      .slice(0, 5)
+      .map((t) => ({
+        id: t._id,
+        title: t.title,
+        status: t.status,
+        dueDate: t.deadline.toDateString(),
+      }));
+
+    return res.status(200).json({
+      employee,
+      tasks: stats,
+      recentTasks,
+    });
+  } catch (err) {
+    console.error("Error fetching employee profile:", err);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const editEmployee = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const employee = await Employee.findOne({ user: userId });
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+    const { user: userData } = req.body;
+
+    let updatedUser = null;
+    if (userData) {
+      const { name, gender, picture } = userData;
+
+      if (
+        name !== undefined &&
+        (typeof name !== "string" || name.trim() === "")
+      ) {
+        return res
+          .status(400)
+          .json({ message: "Name is required and must be a non-empty string" });
+      }
+      if (
+        gender !== undefined &&
+        (typeof gender !== "string" ||
+          !["male", "female", "other"].includes(gender))
+      ) {
+        return res
+          .status(400)
+          .json({ message: "Gender must be 'male', 'female', or 'other'" });
+      }
+      if (
+        picture !== undefined &&
+        (typeof picture !== "string" || picture.trim() === "")
+      ) {
+        return res
+          .status(400)
+          .json({ message: "Picture must be a non-empty string or undefined" });
+      }
+
+      updatedUser = await User.findByIdAndUpdate(
+        userId,
+        {
+          $set: {
+            ...(name !== undefined && { name }),
+            ...(gender !== undefined && { gender }),
+            ...(picture !== undefined && { picture }),
+          },
+        },
+        { new: true, runValidators: true }
+      ).select("name email role picture gender phoneNumber");
+    }
+
+    const updatedEmployee = await Employee.findOne({ user: userId }).populate(
+      "user",
+      "name email role picture gender phoneNumber"
+    );
+
+    if (!updatedEmployee) {
+      return res
+        .status(404)
+        .json({ message: "Employee not found during update" });
+    }
+
+    const response = {
+      department: updatedEmployee.department,
+      salary: updatedEmployee.salary,
+      active: updatedEmployee.active,
+      user: {
+        name: updatedEmployee.user.name || "",
+        email: updatedEmployee.user.email || "",
+        role: updatedEmployee.user.role || "",
+        picture: updatedEmployee.user.picture || undefined,
+        gender: updatedEmployee.user.gender || "other",
+        phoneNumber: updatedEmployee.user.phoneNumber || null,
+      },
+      jobRole: updatedEmployee.jobRole,
+    };
+
+    return res.status(200).json(response);
+  } catch (err) {
+    console.error("Error updating employee:", err);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const requestProfileEdit = async (req, res) => {
+  try {
+    const employeeId = req.user._id;
+    console.log(employeeId);
+
+    const employee = await Employee.findOne({ user: employeeId }).populate(
+      "user",
+      "_id name"
+    );
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+    if (employee.profileEditRequest?.status === "pending") {
+      return res
+        .status(400)
+        .json({ message: "You already have a pending request" });
+    }
+
+    employee.profileEditRequest = {
+      status: "pending",
+      requestedAt: new Date(),
+    };
+
+    await employee.save();
+
+    const admins = await User.find({ role: "ADMIN" });
+
+    const notifications = admins.map((admin) => ({
+      userId: admin._id,
+      initiatorId: employee.user,
+      type: "alert",
+      message: `${employee.user.name} requested a profile edit`,
+      referenceId: employeeId,
+      referenceModel: "Employee",
+    }));
+
+    await Notifications.insertMany(notifications);
+
+    res
+      .status(200)
+      .json({ message: "Profile edit request submitted", employee });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   createEmployee,
   getEmployees,
+  getEmployeeById,
+  getEmployeeProfile,
+  editEmployee,
+  requestProfileEdit,
 };

@@ -1,32 +1,53 @@
 const mongoose = require("mongoose");
 
+const AttachmentSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  url: { type: String, required: true },
+  uploadedAt: {
+    type: String,
+    required: true,
+    default: () => new Date().toISOString(),
+  },
+});
+
 const taskSchema = new mongoose.Schema(
   {
-    name: {
+    title: {
       type: String,
       required: true,
     },
-    completed: {
-      type: Boolean,
-      default: false,
+    description: {
+      type: String,
+      default: "",
     },
-    files: {
-      type: [String],
-      default: [],
+    status: {
+      type: String,
+      enum: ["pending", "in-progress", "completed", "overdue"],
+      default: "pending",
     },
+    attachments: [AttachmentSchema],
     deadline: {
       type: Date,
-      default: Date.now,
+      required: true,
     },
     assignedTo: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "Employees",
       required: true,
     },
     assignedBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Admin",
+      ref: "User",
       required: true,
+    },
+    priority: {
+      type: String,
+      enum: ["low", "medium", "high"],
+      default: "medium",
+    },
+    submissionFailureReason: {
+      type: String,
+      required: false,
     },
   },
   {

@@ -1,9 +1,16 @@
 const Query = require("../models/query");
 
-// Create a new query
 const createQuery = async (req, res) => {
   console.log("Query Data", req.body);
   try {
+    const exist = await Query.find({ queryType: req.body.queryType });
+    if (exist) {
+      console.log(exist.length);
+      return res.status(409).json({
+        success: false,
+        message: "Already submitted the query",
+      });
+    }
     const query = new Query({ ...req.body });
     const savedQuery = await query.save();
     console.log("Saved Query", savedQuery);

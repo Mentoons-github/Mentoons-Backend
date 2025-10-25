@@ -23,7 +23,7 @@ const UserSchema = new mongoose.Schema(
     },
     picture: {
       type: String,
-      default: "https://via.placeholder.com/150",
+      required: false,
     },
     phoneNumber: {
       type: String,

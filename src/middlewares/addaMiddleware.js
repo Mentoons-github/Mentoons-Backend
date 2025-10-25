@@ -11,10 +11,13 @@ const verifyToken = async (req, res, next) => {
 
   try {
     const session = await clerk.verifyToken(token);
+    console.log("session found");
 
     if (!session || !session.sub) {
       return errorResponse(res, 401, "Invalid or expired token.");
     }
+
+    console.log("checking user");
 
     const user = await clerk.users.getUser(session.sub);
     if (!user) {
@@ -22,6 +25,7 @@ const verifyToken = async (req, res, next) => {
     }
 
     const DBUser = await User.findOne({ clerkId: user.id });
+    console.log("user found");
 
     if (!DBUser) {
       return errorResponse(
@@ -31,8 +35,9 @@ const verifyToken = async (req, res, next) => {
       );
     }
 
+    console.log("storing user");
     req.user = DBUser._id;
-
+    console.log("user saved");
     next();
   } catch (err) {
     console.error("Token verification error:", err);

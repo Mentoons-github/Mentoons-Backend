@@ -5,12 +5,9 @@ const checkProfileCompletion = async (req, res, next) => {
   try {
     const userId = req.user.dbUser._id;
 
-    console.log("user Id :", userId);
-
     const user = await User.findById(userId);
 
     if (!user) {
-      console.log("❌  User not found");
       return res.status(404).json({ message: "User not found" });
     }
 
