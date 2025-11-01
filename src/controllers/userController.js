@@ -220,6 +220,7 @@ module.exports = {
     const { users, totalCount, totalPages } = await userHelper.getAllUser(
       queryOptions
     );
+    console.log(users);
 
     if (!users) {
       return errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR);

@@ -70,12 +70,8 @@ const getEmployees = asyncHandler(async (req, res) => {
   const limit = Number(req.query.limit) || 10;
   const search = req.query.search || "";
 
-  console.log("Query params received:", { page, limit, search });
-
   const skip = (page - 1) * limit;
   const searchRegex = new RegExp(search, "i");
-  console.log("Pagination values:", { skip, limit });
-  console.log("Search regex:", searchRegex);
 
   let pipeline = [
     {
@@ -90,12 +86,9 @@ const getEmployees = asyncHandler(async (req, res) => {
   let result = await Employee.aggregate(pipeline);
   console.log("After $lookup:", result);
 
-  // 2️⃣ $unwind
   pipeline.push({ $unwind: "$userInfo" });
   result = await Employee.aggregate(pipeline);
-  console.log("After $unwind:", result);
 
-  // 3️⃣ $match
   pipeline.push({
     $match: {
       $or: [
@@ -111,9 +104,7 @@ const getEmployees = asyncHandler(async (req, res) => {
     },
   });
   result = await Employee.aggregate(pipeline);
-  console.log("After $match:", result);
 
-  // 4️⃣ $project
   pipeline.push({
     $project: {
       _id: 1,
@@ -124,32 +115,26 @@ const getEmployees = asyncHandler(async (req, res) => {
       place: 1,
       profilePicture: 1,
       profileEditRequest: 1,
+      active: 1,
       "userInfo.name": 1,
       "userInfo.email": 1,
       "userInfo.role": 1,
       "userInfo.phoneNumber": 1,
+      "userInfo.dateOfBirth": 1,
     },
   });
   result = await Employee.aggregate(pipeline);
-  console.log("After $project:", result);
 
-  // 5️⃣ $sort
   pipeline.push({ $sort: { createdAt: -1 } });
   result = await Employee.aggregate(pipeline);
-  console.log("After $sort:", result);
 
-  // 6️⃣ $skip
   pipeline.push({ $skip: skip });
   result = await Employee.aggregate(pipeline);
-  console.log("After $skip:", result);
 
-  // 7️⃣ $limit
   pipeline.push({ $limit: limit });
   const employees = await Employee.aggregate(pipeline);
-  console.log("After $limit (final result):", employees);
 
   if (!employees || employees.length === 0) {
-    console.log("No employees found matching criteria");
     return errorResponse(res, 404, messageHelper.EMPLOYEE_NOT_FOUND);
   }
 
@@ -162,10 +147,11 @@ const getEmployees = asyncHandler(async (req, res) => {
       role: emp.userInfo.role,
       department: emp.department,
       joinDate: emp.joinDate,
-      isActive: emp.isActive,
       salary: emp.salary,
       place: emp.place,
       profilePicture: emp.profilePicture,
+      dateOfBirth: emp.userInfo.dateOfBirth || null,
+      status: emp.active ? "Active" : "Inactive",
     };
 
     if (
@@ -178,7 +164,7 @@ const getEmployees = asyncHandler(async (req, res) => {
     return formatted;
   });
 
-  console.log("Formatted employees to return:", formattedEmployees);
+  console.log(formattedEmployees)
 
   return successResponse(res, 200, messageHelper.EMPLOYEE_FETCHED, {
     employees: formattedEmployees,
@@ -243,8 +229,6 @@ const getEmployeeProfile = async (req, res) => {
       return res.status(404).json({ message: "Employee not found" });
     }
 
-    console.log("employeeDoc :", employeeDoc);
-
     const employee = {
       department: employeeDoc.department,
       salary: employeeDoc.salary,
@@ -257,6 +241,7 @@ const getEmployeeProfile = async (req, res) => {
         picture: employeeDoc.user?.picture || "",
         gender: employeeDoc.user?.gender || "other",
         phoneNumber: employeeDoc.user?.phoneNumber || null,
+        dob: employeeDoc.user?.dateOfBirth || null,
       },
     };
 
@@ -318,7 +303,8 @@ const editEmployee = async (req, res) => {
 
     let updatedUser = null;
     if (userData) {
-      const { name, gender, picture } = userData;
+      const { name, gender, picture, dob } = userData;
+      console.log(dob);
 
       if (
         name !== undefined &&
@@ -353,15 +339,20 @@ const editEmployee = async (req, res) => {
             ...(name !== undefined && { name }),
             ...(gender !== undefined && { gender }),
             ...(picture !== undefined && { picture }),
+            ...(dob !== undefined && { dateOfBirth: dob }),
           },
         },
         { new: true, runValidators: true }
-      ).select("name email role picture gender phoneNumber");
+      ).select("name email role picture gender phoneNumber dateOfBirth");
     }
 
-    const updatedEmployee = await Employee.findOne({ user: userId }).populate(
+    const updatedEmployee = await Employee.findOneAndUpdate(
+      { user: userId },
+      { $set: { profileEditRequest: null } },
+      { new: true }
+    ).populate(
       "user",
-      "name email role picture gender phoneNumber"
+      "name email role picture gender phoneNumber dateOfBirth"
     );
 
     if (!updatedEmployee) {
@@ -383,7 +374,10 @@ const editEmployee = async (req, res) => {
         phoneNumber: updatedEmployee.user.phoneNumber || null,
       },
       jobRole: updatedEmployee.jobRole,
+      dob: updatedEmployee.user.dateOfBirth,
     };
+
+    console.log(response);
 
     return res.status(200).json(response);
   } catch (err) {
@@ -439,11 +433,115 @@ const requestProfileEdit = async (req, res) => {
   }
 };
 
+const getEmployeesCelebrations = async (req, res) => {
+  try {
+    const employees = await Employee.find().populate(
+      "user",
+      "name email role picture gender phoneNumber dateOfBirth"
+    );
+
+    if (!employees.length) {
+      return res.status(404).json({ message: "No employees found" });
+    }
+
+    const currentYear = new Date().getFullYear();
+    const today = new Date();
+    const celebrations = [];
+
+    employees.forEach((emp) => {
+      const { joinDate } = emp;
+      const { name, picture, gender, phoneNumber, dateOfBirth } =
+        emp.user || {};
+
+      if (dateOfBirth) {
+        const dob = new Date(dateOfBirth);
+        const birthdayThisYear = new Date(
+          currentYear,
+          dob.getMonth(),
+          dob.getDate()
+        );
+
+        if (birthdayThisYear.getFullYear() === currentYear) {
+          celebrations.push({
+            name,
+            picture,
+            gender,
+            phoneNumber,
+            type: "Birthday",
+            date: birthdayThisYear,
+          });
+        }
+      }
+
+      if (joinDate) {
+        const doj = new Date(joinDate);
+        const milestones = [
+          { months: 3, label: "3-Month Anniversary" },
+          { months: 6, label: "6-Month Anniversary" },
+          { months: 12, label: "1-Year Anniversary" },
+          { months: 24, label: "2-Year Anniversary" },
+          { months: 36, label: "3-Year Anniversary" },
+          { months: 48, label: "4-Year Anniversary" },
+          { months: 60, label: "5-Year Anniversary" },
+        ];
+
+        milestones.forEach((m) => {
+          const anniversaryDate = new Date(doj);
+          anniversaryDate.setMonth(doj.getMonth() + m.months);
+
+          if (
+            anniversaryDate.getFullYear() === currentYear &&
+            anniversaryDate <= today
+          ) {
+            celebrations.push({
+              name,
+              picture,
+              gender,
+              phoneNumber,
+              type: m.label,
+              date: anniversaryDate,
+            });
+          }
+        });
+      }
+    });
+
+    console.log(celebrations);
+
+    celebrations.sort((a, b) => a.date - b.date);
+
+    res.status(200).json(celebrations);
+  } catch (err) {
+    console.error("Error fetching celebrations:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+const getMe = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const employee = await Employee.findOne({ user: userId }).populate(
+      "user",
+      "name email profilePicture"
+    );
+
+    if (!employee) {
+      return res.status(404).json({ message: "No employee found" });
+    }
+
+    return res.status(200).json(employee);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 module.exports = {
+  getMe,
   createEmployee,
   getEmployees,
   getEmployeeById,
   getEmployeeProfile,
   editEmployee,
   requestProfileEdit,
+  getEmployeesCelebrations,
 };

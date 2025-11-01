@@ -316,7 +316,8 @@ const getSalary = asyncHandler(async (req, res) => {
   console.log(
     "\n====================== getSalary API Called ======================"
   );
-  console.log(req.query)
+  console.log(req.query);
+
   const { role, _id: userId } = req.user;
   console.log("User Info =>", { role, userId });
 
@@ -333,109 +334,45 @@ const getSalary = asyncHandler(async (req, res) => {
   // -------------------- ADMIN CASE --------------------
   if (role === "ADMIN") {
     console.log("Role detected as ADMIN");
-    console.log("req userId :", req.query.userId)
+    employeeId = req.query.employeeId;
 
-    employeeId = req.query.userId;
-    console.log("Admin requested employeeId:", employeeId);
+    if (!employeeId)
+      return res.status(400).json({ message: "employeeId is required" });
 
-    if (!employeeId) {
-      console.log("❌ Missing employeeId in admin request");
-      return res
-        .status(400)
-        .json({ message: "employeeId is required for admin" });
-    }
-
-    if (!isValidObjectId(employeeId)) {
-      console.log("❌ Invalid employeeId:", employeeId);
+    if (!isValidObjectId(employeeId))
       return res.status(400).json({ message: "Invalid employeeId" });
-    }
 
+    // Check if employee exists
     const employee = await Employee.findById(employeeId);
-    console.log("Employee found:", employee ? employee.name : "❌ None");
-
-    if (!employee) {
+    if (!employee)
       return res.status(404).json({ message: "Employee not found" });
-    }
 
+    // Fetch salary records from Salary model
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
-    console.log("Pagination:", { page, limit });
 
-    const salaries = await Salary.find({
-      employeeId,
-      periodEnd: { $lte: currentDate },
-    })
+    const salaries = await Salary.find({ employeeId })
       .sort({ periodStart: -1 })
       .skip((page - 1) * limit)
       .limit(limit);
 
-    console.log("Salaries found:", salaries.length);
+    console.log("Salaries found for ADMIN:", salaries.length);
 
-    if (!salaries || salaries.length === 0) {
-      console.log("❌ No salary records found for employee:", employeeId);
-      return res
-        .status(404)
-        .json({ message: "No salary records found for this employee" });
-    }
-
-    const dailySalaries = salaries.flatMap((salary, index) => {
-      console.log(`Processing Salary #${index + 1}`, {
-        salaryId: salary._id,
-        periodStart: salary.periodStart,
-        periodEnd: salary.periodEnd,
-        salaryAmount: salary.salaryAmount,
-      });
-
-      const daysInPeriod = getDaysBetween(
-        new Date(salary.periodStart),
-        new Date(salary.periodEnd)
-      );
-
-      const dailySalaryAmount = salary.salaryAmount / daysInPeriod;
-      const dailyPresentDays = salary.presentDays / daysInPeriod;
-      const dailyTotalDays = 1;
-      const dailyRecords = [];
-
-      let currentDay = new Date(salary.periodStart);
-      while (
-        currentDay <= new Date(salary.periodEnd) &&
-        currentDay <= currentDate
-      ) {
-        dailyRecords.push({
-          _id: salary._id + "_" + currentDay.toISOString().split("T")[0],
-          employeeId: salary.employeeId,
-          periodStart: new Date(currentDay),
-          periodEnd: new Date(currentDay),
-          salaryAmount: dailySalaryAmount,
-          presentDays: dailyPresentDays > 0 ? 1 : 0,
-          totalDays: dailyTotalDays,
-          halfDays: salary.halfDays / daysInPeriod,
-          leaveDays: salary.leaveDays / daysInPeriod,
-          totalHoursWorked: salary.totalHoursWorked / daysInPeriod,
-        });
-        currentDay.setDate(currentDay.getDate() + 1);
-      }
-
-      console.log(`→ Generated ${dailyRecords.length} daily salary records`);
-      return dailyRecords;
-    });
-
-    console.log(
-      "✅ Total Daily Salary Records Generated:",
-      dailySalaries.length
-    );
-
+    // Send salary data directly from DB
     return res.status(200).json({
       employeeId,
+      employeeName: employee.name,
       monthlySalary: employee.salary || 0,
       annualSalary: (employee.salary || 0) * 12,
-      salaries: dailySalaries,
+      totalSalaries: salaries.length,
+      salaries,
     });
   }
 
   // -------------------- EMPLOYEE CASE --------------------
   else {
     console.log("Role detected as EMPLOYEE");
+
     const employee = await Employee.findOne({ user: userId });
     console.log(
       "Employee fetched by userId:",
@@ -488,23 +425,12 @@ const getSalary = asyncHandler(async (req, res) => {
       const periodEnd = new Date(salary.periodEnd);
       const totalDays = getDaysBetween(periodStart, periodEnd);
 
-      console.log(`Adjusting Salary #${index + 1}`, {
-        periodStart,
-        periodEnd,
-        totalDays,
-      });
-
       return {
         ...salary._doc,
         totalDays,
       };
     });
-
-    console.log(
-      "✅ Final salaries count after adjustment:",
-      adjustedSalaries.length
-    );
-
+    
     return res.status(200).json({
       employeeId,
       monthlySalary: employee.salary || 0,

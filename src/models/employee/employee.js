@@ -26,6 +26,8 @@ const EmployeesSchema = new mongoose.Schema({
       "hr",
       "marketing",
       "finance",
+      "psychologist",
+      "freelance",
       "sales",
     ],
   },
@@ -58,6 +60,12 @@ const EmployeesSchema = new mongoose.Schema({
     required: false,
   },
   profileEditRequest: { type: profileEditRequestSchema, default: null },
+  employmentType: {
+    type: String,
+    required: true,
+    enum: ["full-time", "part-time", "intern", "contract", "freelance"],
+    default: "full-time",
+  },
 });
 
 const Employee = mongoose.model("Employees", EmployeesSchema);

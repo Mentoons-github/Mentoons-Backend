@@ -6,6 +6,8 @@ const {
   getEmployeeProfile,
   editEmployee,
   requestProfileEdit,
+  getEmployeesCelebrations,
+  getMe,
 } = require("../../controllers/employee/employee");
 const {
   fetchTasks,
@@ -27,11 +29,24 @@ const {
 
 const router = express.Router();
 
+//Salary
 router.get("/salary", verifyRole(["EMPLOYEE", "ADMIN"]), getSalary);
 router.get("/salary/export", verifyRole(["EMPLOYEE", "ADMIN"]), exportSalary);
+router.get("/me", verifyRole(["EMPLOYEE"]), getMe);
 
+//Birthday
+router.get(
+  "/birthday",
+  verifyRole(["ADMIN", "EMPLOYEE"]),
+  getEmployeesCelebrations
+);
+
+//Profile
 router.get("/profile", verifyRole(["EMPLOYEE"]), getEmployeeProfile);
 router.put("/edit", verifyRole(["EMPLOYEE"]), editEmployee);
+router.post("/request-edit", verifyRole(["EMPLOYEE"]), requestProfileEdit);
+
+//Task Assign
 router.post("/assign-task", verifyAdmin, assignTask);
 router.get("/task-assignments", verifyRole(["ADMIN", "EMPLOYEE"]), fetchTasks);
 router.post(
@@ -48,8 +63,8 @@ router.patch(
 router.delete("/task-assignments/:taskId/image/:imageId", removeImage);
 router.patch("/task-assignments/extend/:id", verifyAdmin, extendTask);
 
+//Base
 router.route("/").get(getEmployees).post(createEmployee);
 router.get("/:id", getEmployeeById);
-router.post("/request-edit", verifyRole(["EMPLOYEE"]), requestProfileEdit);
 
 module.exports = router;

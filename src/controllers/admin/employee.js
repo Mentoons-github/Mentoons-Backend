@@ -8,8 +8,8 @@ const bcrypt = require("bcrypt");
 const { getWelcomeEmailTemplate } = require("../../emailTemplates/setPassword");
 
 const createInvitation = asyncHandler(async (req, res) => {
-  console.log("Received request body:", req.body);
-  const { department, salary, active, user, jobRole } = req.body;
+  const { department, salary, active, user, jobRole, employmentType } =
+    req.body;
 
   if (!user || typeof user !== "object") {
     console.log("Error: User object missing or invalid");
@@ -20,16 +20,33 @@ const createInvitation = asyncHandler(async (req, res) => {
 
   const { name, email, role = "EMPLOYEE", gender, phoneNumber } = user;
 
-  if (!name || !email || !department || !phoneNumber) {
+  if (!name || !email || !department || !phoneNumber || !employmentType) {
     console.log("Error: Missing required fields", {
       name,
       email,
       department,
       jobRole,
+      employmentType,
     });
     return res
       .status(400)
       .json({ success: false, message: "Missing required fields" });
+  }
+
+  const validEmploymentTypes = [
+    "full-time",
+    "part-time",
+    "intern",
+    "contract",
+    "freelance",
+  ];
+  if (!validEmploymentTypes.includes(employmentType)) {
+    return res.status(400).json({
+      success: false,
+      message: `Invalid employment type. Must be one of: ${validEmploymentTypes.join(
+        ", "
+      )}`,
+    });
   }
 
   const session = await User.startSession();
@@ -40,12 +57,11 @@ const createInvitation = asyncHandler(async (req, res) => {
 
   try {
     console.log("Checking if Clerk user exists for email:", email);
-
     const existingClerkUsers = await clerkClient.users.getUserList({
       emailAddress: [email],
     });
 
-    if (existingClerkUsers.data && existingClerkUsers.data.length > 0) {
+    if (existingClerkUsers.data?.length > 0) {
       clerkUser = existingClerkUsers.data[0];
       console.log("Clerk user already exists:", clerkUser.id);
 
@@ -55,22 +71,20 @@ const createInvitation = asyncHandler(async (req, res) => {
         const userRole = existingDbUser.role;
 
         if (!userRole || userRole === "USER") {
-          console.log("Error: Email already used by a regular user");
           await session.abortTransaction();
           return res.status(400).json({
             success: false,
             message:
-              "⚠️ This email is already being used by a regular user account. Please use a different email address to create an employee account.",
+              "Warning: This email is already being used by a regular user account. Please use a different email address to create an employee account.",
           });
         }
 
         if (userRole === "ADMIN") {
-          console.log("Error: Cannot create employee for ADMIN user");
           await session.abortTransaction();
           return res.status(403).json({
             success: false,
             message:
-              "⚠️ This email belongs to an admin account. Admin accounts cannot be converted to employee accounts.",
+              "Warning: This email belongs to an admin account. Admin accounts cannot be converted to employee accounts.",
           });
         }
 
@@ -79,12 +93,11 @@ const createInvitation = asyncHandler(async (req, res) => {
             user: existingDbUser._id,
           }).session(session);
           if (existingEmployee) {
-            console.log("Error: Email already used by an employee");
             await session.abortTransaction();
             return res.status(400).json({
               success: false,
               message:
-                "⚠️ This email is already being used by another employee. Please use a different email address.",
+                "Warning: This email is already being used by another employee. Please use a different email address.",
             });
           }
         }
@@ -101,8 +114,8 @@ const createInvitation = asyncHandler(async (req, res) => {
 
       const newUserData = {
         emailAddress: [email],
-        firstName: firstName,
-        lastName: lastName,
+        firstName,
+        lastName,
         password: tempPassword,
         skipPasswordRequirement: true,
       };
@@ -122,54 +135,31 @@ const createInvitation = asyncHandler(async (req, res) => {
       }
     }
 
-    console.log("Checking local DB for user with email:", email);
     let dbUser = await User.findOne({ email }).session(session);
-    console.log("existing user: ", dbUser);
+    console.log("Existing DB user:", dbUser?._id);
 
     if (dbUser && !clerkUser) {
       if (!dbUser.role || dbUser.role === "USER") {
-        console.log("Error: Email already used by a regular user in database");
         await session.abortTransaction();
-
         if (createdClerkUser && clerkUser) {
-          try {
-            await clerkClient.users.deleteUser(clerkUser.id);
-            console.log("Rolled back Clerk user creation");
-          } catch (deleteError) {
-            console.error(
-              "Failed to delete Clerk user during rollback:",
-              deleteError
-            );
-          }
+          await clerkClient.users.deleteUser(clerkUser.id).catch(console.error);
         }
-
         return res.status(400).json({
           success: false,
           message:
-            "⚠️ This email is already being used by a regular user account. Please use a different email address to create an employee account.",
+            "Warning: This email is already being used by a regular user account. Please use a different email address to create an employee account.",
         });
       }
 
       if (dbUser.role === "ADMIN") {
-        console.log("Error: Cannot create employee for ADMIN user in database");
         await session.abortTransaction();
-
         if (createdClerkUser && clerkUser) {
-          try {
-            await clerkClient.users.deleteUser(clerkUser.id);
-            console.log("Rolled back Clerk user creation");
-          } catch (deleteError) {
-            console.error(
-              "Failed to delete Clerk user during rollback:",
-              deleteError
-            );
-          }
+          await clerkClient.users.deleteUser(clerkUser.id).catch(console.error);
         }
-
         return res.status(403).json({
           success: false,
           message:
-            "⚠️ This email belongs to an admin account. Admin accounts cannot be converted to employee accounts.",
+            "Warning: This email belongs to an admin account. Admin accounts cannot be converted to employee accounts.",
         });
       }
 
@@ -178,25 +168,16 @@ const createInvitation = asyncHandler(async (req, res) => {
           user: dbUser._id,
         }).session(session);
         if (existingEmployee) {
-          console.log("Error: Employee already exists with this email");
           await session.abortTransaction();
-
           if (createdClerkUser && clerkUser) {
-            try {
-              await clerkClient.users.deleteUser(clerkUser.id);
-              console.log("Rolled back Clerk user creation");
-            } catch (deleteError) {
-              console.error(
-                "Failed to delete Clerk user during rollback:",
-                deleteError
-              );
-            }
+            await clerkClient.users
+              .deleteUser(clerkUser.id)
+              .catch(console.error);
           }
-
           return res.status(400).json({
             success: false,
             message:
-              "⚠️ This email is already being used by another employee. Please use a different email address.",
+              "Warning: This email is already being used by another employee. Please use a different email address.",
           });
         }
       }
@@ -223,32 +204,31 @@ const createInvitation = asyncHandler(async (req, res) => {
       console.log("Updating local user with Clerk ID");
       dbUser.clerkId = clerkUser.id;
       await dbUser.save({ session });
-      console.log("Local user updated with Clerk ID:", dbUser.clerkId);
     }
 
-    console.log("Generating password setup key and expiry");
     const passwordSetupKey = crypto.randomBytes(20).toString("hex");
     const passwordSetupExpires = Date.now() + 24 * 60 * 60 * 1000;
 
-    console.log("Creating employee record");
+    // ✅ Include email to avoid "duplicate key error: { email: null }"
     const [employee] = await Employee.create(
       [
         {
           department,
           salary,
-          active: active || false,
+          email, // ✅ FIX: include email field
+          active: active ?? false,
           inviteStatus: "pending",
           jobRole,
           user: dbUser._id,
           passwordSetupKey,
           passwordSetupExpires,
+          employmentType,
         },
       ],
       { session }
     );
     console.log("Employee created:", employee._id);
 
-    console.log("Preparing invitation email for:", email);
     const emailContent = getWelcomeEmailTemplate(
       name,
       process.env.FRONTEND_URL || "http://localhost:3000",
@@ -263,21 +243,26 @@ const createInvitation = asyncHandler(async (req, res) => {
       ...emailContent,
     };
 
-    console.log("Sending email...");
     await sendEmail(mailOptions);
-    console.log("Invitation email sent successfully");
 
     await session.commitTransaction();
-    console.log("Transaction committed successfully");
-
     res.status(201).json({
       success: true,
-      message: "Invitation email sent successfully! 🎉",
+      message: "Invitation email sent successfully!",
       employee,
     });
   } catch (error) {
     await session.abortTransaction();
     console.log("Transaction aborted due to error");
+
+    // ✅ Handle duplicate key error in a human-friendly way
+    if (error.code === 11000) {
+      const field = Object.keys(error.keyPattern || {})[0];
+      return res.status(400).json({
+        success: false,
+        message: `Duplicate entry detected: The ${field} you provided already exists. Please use a unique ${field}.`,
+      });
+    }
 
     if (createdClerkUser && clerkUser) {
       try {
@@ -292,7 +277,7 @@ const createInvitation = asyncHandler(async (req, res) => {
     }
 
     console.error("Error creating employee or sending email:", error);
-    if (error.errors[0].code === "form_identifier_exists") {
+    if (error.errors?.[0]?.code === "form_identifier_exists") {
       return res.status(500).json({
         success: false,
         message: error.errors[0].message,
@@ -301,7 +286,7 @@ const createInvitation = asyncHandler(async (req, res) => {
     } else {
       return res.status(500).json({
         success: false,
-        message: error,
+        message: "Internal server error",
         error: error.message,
       });
     }
@@ -425,7 +410,6 @@ const setPassword = asyncHandler(async (req, res) => {
 });
 
 const handleProfileEditRequest = async (req, res) => {
-
   try {
     const adminId = req.user?._id;
     const { id: employeeId } = req.params;
@@ -438,12 +422,12 @@ const handleProfileEditRequest = async (req, res) => {
     }
 
     const employee = await Employee.findById(employeeId);
-  
+
     if (!employee) {
       return res.status(404).json({ message: "No user found" });
     }
 
-    const { requestedAt } = employee.profileEditRequest || {}
+    const { requestedAt } = employee.profileEditRequest || {};
 
     employee.profileEditRequest = {
       adminId,

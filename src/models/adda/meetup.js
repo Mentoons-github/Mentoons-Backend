@@ -15,6 +15,7 @@ const MeetupSchema = new mongoose.Schema(
       required: [true, "Title is required"],
       trim: true,
     },
+
     dateTime: {
       type: Date,
       required: [true, "Date and time are required"],
@@ -25,6 +26,7 @@ const MeetupSchema = new mongoose.Schema(
         message: "Date must be today or in the future",
       },
     },
+
     duration: {
       type: String,
       required: [true, "Duration is required"],
@@ -40,6 +42,7 @@ const MeetupSchema = new mongoose.Schema(
         message: "Invalid duration",
       },
     },
+
     maxCapacity: {
       type: Number,
       required: [true, "Max capacity is required"],
@@ -50,6 +53,7 @@ const MeetupSchema = new mongoose.Schema(
         message: "Max capacity must be an integer",
       },
     },
+
     platform: {
       type: String,
       required: [
@@ -68,7 +72,19 @@ const MeetupSchema = new mongoose.Schema(
         ],
         message: "Invalid platform",
       },
+ 
+      validate: [
+        {
+          validator: function (value) {
+            if (!this.isOnline) return true; 
+            return value && this.enumValues.includes(value);
+          },
+          message: "Invalid platform selected",
+        },
+      ],
+      default: undefined,
     },
+
     meetingLink: {
       type: String,
       required: [
@@ -77,14 +93,19 @@ const MeetupSchema = new mongoose.Schema(
         },
         "Meeting link is required for online meetups",
       ],
-      validate: {
-        validator: function (value) {
-          if (!this.isOnline || !this.platform) return true;
-          return value.includes(platformDomains[this.platform]);
+      validate: [
+        {
+          validator: function (value) {
+            if (!this.isOnline) return true;
+            if (!value || !this.platform) return false;
+            const domain = platformDomains[this.platform];
+            return domain ? value.includes(domain) : false;
+          },
+          message: "Meeting link must contain the correct platform domain",
         },
-        message: "Invalid platform URL",
-      },
+      ],
     },
+
     place: {
       type: String,
       required: [
@@ -95,48 +116,55 @@ const MeetupSchema = new mongoose.Schema(
       ],
       trim: true,
     },
+
     description: {
       type: String,
       required: [true, "Description is required"],
       trim: true,
     },
+
     detailedDescription: {
       type: String,
       required: [true, "Detailed description is required"],
       trim: true,
     },
+
     speakerName: {
       type: String,
       required: [true, "Speaker name is required"],
       trim: true,
     },
+
     speakerImage: {
       type: String,
       default: null,
     },
+
     topics: {
       type: [String],
       required: [true, "Topics are required"],
       validate: {
         validator: function (value) {
-          return value.length > 0;
+          return Array.isArray(value) && value.length > 0;
         },
         message: "At least one topic is required",
       },
     },
+
     tags: {
       type: [String],
       required: [true, "Tags are required"],
       validate: {
         validator: function (value) {
-          return value.length > 0;
+          return Array.isArray(value) && value.length > 0;
         },
         message: "At least one tag is required",
       },
     },
+
     isOnline: {
       type: Boolean,
-      required: true,
+      required: [true, "isOnline is required"],
     },
   },
   {
@@ -148,23 +176,21 @@ MeetupSchema.pre("save", function (next) {
   if (typeof this.topics === "string") {
     this.topics = this.topics
       .split(",")
-      .map((topic) => topic.trim())
-      .filter((topic) => topic.length > 0);
+      .map((t) => t.trim())
+      .filter(Boolean);
   }
   if (typeof this.tags === "string") {
     this.tags = this.tags
       .split(",")
-      .map((tag) => tag.trim())
-      .filter((tag) => tag.length > 0);
+      .map((t) => t.trim())
+      .filter(Boolean);
   }
   next();
 });
 
 MeetupSchema.pre("save", function (next) {
-  if (this.dateTime) {
-    if (!(this.dateTime instanceof Date) || isNaN(this.dateTime.getTime())) {
-      return next(new Error("Invalid date and time"));
-    }
+  if (this.dateTime && !(this.dateTime instanceof Date)) {
+    return next(new Error("Invalid date and time"));
   }
   next();
 });
