@@ -382,10 +382,12 @@ const requestSuggestions = asyncHandler(async (req, res) => {
 
 const getNotifications = asyncHandler(async (req, res) => {
   const userId = req.user;
+  console.log("userId : ", userId);
 
   try {
     const userNotifications = await fetchNotifications(userId);
 
+    console.log("user notifications :", userNotifications);
     return successResponse(
       res,
       200,
@@ -407,6 +409,7 @@ const deleteNotification = asyncHandler(async (req, res) => {
     let objectId;
     try {
       objectId = new mongoose.Types.ObjectId(notificationId);
+      console.log("objectId : ", objectId);
     } catch (err) {
       console.log("Invalid ObjectId format:", err);
       return errorResponse(res, 400, "Invalid notification ID format");

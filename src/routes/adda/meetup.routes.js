@@ -6,7 +6,9 @@ const {
   fetchMeetupById,
   editMeetup,
   deleteMeetupImage,
+  deleteMeetup,
 } = require("../../controllers/meetup");
+const { verifyAdmin } = require("../../middlewares/admin/adminAuth");
 
 const router = express.Router();
 
@@ -16,6 +18,7 @@ router.get("/:id", fetchMeetupById);
 router.use(adminAuthMiddleware.adminAuthMiddleware);
 router.post("/add", addMeetup);
 router.patch("/edit/:id", editMeetup);
+router.delete("/:id", verifyAdmin, deleteMeetup);
 router.delete("/:id/image", deleteMeetupImage);
 
 module.exports = router;

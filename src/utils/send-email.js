@@ -1,4 +1,4 @@
-const { transporter } = require('..config/nodemailer');
+const { transporter } = require("../config/nodemailer");
 
 const sendEmail = async (mailOptions) => {
   try {
@@ -7,6 +7,6 @@ const sendEmail = async (mailOptions) => {
   } catch (error) {
     console.error("Error sending email:", error);
   }
-}
+};
 
 module.exports = { sendEmail };

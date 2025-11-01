@@ -20,6 +20,8 @@ const addMeetup = asyncHandler(async (req, res) => {
     isOnline,
   } = req.body;
 
+  console.log("platform : ", platform);
+
   if (dateTime) {
     const date = new Date(dateTime);
     if (isNaN(date.getTime())) {
@@ -266,10 +268,41 @@ const deleteMeetupImage = asyncHandler(async (req, res) => {
   });
 });
 
+const deleteMeetup = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  console.log("id :", id);
+
+  if (!id || id.trim() === "") {
+    return res.status(400).json({
+      success: false,
+      message: "Meetup ID is required",
+    });
+  }
+
+  const meetup = await Meetup.findById(id);
+
+  if (!meetup) {
+    return res.status(404).json({
+      success: false,
+      message: "Meetup not found",
+    });
+  }
+
+  await Meetup.deleteOne({ _id: id });
+
+  return res.status(200).json({
+    success: true,
+    message: "Meetup deleted successfully",
+    data: { id },
+  });
+});
+
 module.exports = {
   addMeetup,
   allMeetups,
   fetchMeetupById,
   editMeetup,
   deleteMeetupImage,
+  deleteMeetup,
 };

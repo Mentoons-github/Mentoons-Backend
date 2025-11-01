@@ -44,7 +44,14 @@ const getProducts = async (req, res, next) => {
     }
 
     if (ageCategory) queryFilter.ageCategory = ageCategory;
-    if (type) queryFilter.type = type;
+
+    if (type === "mentoons_coloring_book") {
+      queryFilter.type = "mentoons books";
+      queryFilter.title = { $regex: "Coloring|Colouring", $options: "i" };
+    } else if (type) {
+      queryFilter.type = type;
+    }
+
     if (cardType) queryFilter.cardType = cardType;
 
     console.log(
