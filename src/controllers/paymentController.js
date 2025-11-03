@@ -124,7 +124,7 @@ const initiatePayment = async (req, res) => {
     }
 
     // Prepare CCAvenue parameters
-    const redirect_cancel_url = `https://mentoons-backend-zlx3.onrender.com/api/v1/payment/ccavenue-response?userId=${encodeURIComponent(
+    const redirect_cancel_url = `https://api.mentoons.com/api/v1/payment/ccavenue-response?userId=${encodeURIComponent(
       user.clerkId
     )}`;
 
