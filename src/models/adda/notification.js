@@ -42,6 +42,8 @@ const notificationSchema = new mongoose.Schema(
         "privacy_update",
         "content_approval",
         "content_rejected",
+        "task_assigned",
+        "task_submitted",
       ],
     },
     message: {
@@ -63,6 +65,7 @@ const notificationSchema = new mongoose.Schema(
         "Meme",
         "Employee",
         "LeaveRequest",
+        "Task",
       ],
     },
     isRead: {

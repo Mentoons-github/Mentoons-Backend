@@ -44,12 +44,19 @@ const mapEmployeeToFrontend = (employee, user) => ({
 const fetchTasks = async (req, res) => {
   try {
     const { clerkRole, _id: userId } = req.user;
-    const { employeeId, date, sortBy, sortOrder, status, searchTerm } =
-      req.query;
+    const {
+      employeeId,
+      date,
+      sortBy,
+      sortOrder,
+      status,
+      searchTerm,
+      page,
+      limit = 10,
+    } = req.query;
 
     let query = {};
 
-    // Role-based filtering for employees
     if (clerkRole === "EMPLOYEE") {
       const employee = await Employee.findOne({ user: userId });
       if (!employee) {
@@ -63,7 +70,6 @@ const fetchTasks = async (req, res) => {
       query.assignedTo = employeeId;
     }
 
-    // Status filter
     if (
       status &&
       ["pending", "in-progress", "completed", "overdue"].includes(status)
@@ -71,7 +77,6 @@ const fetchTasks = async (req, res) => {
       query.status = status;
     }
 
-    // Search term filter
     if (searchTerm) {
       const users = await User.find({
         name: { $regex: searchTerm, $options: "i" },
@@ -89,7 +94,6 @@ const fetchTasks = async (req, res) => {
       ];
     }
 
-    // Date filter
     if (date) {
       const filterDate = new Date(date);
       if (!isNaN(filterDate.getTime())) {
@@ -107,7 +111,6 @@ const fetchTasks = async (req, res) => {
       }
     }
 
-    // Sorting
     let sort = {};
     if (sortBy && ["createdAt", "submittedAt"].includes(sortBy)) {
       const order = sortOrder === "desc" ? -1 : 1;
@@ -119,14 +122,27 @@ const fetchTasks = async (req, res) => {
       });
     }
 
+    const pageNum = page ? Math.max(1, parseInt(page, 10)) : 1;
+    const limitNum = parseInt(limit, 10) || 10;
+    const skip = (pageNum - 1) * limitNum;
+
+    const totalTasks = await Task.countDocuments(query);
     const tasks = await Task.find(query)
       .populate("assignedBy", "name")
-      .sort(sort);
+      .sort(sort)
+      .skip(skip)
+      .limit(limitNum);
 
     if (!tasks || tasks.length === 0) {
       return res.status(200).json({
         success: true,
         data: [],
+        pagination: {
+          page: pageNum,
+          limit: limitNum,
+          total: 0,
+          totalPages: 0,
+        },
         message: "No tasks found",
       });
     }
@@ -169,6 +185,12 @@ const fetchTasks = async (req, res) => {
     res.status(200).json({
       success: true,
       data: frontendTasks,
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total: totalTasks,
+        totalPages: Math.ceil(totalTasks / limitNum),
+      },
     });
   } catch (error) {
     console.error("Error fetching tasks:", error);
@@ -182,9 +204,15 @@ const fetchTasks = async (req, res) => {
 // Create a new task
 const assignTask = async (req, res) => {
   try {
+    console.log("🟢 Incoming request to assign task");
+    console.log("📩 Request body:", req.body);
+    console.log("👤 Authenticated user:", req.user?._id);
+
     const { title, description, deadline, assignedTo, priority } = req.body;
 
+    // 🧩 Validation
     if (!title || !deadline || !assignedTo) {
+      console.warn("⚠️ Missing required fields");
       return res.status(400).json({
         message: "Missing required fields: title, deadline, assignedTo",
       });
@@ -192,31 +220,40 @@ const assignTask = async (req, res) => {
 
     const deadlineDate = new Date(deadline);
     if (isNaN(deadlineDate.getTime())) {
+      console.warn("⚠️ Invalid deadline date:", deadline);
       return res.status(400).json({ message: "Invalid deadline date" });
     }
 
     const now = new Date();
     if (deadlineDate < now) {
+      console.warn("⚠️ Deadline is in the past:", deadline);
       return res
         .status(400)
         .json({ message: "Deadline cannot be in the past" });
     }
 
     if (!isValidObjectId(assignedTo)) {
+      console.warn("⚠️ Invalid assignedTo ID:", assignedTo);
       return res.status(400).json({ message: "Invalid assignedTo ID" });
     }
 
     if (priority && !["low", "medium", "high"].includes(priority)) {
+      console.warn("⚠️ Invalid priority value:", priority);
       return res.status(400).json({ message: "Invalid priority value" });
     }
 
+    // 👥 Fetch employee
+    console.log("🔍 Fetching employee:", assignedTo);
     const employee = await Employee.findById(assignedTo);
     if (!employee) {
+      console.warn("❌ Employee not found for assignedTo ID:", assignedTo);
       return res
         .status(404)
         .json({ message: "Employee not found for assignedTo ID" });
     }
 
+    // 🏗️ Create new task
+    console.log("📝 Creating new task...");
     const task = new Task({
       title,
       description: description || "",
@@ -229,12 +266,19 @@ const assignTask = async (req, res) => {
     });
 
     const savedTask = await task.save();
+    console.log("✅ Task saved successfully:", savedTask._id);
 
+    // 👤 Get assignedBy and assignedTo user details
     const assignedByUser = await User.findById(req.user._id).select("_id name");
     const assignedToUser = await User.findById(employee.user).select(
       "_id name"
     );
 
+    console.log("👤 Assigned by:", assignedByUser?.name || "Unknown");
+    console.log("👤 Assigned to:", assignedToUser?.name || "Unknown");
+
+    // 🔔 Create notification
+    console.log("📢 Creating task notification...");
     await createNotification(
       assignedToUser._id,
       "task_assigned",
@@ -243,7 +287,9 @@ const assignTask = async (req, res) => {
       savedTask._id.toString(),
       "Task"
     );
+    console.log("✅ Notification created successfully");
 
+    // 🧠 Prepare frontend-friendly response
     const frontendTask = {
       _id: savedTask._id.toString(),
       title: savedTask.title,
@@ -266,6 +312,8 @@ const assignTask = async (req, res) => {
       status: savedTask.status,
       priority: savedTask.priority,
     };
+
+    console.log("🎯 Final task response ready to send");
 
     res.status(201).json(frontendTask);
   } catch (error) {

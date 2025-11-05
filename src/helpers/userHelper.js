@@ -147,6 +147,7 @@ module.exports = {
             socialLinks: 1,
             subscription: 1,
             assignedCalls: 1,
+            isBlocked: 1,
           },
         },
         { $sort: { [sortField]: sortOrder === "asc" ? 1 : -1 } },

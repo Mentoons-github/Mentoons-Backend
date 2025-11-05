@@ -23,10 +23,12 @@ const {
   unblockUser,
   updateSubscriptionLimits,
   checkSubscriptionStatus,
+  blockUnBlockUser,
 } = require("../controllers/userController.js");
 const { isSuperAdminOrAdmin } = require("../middlewares/authMiddleware.js");
 const { conditionalAuth } = require("../middlewares/auth.middleware.js");
 const verifyToken = require("../middlewares/addaMiddleware.js");
+const { verifyAdmin } = require("../middlewares/admin/adminAuth.js");
 
 const router = express.Router();
 router.post("/register", registerController);
@@ -37,10 +39,10 @@ router.post("/logout", logoutController);
 router.post("/premium", premiumController);
 router.post("/update-role/:user_id", conditionalAuth, changeRoleController);
 router.get("/allocatedCalls", conditionalAuth, viewAllocatedCalls);
-router.get("/all-users", getAllUsersController);
+router.get("/all-users", verifyAdmin, getAllUsersController);
 router.post("/bulk", conditionalAuth, getFriends);
 
-router.get("/check-profile-completion", verifyToken)
+router.get("/check-profile-completion", verifyToken);
 
 router.get("/user/:userId", conditionalAuth, getUserController);
 router.delete("/user/:userId", conditionalAuth, DeleteUserClerkController);
@@ -58,8 +60,7 @@ router.get("/friend/:friendId", conditionalAuth, getUserProfile);
 router.get("/search-friend", conditionalAuth, searchFriend);
 
 //block and unblock
-router.post("/block", verifyToken, blockUser);
-router.post("/unblock", verifyToken, unblockUser);
+router.patch("/block-unblock/:userId", verifyAdmin, blockUnBlockUser);
 
 //update subscription limits
 router.patch(

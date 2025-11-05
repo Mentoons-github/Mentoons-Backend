@@ -10,15 +10,18 @@ const {
   getWorkshopById,
   editWorkshop,
   deleteWorkshopImage,
+  deleteWorkshop,
 } = require("../controllers/workshopController");
 const adminAuthMiddleware = require("../middlewares/adminAuthMiddleware");
+const verifyToken = require("../middlewares/addaMiddleware");
+const { verifyAdmin } = require("../middlewares/admin/adminAuth");
 
 const router = express.Router();
 
-router.get("/all", getAllWorkshops);
-router.route("/submit-form").post(submitWorkshopForm);
-router.route("/").get(getWorkshopEnquiries);
-router.route("/:workshopId").get(getWorkshopEnquiriesById);
+router.get("/all", verifyToken, getAllWorkshops);
+router.route("/submit-form").post(verifyToken, submitWorkshopForm);
+router.route("/").get(verifyAdmin, getWorkshopEnquiries);
+router.route("/:workshopId").get(verifyAdmin, getWorkshopEnquiriesById);
 router.post(
   "/add-workshop",
   adminAuthMiddleware.adminAuthMiddleware,
@@ -39,6 +42,12 @@ router.delete(
   "/:workshopId/image/:ageRange",
   adminAuthMiddleware.adminAuthMiddleware,
   deleteWorkshopImage
+);
+
+router.delete(
+  "/:workshopId",
+  adminAuthMiddleware.adminAuthMiddleware,
+  deleteWorkshop
 );
 
 // router.route("/submit-call-request").post(submitCallRequest);

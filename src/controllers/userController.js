@@ -711,4 +711,24 @@ module.exports = {
       plan: user.subscription.plan,
     });
   }),
+
+  blockUnBlockUser: asyncHandler(async (req, res) => {
+    const { userId } = req.params;const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const currentStatus = user.isBlocked ?? false;
+
+    user.isBlocked = !currentStatus;
+    await user.save();
+
+    return res.status(200).json({
+      message: `user is ${
+        user.isBlocked ? "blocked" : "unBlocked"
+      } successfully`,
+      success: true,
+    });
+  }),
 };
