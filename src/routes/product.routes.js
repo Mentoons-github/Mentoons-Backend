@@ -16,7 +16,7 @@ const { verifyAdmin } = require("../middlewares/admin/adminAuth");
 
 const router = express.Router();
 
-router.get("/", adminAuthMiddleware.optionalAdminMiddleware, getProducts);
+router.get("/", getProducts);
 // POST /api/products -> create a new product
 router.post("/", verifyAdmin, createProduct);
 
