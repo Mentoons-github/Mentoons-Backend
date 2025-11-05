@@ -35,6 +35,10 @@ const verifyToken = async (req, res, next) => {
       );
     }
 
+    if (DBUser.isBlocked) {
+      return res.status(403).json({ message: "Your account is blocked" });
+    }
+
     console.log("storing user");
     req.user = DBUser._id;
     console.log("user saved");

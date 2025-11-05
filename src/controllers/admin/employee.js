@@ -19,6 +19,7 @@ const createInvitation = asyncHandler(async (req, res) => {
   }
 
   const { name, email, role = "EMPLOYEE", gender, phoneNumber } = user;
+  console.log("email frontend :", email);
 
   if (!name || !email || !department || !phoneNumber || !employmentType) {
     console.log("Error: Missing required fields", {
@@ -75,7 +76,7 @@ const createInvitation = asyncHandler(async (req, res) => {
           return res.status(400).json({
             success: false,
             message:
-              "Warning: This email is already being used by a regular user account. Please use a different email address to create an employee account.",
+              "This email is already being used by a regular user. Use a different one for employee account.",
           });
         }
 
@@ -84,7 +85,7 @@ const createInvitation = asyncHandler(async (req, res) => {
           return res.status(403).json({
             success: false,
             message:
-              "Warning: This email belongs to an admin account. Admin accounts cannot be converted to employee accounts.",
+              "This email belongs to an admin account. Admins cannot be employees.",
           });
         }
 
@@ -97,7 +98,7 @@ const createInvitation = asyncHandler(async (req, res) => {
             return res.status(400).json({
               success: false,
               message:
-                "Warning: This email is already being used by another employee. Please use a different email address.",
+                "This email already belongs to another employee account.",
             });
           }
         }
@@ -107,8 +108,7 @@ const createInvitation = asyncHandler(async (req, res) => {
 
       const nameParts = name.trim().split(" ");
       const firstName = nameParts[0];
-      const lastName =
-        nameParts.length > 1 ? nameParts.slice(1).join(" ") : nameParts[0];
+      const lastName = nameParts.length > 1 ? nameParts.slice(1).join(" ") : "";
 
       const tempPassword = crypto.randomBytes(16).toString("hex");
 
@@ -125,63 +125,13 @@ const createInvitation = asyncHandler(async (req, res) => {
         createdClerkUser = true;
         console.log("Clerk user created:", clerkUser.id);
       } catch (clerkError) {
-        console.error("Clerk API error details:", {
-          status: clerkError.status,
-          message: clerkError.message,
-          errors: clerkError.errors,
-          clerkTraceId: clerkError.clerkTraceId,
-        });
+        console.error("Clerk API error:", clerkError);
         throw clerkError;
       }
     }
 
     let dbUser = await User.findOne({ email }).session(session);
     console.log("Existing DB user:", dbUser?._id);
-
-    if (dbUser && !clerkUser) {
-      if (!dbUser.role || dbUser.role === "USER") {
-        await session.abortTransaction();
-        if (createdClerkUser && clerkUser) {
-          await clerkClient.users.deleteUser(clerkUser.id).catch(console.error);
-        }
-        return res.status(400).json({
-          success: false,
-          message:
-            "Warning: This email is already being used by a regular user account. Please use a different email address to create an employee account.",
-        });
-      }
-
-      if (dbUser.role === "ADMIN") {
-        await session.abortTransaction();
-        if (createdClerkUser && clerkUser) {
-          await clerkClient.users.deleteUser(clerkUser.id).catch(console.error);
-        }
-        return res.status(403).json({
-          success: false,
-          message:
-            "Warning: This email belongs to an admin account. Admin accounts cannot be converted to employee accounts.",
-        });
-      }
-
-      if (dbUser.role === "EMPLOYEE") {
-        const existingEmployee = await Employee.findOne({
-          user: dbUser._id,
-        }).session(session);
-        if (existingEmployee) {
-          await session.abortTransaction();
-          if (createdClerkUser && clerkUser) {
-            await clerkClient.users
-              .deleteUser(clerkUser.id)
-              .catch(console.error);
-          }
-          return res.status(400).json({
-            success: false,
-            message:
-              "Warning: This email is already being used by another employee. Please use a different email address.",
-          });
-        }
-      }
-    }
 
     if (!dbUser) {
       console.log("Creating new local user");
@@ -206,16 +156,15 @@ const createInvitation = asyncHandler(async (req, res) => {
       await dbUser.save({ session });
     }
 
+    // Create Employee without email field (since schema doesn’t have it)
     const passwordSetupKey = crypto.randomBytes(20).toString("hex");
     const passwordSetupExpires = Date.now() + 24 * 60 * 60 * 1000;
 
-    // ✅ Include email to avoid "duplicate key error: { email: null }"
     const [employee] = await Employee.create(
       [
         {
           department,
           salary,
-          email, // ✅ FIX: include email field
           active: active ?? false,
           inviteStatus: "pending",
           jobRole,
@@ -227,8 +176,10 @@ const createInvitation = asyncHandler(async (req, res) => {
       ],
       { session }
     );
+
     console.log("Employee created:", employee._id);
 
+    // Send email
     const emailContent = getWelcomeEmailTemplate(
       name,
       process.env.FRONTEND_URL || "http://localhost:3000",
@@ -255,12 +206,12 @@ const createInvitation = asyncHandler(async (req, res) => {
     await session.abortTransaction();
     console.log("Transaction aborted due to error");
 
-    // ✅ Handle duplicate key error in a human-friendly way
+    console.log(error);
     if (error.code === 11000) {
       const field = Object.keys(error.keyPattern || {})[0];
       return res.status(400).json({
         success: false,
-        message: `Duplicate entry detected: The ${field} you provided already exists. Please use a unique ${field}.`,
+        message: `Duplicate entry: The ${field} value already exists.`,
       });
     }
 
@@ -277,19 +228,11 @@ const createInvitation = asyncHandler(async (req, res) => {
     }
 
     console.error("Error creating employee or sending email:", error);
-    if (error.errors?.[0]?.code === "form_identifier_exists") {
-      return res.status(500).json({
-        success: false,
-        message: error.errors[0].message,
-        error: error.errors[0].longMessage,
-      });
-    } else {
-      return res.status(500).json({
-        success: false,
-        message: "Internal server error",
-        error: error.message,
-      });
-    }
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
   } finally {
     session.endSession();
   }

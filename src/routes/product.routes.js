@@ -11,31 +11,33 @@ const {
 } = require("../controllers/product.controller");
 const { addaConditionalAuth } = require("../middlewares/adda/conditionalAuth");
 const adminAuthMiddleware = require("../middlewares/adminAuthMiddleware");
+const { conditionalAuth } = require("../middlewares/auth.middleware");
+const { verifyAdmin } = require("../middlewares/admin/adminAuth");
 
 const router = express.Router();
 
 router.get("/", adminAuthMiddleware.optionalAdminMiddleware, getProducts);
 // POST /api/products -> create a new product
-router.post("/", createProduct);
+router.post("/", verifyAdmin, createProduct);
 
 // GET /api/products -> list with search, sort, pagination
 
 router.get("/search", addaConditionalAuth, globalSearch);
 
-router.get("/all", getAllProducts);
+router.get("/all", conditionalAuth, getAllProducts);
 
 // GET /api/products/:id -> fetch a single product by id
-router.get("/:id", getProductById);
+router.get("/:id", conditionalAuth,getProductById);
 
 // PUT /api/products/:id -> update a product
-router.put("/:id", updateProduct);
+router.put("/:id", verifyAdmin, updateProduct);
 
 // DELETE /api/products/:id -> delete a product
-router.delete("/:id", deleteProduct);
+router.delete("/:id", verifyAdmin, deleteProduct);
 
 router.delete(
   "/image/:imageId",
-  adminAuthMiddleware.adminAuthMiddleware,
+  adminAuthMiddleware.adminAuthMiddleware, 
   deleteProductImage
 );
 router.delete("/remove-file", adminAuthMiddleware.adminAuthMiddleware);

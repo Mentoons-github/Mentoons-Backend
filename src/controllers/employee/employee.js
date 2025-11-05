@@ -84,7 +84,6 @@ const getEmployees = asyncHandler(async (req, res) => {
     },
   ];
   let result = await Employee.aggregate(pipeline);
-  console.log("After $lookup:", result);
 
   pipeline.push({ $unwind: "$userInfo" });
   result = await Employee.aggregate(pipeline);
@@ -163,8 +162,6 @@ const getEmployees = asyncHandler(async (req, res) => {
 
     return formatted;
   });
-
-  console.log(formattedEmployees)
 
   return successResponse(res, 200, messageHelper.EMPLOYEE_FETCHED, {
     employees: formattedEmployees,

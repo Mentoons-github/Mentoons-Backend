@@ -472,4 +472,12 @@ module.exports = {
       });
     }
   }),
+
+  deleteWorkshop: asyncHandler(async (req, res) => {
+    const { workshopId } = req.params;
+
+    await Workshop.findByIdAndDelete(workshopId);
+
+    return res.status(200).json({ message: "Workshop deleted successfully" });
+  }),
 };

@@ -71,13 +71,14 @@ const Employee = require("./src/models/employee/employee.js");
 // const { requireAuth } = require("@clerk/express");
 dotenv.config();
 const app = express();
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 2000;
 
 app.use(conditionalClerkMiddleware);
 app.use(
   cors({
     origin: [
       "https://mentoons.com",
+      "https://www.mentoons.com",
       "http://localhost:3000",
       "http://localhost:5174",
       "http://localhost:5173",
@@ -257,7 +258,7 @@ app.use("/api/v1/sessions", sessionCallRoutes);
 app.use("/api/v1/meetup", meetupRoutes);
 app.use("/api/v1/groups", groupRoutes);
 app.use("/api/v1/attendance", attendanceRoutes);
-app.use("/api/v1/leave", leaveRoutes)
+app.use("/api/v1/leave", leaveRoutes);
 
 app.use("/health", (req, res) => {
   res.json({
