@@ -24,7 +24,7 @@ router.post("/", verifyAdmin, createProduct);
 
 router.get("/search", addaConditionalAuth, globalSearch);
 
-router.get("/all", conditionalAuth, getAllProducts);
+router.get("/all", getAllProducts);
 
 // GET /api/products/:id -> fetch a single product by id
 router.get("/:id", conditionalAuth,getProductById);
