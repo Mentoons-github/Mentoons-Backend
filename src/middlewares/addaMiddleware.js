@@ -44,7 +44,6 @@ const verifyToken = async (req, res, next) => {
     console.log("user saved");
     next();
   } catch (err) {
-    console.error("Token verification error:", err);
     return errorResponse(res, 401, "Invalid or expired token.");
   }
 };
