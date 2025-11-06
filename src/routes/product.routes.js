@@ -27,7 +27,7 @@ router.get("/search", addaConditionalAuth, globalSearch);
 router.get("/all", getAllProducts);
 
 // GET /api/products/:id -> fetch a single product by id
-router.get("/:id", conditionalAuth,getProductById);
+router.get("/:id", getProductById);
 
 // PUT /api/products/:id -> update a product
 router.put("/:id", verifyAdmin, updateProduct);
@@ -37,7 +37,7 @@ router.delete("/:id", verifyAdmin, deleteProduct);
 
 router.delete(
   "/image/:imageId",
-  adminAuthMiddleware.adminAuthMiddleware, 
+  adminAuthMiddleware.adminAuthMiddleware,
   deleteProductImage
 );
 router.delete("/remove-file", adminAuthMiddleware.adminAuthMiddleware);

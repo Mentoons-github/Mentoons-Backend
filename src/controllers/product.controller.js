@@ -13,6 +13,7 @@ const asyncHandler = require("../utils/asyncHandler.js");
 // GET /api/products
 const getProducts = async (req, res, next) => {
   const user = req.user;
+  console.log("reached products");
   try {
     const {
       search,
@@ -25,15 +26,10 @@ const getProducts = async (req, res, next) => {
       ageCategory = "",
     } = req.query;
 
-    console.log("👉 Incoming Query Params:", req.query);
-
     const pageNumber = parseInt(page, 10);
     const limitNumber = parseInt(limit, 10);
     const skip = (pageNumber - 1) * limitNumber;
     const sortOrder = order === "asc" ? 1 : -1;
-
-    console.log("📌 Pagination:", { pageNumber, limitNumber, skip });
-    console.log("📌 Sorting:", { sortBy, sortOrder });
 
     const queryFilter = {};
     if (search) {
@@ -53,11 +49,6 @@ const getProducts = async (req, res, next) => {
     }
 
     if (cardType) queryFilter.cardType = cardType;
-
-    console.log(
-      "🔍 queryFilter before matchStage:",
-      JSON.stringify(queryFilter, null, 2)
-    );
 
     const specialCardTypes = [
       "conversation starter cards",
@@ -108,11 +99,9 @@ const getProducts = async (req, res, next) => {
 
     const products = await Product.aggregate(pipeline);
 
-    console.log("✅ Products Fetched:", products.length);
-
     const total = await Product.countDocuments(matchStage);
-    console.log("📊 Total Matching Documents:", total);
 
+    console.log(products);
     res.json({
       data: products,
       total,

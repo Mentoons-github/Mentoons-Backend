@@ -18,7 +18,7 @@ const { verifyAdmin } = require("../middlewares/admin/adminAuth");
 
 const router = express.Router();
 
-router.get("/all", verifyToken, getAllWorkshops);
+router.get("/all", getAllWorkshops);
 router.route("/submit-form").post(verifyToken, submitWorkshopForm);
 router.route("/").get(verifyAdmin, getWorkshopEnquiries);
 router.route("/:workshopId").get(verifyAdmin, getWorkshopEnquiriesById);

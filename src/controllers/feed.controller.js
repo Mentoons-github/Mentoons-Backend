@@ -5,7 +5,6 @@ const mongoose = require("mongoose");
 const getUserFeed = async (req, res) => {
   try {
     const { page = 1, limit = 10 } = req.query;
-    console.log("req user found :", !!req.user);
 
     const sortOptions = { createdAt: -1 };
 
@@ -33,8 +32,6 @@ const getUserFeed = async (req, res) => {
         userFeed.preferences.prioritizeFollowing &&
         userFeed.followingUsers.length > 0
       ) {
-        console.log("followers found in feed");
-        console.log(userFeed.followingUsers);
 
         const followedUserIds = userFeed.followingUsers.map(
           (id) => new mongoose.Types.ObjectId(id)
@@ -111,7 +108,6 @@ const getUserFeed = async (req, res) => {
           },
         });
       } else {
-        console.log("followers not found in feed");
 
         const options = {
           page: parseInt(page, 10),
@@ -142,7 +138,6 @@ const getUserFeed = async (req, res) => {
         });
       }
     } else {
-      // For guest users (not logged in)
       const feedQuery = { visibility: "public" };
 
       const options = {
@@ -161,8 +156,6 @@ const getUserFeed = async (req, res) => {
       };
 
       const posts = await Post.paginate(feedQuery, options);
-
-      console.log(posts);
 
       return res.status(200).json({
         success: true,
