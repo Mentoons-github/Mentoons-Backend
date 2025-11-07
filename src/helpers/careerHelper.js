@@ -317,6 +317,7 @@ const getAppliedJobById = async (id) => {
 };
 
 const deleteApplication = async (id) => {
+  console.log("added changes");
   return await JobApplication.findByIdAndDelete(id);
 };
 module.exports = {
