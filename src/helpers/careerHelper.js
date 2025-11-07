@@ -115,18 +115,6 @@ const getJobById = async (id) => {
           as: "applicationDetails",
         },
       },
-      {
-        $project: {
-          jobTitle: 1,
-          jobDescription: 1,
-          skillsRequired: 1,
-          location: 1,
-          jobType: 1,
-          thumbnail: 1,
-          applicationCount: { $size: "$applications" },
-          applicationDetails: 1,
-        },
-      },
     ]);
 
     return job[0];
@@ -327,6 +315,10 @@ const getAppliedJobById = async (id) => {
     throw error;
   }
 };
+
+const deleteApplication = async (id) => {
+  return await JobApplication.findByIdAndDelete(id);
+};
 module.exports = {
   addJob,
   getJobs,
@@ -336,4 +328,5 @@ module.exports = {
   deleteJob,
   getAppliedJobs,
   getAppliedJobById,
+  deleteApplication,
 };
