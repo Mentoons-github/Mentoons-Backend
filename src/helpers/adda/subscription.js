@@ -5,28 +5,42 @@ const checkFriendRequestAccess = (user) => {
   const limits = user.subscriptionLimits || {};
   const now = new Date();
 
+  const currentFollowerCount = user.followers?.length || 0;
+  const currentFollowingCount = user.following?.length || 0;
+  const totalConnections = currentFollowerCount + currentFollowingCount;
+
   if (plan === "free") {
     const trialEnd = new Date(limits.freeTrialEndDate);
-    if (now > trialEnd) {
+    const isTrialExpired = now > trialEnd;
+
+    if (totalConnections >= 50) {
       return {
         allowed: false,
         upgradeRequired: true,
         upgradeTo: "prime",
         planType: "free",
-        modalType: "freeToPrime",
+        modalType: "friendLimitReached",
         message:
-          "Your 3-day free trial has expired. Upgrade to Prime or Platinum to continue sending friend requests.",
+          "You’ve reached the 50 friend limit for the Free plan. Upgrade to Prime for more connections.",
       };
     }
+
+    if (isTrialExpired) {
+      return {
+        allowed: true,
+        planType: "free",
+        trialExpired: true,
+        message:
+          "Your free trial has expired, but you can still connect with up to 50 friends.",
+      };
+    }
+
     return { allowed: true };
   }
 
   if (plan === "prime") {
     const freeFollowerCount = limits.freeFollowerCount || 0;
     const freeFollowingCount = limits.freeFollowingCount || 0;
-
-    const currentFollowerCount = user.followers?.length || 0;
-    const currentFollowingCount = user.following?.length || 0;
 
     const primeOnlyConnections = Math.max(
       0,

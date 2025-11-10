@@ -48,10 +48,18 @@ const getAttendanceData = asyncHandler(async (req, res) => {
   let responseData = {};
   const { _id: employeeId } = employee;
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
+  const now = new Date();
+  const offset = now.getTimezoneOffset() * 60000;
+  const localNow = new Date(now.getTime() - offset);
+
+  const localToday = new Date(localNow);
+  localToday.setHours(0, 0, 0, 0);
+
+  const localTomorrow = new Date(localToday);
+  localTomorrow.setDate(localToday.getDate() + 1);
+
+  const today = new Date(localToday.getTime() + offset);
+  const tomorrow = new Date(localTomorrow.getTime() + offset);
 
   const todayAttendance = await Attendance.findOne({
     employeeId,
@@ -61,8 +69,11 @@ const getAttendanceData = asyncHandler(async (req, res) => {
   responseData.todayAttendance = todayAttendance || null;
 
   if (year && !month) {
-    const startOfYear = new Date(`${year}-01-01`);
-    const endOfYear = new Date(`${year}-12-31T23:59:59.999Z`);
+    const startOfYearLocal = new Date(`${year}-01-01T00:00:00`);
+    const endOfYearLocal = new Date(`${year}-12-31T23:59:59`);
+
+    const startOfYear = new Date(startOfYearLocal.getTime() + offset);
+    const endOfYear = new Date(endOfYearLocal.getTime() + offset);
 
     const yearlyStats = await Attendance.aggregate([
       {
@@ -182,10 +193,13 @@ const getAttendanceData = asyncHandler(async (req, res) => {
   }
 
   if (month && year) {
-    const startOfMonth = new Date(`${year}-${month}-01`);
-    const endOfMonth = new Date(startOfMonth);
-    endOfMonth.setMonth(endOfMonth.getMonth() + 1);
-    endOfMonth.setDate(0);
+    const startOfMonthLocal = new Date(`${year}-${month}-01T00:00:00`);
+    const endOfMonthLocal = new Date(startOfMonthLocal);
+    endOfMonthLocal.setMonth(endOfMonthLocal.getMonth() + 1);
+    endOfMonthLocal.setDate(0);
+
+    const startOfMonth = new Date(startOfMonthLocal.getTime() + offset);
+    const endOfMonth = new Date(endOfMonthLocal.getTime() + offset);
 
     const monthlyDetails = await Attendance.find({
       employeeId: employee._id,
@@ -222,10 +236,18 @@ const checkIn = asyncHandler(async (req, res) => {
 
   const { _id: employeeId } = employee;
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const tomorrow = new Date(today);
-  tomorrow.setDate(today.getDate() + 1);
+  const now = new Date();
+  const localOffset = now.getTimezoneOffset() * 60000;
+  const localNow = new Date(now.getTime() - localOffset);
+
+  const localToday = new Date(localNow);
+  localToday.setHours(0, 0, 0, 0);
+
+  const localTomorrow = new Date(localToday);
+  localTomorrow.setDate(localToday.getDate() + 1);
+
+  const today = new Date(localToday.getTime() + localOffset);
+  const tomorrow = new Date(localTomorrow.getTime() + localOffset);
 
   const existingAttendance = await Attendance.findOne({
     employeeId,
@@ -236,9 +258,9 @@ const checkIn = asyncHandler(async (req, res) => {
     return res.status(400).json({ error: "Already checked in today" });
   }
 
-  const now = new Date();
   const expectedCheckIn = new Date();
   expectedCheckIn.setHours(10, 0, 0, 0);
+
   const lateBy =
     now > expectedCheckIn ? Math.round((now - expectedCheckIn) / 60000) : 0;
 
@@ -266,10 +288,18 @@ const checkOut = asyncHandler(async (req, res) => {
 
   const { _id: employeeId } = employee;
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const tomorrow = new Date(today);
-  tomorrow.setDate(today.getDate() + 1);
+  const now = new Date();
+  const localOffset = now.getTimezoneOffset() * 60000;
+  const localNow = new Date(now.getTime() - localOffset);
+
+  const localToday = new Date(localNow);
+  localToday.setHours(0, 0, 0, 0);
+
+  const localTomorrow = new Date(localToday);
+  localTomorrow.setDate(localToday.getDate() + 1);
+
+  const today = new Date(localToday.getTime() + localOffset);
+  const tomorrow = new Date(localTomorrow.getTime() + localOffset);
 
   const attendance = await Attendance.findOne({
     employeeId,
@@ -286,11 +316,11 @@ const checkOut = asyncHandler(async (req, res) => {
     return res.status(400).json({ error: "Already checked out today" });
   }
 
-  const now = new Date();
   const checkInTime = new Date(attendance.checkInTime);
 
   const expectedCheckOut = new Date();
   expectedCheckOut.setHours(18, 0, 0, 0);
+
   const earlyLeave =
     now < expectedCheckOut ? Math.round((expectedCheckOut - now) / 60000) : 0;
 
@@ -322,18 +352,21 @@ const getSalary = asyncHandler(async (req, res) => {
   console.log("User Info =>", { role, userId });
 
   let employeeId;
-  const currentDate = new Date();
-  console.log("Current Date:", currentDate);
 
-  // Utility function
+  const nowUTC = new Date();
+  const currentDate = new Date(
+    Date.UTC(nowUTC.getUTCFullYear(), nowUTC.getUTCMonth(), nowUTC.getUTCDate())
+  );
+  console.log("Current UTC Date:", currentDate);
+
   const getDaysBetween = (startDate, endDate) => {
     const diffTime = Math.abs(endDate - startDate);
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   };
 
-  // -------------------- ADMIN CASE --------------------
   if (role === "ADMIN") {
     console.log("Role detected as ADMIN");
+
     employeeId = req.query.employeeId;
 
     if (!employeeId)
@@ -342,44 +375,40 @@ const getSalary = asyncHandler(async (req, res) => {
     if (!isValidObjectId(employeeId))
       return res.status(400).json({ message: "Invalid employeeId" });
 
-    // Check if employee exists
     const employee = await Employee.findById(employeeId);
     if (!employee)
       return res.status(404).json({ message: "Employee not found" });
 
-    // Fetch salary records from Salary model
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
 
-    const salaries = await Salary.find({ employeeId })
-      .sort({ periodStart: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit);
+    const [salaries, totalCount] = await Promise.all([
+      Salary.find({ employeeId })
+        .sort({ periodStart: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit),
+      Salary.countDocuments({ employeeId }),
+    ]);
 
     console.log("Salaries found for ADMIN:", salaries.length);
 
-    // Send salary data directly from DB
     return res.status(200).json({
+      role,
       employeeId,
       employeeName: employee.name,
       monthlySalary: employee.salary || 0,
       annualSalary: (employee.salary || 0) * 12,
-      totalSalaries: salaries.length,
+      totalSalaries: totalCount,
+      currentPage: page,
+      totalPages: Math.ceil(totalCount / limit),
       salaries,
     });
-  }
-
-  // -------------------- EMPLOYEE CASE --------------------
-  else {
+  } else {
     console.log("Role detected as EMPLOYEE");
 
     const employee = await Employee.findOne({ user: userId });
-    console.log(
-      "Employee fetched by userId:",
-      employee ? employee._id : "❌ Not found"
-    );
-
     if (!employee) {
+      console.log("❌ No employee record found for this user");
       return res
         .status(404)
         .json({ message: "No employee record found for this user" });
@@ -391,50 +420,59 @@ const getSalary = asyncHandler(async (req, res) => {
 
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
-    console.log("Pagination:", { page, limit });
 
-    const periodEnd = new Date(joinDate);
-    periodEnd.setMonth(periodEnd.getMonth() + 1);
-    console.log("Computed periodEnd:", periodEnd);
+    const firstPeriodEnd = new Date(joinDate);
+    firstPeriodEnd.setMonth(firstPeriodEnd.getMonth() + 1);
 
-    if (periodEnd > currentDate) {
+    if (firstPeriodEnd > currentDate) {
       console.log("Employee hasn't completed a full month yet.");
       return res.status(200).json({
+        role,
         employeeId,
+        employeeName: employee.name,
         monthlySalary: employee.salary || 0,
         annualSalary: (employee.salary || 0) * 12,
         salaries: [],
       });
     }
 
-    const salaries = await Salary.find({
-      employeeId,
-      periodStart: { $gte: joinDate },
-      periodEnd: { $lte: currentDate },
-    })
-      .sort({ periodStart: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit);
+    const [salaries, totalCount] = await Promise.all([
+      Salary.find({
+        employeeId,
+        periodStart: { $gte: joinDate },
+        periodEnd: { $lte: currentDate },
+      })
+        .sort({ periodStart: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit),
+      Salary.countDocuments({
+        employeeId,
+        periodStart: { $gte: joinDate },
+        periodEnd: { $lte: currentDate },
+      }),
+    ]);
 
     console.log("Salaries found:", salaries.length);
 
-    const adjustedSalaries = salaries.map((salary, index) => {
+    const adjustedSalaries = salaries.map((salary) => {
       const periodStart = new Date(
         Math.max(new Date(salary.periodStart), joinDate)
       );
       const periodEnd = new Date(salary.periodEnd);
       const totalDays = getDaysBetween(periodStart, periodEnd);
 
-      return {
-        ...salary._doc,
-        totalDays,
-      };
+      return { ...salary._doc, totalDays };
     });
-    
+
     return res.status(200).json({
+      role,
       employeeId,
+      employeeName: employee.name,
       monthlySalary: employee.salary || 0,
       annualSalary: (employee.salary || 0) * 12,
+      totalSalaries: totalCount,
+      currentPage: page,
+      totalPages: Math.ceil(totalCount / limit),
       salaries: adjustedSalaries,
     });
   }
@@ -450,39 +488,36 @@ const exportSalary = asyncHandler(async (req, res) => {
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   };
 
-  const formatDate = (date) => {
-    return new Date(date).toLocaleDateString("en-IN", {
+  const formatDate = (date) =>
+    new Date(date).toLocaleDateString("en-IN", {
       day: "2-digit",
       month: "short",
       year: "numeric",
     });
-  };
 
   if (role === "ADMIN") {
-    if (!employeeId) {
+    if (!employeeId)
       return res
         .status(400)
         .json({ message: "employeeId is required for admin" });
-    }
-    if (!isValidObjectId(employeeId)) {
+
+    if (!isValidObjectId(employeeId))
       return res.status(400).json({ message: "Invalid employeeId" });
-    }
   } else {
     const employee = await Employee.findOne({ user: userId });
-    if (!employee) {
+    if (!employee)
       return res
         .status(404)
         .json({ message: "No employee record found for this user" });
-    }
+
     employeeId = employee._id.toString();
   }
 
   const employee = await Employee.findById(employeeId);
-  if (!employee) {
-    return res.status(404).json({ message: "Employee not found" });
-  }
+  if (!employee) return res.status(404).json({ message: "Employee not found" });
 
-  let salaries;
+  let salaries = [];
+
   if (role === "ADMIN") {
     salaries = await Salary.find({
       employeeId,
@@ -494,112 +529,116 @@ const exportSalary = asyncHandler(async (req, res) => {
         new Date(salary.periodStart),
         new Date(salary.periodEnd)
       );
-      const dailySalaryAmount = salary.salaryAmount / daysInPeriod;
-      const dailyPresentDays = salary.presentDays / daysInPeriod;
-      const dailyTotalDays = 1;
+
+      const dailySalary = (salary.salaryAmount || 0) / daysInPeriod;
       const dailyRecords = [];
 
       let currentDay = new Date(salary.periodStart);
-      while (
-        currentDay <= new Date(salary.periodEnd) &&
-        currentDay <= currentDate
-      ) {
+
+      while (currentDay <= new Date(salary.periodEnd)) {
         dailyRecords.push({
-          _id: salary._id + "_" + currentDay.toISOString().split("T")[0],
+          id: `${salary._id}_${currentDay.toISOString().split("T")[0]}`,
           employeeId: salary.employeeId,
           periodStart: formatDate(currentDay),
           periodEnd: formatDate(currentDay),
-          salaryAmount: dailySalaryAmount.toFixed(2),
-          presentDays: dailyPresentDays > 0 ? 1 : 0,
-          totalDays: dailyTotalDays,
-          halfDays: (salary.halfDays / daysInPeriod).toFixed(1),
-          leaveDays: (salary.leaveDays / daysInPeriod).toFixed(1),
-          totalHoursWorked: (salary.totalHoursWorked / daysInPeriod).toFixed(1),
+          salaryAmount: dailySalary.toFixed(2),
+          presentDays: 1,
+          totalDays: 1,
+          halfDays: (salary.halfDays || 0 / daysInPeriod).toFixed(1),
+          leaveDays: (salary.leaveDays || 0 / daysInPeriod).toFixed(1),
+          totalHoursWorked: (
+            (salary.totalHoursWorked || 0) / daysInPeriod
+          ).toFixed(1),
         });
+
         currentDay.setDate(currentDay.getDate() + 1);
       }
+
       return dailyRecords;
     });
   } else {
     const joinDate = new Date(employee.joinDate);
-    const periodEnd = new Date(joinDate);
-    periodEnd.setMonth(periodEnd.getMonth() + 1);
-
-    salaries = await Salary.find({
+    const salariesList = await Salary.find({
       employeeId,
       periodStart: { $gte: joinDate },
       periodEnd: { $lte: currentDate },
     }).sort({ periodStart: -1 });
 
-    salaries = salaries.map((salary) => {
+    salaries = salariesList.map((salary) => {
       const periodStart = new Date(
         Math.max(new Date(salary.periodStart), joinDate)
       );
       const periodEnd = new Date(salary.periodEnd);
       const totalDays = getDaysBetween(periodStart, periodEnd);
+
       return {
-        _id: salary._id,
+        id: salary._id.toString(),
         employeeId: salary.employeeId,
         periodStart: formatDate(salary.periodStart),
         periodEnd: formatDate(salary.periodEnd),
-        salaryAmount: salary.salaryAmount.toFixed(2),
-        presentDays: salary.presentDays,
+        salaryAmount: (salary.salaryAmount || 0).toFixed(2),
+        presentDays: salary.presentDays || 0,
         totalDays,
-        halfDays: salary.halfDays.toFixed(1),
-        leaveDays: salary.leaveDays.toFixed(1),
-        totalHoursWorked: salary.totalHoursWorked.toFixed(1),
+        halfDays: (salary.halfDays || 0).toFixed(1),
+        leaveDays: (salary.leaveDays || 0).toFixed(1),
+        totalHoursWorked: (salary.totalHoursWorked || 0).toFixed(1),
       };
     });
   }
 
-  const workbook = new ExcelJS.Workbook();
-  const worksheet = workbook.addWorksheet("Salary History");
+  try {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Salary History");
 
-  worksheet.columns = [
-    { header: "Employee ID", key: "employeeId", width: 15 },
-    { header: "Monthly Salary (INR)", key: "monthlySalary", width: 20 },
-    { header: "Annual Salary (INR)", key: "annualSalary", width: 20 },
-    { header: "Period Start", key: "periodStart", width: 15 },
-    { header: "Period End", key: "periodEnd", width: 15 },
-    { header: "Payment Amount (INR)", key: "salaryAmount", width: 20 },
-    { header: "Attendance", key: "attendance", width: 20 },
-    { header: "Hours Worked", key: "totalHoursWorked", width: 15 },
-  ];
+    worksheet.columns = [
+      { header: "Employee ID", key: "employeeId", width: 15 },
+      { header: "Monthly Salary (INR)", key: "monthlySalary", width: 20 },
+      { header: "Annual Salary (INR)", key: "annualSalary", width: 20 },
+      { header: "Period Start", key: "periodStart", width: 15 },
+      { header: "Period End", key: "periodEnd", width: 15 },
+      { header: "Payment Amount (INR)", key: "salaryAmount", width: 20 },
+      { header: "Attendance", key: "attendance", width: 20 },
+      { header: "Hours Worked", key: "totalHoursWorked", width: 15 },
+    ];
 
-  salaries.forEach((salary) => {
-    worksheet.addRow({
-      employeeId: employeeId,
-      monthlySalary: (employee.salary || 0).toFixed(2),
-      annualSalary: ((employee.salary || 0) * 12).toFixed(2),
-      periodStart: salary.periodStart,
-      periodEnd: salary.periodEnd,
-      salaryAmount: salary.salaryAmount,
-      attendance: `${salary.presentDays}/${salary.totalDays} (${(
-        (salary.presentDays / salary.totalDays) *
-        100
-      ).toFixed(1)}%)`,
-      totalHoursWorked: salary.totalHoursWorked,
+    salaries.forEach((salary) => {
+      worksheet.addRow({
+        employeeId,
+        monthlySalary: (employee.salary || 0).toFixed(2),
+        annualSalary: ((employee.salary || 0) * 12).toFixed(2),
+        periodStart: salary.periodStart,
+        periodEnd: salary.periodEnd,
+        salaryAmount: salary.salaryAmount,
+        attendance: `${salary.presentDays}/${salary.totalDays} (${(
+          (salary.presentDays / salary.totalDays) *
+          100
+        ).toFixed(1)}%)`,
+        totalHoursWorked: salary.totalHoursWorked,
+      });
     });
-  });
 
-  worksheet.getRow(1).font = { bold: true };
-  worksheet.getRow(1).fill = {
-    type: "pattern",
-    pattern: "solid",
-    fgColor: { argb: "D3D3D3" },
-  };
+    worksheet.getRow(1).font = { bold: true };
+    worksheet.getRow(1).fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "D3D3D3" },
+    };
 
-  const buffer = await workbook.xlsx.writeBuffer();
+    const buffer = await workbook.xlsx.writeBuffer();
 
-  res.setHeader(
-    "Content-Type",
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-  );
-  res.setHeader(
-    "Content-Disposition",
-    `attachment; filename=salary_history_${employeeId}.xlsx`
-  );
-  res.status(200).send(buffer);
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=salary_history_${employeeId}.xlsx`
+    );
+    res.status(200).send(buffer);
+  } catch (error) {
+    console.error("❌ Excel generation failed:", error);
+    res.status(500).json({ message: "Failed to generate salary export" });
+  }
 });
 
 module.exports = {

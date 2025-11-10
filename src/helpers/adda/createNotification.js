@@ -11,8 +11,6 @@ const createNotification = async (
   referenceModel
 ) => {
   try {
-    console.log(referenceId);
-
     let notification = await Notification.findOne({
       userId,
       type,
@@ -24,8 +22,6 @@ const createNotification = async (
       notification.createdAt = new Date();
       notification.message = message;
       await notification.save();
-
-      console.log("Existing notification updated with new timestamp.");
     } else {
       notification = new Notification({
         userId,
@@ -35,24 +31,20 @@ const createNotification = async (
         referenceId,
         referenceModel,
       });
-
       await notification.save();
-      console.log("New notification created.");
     }
 
     const receiver = await User.findById(userId);
-    if (receiver && receiver.socketIds.length > 0) {
+
+    if (receiver?.socketIds?.length) {
       const io = getIO();
       receiver.socketIds.forEach((socketId) => {
         io.to(socketId).emit("receive_notification", notification);
       });
-    } else {
-      console.log("User is offline, notification saved to DB.");
     }
 
     return notification;
   } catch (err) {
-    console.error("Error creating notification:", err);
     throw new Error("Failed to create notification.");
   }
 };
@@ -69,20 +61,21 @@ const fetchNotifications = async (userId) => {
   }
 };
 
-const deleteNotificationHelper = async (userId, initiatorId, type) => {
+const deleteNotificationHelper = async (initiatorId, userId, type) => {
+
   try {
-    await Notification.deleteMany({
+    const deleteResult = await Notification.deleteMany({
       userId,
       initiatorId,
       type,
     });
-
     return true;
   } catch (err) {
-    console.log(err);
-    throw new Error("Failed to fetch notifications");
+    console.error("❌ [deleteNotificationHelper] Error while deleting notifications:", err);
+    throw new Error("Failed to delete notifications");
   }
 };
+
 module.exports = {
   createNotification,
   fetchNotifications,

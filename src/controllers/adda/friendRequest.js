@@ -98,7 +98,6 @@ const sendFriendRequest = asyncHandler(async (req, res) => {
   }
 
   const accessCheck = checkFriendRequestAccess(sender);
-  console.log("accessCheck from backend ==============>", accessCheck);
   if (!accessCheck.allowed) {
     return errorResponse(res, 403, {
       upgradeRequired: accessCheck.upgradeRequired,
@@ -150,6 +149,7 @@ const sendFriendRequest = asyncHandler(async (req, res) => {
 
   return successResponse(res, 200, "Friend request sent successfully");
 });
+
 
 const acceptFriendRequest = asyncHandler(async (req, res) => {
   const { requestId } = req.params;
@@ -206,7 +206,7 @@ const acceptFriendRequest = asyncHandler(async (req, res) => {
 
     await deleteNotificationHelper(sender._id, receiver._id, "friend_request");
 
-    const notification = await createNotification(
+    await createNotification(
       sender._id,
       "friend_request_accepted",
       `${receiver.name} accepted your friend request.`,
@@ -217,23 +217,22 @@ const acceptFriendRequest = asyncHandler(async (req, res) => {
 
     return successResponse(res, 200, "Friend request accepted successfully");
   } catch (err) {
-    console.log(err);
     return errorResponse(res, 500, "Failed to accept friend request");
   }
 });
+
 
 const rejectFriendRequest = asyncHandler(async (req, res) => {
   const { requestId } = req.params;
 
   try {
-    const request = await FriendRequest.findById({ _id: requestId }).populate(
-      "receiverId"
-    );
+    const request = await FriendRequest.findById({ _id: requestId }).populate("receiverId");
     if (!request) return errorResponse(res, 404, "No request found");
+
     request.status = "rejected";
     await request.save();
 
-    const receiverName = request.receiverId.name;
+    const receiverName = request.receiverId?.name || "Unknown";
     const notificationMessage = `Your friend request to ${receiverName} has been rejected.`;
 
     await deleteNotificationHelper(
@@ -251,10 +250,9 @@ const rejectFriendRequest = asyncHandler(async (req, res) => {
       "FriendRequest"
     );
 
-    return successResponse(res, 200, "Friend request accepted successfully");
+    return successResponse(res, 200, "Friend request rejected successfully");
   } catch (err) {
-    console.log(err);
-    errorResponse(res, 500, "Failed to accept friendRequest");
+    return errorResponse(res, 500, "Failed to reject friend request");
   }
 });
 
@@ -275,24 +273,22 @@ const getAllFriends = asyncHandler(async (req, res) => {
       return errorResponse(res, 400, "Invalid limit value");
     }
 
-    const user = await User.findById(userId).select("followers following");
+    const user = await User.findOne({
+      _id: userId,
+      role: { $nin: ["EMPLOYEE", "ADMIN"] },
+    }).select("followers following");
 
     if (!user) {
       console.log("User not found:", userId);
       return errorResponse(res, 404, "User not found");
     }
 
-    console.log("User followers:", user.followers);
-    console.log("User following:", user.following);
-
     const followers = user.followers.map((id) => id.toString());
     const following = user.following.map((id) => id.toString());
 
     const mutualIds = followers.filter((id) => following.includes(id));
-    console.log("Mutual friend IDs:", mutualIds);
 
     if (mutualIds.length === 0) {
-      console.log("No mutual friends found");
       return successResponse(res, 200, "No friends found", {
         friends: [],
         totalCount: 0,
@@ -305,11 +301,8 @@ const getAllFriends = asyncHandler(async (req, res) => {
     const totalCount = mutualIds.length;
     const totalPages = Math.ceil(totalCount / limitNum);
 
-    console.log("Pagination - skip:", skip, "limit:", limitNum);
-    console.log("Total friends:", totalCount, "Total pages:", totalPages);
-
     const friends = await User.find(
-      { _id: { $in: mutualIds } },
+      { _id: { $in: mutualIds }, role: { $nin: ["EMPLOYEE", "ADMIN"] } },
       { name: 1, picture: 1, following: 1, followers: 1 }
     )
       .skip(skip)
@@ -334,15 +327,11 @@ const requestSuggestions = asyncHandler(async (req, res) => {
   const skip = (page - 1) * limit;
   const searchTerm = req.query.search || "";
 
-  console.log(searchTerm);
-
   try {
     const activeRequests = await FriendRequest.find({
       $or: [{ senderId: userId }, { receiverId: userId }],
       status: { $in: ["pending", "accepted"] },
     });
-
-    console.log("Active friend requests: ", activeRequests);
 
     const excludeId = new Set();
     activeRequests.forEach((request) => {
@@ -353,7 +342,10 @@ const requestSuggestions = asyncHandler(async (req, res) => {
     excludeId.add(userId.toString());
 
     const query = {
-      _id: { $nin: Array.from(excludeId) },
+      _id: {
+        $nin: Array.from(excludeId),
+      },
+      role: { $nin: ["EMPLOYEE", "ADMIN"] },
     };
 
     if (searchTerm) {
