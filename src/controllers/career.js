@@ -7,6 +7,7 @@ const {
   deleteJob,
   getAppliedJobs,
   getAppliedJobById,
+  deleteApplication,
 } = require("../helpers/careerHelper");
 const { sendEmail } = require("../services/emailService");
 const asyncHandler = require("../utils/asyncHandler");
@@ -135,8 +136,15 @@ module.exports = {
   }),
 
   applyJob: asyncHandler(async (req, res, next) => {
-    const { name, email, phone, gender, portfolioLink, coverNote, resume } =
-      req.body;
+    const {
+      name,
+      email,
+      phone,
+      gender,
+      portfolioLink,
+      coverNote,
+      resume,
+    } = req.body;
     const jobId = req.params.id;
 
     if (
@@ -243,9 +251,29 @@ module.exports = {
 
   getAppliedJobById: asyncHandler(async (req, res, next) => {
     const job = await getAppliedJobById(req.params.id);
+    console.log(job);
     if (!job) {
       return errorResponse(res, 404, messageHelper.JOB_NOT_FOUND);
     }
     return successResponse(res, 200, messageHelper.JOB_FETCHED, job);
+  }),
+
+  deleteJobApplication: asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    if (!id) {
+      return errorResponse(res, 400, messageHelper.BAD_REQUEST);
+    }
+    const job = await deleteApplication(req.params.id);
+
+    if (!job) {
+      return errorResponse(res, 404, messageHelper.JOB_NOT_FOUND);
+    }
+
+    return successResponse(
+      res,
+      200,
+      messageHelper.JOB_APPLICATION_DELETED,
+      job
+    );
   }),
 };
