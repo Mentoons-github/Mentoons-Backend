@@ -110,6 +110,7 @@ module.exports = {
           { name: { $regex: searchRegex } },
           { email: { $regex: searchRegex } },
         ],
+        role: { $nin: ["ADMIN", "SUPER-ADMIN", "EMPLOYEE"] },
       };
 
       if (filter.role && filter.role !== "") {
@@ -154,6 +155,8 @@ module.exports = {
         { $skip: skip },
         { $limit: Number(limit) },
       ]);
+
+      console.log(allUsers, "allUsers");
 
       const totalCount = await User.countDocuments(matchConditions);
 

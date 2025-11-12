@@ -10,6 +10,7 @@ const { getUsersController } = require("./admin");
 const User = require("../models/user");
 const FriendRequest = require("../models/adda/friendRequest");
 const Conversations = require("../models/adda/conversation");
+const { default: clerkClient } = require("@clerk/clerk-sdk-node");
 
 module.exports = {
   registerController: asyncHandler(async (req, res) => {
@@ -220,7 +221,6 @@ module.exports = {
     const { users, totalCount, totalPages } = await userHelper.getAllUser(
       queryOptions
     );
-    console.log(users);
 
     if (!users) {
       return errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR);
@@ -713,22 +713,36 @@ module.exports = {
   }),
 
   blockUnBlockUser: asyncHandler(async (req, res) => {
-    const { userId } = req.params;const user = await User.findById(userId);
-
+    const { userId } = req.params;
+    const user = await User.findById(userId);
+    console.log(user);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const currentStatus = user.isBlocked ?? false;
+    const newStatus = !(user.isBlocked ?? false);
 
-    user.isBlocked = !currentStatus;
-    await user.save();
+    try {
+      const clerkUser = await clerkClient.users.getUser(user.clerkId);
+      const updatedMetadata = {
+        ...clerkUser.publicMetadata,
+        blocked: newStatus,
+      };
 
-    return res.status(200).json({
-      message: `user is ${
-        user.isBlocked ? "blocked" : "unBlocked"
-      } successfully`,
-      success: true,
-    });
+      await clerkClient.users.updateUser(user.clerkId, {
+        publicMetadata: updatedMetadata,
+      });
+
+      user.isBlocked = newStatus;
+      await user.save();
+
+      res.status(200).json({
+        message: `User is ${newStatus ? "blocked" : "unblocked"} successfully`,
+        success: true,
+      });
+    } catch (error) {
+      console.error("❌ Clerk sync failed:", error);
+      res.status(500).json({ message: "Failed to update block status" });
+    }
   }),
 };
