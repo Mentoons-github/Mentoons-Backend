@@ -12,7 +12,6 @@ const emailRoutes = require("./src/routes/email");
 const userRoutes = require("./src/routes/user.js");
 const productRoutes = require("./src/routes/product.routes.js");
 const otpRoutes = require("./src/routes/otp");
-const quizRoutes = require("./src/routes/quiz");
 const workshopRoutes = require("./src/routes/workshop");
 const whatsappRoutes = require("./src/routes/whatsapp.js");
 const adminRoutes = require("./src/routes/admin.js");
@@ -49,6 +48,7 @@ const { clerkMiddleware } = require("@clerk/express");
 const ensureUserExists = require("./src/middlewares/ensureUserExists");
 const employeeRouter = require("./src/routes/employee/empoyee.routes");
 const meetupRoutes = require("./src/routes/adda/meetup.routes.js");
+const quizRoutes = require("./src/routes/adda/quiz.routes.js");
 const { Webhook, WebhookVerificationError } = require("svix");
 
 const bodyParser = require("body-parser");
@@ -222,7 +222,7 @@ app.use("/api/v1/email", emailRoutes);
 app.use("/api/v1/whatsapp", whatsappRoutes);
 app.use("/api/v1/products", productRoutes);
 app.use("/api/v1/otp", otpRoutes);
-app.use("/api/v1/quiz", quizRoutes);
+// app.use("/api/v1/quiz", quizRoutes);
 app.use("/api/v1/workshop", workshopRoutes);
 app.use("/api/v1/user", userRoutes);
 app.use("/api/v1/admin", adminRoutes);
@@ -259,6 +259,7 @@ app.use("/api/v1/meetup", meetupRoutes);
 app.use("/api/v1/groups", groupRoutes);
 app.use("/api/v1/attendance", attendanceRoutes);
 app.use("/api/v1/leave", leaveRoutes);
+app.use("/api/v1/quiz", quizRoutes);
 
 app.use("/health", (req, res) => {
   res.json({

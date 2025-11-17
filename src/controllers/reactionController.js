@@ -15,9 +15,14 @@ const reactionController = {
    */
   addReaction: async (req, res) => {
     try {
+      console.log("adding reaction");
       const { type, id, reactionType = "like" } = req.body;
+      console.log(req.body);
       const user = req.user.dbUser.id; // Assumes authentication middleware sets req.user
       console.log("userID :", user);
+      console.log(
+        "=============================================================>"
+      );
       // Validate input
       if (!type || !id) {
         return res

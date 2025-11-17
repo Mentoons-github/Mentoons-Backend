@@ -45,6 +45,7 @@ const createNotification = async (
 
     return notification;
   } catch (err) {
+    console.log(err);
     throw new Error("Failed to create notification.");
   }
 };
@@ -62,7 +63,6 @@ const fetchNotifications = async (userId) => {
 };
 
 const deleteNotificationHelper = async (initiatorId, userId, type) => {
-
   try {
     const deleteResult = await Notification.deleteMany({
       userId,
@@ -71,7 +71,10 @@ const deleteNotificationHelper = async (initiatorId, userId, type) => {
     });
     return true;
   } catch (err) {
-    console.error("❌ [deleteNotificationHelper] Error while deleting notifications:", err);
+    console.error(
+      "❌ [deleteNotificationHelper] Error while deleting notifications:",
+      err
+    );
     throw new Error("Failed to delete notifications");
   }
 };

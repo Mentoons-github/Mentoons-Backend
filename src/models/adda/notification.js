@@ -44,6 +44,7 @@ const notificationSchema = new mongoose.Schema(
         "content_rejected",
         "task_assigned",
         "task_submitted",
+        "task_extended",
       ],
     },
     message: {
