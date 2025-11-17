@@ -715,7 +715,6 @@ module.exports = {
   blockUnBlockUser: asyncHandler(async (req, res) => {
     const { userId } = req.params;
     const user = await User.findById(userId);
-    console.log(user);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
