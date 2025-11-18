@@ -12,10 +12,8 @@ const { default: mongoose } = require("mongoose");
 
 const createEmployee = asyncHandler(async (req, res) => {
   const employeeData = req.body;
-  console.log("Received employee data:", employeeData);
 
   let user = await User.findOne({ email: employeeData.email });
-  console.log("Existing user found:", user);
 
   if (!user) {
     console.log("No user found, creating new user...");
@@ -25,12 +23,9 @@ const createEmployee = asyncHandler(async (req, res) => {
       role: "EMPLOYEE",
       activeSession: new Date(),
     });
-    console.log("New user created:", user);
   } else {
-    console.log("User exists, updating role to EMPLOYEE");
     user.role = "EMPLOYEE";
     await user.save();
-    console.log("User after role update:", user);
   }
 
   const employeeDetail = await Employee.create({
@@ -43,7 +38,6 @@ const createEmployee = asyncHandler(async (req, res) => {
     profilePicture: employeeData.profilePicture,
     phone: employeeData.phone || "",
   });
-  console.log("Employee detail created:", employeeDetail);
 
   const employee = {
     _id: employeeDetail._id,
@@ -60,7 +54,6 @@ const createEmployee = asyncHandler(async (req, res) => {
     createdAt: employeeDetail.createdAt,
     updatedAt: employeeDetail.updatedAt,
   };
-  console.log("Final employee object to return:", employee);
 
   return successResponse(res, 201, messageHelper.EMPLOYEE_CREATED, employee);
 });
@@ -173,16 +166,12 @@ const getEmployees = asyncHandler(async (req, res) => {
 
 const getEmployeeById = async (req, res) => {
   try {
-    console.log(req.params);
     const { id } = req.params;
-    console.log(id);
 
     const employee = await Employee.findById(id).populate(
       "user",
-      "name email role"
+      "name email role phoneNumber picture"
     );
-
-    console.log(employee);
 
     if (!employee) {
       return res.status(404).json({
@@ -198,6 +187,11 @@ const getEmployeeById = async (req, res) => {
       });
     }
 
+    const fullDetails = {
+      ...employee.toObject(),
+      phoneNumber: employee.user.phoneNumber,
+    };
+
     res.status(200).json({
       success: true,
       data: {
@@ -205,6 +199,7 @@ const getEmployeeById = async (req, res) => {
         name: employee.user.name,
         email: employee.user.email,
         role: employee.user.role,
+        fullDetails,
       },
     });
   } catch (error) {

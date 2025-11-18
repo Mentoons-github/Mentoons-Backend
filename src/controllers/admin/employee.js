@@ -398,8 +398,72 @@ const handleProfileEditRequest = async (req, res) => {
   }
 };
 
+const editEmployee = async (req, res) => {
+  try {
+    console.log("Reached controller");
+
+    const { id } = req.params;
+    const data = req.body;
+
+    const employee = await Employee.findById(id).populate("user");
+
+    if (!employee) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Employee not found" });
+    }
+
+    const employeeFields = [
+      "department",
+      "employmentType",
+      "salary",
+      "active",
+      "jobRole",
+      "joinDate",
+      "place",
+      "profilePicture",
+    ];
+
+    employeeFields.forEach((field) => {
+      if (data[field] !== undefined) {
+        employee[field] = data[field];
+      }
+    });
+
+    if (data.user) {
+      const userFields = [
+        "name",
+        "email",
+        "role",
+        "gender",
+        "phoneNumber",
+        "dob",
+      ];
+
+      userFields.forEach((field) => {
+        if (data.user[field] !== undefined) {
+          employee.user[field] = data.user[field];
+        }
+      });
+
+      await employee.user.save();
+    }
+
+    await employee.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Employee updated successfully",
+    });
+  } catch (error) {
+    console.error("Error updating employee:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
 module.exports = {
   createInvitation,
   setPassword,
   handleProfileEditRequest,
+  editEmployee,
 };
