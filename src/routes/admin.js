@@ -3,6 +3,7 @@ const {
   createInvitation,
   setPassword,
   handleProfileEditRequest,
+  editEmployee,
 } = require("../controllers/admin/employee");
 const employeeRouter = require("./employee.js");
 const {
@@ -46,13 +47,14 @@ router.get("/users/:userId", getOneUserController);
 router.delete("/users/:userId", blacklistUserController);
 router.get("/checkrole", adminAuthMiddleware);
 
-router.get("/user-stats", verifyAdmin, getEmployeeTaskStats)
+router.get("/user-stats", verifyAdmin, getEmployeeTaskStats);
 
 router.post("/create-employee", adminAuthMiddleware, createInvitation);
+router.put("/update-employee/:id", adminAuthMiddleware, editEmployee);
 router.patch("/change-password", adminAuthMiddleware, changePassword);
 router.post("/set-password", setPassword);
 
 router.get("/notifications", adminAuthMiddleware, getAdminNotifications);
-router.patch("/:notificationId/read", verifyAdmin, markNotificationRead)
+router.patch("/:notificationId/read", verifyAdmin, markNotificationRead);
 
 module.exports = router;

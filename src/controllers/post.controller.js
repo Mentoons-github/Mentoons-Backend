@@ -22,10 +22,6 @@ const createPost = async (req, res) => {
     } = req.body;
 
     console.log(
-      "media =====================================================================================> :",
-      media
-    );
-    console.log(
       "req.body =========================================================================================>:",
       req.body
     );
@@ -347,6 +343,7 @@ const getPostsByUser = async (req, res) => {
   try {
     const { userId } = req.params;
     const { page = 1, limit = 10 } = req.query;
+    const { currentUser } = req.query;
 
     const options = {
       page: parseInt(page, 10),
@@ -362,8 +359,8 @@ const getPostsByUser = async (req, res) => {
     };
 
     const query = { user: req.user.dbUser._id };
-
-    if (!req.user || !req.user.dbUser._id.equals(userId)) {
+    if (currentUser) {
+    } else if (!req.user || !req.user.dbUser._id.equals(userId)) {
       query.visibility = "public";
     }
 

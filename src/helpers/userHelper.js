@@ -173,11 +173,9 @@ module.exports = {
   },
 
   getUser: async (userId) => {
-    console.log(userId, "userId");
     try {
-      console.log("Fetching user with ID:", userId);
       const [user] = await User.aggregate([
-        { $match: { _id: userId } },
+        { $match: { _id: userId, role: { $nin: ["EMPLOYEE", "ADMIN"] } } },
         {
           $lookup: {
             from: "requestcalls",
