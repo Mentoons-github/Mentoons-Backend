@@ -255,8 +255,6 @@ module.exports = {
   // Update profile information
   updateProfile: async (userId, profileData) => {
     try {
-      console.log("Incoming profile data:", profileData);
-
       const {
         name,
         email,
@@ -270,7 +268,7 @@ module.exports = {
         interests,
         socialLinks,
         picture,
-        coverPhoto: coverImage,
+        coverImage,
         privacySettings,
       } = profileData;
 
