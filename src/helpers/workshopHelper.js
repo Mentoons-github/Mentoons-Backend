@@ -12,6 +12,7 @@ module.exports = {
     phone,
     message,
     workshop,
+    ageCategory,
   }) => {
     try {
       if (
@@ -20,7 +21,8 @@ module.exports = {
         !email ||
         !phone ||
         !message ||
-        !workshop
+        !workshop ||
+        !ageCategory
       ) {
         throw new Error("All fields are required to save workshop enquiry");
       }
@@ -31,6 +33,7 @@ module.exports = {
         phone,
         message,
         workshop,
+        ageCategory,
       });
       const savedEnquiry = await enquiry.save();
       return savedEnquiry;

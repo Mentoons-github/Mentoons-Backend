@@ -17,17 +17,20 @@ const {
 
 module.exports = {
   submitWorkshopForm: asyncHandler(async (req, res, next) => {
-    const { firstname, lastname, email, phone, message, workshop } = req.body;
-    if (!firstname || !lastname || !email || !phone || !message || !workshop) {
+    const { firstname, lastname, email, phone, message, workshop, ageCategory } = req.body;
+
+    console.log(req.body,'bodyyyyyy')
+    if (!firstname || !lastname || !email || !phone || !message || !workshop || !ageCategory) {
       return errorResponse(res, 400, messageHelper.BAD_REQUEST);
     }
     const EnquiryData = await saveWorkshopEnquiriesToDB({
       firstname,
       lastname,
       email,
-      phone,
+      phone: Number(phone.replace(/\s+/g, "")),
       message,
       workshop,
+      ageCategory
     });
     if (!EnquiryData) {
       return errorResponse(res, 500, messageHelper.SOMETHING_WENT_WRONG);

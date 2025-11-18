@@ -3,8 +3,9 @@ const Query = require("../models/query");
 const createQuery = async (req, res) => {
   console.log("Query Data", req.body);
   try {
-    const exist = await Query.find({ queryType: req.body.queryType });
-    if (exist) {
+    const exist = await Query.find({ queryType: req.body.queryType, email:req.body.email });
+    console.log(exist,'exxxxisssssssttttttt')
+    if (exist.length > 0) {
       console.log(exist.length);
       return res.status(409).json({
         success: false,
