@@ -27,7 +27,7 @@ const workshopEnquiriesSchema = new Schema(
       type: String,
       required: [true, "Workshop is required"],
     },
-    age: {
+    ageCategory: {
       type: String,
       //   required: [true, "Age is required"],
     },
