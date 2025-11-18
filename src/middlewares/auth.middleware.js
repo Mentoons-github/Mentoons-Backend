@@ -5,7 +5,6 @@ const clerk = new Clerk({ secretKey: process.env.CLERK_SECRET_KEY });
 const conditionalAuth = async (req, res, next) => {
   try {
     const authHeader = req.header("Authorization");
-    console.log(req.header("Authorization"));
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       console.log("req token n ot found");
       return res.status(401).json({ message: "Missing or invalid token" });

@@ -32,7 +32,6 @@ const getUserFeed = async (req, res) => {
         userFeed.preferences.prioritizeFollowing &&
         userFeed.followingUsers.length > 0
       ) {
-
         const followedUserIds = userFeed.followingUsers.map(
           (id) => new mongoose.Types.ObjectId(id)
         );
@@ -43,6 +42,7 @@ const getUserFeed = async (req, res) => {
               user: { $in: followedUserIds },
               _id: { $nin: userFeed.hiddenPosts },
               user: { $nin: userFeed.blockedUsers },
+              $or: [{ visibility: "public" }, { visibility: "private" }],
             },
           },
           {
@@ -108,7 +108,6 @@ const getUserFeed = async (req, res) => {
           },
         });
       } else {
-
         const options = {
           page: parseInt(page, 10),
           limit: parseInt(limit, 10),
