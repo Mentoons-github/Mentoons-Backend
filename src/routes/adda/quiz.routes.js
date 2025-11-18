@@ -12,9 +12,8 @@ const verifyToken = require("../../middlewares/addaMiddleware");
 
 const router = express.Router();
 
-router.use(verifyToken);
-
 router.get("/categories", getAllCategories);
+router.use(verifyToken);
 router.post("/add", uploadQuiz);
 router.delete("/question/:categoryId/:questionId", deleteQuestion);
 
