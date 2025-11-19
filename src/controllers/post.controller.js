@@ -388,7 +388,7 @@ const friendPost = async (req, res) => {
   try {
     const { friendId } = req.params;
     const page = parseInt(req.query.page) || 1;
-    const limit = 5;
+    const limit = 12;
     const skip = (page - 1) * limit;
 
     const friendsPost = await Post.find({ user: friendId })
