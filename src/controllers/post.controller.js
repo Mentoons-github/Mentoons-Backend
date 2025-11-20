@@ -141,15 +141,10 @@ const getAllPosts = async (req, res) => {
   }
 };
 
-/**
- * Get a post by ID
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- */
 const getPostById = async (req, res) => {
   try {
     const { postId } = req.params;
-    console.log(postId);
+    console.log("userFound :", req.user);
 
     const post = await Post.findById(postId)
       .populate("user")
@@ -165,20 +160,25 @@ const getPostById = async (req, res) => {
       });
     }
 
-    // Check if user has permission to view this post
-    if (post.visibility !== "public" && !post.user._id.equals(req.user._id)) {
-      // This would need to be expanded with friend logic for 'friends' visibility
+    console.log("checking visibility");
+
+    if (
+      post.visibility !== "public" &&
+      !post.user._id.equals(req.user?.dbUser?._id)
+    ) {
       return res.status(403).json({
         success: false,
         message: "You do not have permission to view this post",
       });
     }
+    console.log("passing the data");
 
     res.status(200).json({
       success: true,
       data: post,
     });
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       success: false,
       message: error.message,

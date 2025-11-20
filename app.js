@@ -49,6 +49,7 @@ const ensureUserExists = require("./src/middlewares/ensureUserExists");
 const employeeRouter = require("./src/routes/employee/empoyee.routes");
 const meetupRoutes = require("./src/routes/adda/meetup.routes.js");
 const quizRoutes = require("./src/routes/adda/quiz.routes.js");
+const contestRoutes = require("./src/routes/adda/contest.routes.js");
 const { Webhook, WebhookVerificationError } = require("svix");
 
 const bodyParser = require("body-parser");
@@ -260,6 +261,7 @@ app.use("/api/v1/groups", groupRoutes);
 app.use("/api/v1/attendance", attendanceRoutes);
 app.use("/api/v1/leave", leaveRoutes);
 app.use("/api/v1/quiz", quizRoutes);
+app.use("/api/v1/contest", contestRoutes);
 
 app.use("/health", (req, res) => {
   res.json({
