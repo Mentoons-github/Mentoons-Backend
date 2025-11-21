@@ -7,10 +7,14 @@ const {
 
 const submitContestForm = asyncHandler(async (req, res) => {
   try {
-    const { name, age, mobile, fileUrl } = req.body;
+    const { name, age, mobile, fileUrl, category } = req.body;
 
-    if (!name || !age || !mobile || !fileUrl?.length) {
-      return errorResponse(res, 400, "All fields are required");
+    if (!name || !age || !mobile || !fileUrl?.length || !category) {
+      return errorResponse(
+        res,
+        400,
+        "All fields are required including category"
+      );
     }
 
     const savedSubmission = await ContestModel.create({
@@ -18,15 +22,17 @@ const submitContestForm = asyncHandler(async (req, res) => {
       age,
       mobile,
       images: fileUrl,
+      category,
     });
 
     return successResponse(
       res,
-      200,
-      "Contest submission saved",
+      201,
+      "Contest submission saved successfully",
       savedSubmission
     );
   } catch (err) {
+    console.error("Contest submission error:", err);
     return errorResponse(res, 500, "Submission failed");
   }
 });
