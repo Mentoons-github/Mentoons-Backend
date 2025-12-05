@@ -15,7 +15,7 @@ const { validatePostId } = require("../middlewares/post.middlewares");
 const { conditionalAuth } = require("../middlewares/auth.middleware");
 
 router.get("/", getAllPosts);
-
+router.get("/:postId", conditionalAuth, getPostById);
 router.get("/user/:userId?", conditionalAuth, getPostsByUser);
 
 router.use(conditionalAuth);

@@ -1,6 +1,8 @@
 const Post = require("../models/post");
 const mongoose = require("mongoose");
 const User = require("../models/user");
+const { Clerk } = require("@clerk/clerk-sdk-node");
+const clerk = new Clerk({ secretKey: process.env.CLERK_SECRET_KEY });
 
 /**
  * Create a new post
@@ -144,22 +146,26 @@ const getAllPosts = async (req, res) => {
 const getPostById = async (req, res) => {
   try {
     const { postId } = req.params;
+    let viewerId = req.user.dbUser._id;
     console.log("userFound :", req.user);
 
     const post = await Post.findById(postId)
       .populate("user")
       .populate({
         path: "comments",
-        populate: { path: "user" },
+        populate: { path: "user" }
       });
 
     if (!post) {
-      return res.status(404).json({
-        success: false,
-        message: "Post not found",
-      });
+      return res.status(404).json({ success: false, message: "Post not found" });
     }
 
+
+    const postOwnerId = post.user._id;
+
+    if (post.visibility === "public") {
+      return res.status(200).json({ success: true, data: post });
+    }
     console.log("checking visibility");
 
     if (
@@ -170,21 +176,47 @@ const getPostById = async (req, res) => {
         success: false,
         message: "You do not have permission to view this post",
       });
+
     }
     console.log("passing the data");
 
-    res.status(200).json({
-      success: true,
-      data: post,
-    });
+    if (post.visibility === "private") {
+      if (!viewerId) {
+        return res.status(403).json({
+          success: false,
+          message: "This post is private. Login required."
+        });
+      }
+
+      if (viewerId.equals(postOwnerId)) {
+        return res.status(200).json({ success: true, data: post });
+      }
+
+      const owner = await User.findById(postOwnerId);
+      const isFollower = owner.followers.some(f => f.equals(viewerId));
+
+      if (!isFollower) {
+        return res.status(403).json({
+          success: false,
+          message: "This post is private."
+        });
+      }
+
+      return res.status(200).json({ success: true, data: post });
+    }
+
+    // Default fallback
+    return res.status(200).json({ success: true, data: post });
+
   } catch (error) {
     console.log(error);
     res.status(500).json({
       success: false,
-      message: error.message,
+      message: error.message
     });
   }
 };
+
 
 /**
  * Update a post
@@ -215,7 +247,7 @@ const updatePost = async (req, res) => {
     }
 
     // Check if user is the owner of the post
-    if (!post.user.equals(req.user._id)) {
+    if (!post.user.equals(req.user.dbUser._id)) {
       return res.status(403).json({
         success: false,
         message: "You do not have permission to update this post",
@@ -387,14 +419,29 @@ const getPostsByUser = async (req, res) => {
 const friendPost = async (req, res) => {
   try {
     const { friendId } = req.params;
+    const currentUserId = req.user.dbUser._id;
     const page = parseInt(req.query.page) || 1;
     const limit = 12;
     const skip = (page - 1) * limit;
 
-    const friendsPost = await Post.find({ user: friendId })
+    let friendsPost = await Post.find({ user: friendId })
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .lean();
+
+    const friend = await User.findById(friendId);
+
+    const isFollowing = friend.followers.includes(currentUserId);
+
+    // Filter posts based on visibility rule
+    friendsPost = friendsPost.filter((p) => {
+      if (p.visibility === "public") return true;
+      if (p.visibility === "private") {
+        return currentUserId.toString() === friendId.toString() || isFollowing;
+      }
+      return true;
+    });
 
     const totalPosts = await Post.countDocuments({ user: friendId });
     const hasMore = page * limit < totalPosts;
