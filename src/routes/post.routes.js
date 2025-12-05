@@ -11,22 +11,21 @@ const {
   getPostsByUser,
   friendPost,
 } = require("../controllers/post.controller");
-const {
-  validatePostCreation,
-  validatePostId,
-} = require("../middlewares/post.middlewares");
+const { validatePostId } = require("../middlewares/post.middlewares");
 const { conditionalAuth } = require("../middlewares/auth.middleware");
 
-// Public routes
 router.get("/", getAllPosts);
 router.get("/:postId", conditionalAuth, getPostById);
 router.get("/user/:userId?", conditionalAuth, getPostsByUser);
 
-// Protected routes
-router.post("/", conditionalAuth, checkProfileCompletion, createPost);
-router.put("/:id", conditionalAuth, validatePostId, updatePost);
-router.delete("/:id", conditionalAuth, validatePostId, deletePost);
-router.post("/:id/like", conditionalAuth, validatePostId, likePost);
-router.get("/friends-post/:friendId", conditionalAuth, friendPost);
+router.use(conditionalAuth);
+
+router.get("/:postId", getPostById);
+
+router.post("/", checkProfileCompletion, createPost);
+router.put("/:id", validatePostId, updatePost);
+router.delete("/:id", validatePostId, deletePost);
+router.post("/:id/like", validatePostId, likePost);
+router.get("/friends-post/:friendId", friendPost);
 
 module.exports = router;

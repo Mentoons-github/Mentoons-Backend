@@ -13,7 +13,6 @@ const asyncHandler = require("../utils/asyncHandler.js");
 // GET /api/products
 const getProducts = async (req, res, next) => {
   const user = req.user;
-  console.log("reached products");
   try {
     const {
       search,
@@ -98,10 +97,8 @@ const getProducts = async (req, res, next) => {
     ];
 
     const products = await Product.aggregate(pipeline);
-
     const total = await Product.countDocuments(matchStage);
 
-    console.log(products);
     res.json({
       data: products,
       total,

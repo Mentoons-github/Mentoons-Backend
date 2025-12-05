@@ -2,14 +2,23 @@ const asyncHandler = require("../utils/asyncHandler");
 const { uploadFile } = require("../services/FileUpload");
 const { errorResponse, successResponse } = require("../utils/responseHelper");
 const messageHelper = require("../utils/messageHelper");
-
 const uploadFileController = asyncHandler(async (req, res) => {
-  console.log("Incoming file upload request");
+  console.log("📥 Incoming file upload request");
+  console.log("➡️ Query params:", req.query);
+
+  const isContestUpload = req.query.contest === "true";
+  console.log("📌 Is Contest Upload:", isContestUpload);
 
   if (!req.file) {
-    console.log("No file found in request");
+    console.log("❌ No file found in request");
     return errorResponse(res, 400, "No file uploaded");
   }
+
+  console.log("📄 Received File:", {
+    originalname: req.file.originalname,
+    mimetype: req.file.mimetype,
+    size: req.file.size,
+  });
 
   const MAX_FILE_SIZE = 200 * 1024 * 1024;
   const ALLOWED_MIME_TYPES = [
@@ -22,7 +31,7 @@ const uploadFileController = asyncHandler(async (req, res) => {
   ];
 
   if (req.file.size > MAX_FILE_SIZE) {
-    console.log("File too large:", req.file.size);
+    console.log("❌ File too large:", req.file.size);
     return errorResponse(
       res,
       400,
@@ -31,18 +40,35 @@ const uploadFileController = asyncHandler(async (req, res) => {
   }
 
   if (!ALLOWED_MIME_TYPES.includes(req.file.mimetype)) {
-    console.log("Unsupported file type:", req.file.mimetype);
+    console.log("❌ Unsupported MIME Type:", req.file.mimetype);
     return errorResponse(res, 400, "Unsupported file type");
   }
 
-  const userId = req.auth.userId;
+  let userId = null;
+
+  if (!isContestUpload) {
+    console.log("🔐 Auth upload detected. Checking user...");
+    userId = req.auth?.userId;
+
+    if (!userId) {
+      console.log("❌ Auth missing when required for regular upload");
+      return errorResponse(res, 401, "Unauthorized upload");
+    }
+
+    console.log("👤 Upload by user:", userId);
+  } else {
+    console.log("🟦 Contest upload - no auth required");
+  }
+
   const { buffer: fileBuffer, mimetype, originalname } = req.file;
 
-  console.log("Preparing to upload file:");
-  console.log("User ID:", userId);
-  console.log("File name:", originalname);
-  console.log("MIME type:", mimetype);
-  console.log("File size:", req.file.size);
+  console.log("📤 Uploading file to storage...");
+  console.log({
+    bucket: "OpinionJournal",
+    mimetype,
+    originalname,
+    fileSize: req.file.size,
+  });
 
   try {
     const uploadResult = await uploadFile(
@@ -52,13 +78,23 @@ const uploadFileController = asyncHandler(async (req, res) => {
       originalname
     );
 
-    console.log("Upload result:", uploadResult);
+    console.log("✅ Upload Success:", uploadResult);
 
-    return successResponse(res, 200, messageHelper.FILE_UPLOAD_SUCCESS, {
+    const responsePayload = {
       fileDetails: uploadResult,
-    });
+      uploadedBy: isContestUpload ? "contest-user" : userId,
+    };
+
+    console.log("📦 Final Response Payload:", responsePayload);
+
+    return successResponse(
+      res,
+      200,
+      messageHelper.FILE_UPLOAD_SUCCESS,
+      responsePayload
+    );
   } catch (error) {
-    console.error("File upload error:", error);
+    console.error("🔥 File upload FAILED:", error);
     return errorResponse(res, 500, messageHelper.FILE_UPLOAD_FAILED);
   }
 });
