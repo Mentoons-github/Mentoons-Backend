@@ -42,6 +42,7 @@ const conversationRouter = require("./src/routes/adda/conversation.routes.js");
 const groupRoutes = require("./src/routes/adda/group.routes.js");
 const attendanceRoutes = require("./src/routes/employee/attendance.routes.js");
 const leaveRoutes = require("./src/routes/employee/leave.routes.js");
+const gameRoutes = require("./src/routes/adda/game.routes.js");
 // const webhookRoutes = require("./src/routes/webhook.js");
 const evaluationRoutes = require("./src/routes/EvaluationForm.js");
 const { clerkMiddleware } = require("@clerk/express");
@@ -262,6 +263,7 @@ app.use("/api/v1/attendance", attendanceRoutes);
 app.use("/api/v1/leave", leaveRoutes);
 app.use("/api/v1/quiz", quizRoutes);
 app.use("/api/v1/contest", contestRoutes);
+app.use("/api/v1/game", gameRoutes);
 
 app.use("/health", (req, res) => {
   res.json({
