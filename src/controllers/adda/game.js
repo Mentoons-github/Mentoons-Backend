@@ -4,6 +4,7 @@ const asyncHandler = require("../../utils/asyncHandler");
 
 const createOrUpdateLeaderBoard = asyncHandler(async (req, res) => {
   const { gameId, score, difficulty } = req.body;
+  console.log(score,'scorrreeeee')
   const playerId = req.user;
 
   if (!playerId) {
@@ -40,6 +41,8 @@ const createOrUpdateLeaderBoard = asyncHandler(async (req, res) => {
       data: newRecord,
     });
   }
+
+  console.log(existing,'exxxissss')
 
   if (score > existing.score) {
     existing.score = score;
