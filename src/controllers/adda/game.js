@@ -1,44 +1,42 @@
+const updateUserCoins = require("../../helpers/adda/game/candyCoins");
 const Leaderboard = require("../../models/adda/game");
 const User = require("../../models/user");
 const asyncHandler = require("../../utils/asyncHandler");
 
 const createOrUpdateLeaderBoard = asyncHandler(async (req, res) => {
-  const { gameId, score, difficulty } = req.body;
-  console.log(score,'scorrreeeee')
+  const { gameId, score, difficulty, success } = req.body;
   const playerId = req.user;
 
-  if (!playerId) {
-    return res.status(400).json({ message: "User not authenticated" });
-  }
-
   const player = await User.findById(playerId);
-
-  if (!player) {
-    return res.status(404).json({ message: "User not found" });
-  }
-
-  const userName = player.name;
-  const profilePic = player.picture;
-
-  if (!gameId || score == null) {
-    return res.status(400).json({ message: "Game ID and score required" });
-  }
-
+  let rewardPoints = 0;
   const existing = await Leaderboard.findOne({ gameId, playerId, difficulty });
 
   if (!existing) {
     const newRecord = await Leaderboard.create({
       gameId,
       playerId,
-      userName,
-      profilePic,
+      userName: player.name,
+      profilePic: player.picture,
       score,
       difficulty,
     });
 
+    if (success) {
+      const updatedCoins = await updateUserCoins({
+        userId: player._id,
+        clerkId: player.clerkId,
+        amount: 1000,
+        reason: `${gameId} level completed`,
+        type: "earn",
+      });
+
+      rewardPoints = updatedCoins.currentCoins;
+    }
+
     return res.status(201).json({
       message: "Score added",
       data: newRecord,
+      rewardPoints: success ? rewardPoints : 0,
     });
   }
 
@@ -46,19 +44,25 @@ const createOrUpdateLeaderBoard = asyncHandler(async (req, res) => {
 
   if (score > existing.score) {
     existing.score = score;
-    existing.userName = userName;
-    existing.profilePic = profilePic;
     await existing.save();
+  }
 
-    return res.status(200).json({
-      message: "Score updated",
-      data: existing,
+  if (success) {
+    const updatedCoins = await updateUserCoins({
+      userId: player._id,
+      clerkId: player.clerkId,
+      amount: 1000,
+      reason: `${gameId} level completed`,
+      type: "earn",
     });
+
+    rewardPoints = updatedCoins.currentCoins;
   }
 
   return res.status(200).json({
-    message: "No update — lower score",
+    message: "Score updated",
     data: existing,
+    rewardPoints: success ? rewardPoints : 0,
   });
 });
 
