@@ -43,6 +43,7 @@ const groupRoutes = require("./src/routes/adda/group.routes.js");
 const attendanceRoutes = require("./src/routes/employee/attendance.routes.js");
 const leaveRoutes = require("./src/routes/employee/leave.routes.js");
 const gameRoutes = require("./src/routes/adda/game.routes.js");
+const dataCaptureRoutes = require("./src/routes/employee/dataCapture.routes.js");
 // const webhookRoutes = require("./src/routes/webhook.js");
 const evaluationRoutes = require("./src/routes/EvaluationForm.js");
 const { clerkMiddleware } = require("@clerk/express");
@@ -86,6 +87,7 @@ app.use(
       "http://localhost:5173",
       "http://localhost:3001",
       "https://mentoons-website-h28kgxm3i-mentoons-projects.vercel.app",
+      "https://mentormahesh.com/",
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
@@ -264,6 +266,7 @@ app.use("/api/v1/leave", leaveRoutes);
 app.use("/api/v1/quiz", quizRoutes);
 app.use("/api/v1/contest", contestRoutes);
 app.use("/api/v1/game", gameRoutes);
+app.use("/api/v1/data-capture", dataCaptureRoutes);
 
 app.use("/health", (req, res) => {
   res.json({

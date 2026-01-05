@@ -208,6 +208,36 @@ const getEmployeeById = async (req, res) => {
   }
 };
 
+//employee login
+const employeeLogin = asyncHandler(async (req, res) => {
+  const { employeeId } = req.params;
+  const { jobRole, jobType } = req.body;
+  if (!mongoose.Types.ObjectId.isValid(employeeId)) {
+    return errorResponse(res, 400, "Invalid employee ID format");
+  }
+  const employee = await Employee.findById(employeeId).populate(
+    "user",
+    "name email role phoneNumber picture"
+  );
+
+  if (!employee) {
+    return errorResponse(res, 404, "Employee not found");
+  }
+  if (employee.department !== jobRole) {
+    return errorResponse(res, 404, `Your job role is not ${jobRole}`);
+  }
+  if (employee.employmentType !== jobType) {
+    return errorResponse(res, 404, `You are not ${jobType} ${jobRole}`);
+  }
+
+  return successResponse(res, 200, "Employee login successfull", {
+    id: employee._id,
+    name: employee.user.name,
+    email: employee.user.email,
+    role: employee.user.role,
+  });
+});
+
 const getEmployeeProfile = async (req, res) => {
   try {
     const userId = req.user._id;
@@ -536,4 +566,5 @@ module.exports = {
   editEmployee,
   requestProfileEdit,
   getEmployeesCelebrations,
+  employeeLogin,
 };
