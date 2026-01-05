@@ -1,5 +1,8 @@
 const asyncHandler = require("../utils/asyncHandler");
-const { uploadFile, uploadFileToMentorMahesh } = require("../services/FileUpload");
+const {
+  uploadFile,
+  uploadFileToMentorMahesh,
+} = require("../services/FileUpload");
 const { errorResponse, successResponse } = require("../utils/responseHelper");
 const messageHelper = require("../utils/messageHelper");
 const uploadFileController = asyncHandler(async (req, res) => {
@@ -99,12 +102,11 @@ const uploadFileController = asyncHandler(async (req, res) => {
   }
 });
 
-
 // upload file to mentormahes enquiry
 const uploadFileMentorMahesh = asyncHandler(async (req, res) => {
   console.log("📥 Incoming file upload request");
   console.log("➡️ Query params:", req.query);
-  const userName = req.params.userName
+  const userName = req.params.userName;
 
   const isContestUpload = req.query.contest === "true";
   console.log("📌 Is Contest Upload:", isContestUpload);
@@ -143,7 +145,6 @@ const uploadFileMentorMahesh = asyncHandler(async (req, res) => {
     console.log("❌ Unsupported MIME Type:", req.file.mimetype);
     return errorResponse(res, 400, "Unsupported file type");
   }
-
 
   if (!isContestUpload) {
     console.log("🔐 Auth upload detected. Checking user...");
@@ -193,8 +194,8 @@ const uploadFileMentorMahesh = asyncHandler(async (req, res) => {
     );
   } catch (error) {
     console.error("🔥 File upload FAILED:", error);
-    return errorResponse(res, 500, messageHelper.FILE_UPLOAD_FAILED, error);
+    return res.status(500).josn({ messge: "File upload faild", error });
   }
 });
 
-module.exports = { uploadFileController,uploadFileMentorMahesh };
+module.exports = { uploadFileController, uploadFileMentorMahesh };
