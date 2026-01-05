@@ -194,7 +194,7 @@ const uploadFileMentorMahesh = asyncHandler(async (req, res) => {
     );
   } catch (error) {
     console.error("🔥 File upload FAILED:", error);
-    return res.status(500).josn({ messge: "File upload faild", error });
+    return res.status(500).json({ messge: "File upload faild", error });
   }
 });
 
