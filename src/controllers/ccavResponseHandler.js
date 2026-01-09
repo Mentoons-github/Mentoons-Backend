@@ -21,10 +21,7 @@ const Cart = require("../models/cart.js");
 const SessionModel = require("../models/session.js");
 
 const postRes = async (request, response) => {
-  console.log("Received CCAvenue response");
   const userId = request.query?.userId;
-
-  console.log("userId got: ===========>", userId);
 
   let rawString = "";
   if (Buffer.isBuffer(request.body)) {
