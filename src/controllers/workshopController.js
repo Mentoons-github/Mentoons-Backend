@@ -2,6 +2,8 @@ const asyncHandler = require("../utils/asyncHandler");
 const messageHelper = require("../utils/messageHelper");
 const { errorResponse, successResponse } = require("../utils/responseHelper");
 const Workshop = require("../models/workshop");
+const WorkshopV2 = require("../models/workshop/workshopv2");
+
 const {
   saveWorkshopEnquiriesToDB,
   getWorkshopEnquiriesFromDB,
@@ -17,10 +19,26 @@ const {
 
 module.exports = {
   submitWorkshopForm: asyncHandler(async (req, res, next) => {
-    const { firstname, lastname, email, phone, message, workshop, ageCategory } = req.body;
+    const {
+      firstname,
+      lastname,
+      email,
+      phone,
+      message,
+      workshop,
+      ageCategory,
+    } = req.body;
 
-    console.log(req.body,'bodyyyyyy')
-    if (!firstname || !lastname || !email || !phone || !message || !workshop || !ageCategory) {
+    console.log(req.body, "bodyyyyyy");
+    if (
+      !firstname ||
+      !lastname ||
+      !email ||
+      !phone ||
+      !message ||
+      !workshop ||
+      !ageCategory
+    ) {
       return errorResponse(res, 400, messageHelper.BAD_REQUEST);
     }
     const EnquiryData = await saveWorkshopEnquiriesToDB({
@@ -30,7 +48,7 @@ module.exports = {
       phone: Number(phone.replace(/\s+/g, "")),
       message,
       workshop,
-      ageCategory
+      ageCategory,
     });
     if (!EnquiryData) {
       return errorResponse(res, 500, messageHelper.SOMETHING_WENT_WRONG);
@@ -482,5 +500,50 @@ module.exports = {
     await Workshop.findByIdAndDelete(workshopId);
 
     return res.status(200).json({ message: "Workshop deleted successfully" });
+  }),
+
+ 
+
+  //workshopV2
+  getAllWorkshopV2: asyncHandler(async (req, res) => {
+    const workshops = await WorkshopV2.find({ isActive: true }).lean();
+
+    console.log(workshops);
+    if (!workshops || workshops.length === 0) {
+      return errorResponse(res, 404, "No workshops found");
+    }
+
+    return successResponse(
+      res,
+      200,
+      "WorkshopV2 fetched successfully",
+      workshops
+    );
+  }),
+
+  addWorkshopV2: asyncHandler(async (req, res) => {
+    const data = req.body;
+    console.log(data);
+
+    if (!data.workshopCode || !data.name || !data.plans) {
+      return errorResponse(res, 400, messageHelper.BAD_REQUEST);
+    }
+
+    const existing = await WorkshopV2.findOne({
+      workshopCode: data.workshopCode,
+    });
+
+    if (existing) {
+      return errorResponse(res, 400, "Workshop already exists");
+    }
+
+    const workshop = await WorkshopV2.create(data);
+
+    return successResponse(
+      res,
+      201,
+      "WorkshopV2 created successfully",
+      workshop
+    );
   }),
 };

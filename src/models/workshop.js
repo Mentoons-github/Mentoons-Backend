@@ -1,5 +1,14 @@
 const mongoose = require("mongoose");
 
+const priceSchema = new mongoose.Schema(
+  {
+    original: { type: Number, required: true },
+    introductory: { type: Number, required: true },
+    monthly: Number,
+  },
+  { _id: false }
+);
+
 const ageGroupSchema = new mongoose.Schema({
   ageRange: { type: String, required: true },
   image: { type: String, required: true },
