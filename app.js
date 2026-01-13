@@ -87,6 +87,7 @@ app.use(
       "http://localhost:5173",
       "http://localhost:3001",
       "https://mentoons-website-h28kgxm3i-mentoons-projects.vercel.app",
+      "https://mentoons-website-j1ndxqhpf-mentoons-projects.vercel.app",
       "https://mentormahesh.com",
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
