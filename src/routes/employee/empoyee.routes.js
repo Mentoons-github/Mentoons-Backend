@@ -8,6 +8,7 @@ const {
   requestProfileEdit,
   getEmployeesCelebrations,
   getMe,
+  employeeLogin,
 } = require("../../controllers/employee/employee");
 const {
   fetchTasks,
@@ -66,5 +67,6 @@ router.patch("/task-assignments/extend/:id", verifyAdmin, extendTask);
 //Base
 router.route("/").get(getEmployees).post(createEmployee);
 router.get("/:id", getEmployeeById);
+router.post("/login/:employeeId", employeeLogin);
 
 module.exports = router;

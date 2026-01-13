@@ -40,6 +40,8 @@ const createOrUpdateLeaderBoard = asyncHandler(async (req, res) => {
     });
   }
 
+  console.log(existing,'exxxissss')
+
   if (score > existing.score) {
     existing.score = score;
     await existing.save();

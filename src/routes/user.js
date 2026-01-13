@@ -44,7 +44,7 @@ router.post("/bulk", conditionalAuth, getFriends);
 
 router.get("/check-profile-completion", verifyToken);
 
-// router.get("/user/:userId", conditionalAuth, getUserController);
+router.get("/user/:userId", conditionalAuth, getUserController);
 router.get("/user", conditionalAuth, getUserController);
 router.delete("/user/:userId", conditionalAuth, DeleteUserClerkController);
 
