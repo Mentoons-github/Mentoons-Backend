@@ -8,9 +8,11 @@ const uuidv4 = require("uuid");
 const {
   parseCcavenueResponse,
   getCcavenueParamString,
+  mapEmiStatus,
+  getNextDueDate,
 } = require("../../utils/workshop/emi");
 
-//use conditonal auth
+//use conditional auth
 const payFirstDownPayment = asyncHandler(async (req, res) => {
   const planId = req.body;
   const user = req.user;
@@ -72,12 +74,53 @@ const payFirstDownPayment = asyncHandler(async (req, res) => {
   ccavRequestHandler.postReq(req, res);
 });
 
+const monthlyEmi = asyncHandler(async (req, res) => {
+  const userPlanId = req.body;
+  const user = req.user;
+
+  const userPlan = await UserPlan.findById(userPlanId);
+  if (!userPlan) {
+    return errorResponse(res, 404, "No plan found");
+  }
+
+  if (!userPlan.emiDetails.paidDownPayment) {
+    return errorResponse(res, 403, "Please pay down payment first");
+  }
+
+  if (userPlan.emiDetails.status != "active") {
+    return errorResponse(res, 403, "The EMI is not active");
+  }
+
+  if (userPlan.emiDetails.paidMonths >= userPlan.emiDetails.totalMonths) {
+    return errorResponse(res, 403, "You have already completed the EMI");
+  }
+
+  const payment = await Payment.create({
+    amount: userPlan.emiDetails.emiAmount,
+    gateway: "ccAvenue",
+    paymentType: "EMI",
+    planId: userPlan.planId,
+    userId: user.dbUser._id,
+    status: "PENDING",
+    transactionId: uuidv4(),
+    userPlanId: userPlan._id,
+  });
+
+  const paramString = getCcavenueParamString(
+    payment,
+    planId,
+    user,
+    userPlan._id
+  );
+
+  req.ccavenueParams = paramString;
+  ccavRequestHandler.postReq(req, res);
+});
+
 const paymentStatus = asyncHandler(async (req, res) => {
-  const userId = req.query?.userId;
   const workingKey = process.env.CCAVENUE_WORKING_KEY;
 
   const responseObject = parseCcavenueResponse(req.body, workingKey);
-
   const { emiStatus, accessStatus } = mapEmiStatus(responseObject.order_status);
   const userPlan = await UserPlan.findOneAndUpdate(
     {
@@ -99,32 +142,42 @@ const paymentStatus = asyncHandler(async (req, res) => {
     return errorResponse(res, 404, "User plan not found or update failed");
   }
 
-  const paymentEdit = await Plans.findByIdAndUpdate(
-    responseObject.merchant_param2
+  const paymentStatus =
+    responseObject.order_status.toLowerCase() === "success"
+      ? "SUCCESS"
+      : responseObject.order_status.toLowerCase() === "PENDING"
+      ? "PENDING"
+      : "ABORTED";
+
+  const paymentEdit = await Payment.findByIdAndUpdate(
+    responseObject.merchant_param4,
+    {
+      $set: {
+        status: paymentStatus,
+      },
+    }
   );
+
+  if (!paymentEdit) {
+    return errorResponse(
+      res,
+      304,
+      "Payment record was not updated. No changes were made."
+    );
+  }
+
+  const redirectUrl = new URL(`${process.env.FRONTEND_URL}/payment-status`);
+  redirectUrl.searchParams.append(
+    "status",
+    responseObject.order_status || "UNKNOWN"
+  );
+  redirectUrl.searchParams("downPayment", "true");
+
+  return res.redirectUrl(redirectUrl.toString());
 });
 
-const mapEmiStatus = (orderStatus) => {
-  switch (orderStatus?.toLowerCase()) {
-    case "success":
-      return { emiStatus: "active", accessStatus: "active" };
-
-    case "pending":
-      return { emiStatus: "active", accessStatus: "suspended" };
-
-    case "aborted":
-    case "failure":
-      return { emiStatus: "defaulted", accessStatus: "suspended" };
-
-    default:
-      return { emiStatus: "defaulted", accessStatus: "suspended" };
-  }
-};
-
-const getNextDueDate = () => {
-  const today = new Date();
-  const nextMonth = today.getMonth() + 1;
-  const year = today.getFullYear();
-
-  return new Date(year, nextMonth, 5);
+module.exports = {
+  payFirstDownPayment,
+  paymentStatus,
+  monthlyEmi,
 };

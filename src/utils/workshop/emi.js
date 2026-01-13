@@ -55,7 +55,34 @@ const parseCcavenueResponse = (body, workingKey) => {
   return responseObject;
 };
 
+const mapEmiStatus = (orderStatus) => {
+  switch (orderStatus?.toLowerCase()) {
+    case "success":
+      return { emiStatus: "active", accessStatus: "active" };
+
+    case "pending":
+      return { emiStatus: "active", accessStatus: "suspended" };
+
+    case "aborted":
+    case "failure":
+      return { emiStatus: "defaulted", accessStatus: "suspended" };
+
+    default:
+      return { emiStatus: "defaulted", accessStatus: "suspended" };
+  }
+};
+
+const getNextDueDate = () => {
+  const today = new Date();
+  const nextMonth = today.getMonth() + 1;
+  const year = today.getFullYear();
+
+  return new Date(year, nextMonth, 5);
+};
+
 module.exports = {
   getCcavenueParamString,
   parseCcavenueResponse,
+  mapEmiStatus,
+  getNextDueDate,
 };
