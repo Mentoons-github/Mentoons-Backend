@@ -86,7 +86,7 @@ app.use(
       "http://localhost:5173",
       "http://localhost:3001",
       "https://mentoons-website-h28kgxm3i-mentoons-projects.vercel.app",
-      "https://mentoons-website-n7dcxfzyv-mentoons-projects.vercel.app",
+      "https://mentoons-website-j1ndxqhpf-mentoons-projects.vercel.app",
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
