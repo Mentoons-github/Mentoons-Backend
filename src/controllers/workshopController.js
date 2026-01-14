@@ -17,10 +17,26 @@ const {
 
 module.exports = {
   submitWorkshopForm: asyncHandler(async (req, res, next) => {
-    const { firstname, lastname, email, phone, message, workshop, ageCategory } = req.body;
+    const {
+      firstname,
+      lastname,
+      email,
+      phone,
+      message,
+      workshop,
+      ageCategory,
+    } = req.body;
 
-    console.log(req.body,'bodyyyyyy')
-    if (!firstname || !lastname || !email || !phone || !message || !workshop || !ageCategory) {
+    console.log(req.body, "bodyyyyyy");
+    if (
+      !firstname ||
+      !lastname ||
+      !email ||
+      !phone ||
+      !message ||
+      !workshop ||
+      !ageCategory
+    ) {
       return errorResponse(res, 400, messageHelper.BAD_REQUEST);
     }
     const EnquiryData = await saveWorkshopEnquiriesToDB({
@@ -30,7 +46,7 @@ module.exports = {
       phone: Number(phone.replace(/\s+/g, "")),
       message,
       workshop,
-      ageCategory
+      ageCategory,
     });
     if (!EnquiryData) {
       return errorResponse(res, 500, messageHelper.SOMETHING_WENT_WRONG);
@@ -206,7 +222,7 @@ module.exports = {
     const { workshopId } = req.params;
     const updateContent = req.body;
 
-    const { categoryName, subtitle, workshops } = updateContent;
+    const { categoryName, subtitle, workshops, description } = updateContent;
 
     if (!categoryName) {
       return res.status(400).json({
@@ -222,6 +238,13 @@ module.exports = {
       });
     }
 
+    if (!description) {
+      return res.status(400).json({
+        success: false,
+        message: "Description is required",
+      });
+    }
+
     if (!workshops || !Array.isArray(workshops) || workshops.length === 0) {
       return res.status(400).json({
         success: false,
@@ -230,12 +253,19 @@ module.exports = {
     }
 
     for (const workshop of workshops) {
-      const { workshopName, whyChooseUs, ageGroups } = workshop;
+      const { workshopName, whyChooseUs, ageGroups, overview } = workshop;
 
       if (!workshopName) {
         return res.status(400).json({
           success: false,
           message: "Workshop name is required",
+        });
+      }
+
+      if (!overview) {
+        return res.status(400).json({
+          success: false,
+          message: "Workshop overview is required",
         });
       }
 
@@ -327,7 +357,7 @@ module.exports = {
 
     const workshop = await Workshop.findByIdAndUpdate(
       workshopId,
-      { $set: { categoryName, subtitle, workshops } },
+      { $set: { categoryName, subtitle, workshops, description } },
       { new: true, runValidators: true }
     );
 

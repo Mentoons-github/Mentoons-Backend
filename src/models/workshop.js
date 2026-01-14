@@ -14,6 +14,7 @@ const ageGroupSchema = new mongoose.Schema({
 
 const individualWorkshopSchema = new mongoose.Schema({
   workshopName: { type: String, required: true },
+  overview: { type: String, required: true },
   whyChooseUs: [
     {
       heading: { type: String, required: true },
@@ -27,6 +28,7 @@ const workshopSchema = new mongoose.Schema(
   {
     categoryName: { type: String, required: true },
     subtitle: { type: String, required: true },
+    description: { type: String, required: true },
     workshops: [individualWorkshopSchema],
   },
   { timestamps: true }
