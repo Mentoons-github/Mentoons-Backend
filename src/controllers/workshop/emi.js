@@ -23,7 +23,7 @@ const payFirstDownPayment = asyncHandler(async (req, res) => {
     bplApplied,
     bplCardFile,
   } = req.body.paymentDetails;
-
+  
   const user = req.user;
 
   if (!planData?.planId) {
@@ -110,7 +110,7 @@ const payFirstDownPayment = asyncHandler(async (req, res) => {
       console.log("FULL UserPlan created:", userPlan?._id);
 
       paymentAmount = plan.price.introductory;
-      paymentPurpose = "FULL";
+      paymentPurpose = "FULL_PAYMENT";
     }
   } catch (err) {
     console.error("Error creating UserPlan:", err);
@@ -201,75 +201,26 @@ const payMonthlyEmi = asyncHandler(async (req, res) => {
     userPlan._id
   );
 
-  console.log(paramString);
-
   req.ccavenueParams = paramString;
   ccavRequestHandler.postReq(req, res);
 });
 
 const paymentStatus = asyncHandler(async (req, res) => {
-  console.log("===== CCAvenue Payment Status Callback START =====");
-
   const workingKey = process.env.CCAVENUE_WORKING_KEY;
-  console.log("Working Key Loaded:", !!workingKey);
-
-  console.log("Raw CCAvenue Body:", req.body);
 
   const responseObject = parseCcavenueResponse(req.body, workingKey);
-  console.log("Parsed CCAvenue Response:", responseObject);
-
   const isSuccess = responseObject.order_status?.toLowerCase() === "success";
-  console.log("Is Payment Success:", isSuccess);
 
-  /* ------------------ Fetch Payment ------------------ */
-  const paymentId = responseObject.merchant_param4;
-  console.log("Fetching Payment ID:", paymentId);
-
-  const payment = await Payment.findById(paymentId);
+  const payment = await Payment.findById(responseObject.merchant_param4);
   if (!payment) {
-    console.log("❌ Payment not found:", paymentId);
     return errorResponse(res, 404, "No Payment found");
   }
 
-  console.log("Payment Found:", {
-    id: payment._id,
-    status: payment.status,
-    paymentType: payment.paymentType,
-  });
-
-  /* ------------------ Already Processed ------------------ */
   if (payment.status === "SUCCESS") {
-    console.log("⚠️ Payment already marked SUCCESS, redirecting");
     return res.redirect(
       `${process.env.FRONTEND_URL}/payment-status?status=SUCCESS`
     );
   }
-
-  /* ------------------ Down Payment Failure ------------------ */
-  if (payment.paymentType === "DOWN_PAYMENT" && !isSuccess) {
-    console.log("❌ Down Payment FAILED");
-    console.log("Rolling back Payment and UserPlan");
-
-    await Payment.findByIdAndDelete(payment._id);
-    console.log("Payment deleted:", payment._id);
-
-    const userPlanId = responseObject.merchant_param3;
-    await UserPlan.findByIdAndDelete(userPlanId);
-    console.log("UserPlan deleted:", userPlanId);
-
-    const redirectUrl = new URL(`${process.env.FRONTEND_URL}/payment-status`);
-    redirectUrl.searchParams.append("status", responseObject.order_status);
-    redirectUrl.searchParams.append("paymentType", payment.paymentType);
-
-    console.log("Redirecting to:", redirectUrl.toString());
-    return res.redirect(redirectUrl.toString());
-  }
-
-  /* ------------------ Fetch UserPlan ------------------ */
-  console.log("Fetching UserPlan:", {
-    userPlanId: responseObject.merchant_param3,
-    userId: responseObject.merchant_param1,
-  });
 
   let userPlan = await UserPlan.findOne({
     _id: responseObject.merchant_param3,
@@ -277,25 +228,13 @@ const paymentStatus = asyncHandler(async (req, res) => {
   });
 
   if (!userPlan) {
-    console.log("❌ UserPlan not found");
     return errorResponse(res, 404, "User plan not found");
   }
 
-  console.log("UserPlan Found:", {
-    id: userPlan._id,
-    paymentType: userPlan.paymentType,
-    emiDetails: userPlan.emiDetails,
-  });
-
-  /* ------------------ Down Payment Success ------------------ */
   if (payment.paymentType === "DOWN_PAYMENT" && isSuccess) {
-    console.log("✅ Down Payment SUCCESS");
-
     const { emiStatus, accessStatus } = mapEmiStatus(
       responseObject.order_status
     );
-
-    console.log("Mapped EMI Status:", { emiStatus, accessStatus });
 
     userPlan = await UserPlan.findByIdAndUpdate(
       userPlan._id,
@@ -309,14 +248,9 @@ const paymentStatus = asyncHandler(async (req, res) => {
       },
       { new: true }
     );
-
-    console.log("UserPlan updated after DOWN_PAYMENT:", userPlan);
   }
 
-  /* ------------------ EMI Payment Success ------------------ */
   if (payment.paymentType === "EMI" && isSuccess) {
-    console.log("✅ EMI Payment SUCCESS");
-
     userPlan = await UserPlan.findByIdAndUpdate(
       userPlan._id,
       {
@@ -330,14 +264,9 @@ const paymentStatus = asyncHandler(async (req, res) => {
       },
       { new: true }
     );
-
-    console.log("UserPlan updated after EMI:", userPlan);
   }
 
-  /* ------------------ Full Payment Success ------------------ */
-  if (payment.paymentType === "FULL" && isSuccess) {
-    console.log("✅ Full Payment SUCCESS");
-
+  if (payment.paymentType === "FULL_PAYMENT" && isSuccess) {
     userPlan = await UserPlan.findByIdAndUpdate(
       userPlan._id,
       {
@@ -347,42 +276,30 @@ const paymentStatus = asyncHandler(async (req, res) => {
       },
       { new: true }
     );
-
-    console.log("UserPlan updated after FULL_PAYMENT:", userPlan);
   }
 
-  /* ------------------ EMI Completion Check ------------------ */
   if (
     userPlan.paymentType === "EMI" &&
     userPlan.emiDetails.paidMonths >= userPlan.emiDetails.totalMonths
   ) {
-    console.log("🎉 EMI Completed");
-
     userPlan.emiDetails.status = "completed";
     userPlan.accessStatus = "expired";
     await userPlan.save();
-
-    console.log("UserPlan marked as completed:", userPlan);
   }
 
-  /* ------------------ Update Payment Status ------------------ */
-  const finalPaymentStatus =
-    responseObject.order_status?.toLowerCase() === "success"
+  const paymentStatus =
+    responseObject.order_status.toLowerCase() === "success"
       ? "SUCCESS"
-      : responseObject.order_status?.toLowerCase() === "pending"
+      : responseObject.order_status.toLowerCase() === "pending"
       ? "PENDING"
       : "ABORTED";
 
-  console.log("Final Payment Status:", finalPaymentStatus);
-
   await Payment.findByIdAndUpdate(payment._id, {
-    $set: { status: finalPaymentStatus },
+    $set: { status: paymentStatus },
   });
 
-  console.log("Payment status updated in DB");
-
-  /* ------------------ Redirect ------------------ */
   const redirectUrl = new URL(`${process.env.FRONTEND_URL}/payment-status`);
+
   redirectUrl.searchParams.append(
     "status",
     responseObject.order_status || "UNKNOWN"
@@ -390,63 +307,25 @@ const paymentStatus = asyncHandler(async (req, res) => {
   redirectUrl.searchParams.append("paymentType", payment.paymentType);
   redirectUrl.searchParams.append("transactionId", payment.transactionId);
 
-  console.log("Redirecting user to:", redirectUrl.toString());
-  console.log("===== CCAvenue Payment Status Callback END =====");
-
   return res.redirect(redirectUrl.toString());
 });
 
 const activeEmi = asyncHandler(async (req, res) => {
-  console.log("===== Fetch Active EMI START =====");
-
   const userId = req.user.dbUser._id;
-  console.log("User ID:", userId.toString());
-
-  const today = new Date();
-  console.log("Current Date:", today.toISOString());
-
-  console.log("Query Conditions:");
-  console.log({
-    userId,
-    "emiDetails.status": "active",
-    "emiDetails.paidDownPayment": true,
-    "emiDetails.paidMonths": "< totalMonths",
-    "emiDetails.nextDueDate <= today": today,
-  });
 
   const userEMI = await UserPlan.find({
     userId,
     "emiDetails.status": "active",
     "emiDetails.paidDownPayment": true,
-    "emiDetails.nextDueDate": { $lte: today },
+    "emiDetails.paidMonths": { $lt: "$emiDetails,totalMonths" },
+    "emiDetails.nextDueDate": { $lte: new Date() },
   });
 
-  console.log("Raw EMI Records Found:", userEMI?.length || 0);
-
-  if (!userEMI || userEMI.length === 0) {
-    console.log("❌ No pending EMI found for user:", userId.toString());
+  if (!userEMI) {
     return errorResponse(res, 404, "No pending EMI left");
   }
 
-  const pendingEmis = userEMI.filter(
-    (plan) => plan.emiDetails.paidMonths < plan.emiDetails.totalMonths
-  );
-
-  console.log("Pending EMI After Month Check:", pendingEmis.length);
-
-  pendingEmis.forEach((plan, index) => {
-    console.log(`EMI #${index + 1}`, {
-      userPlanId: plan._id,
-      paidMonths: plan.emiDetails.paidMonths,
-      totalMonths: plan.emiDetails.totalMonths,
-      nextDueDate: plan.emiDetails.nextDueDate,
-      amount: plan.emiDetails.monthlyAmount,
-    });
-  });
-
-  console.log("===== Fetch Active EMI END =====");
-
-  return successResponse(res, 200, pendingEmis);
+  return successResponse(res, 200, userEMI);
 });
 
 const getEmiStatistics = asyncHandler(async (req, res) => {
