@@ -8,10 +8,7 @@ const User = require("../models/user.js");
 const { clerk } = require("../middlewares/auth.middleware.js");
 const mongoose = require("mongoose");
 
-const Payment = require("../models/workshop/payment");
-const UserPlan = require("../models/workshop/userPlan");
-
-const { mapEmiStatus, getNextDueDate } = require("../utils/workshop/emi");
+dotenv.config();
 
 const {
   ProductEmailTemplate,
@@ -22,8 +19,6 @@ const { sendEmail } = require("../services/emailService.js");
 const Employee = require("../models/employee.js");
 const Cart = require("../models/cart.js");
 const SessionModel = require("../models/session.js");
-
-dotenv.config();
 
 const postRes = async (request, response) => {
   const userId = request.query?.userId;
@@ -38,12 +33,11 @@ const postRes = async (request, response) => {
   }
 
   const parsedData = qs.parse(rawString);
-  console.log("Parsed CCAvenue callback data:", parsedData);
+  console.log("Parsed request data:", parsedData);
 
-  const ccavEncResponse = parsedData.encResp;
-  const workingKey = process.env.CCAVENUE_WORKING_KEY;
-
-  console.log("Starting CCAvenue response processing...");
+  const ccavEncResponse = parsedData.encResp,
+    workingKey = `${process.env.CCAVENUE_WORKING_KEY}`;
+  console.log("Starting CCAvenue response processing.");
 
   try {
     const decryptedResponse = ccav.decrypt(ccavEncResponse, workingKey);
@@ -55,14 +49,24 @@ const postRes = async (request, response) => {
       return acc;
     }, {});
 
-    console.log("Full CCAvenue Response:", responseObject);
+    console.log("CCAvenue Response:", responseObject);
+    const subscriptionType = responseObject.merchant_param3 || null;
+    const orderType = responseObject.order_type || "UNKNOWN";
+    const quizType =
+      responseObject.merchant_param1?.split(" (")[0].toLowerCase() || "";
+    const difficulty = responseObject.merchant_param2?.split(",")[0] || "";
 
-    const order_status =
-      responseObject.order_status?.toLowerCase() || "unknown";
-    const isSuccess = order_status === "success";
-
-    // Prepare base redirect URL
-    let redirectUrl = new URL(`${process.env.FRONTEND_URL}/payment-status`);
+    // Prepare redirect URL
+    let redirectUrl;
+    if (orderType === "QUIZ_PURCHASE") {
+      // Redirect to the quiz page to continue where the user stopped
+      redirectUrl = new URL(
+        `${process.env.FRONTEND_URL}/quiz/${quizType}/${difficulty}`
+      );
+    } else {
+      // Default redirect for other order types
+      redirectUrl = new URL(`${process.env.FRONTEND_URL}/payment-status`);
+    }
 
     redirectUrl.searchParams.append(
       "status",
@@ -74,298 +78,245 @@ const postRes = async (request, response) => {
       responseObject.tracking_id || ""
     );
 
-    // ────────────────────────────────────────────────────────────────
-    // IMPROVED DETECTION: Use explicit merchant_param5 flag
-    // ────────────────────────────────────────────────────────────────
-    const isWorkshopPayment =
-      (responseObject.merchant_param5 || "").toUpperCase() === "WORKSHOP";
-
-    if (isWorkshopPayment) {
-      console.log(
-        "=== WORKSHOP / EMI / PLAN PAYMENT DETECTED (merchant_param5=WORKSHOP) ==="
-      );
-
-      const paymentId = responseObject.merchant_param4;
-      const userPlanId = responseObject.merchant_param3;
-
-      // 1. Find Payment document
-      const payment = await Payment.findById(paymentId);
-      if (!payment) {
-        console.log("Payment record not found:", paymentId);
-        redirectUrl.searchParams.append("message", "Payment record not found");
-        response.writeHead(302, { Location: redirectUrl.toString() });
-        return response.end();
-      }
-
-      // Idempotency check
-      if (payment.status === "SUCCESS") {
-        console.log("Payment already processed successfully - skipping");
-        response.writeHead(302, { Location: redirectUrl.toString() });
-        return response.end();
-      }
-
-      // 2. Find associated UserPlan
-      const userPlan = await UserPlan.findOne({
-        _id: userPlanId,
-        userId: responseObject.merchant_param1,
-      });
-
-      if (!userPlan) {
-        console.log("UserPlan not found:", userPlanId);
-        redirectUrl.searchParams.append("message", "User plan not found");
-        response.writeHead(302, { Location: redirectUrl.toString() });
-        return response.end();
-      }
-
-      // DOWN PAYMENT FAILURE → rollback
-      if (payment.paymentType === "DOWN_PAYMENT" && !isSuccess) {
-        console.log("DOWN PAYMENT FAILED → rolling back");
-        await Payment.findByIdAndDelete(payment._id);
-        await UserPlan.findByIdAndDelete(userPlanId);
-
-        redirectUrl.searchParams.append("paymentType", "DOWN_PAYMENT");
-        response.writeHead(302, { Location: redirectUrl.toString() });
-        return response.end();
-      }
-
-      // DOWN PAYMENT SUCCESS
-      if (payment.paymentType === "DOWN_PAYMENT" && isSuccess) {
-        console.log("DOWN PAYMENT SUCCESS");
-        const { emiStatus, accessStatus } = mapEmiStatus(
-          responseObject.order_status
-        );
-
-        await UserPlan.findByIdAndUpdate(
-          userPlan._id,
-          {
-            $set: {
-              accessStatus,
-              "emiDetails.status": emiStatus,
-              "emiDetails.paidDownPayment": true,
-              "emiDetails.nextDueDate": getNextDueDate(),
-            },
-          },
-          { new: true }
-        );
-      }
-
-      // MONTHLY EMI SUCCESS
-      if (payment.paymentType === "EMI" && isSuccess) {
-        console.log("MONTHLY EMI SUCCESS");
-        const updated = await UserPlan.findByIdAndUpdate(
-          userPlan._id,
-          {
-            $inc: { "emiDetails.paidMonths": 1 },
-            $set: {
-              "emiDetails.nextDueDate": getNextDueDate(),
-              accessStatus: "active",
-            },
-          },
-          { new: true }
-        );
-
-        if (updated.emiDetails.paidMonths >= updated.emiDetails.totalMonths) {
-          console.log("EMI FULLY COMPLETED");
-          await UserPlan.findByIdAndUpdate(updated._id, {
-            $set: {
-              "emiDetails.status": "completed",
-              accessStatus: "expired",
-            },
-          });
-        }
-      }
-
-      // FULL PAYMENT SUCCESS
-      if (payment.paymentType === "FULL" && isSuccess) {
-        console.log("FULL PAYMENT SUCCESS");
-        await UserPlan.findByIdAndUpdate(
-          userPlan._id,
-          {
-            $set: { accessStatus: "active" },
-          },
-          { new: true }
-        );
-      }
-
-      // Final payment status update
-      const finalStatus = isSuccess
-        ? "SUCCESS"
-        : order_status === "pending"
-        ? "PENDING"
-        : "ABORTED";
-
-      await Payment.findByIdAndUpdate(payment._id, {
-        $set: { status: finalStatus },
-      });
-
-      redirectUrl.searchParams.append("paymentType", payment.paymentType);
-      redirectUrl.searchParams.append("transactionId", payment.transactionId);
-    } else {
-      // ────────────────────────────────────────────────────────────────
-      // REGULAR FLOWS: Product / Subscription / Consultancy / Quiz
-      // ────────────────────────────────────────────────────────────────
-      console.log("Processing as regular order (non-workshop)");
-
-      const subscriptionType = responseObject.merchant_param3 || null;
-      const orderType = responseObject.order_type || "UNKNOWN";
-      const quizType =
-        responseObject.merchant_param1?.split(" (")[0].toLowerCase() || "";
-      const difficulty = responseObject.merchant_param2?.split(",")[0] || "";
-
-      if (orderType === "QUIZ_PURCHASE") {
-        redirectUrl = new URL(
-          `${process.env.FRONTEND_URL}/quiz/${quizType}/${difficulty}`
-        );
-      }
-
-      const statusMessages = {
-        success: "Payment Successful",
-        aborted: "Payment Aborted",
-        failure: "Payment Failed",
-      };
+    if (subscriptionType) {
       redirectUrl.searchParams.append(
-        "message",
-        statusMessages[order_status] || "Payment Status Unknown"
+        "subscription",
+        subscriptionType.toLowerCase()
       );
+    }
 
-      if (subscriptionType) {
-        redirectUrl.searchParams.append(
-          "subscription",
-          subscriptionType.toLowerCase()
-        );
-      }
+    // Set payment status message
+    if (responseObject.order_status === "Success") {
+      redirectUrl.searchParams.append("message", "Payment Successful");
+    } else if (responseObject.order_status === "Aborted") {
+      redirectUrl.searchParams.append("message", "Payment Aborted");
+    } else if (responseObject.order_status === "Failure") {
+      redirectUrl.searchParams.append("message", "Payment Failed");
+    } else {
+      redirectUrl.searchParams.append("message", "Payment Status Unknown");
+    }
 
-      if (orderType !== "QUIZ_PURCHASE" && responseObject.order_id) {
-        const orderStatus =
-          responseObject.order_status?.toUpperCase() || "UNKNOWN";
-
-        const order = await Order.findOneAndUpdate(
-          { orderId: responseObject.order_id },
-          {
-            status: orderStatus,
-            paymentId: responseObject.tracking_id || null,
-            bankRefNumber: responseObject.bank_ref_no || null,
-            paymentMethod: responseObject.payment_mode || null,
-            updatedAt: new Date(),
-            paymentResponse: JSON.stringify(responseObject),
-          },
-          { new: true }
-        );
-
-        if (order) {
+    // Handle QUIZ_PURCHASE specifically
+    if (orderType === "QUIZ_PURCHASE") {
+      console.log("Handling QUIZ_PURCHASE response");
+      // Skip email sending and database operations for quiz purchases
+      console.log(`Redirecting to quiz page: ${redirectUrl.toString()}`);
+    } else {
+      // Handle other order types (existing logic)
+      if (responseObject.order_id) {
+        try {
+          const orderStatus =
+            responseObject.order_status?.toUpperCase() || "UNKNOWN";
+          const order = await Order.findOneAndUpdate(
+            { orderId: responseObject.order_id },
+            {
+              status: orderStatus?.toUpperCase(),
+              paymentId: responseObject.tracking_id || null,
+              bankRefNumber: responseObject.bank_ref_no || null,
+              paymentMethod: responseObject.payment_mode || null,
+              updatedAt: new Date(),
+              paymentResponse: JSON.stringify(responseObject),
+            },
+            { new: true }
+          );
           await order.populate("user");
 
           if (responseObject.merchant_param4) {
+            console.log("user id in order:", order.user._id);
+            console.log("psychologistId:", responseObject.merchant_param4);
+            console.log("userId:", order.user._id);
+
             const psychologistId = new mongoose.Types.ObjectId(
               responseObject.merchant_param4
             );
-            await SessionModel.findOneAndUpdate(
+            const updatedSession = await SessionModel.findOneAndUpdate(
               {
-                psychologistId,
+                psychologistId: psychologistId,
                 user: order.user._id,
                 status: "pending",
               },
-              { status: orderStatus.toLowerCase() },
-              { new: true }
+              {
+                status: orderStatus.toLowerCase(),
+              },
+              {
+                new: true,
+              }
             );
+
+            console.log("Updated Session:", updatedSession);
           }
+
+          console.log("Order update result:", order);
 
           if (order.order_type !== "consultancy_purchase") {
             await order.populate("items.product");
             await order.populate("products");
           }
+          console.log(
+            `Order ${responseObject.order_id} updated with status: ${orderStatus}`
+          );
+
+          const type = subscriptionType?.toLowerCase() || "";
 
           if (
             order.order_type === "product_purchase" &&
-            orderStatus === "SUCCESS"
+            orderStatus.toUpperCase() === "SUCCESS"
           ) {
-            await Cart.findOneAndUpdate(
-              { userId: order.user._id, status: "completed" },
+            const cart = await Cart.findOneAndUpdate(
+              {
+                userId: order.user._id,
+                status: "completed",
+              },
               { new: true }
             );
+            console.log("Cart found and deleted:", cart);
+            if (cart) {
+              console.log("Cart deleted successfully");
+            } else {
+              console.log("No active cart found for user");
+            }
           }
 
-          if (order.user?.email && orderStatus === "SUCCESS") {
-            const type = subscriptionType?.toLowerCase() || "";
-
+          if (
+            order &&
+            order.user &&
+            order.user.email &&
+            orderStatus.toUpperCase() === "SUCCESS"
+          ) {
             try {
+              if (type === "platinum" || type === "prime") {
+                console.log(
+                  "Membership subscription detected:",
+                  subscriptionType
+                );
+
+                const validUntil = new Date();
+                validUntil.setFullYear(validUntil.getFullYear() + 1);
+
+                const updatedUser = await User.findOneAndUpdate(
+                  { clerkId: userId },
+                  {
+                    "subscription.plan": subscriptionType.toLowerCase(),
+                    "subscription.status": "active",
+                    "subscription.startDate": new Date(),
+                    "subscription.validUntil": validUntil,
+                  },
+                  { new: true }
+                );
+
+                console.log("User subscription updated:", updatedUser);
+
+                const subscriptionData = {
+                  plan: type,
+                  status: "active",
+                  startDate: new Date().toISOString(),
+                  validUntil,
+                };
+                await clerk.users.updateUser(userId, {
+                  publicMetadata: { subscriptionData },
+                });
+
+                const updatedUserInClerk = await clerk.users.getUser(userId);
+                console.log(
+                  "Updated Clerk User Metadata:",
+                  updatedUserInClerk.publicMetadata
+                );
+              }
               switch (order.order_type) {
                 case "product_purchase":
-                  await sendEmail({
+                  const productMailInfo = {
                     from: process.env.EMAIL_USER,
                     to: order.email,
                     subject: "Thank you for your purchase",
                     html: ProductEmailTemplate(order),
-                  });
+                  };
+                  const productEmailResponse = await sendEmail(productMailInfo);
+                  console.log(
+                    "email response ======================>",
+                    productEmailResponse
+                  );
+                  if (productEmailResponse.success) {
+                    console.log("EmailServiceResponse", productEmailResponse);
+                    console.log(`Product access email sent to ${order.email}`);
+                  }
                   break;
-
                 case "subscription_purchase":
-                  await sendEmail({
+                  const subscriptionMailInfo = {
                     from: process.env.EMAIL_USER,
                     to: order.email,
                     subject: "Thank you for purchasing Mentoons Subscription",
                     html: SubscriptionEmailTemplate(order),
-                  });
-
-                  if (type === "platinum" || type === "prime") {
-                    const validUntil = new Date();
-                    validUntil.setFullYear(validUntil.getFullYear() + 1);
-
-                    await User.findOneAndUpdate(
-                      { clerkId: userId },
-                      {
-                        "subscription.plan": type,
-                        "subscription.status": "active",
-                        "subscription.startDate": new Date(),
-                        "subscription.validUntil": validUntil,
-                      },
-                      { new: true }
+                  };
+                  const subscriptionEmailResponse = await sendEmail(
+                    subscriptionMailInfo
+                  );
+                  if (subscriptionEmailResponse.success) {
+                    console.log(
+                      "Subscription email response ",
+                      subscriptionEmailResponse
                     );
-
-                    const subscriptionData = {
-                      plan: type,
-                      status: "active",
-                      startDate: new Date().toISOString(),
-                      validUntil,
-                    };
-
-                    await clerk.users.updateUser(userId, {
-                      publicMetadata: { subscriptionData },
-                    });
                   }
                   break;
-
                 case "consultancy_purchase":
-                  await sendEmail({
+                  const consultancyMailInfo = {
                     from: process.env.EMAIL_USER,
                     to: order.email,
                     subject: "🎉 You're In! Consultation Confirmed 🎉",
                     html: ConsultanyBookingemailTemplate(order),
-                  });
+                  };
+                  const consultancyEmailResponse = await sendEmail(
+                    consultancyMailInfo
+                  );
+                  if (consultancyEmailResponse.success) {
+                    console.log(
+                      "Consultancy email response",
+                      consultancyEmailResponse
+                    );
+                  }
+                  break;
+                default:
                   break;
               }
             } catch (emailError) {
-              console.error("Email sending error:", emailError);
+              console.error("Error Sending Email", emailError);
             }
+          } else {
+            console.log(
+              "Unable to send email: Missing order details or user email"
+            );
           }
+        } catch (dbError) {
+          console.error("Database update error:", dbError);
         }
       }
     }
 
-    console.log("Final redirect:", redirectUrl.toString());
-    response.writeHead(302, { Location: redirectUrl.toString() });
+    // Log the complete URL information
+    console.log("Redirect URL object:", redirectUrl);
+    console.log("Redirect URL string:", redirectUrl.toString());
+    console.log("URL search parameters:");
+    redirectUrl.searchParams.forEach((value, key) => {
+      console.log(`  ${key}: ${value}`);
+    });
+
+    response.writeHeader(302, {
+      Location: redirectUrl.toString(),
+    });
     response.end();
   } catch (error) {
-    console.error("CCAvenue callback error:", error);
+    console.error("CCAvenue response error:", error);
 
-    const errorRedirect = new URL(`${process.env.FRONTEND_URL}/payment-status`);
-    errorRedirect.searchParams.append("status", "ERROR");
-    errorRedirect.searchParams.append(
+    // Redirect to frontend with error
+    const redirectUrl = new URL(`${process.env.FRONTEND_URL}/payment-status`);
+    redirectUrl.searchParams.append("status", "ERROR");
+    redirectUrl.searchParams.append(
       "message",
       "Failed to process payment response"
     );
 
-    response.writeHead(302, { Location: errorRedirect.toString() });
+    response.writeHeader(302, {
+      Location: redirectUrl.toString(),
+    });
     response.end();
   }
 };
