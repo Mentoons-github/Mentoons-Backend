@@ -110,7 +110,7 @@ const payFirstDownPayment = asyncHandler(async (req, res) => {
       console.log("FULL UserPlan created:", userPlan?._id);
 
       paymentAmount = plan.price.introductory;
-      paymentPurpose = "FULL_PAYMENT";
+      paymentPurpose = "FULL";
     }
   } catch (err) {
     console.error("Error creating UserPlan:", err);
