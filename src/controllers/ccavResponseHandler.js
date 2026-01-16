@@ -38,7 +38,7 @@ const postRes = async (request, response) => {
   }
 
   const parsedData = qs.parse(rawString);
-  console.log("Parsed request data:", parsedData);
+  console.log("Parsed CCAvenue callback data:", parsedData);
 
   const ccavEncResponse = parsedData.encResp;
   const workingKey = process.env.CCAVENUE_WORKING_KEY;
@@ -46,7 +46,6 @@ const postRes = async (request, response) => {
   console.log("Starting CCAvenue response processing...");
 
   try {
-    // Decrypt CCAvenue response
     const decryptedResponse = ccav.decrypt(ccavEncResponse, workingKey);
     console.log("Decrypted Response:", decryptedResponse);
 
@@ -62,7 +61,7 @@ const postRes = async (request, response) => {
       responseObject.order_status?.toLowerCase() || "unknown";
     const isSuccess = order_status === "success";
 
-    // Prepare base redirect
+    // Prepare base redirect URL
     let redirectUrl = new URL(`${process.env.FRONTEND_URL}/payment-status`);
 
     redirectUrl.searchParams.append(
@@ -76,22 +75,20 @@ const postRes = async (request, response) => {
     );
 
     // ────────────────────────────────────────────────────────────────
-    // DETECT WORKSHOP / EMI FLOW
-    // (assuming merchant_param3 = userPlanId, merchant_param4 = paymentId)
+    // IMPROVED DETECTION: Use explicit merchant_param5 flag
     // ────────────────────────────────────────────────────────────────
     const isWorkshopPayment =
-      responseObject.merchant_param3 &&
-      responseObject.merchant_param4 &&
-      mongoose.isValidObjectId(responseObject.merchant_param3) &&
-      mongoose.isValidObjectId(responseObject.merchant_param4);
+      (responseObject.merchant_param5 || "").toUpperCase() === "WORKSHOP";
 
     if (isWorkshopPayment) {
-      console.log("=== Processing WORKSHOP / EMI / DOWNPAYMENT Payment ===");
+      console.log(
+        "=== WORKSHOP / EMI / PLAN PAYMENT DETECTED (merchant_param5=WORKSHOP) ==="
+      );
 
       const paymentId = responseObject.merchant_param4;
       const userPlanId = responseObject.merchant_param3;
 
-      // 1. Find Payment
+      // 1. Find Payment document
       const payment = await Payment.findById(paymentId);
       if (!payment) {
         console.log("Payment record not found:", paymentId);
@@ -100,21 +97,21 @@ const postRes = async (request, response) => {
         return response.end();
       }
 
-      // Idempotency - already processed successfully
+      // Idempotency check
       if (payment.status === "SUCCESS") {
-        console.log("Payment already processed as SUCCESS - skipping");
+        console.log("Payment already processed successfully - skipping");
         response.writeHead(302, { Location: redirectUrl.toString() });
         return response.end();
       }
 
-      // 2. Find UserPlan
+      // 2. Find associated UserPlan
       const userPlan = await UserPlan.findOne({
         _id: userPlanId,
-        userId: responseObject.merchant_param1, // user ID
+        userId: responseObject.merchant_param1,
       });
 
       if (!userPlan) {
-        console.log("UserPlan not found for ID:", userPlanId);
+        console.log("UserPlan not found:", userPlanId);
         redirectUrl.searchParams.append("message", "User plan not found");
         response.writeHead(302, { Location: redirectUrl.toString() });
         return response.end();
@@ -122,7 +119,7 @@ const postRes = async (request, response) => {
 
       // DOWN PAYMENT FAILURE → rollback
       if (payment.paymentType === "DOWN_PAYMENT" && !isSuccess) {
-        console.log("DOWN PAYMENT FAILED → deleting records");
+        console.log("DOWN PAYMENT FAILED → rolling back");
         await Payment.findByIdAndDelete(payment._id);
         await UserPlan.findByIdAndDelete(userPlanId);
 
@@ -155,8 +152,7 @@ const postRes = async (request, response) => {
       // MONTHLY EMI SUCCESS
       if (payment.paymentType === "EMI" && isSuccess) {
         console.log("MONTHLY EMI SUCCESS");
-
-        const updatedUserPlan = await UserPlan.findByIdAndUpdate(
+        const updated = await UserPlan.findByIdAndUpdate(
           userPlan._id,
           {
             $inc: { "emiDetails.paidMonths": 1 },
@@ -168,13 +164,9 @@ const postRes = async (request, response) => {
           { new: true }
         );
 
-        // Check if EMI is fully completed
-        if (
-          updatedUserPlan.emiDetails.paidMonths >=
-          updatedUserPlan.emiDetails.totalMonths
-        ) {
+        if (updated.emiDetails.paidMonths >= updated.emiDetails.totalMonths) {
           console.log("EMI FULLY COMPLETED");
-          await UserPlan.findByIdAndUpdate(updatedUserPlan._id, {
+          await UserPlan.findByIdAndUpdate(updated._id, {
             $set: {
               "emiDetails.status": "completed",
               accessStatus: "expired",
@@ -195,37 +187,37 @@ const postRes = async (request, response) => {
         );
       }
 
-      // Update Payment status
-      const finalPaymentStatus = isSuccess
+      // Final payment status update
+      const finalStatus = isSuccess
         ? "SUCCESS"
         : order_status === "pending"
         ? "PENDING"
         : "ABORTED";
 
       await Payment.findByIdAndUpdate(payment._id, {
-        $set: { status: finalPaymentStatus },
+        $set: { status: finalStatus },
       });
 
       redirectUrl.searchParams.append("paymentType", payment.paymentType);
       redirectUrl.searchParams.append("transactionId", payment.transactionId);
     } else {
       // ────────────────────────────────────────────────────────────────
-      // ORIGINAL FLOW - Products / Subscriptions / Consultancy / Quiz
+      // REGULAR FLOWS: Product / Subscription / Consultancy / Quiz
       // ────────────────────────────────────────────────────────────────
+      console.log("Processing as regular order (non-workshop)");
+
       const subscriptionType = responseObject.merchant_param3 || null;
       const orderType = responseObject.order_type || "UNKNOWN";
       const quizType =
         responseObject.merchant_param1?.split(" (")[0].toLowerCase() || "";
       const difficulty = responseObject.merchant_param2?.split(",")[0] || "";
 
-      // Quiz purchase - special redirect
       if (orderType === "QUIZ_PURCHASE") {
         redirectUrl = new URL(
           `${process.env.FRONTEND_URL}/quiz/${quizType}/${difficulty}`
         );
       }
 
-      // Status message
       const statusMessages = {
         success: "Payment Successful",
         aborted: "Payment Aborted",
@@ -243,7 +235,6 @@ const postRes = async (request, response) => {
         );
       }
 
-      // Process non-quiz orders
       if (orderType !== "QUIZ_PURCHASE" && responseObject.order_id) {
         const orderStatus =
           responseObject.order_status?.toUpperCase() || "UNKNOWN";
@@ -264,7 +255,6 @@ const postRes = async (request, response) => {
         if (order) {
           await order.populate("user");
 
-          // Update pending session if consultancy
           if (responseObject.merchant_param4) {
             const psychologistId = new mongoose.Types.ObjectId(
               responseObject.merchant_param4
@@ -285,7 +275,6 @@ const postRes = async (request, response) => {
             await order.populate("products");
           }
 
-          // Clear completed cart for product purchases
           if (
             order.order_type === "product_purchase" &&
             orderStatus === "SUCCESS"
@@ -296,7 +285,6 @@ const postRes = async (request, response) => {
             );
           }
 
-          // Email & Subscription logic
           if (order.user?.email && orderStatus === "SUCCESS") {
             const type = subscriptionType?.toLowerCase() || "";
 
@@ -323,7 +311,7 @@ const postRes = async (request, response) => {
                     const validUntil = new Date();
                     validUntil.setFullYear(validUntil.getFullYear() + 1);
 
-                    const updatedUser = await User.findOneAndUpdate(
+                    await User.findOneAndUpdate(
                       { clerkId: userId },
                       {
                         "subscription.plan": type,
@@ -355,24 +343,20 @@ const postRes = async (request, response) => {
                     html: ConsultanyBookingemailTemplate(order),
                   });
                   break;
-
-                default:
-                  break;
               }
             } catch (emailError) {
-              console.error("Error sending email:", emailError);
+              console.error("Email sending error:", emailError);
             }
           }
         }
       }
     }
 
-    // Final redirect
-    console.log("Redirecting to:", redirectUrl.toString());
+    console.log("Final redirect:", redirectUrl.toString());
     response.writeHead(302, { Location: redirectUrl.toString() });
     response.end();
   } catch (error) {
-    console.error("CCAvenue response processing error:", error);
+    console.error("CCAvenue callback error:", error);
 
     const errorRedirect = new URL(`${process.env.FRONTEND_URL}/payment-status`);
     errorRedirect.searchParams.append("status", "ERROR");
