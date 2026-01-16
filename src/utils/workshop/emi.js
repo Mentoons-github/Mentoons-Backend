@@ -2,7 +2,7 @@ const qs = require("qs");
 const ccav = require("../../utils/ccavutil.js");
 
 const getCcavenueParamString = (payment, planId, user, userPlanId) => {
-  const redirect_cancel_url = `https://api.mentoons.com/api/v1/payment/ccavenue-response?userId=${encodeURIComponent(
+  const redirect_cancel_url = `https://api.mentoons.com/api/v1/workshop/payment-response?userId=${encodeURIComponent(
     user.id
   )}`;
 
