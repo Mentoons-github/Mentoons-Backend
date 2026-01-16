@@ -201,6 +201,8 @@ const payMonthlyEmi = asyncHandler(async (req, res) => {
     userPlan._id
   );
 
+  console.log(paramString);
+
   req.ccavenueParams = paramString;
   ccavRequestHandler.postReq(req, res);
 });
