@@ -42,13 +42,11 @@ module.exports = {
     if (!result) {
       return errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR);
     }
-    console.log("Login result", result);
     successResponse(res, 200, messageHelper.OTP_SENT_SUCCESSFULLY, result);
   }),
 
   verifyUserRegistrationController: asyncHandler(async (req, res) => {
     const { otp, phoneNumber } = req.body;
-    console.log(otp, "popooppo");
     if (!otp) {
       return errorResponse(res, 400, messageHelper.MISSING_REQUIRED_FIELDS);
     }
@@ -107,13 +105,11 @@ module.exports = {
   logoutController: asyncHandler(async (req, res) => {
     const { phoneNumber } = req.body;
     const token = req.headers.authorization?.split(" ")[1];
-    console.log(token);
     if (!token) {
       return errorResponse(res, 400, messageHelper.MISSING_REQUIRED_FIELDS);
     }
 
     const result = await userHelper.logout(token, phoneNumber);
-    console.log(result);
     if (!result) {
       return errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR);
     }
@@ -285,12 +281,7 @@ module.exports = {
   
   updateProfileController: asyncHandler(async (req, res) => {
     const userId = req.user.dbUser._id;
-    console.log("req.body :", req.body);
     const profileData = req.body;
-    console.log(profileData);
-
-    console.log(userId);
-
     if (!userId) {
       return errorResponse(res, 400, "User ID is required");
     }
@@ -307,7 +298,6 @@ module.exports = {
         updatedProfile
       );
     } catch (error) {
-      console.log(error);
       return errorResponse(
         res,
         500,
@@ -365,12 +355,10 @@ module.exports = {
 
   getOtherUserController: asyncHandler(async (req, res, next) => {
     const userId = req.params.userId;
-    console.log("User-ID", userId);
     if (!userId) {
       return errorResponse(res, 400, "Id is required", userId);
     }
     const user = await userHelper.getOtherUserDetails(userId);
-    console.log("user found :", user);
     if (!user) {
       return errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR, user);
     }
@@ -405,9 +393,6 @@ module.exports = {
   searchFriend: asyncHandler(async (req, res) => {
     const { search, page = 1, limit = 10 } = req.query;
     const currentUserId = req.user?.dbUser?._id;
-    console.log(req.user);
-    console.log("current userId :", currentUserId);
-
     try {
       if (!search) {
         return errorResponse(res, 400, "Search term is required");
@@ -426,12 +411,10 @@ module.exports = {
         }
         following = currentUser.following.map((id) => {
           const idStr = id.toString();
-          console.log(`Following ID: ${idStr}`);
           return idStr;
         });
         followers = currentUser.followers.map((id) => {
           const idStr = id.toString();
-          console.log(`Follower ID: ${idStr}`);
           return idStr;
         });
       } else {
@@ -447,8 +430,6 @@ module.exports = {
         .skip(skip)
         .limit(Number(limit));
 
-      console.log("users found :", users);
-
       const total = await User.countDocuments({
         name: { $regex: search, $options: "i" },
         _id: { $ne: currentUserId },
@@ -457,10 +438,6 @@ module.exports = {
       const response = await Promise.all(
         users.map(async (user) => {
           const userIdStr = user._id.toString();
-          console.log(`Checking user ID: ${userIdStr}`);
-          console.log(`Following array: ${following}`);
-          console.log(`Followers array: ${followers}`);
-
           const youFollow = following.includes(userIdStr);
           const theyFollow = followers.includes(userIdStr);
 
@@ -482,13 +459,6 @@ module.exports = {
                 friendRequest.senderId.toString() === currentUserId.toString();
             }
           }
-
-          console.log(`youFollow: ${youFollow}, theyFollow: ${theyFollow}`);
-          console.log(
-            `Friend request status: ${requestStatus || "none"}, requestId: ${
-              requestId || "none"
-            }`
-          );
 
           let status = "connect";
           if (requestStatus === "pending") {
@@ -526,8 +496,6 @@ module.exports = {
   getFriends: asyncHandler(async (req, res) => {
     let { userIds } = req.body;
 
-    console.log(userIds);
-
     if (!userIds) {
       return res.status(400).json({ message: "userIds is required" });
     }
@@ -550,8 +518,6 @@ module.exports = {
   blockUser: asyncHandler(async (req, res) => {
     const { userId: targetUserId, conversationId } = req.body;
     const requesterId = req.user;
-
-    console.log("🔒 Block request initiated", { requesterId, targetUserId });
 
     if (!targetUserId) {
       res.status(400);
@@ -597,10 +563,6 @@ module.exports = {
       }
     }
 
-    console.log(
-      `✅ ${targetUser.username || targetUserId} blocked by ${requesterId}`
-    );
-
     res.status(200).json({
       success: true,
       message: `Blocked user ${targetUser.username || targetUserId}`,
@@ -610,8 +572,6 @@ module.exports = {
   unblockUser: asyncHandler(async (req, res) => {
     const { userId: targetUserId, conversationId } = req.body;
     const requesterId = req.user;
-
-    console.log("🔓 Unblock request initiated", { requesterId, targetUserId });
 
     if (!targetUserId) {
       res.status(400);
@@ -658,10 +618,6 @@ module.exports = {
       }
     }
 
-    console.log(
-      `✅ ${targetUser.username || targetUserId} unblocked by ${requesterId}`
-    );
-
     res.status(200).json({
       success: true,
       message: `Unblocked user ${targetUser.username || targetUserId}`,
@@ -671,15 +627,10 @@ module.exports = {
   updateSubscriptionLimits: asyncHandler(async (req, res) => {
     const userId = req.user.dbUser._id;
     const { subscriptionLimits } = req.body;
-    console.log("Inside controller");
-    console.log(userId);
-    console.log(subscriptionLimits);
-
     const updatedUser = await userHelper.updateSubscriptionLimits(
       userId,
       subscriptionLimits
     );
-    console.log(updatedUser, "updatedUser");
     return successResponse(
       res,
       200,

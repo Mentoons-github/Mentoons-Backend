@@ -23,7 +23,7 @@ exports.postReq = function (request, response) {
       encRequest = ccav.encrypt(paramString, workingKey);
 
       formbody =
-        '<form id="nonseamless" method="post" name="redirect" action="https://secure.ccavenue.com/transaction/transaction.do?command=initiateTransaction"/> <input type="hidden" id="encRequest" name="encRequest" value="' +
+        '<form id="nonseamless" method="post" name="redirect" action="https://test.ccavenue.com/transaction/transaction.do?command=initiateTransaction"/> <input type="hidden" id="encRequest" name="encRequest" value="' +
         encRequest +
         '"><input type="hidden" name="access_code" id="access_code" value="' +
         accessCode +
@@ -43,7 +43,7 @@ exports.postReq = function (request, response) {
       encRequest = ccav.encrypt(body, workingKey);
       console.log("Encrypted Request", encRequest);
       formbody =
-        '<form id="nonseamless" method="post" name="redirect" action="https://secure.ccavenue.com/transaction/transaction.do?command=initiateTransaction"/> <input type="hidden" id="encRequest" name="encRequest" value="' +
+        '<form id="nonseamless" method="post" name="redirect" action="https://test.ccavenue.com/transaction/transaction.do?command=initiateTransaction"/> <input type="hidden" id="encRequest" name="encRequest" value="' +
         encRequest +
         '"><input type="hidden" name="access_code" id="access_code" value="' +
         accessCode +

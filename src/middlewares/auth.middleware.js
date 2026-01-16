@@ -45,8 +45,6 @@ const conditionalAuth = async (req, res, next) => {
       membership: user.publicMetadata.membership || "FREE",
     };
 
-    console.log(req.user);
-
     next();
   } catch (error) {
     console.error("Authentication Error:", error);

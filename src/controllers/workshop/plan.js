@@ -11,7 +11,7 @@ const getAllPlans = asyncHandler(async (req, res) => {
     return errorResponse(res, 404, "No Plans found");
   }
 
-  return successResponse(res, 200, plans);
+  return successResponse(res, 200, "Data retrieved successfully", plans);
 });
 
 const addEditPlan = asyncHandler(async (req, res) => {
@@ -58,7 +58,6 @@ const fetchPlanById = asyncHandler(async (req, res) => {
 
   return successResponse(res, 200, plan);
 });
-
 
 module.exports = {
   getAllPlans,
