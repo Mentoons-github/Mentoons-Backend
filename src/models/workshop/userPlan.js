@@ -14,6 +14,26 @@ const userPlanSchema = new mongoose.Schema(
       required: true,
     },
 
+    selectedMode: {
+      type: String,
+      enum: ["Online", "Offline"],
+      required: true,
+    },
+
+    bplApplied: {
+      type: Boolean,
+      default: false,
+    },
+
+    bplCardFile: {
+      type: String,
+    },
+    bplStatus: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      default: "pending",
+    },
+
     paymentType: {
       type: String,
       enum: ["FULL", "EMI"],
@@ -37,7 +57,7 @@ const userPlanSchema = new mongoose.Schema(
       nextDueDate: Date,
       status: {
         type: String,
-        enum: ["active", "completed", "defaulted"],
+        enum: ["active", "completed", "defaulted", "initiated"],
         default: "active",
       },
     },

@@ -5,7 +5,6 @@ const priceSchema = new mongoose.Schema(
   {
     original: { type: Number, required: true },
     introductory: { type: Number, required: true },
-    monthly: { type: Number },
   },
   { _id: false }
 );
@@ -39,12 +38,12 @@ const planSchema = new mongoose.Schema(
 
     duration: {
       type: String,
-      required: true, // "1 Month", "3 Months"
+      required: true,
     },
 
     durationMonths: {
       type: Number,
-      required: true, 
+      required: true,
     },
 
     mode: {
@@ -82,10 +81,11 @@ const planSchema = new mongoose.Schema(
       required: true,
     },
 
-    paymentOption: {
-      type: String,
-      enum: ["fullPayment", "twoStep", "emi"],
+    paymentOptions: {
+      type: [String],
+      enum: ["FULL", "EMI"],
       required: true,
+      default: ["FULL"],
     },
 
     image: {
