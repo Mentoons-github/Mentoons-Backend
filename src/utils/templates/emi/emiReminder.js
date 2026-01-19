@@ -1,6 +1,6 @@
 const generateEmiReminderEmail = (userData, planData, emiDetails) => {
   const { name } = userData;
-  const { planName, duration, age } = planData;
+  const { name: planName, duration, age } = planData;
   const { emiAmount, nextDueDate, paidMonths, totalMonths } = emiDetails;
 
   const formattedDate = new Date(nextDueDate).toLocaleDateString("en-US", {
@@ -11,6 +11,7 @@ const generateEmiReminderEmail = (userData, planData, emiDetails) => {
   });
 
   const remainingMonths = totalMonths - paidMonths;
+  const progressPercentage = ((paidMonths / totalMonths) * 100).toFixed(0);
 
   return {
     subject: "⏰ EMI Payment Reminder - Tomorrow",
@@ -22,11 +23,11 @@ const generateEmiReminderEmail = (userData, planData, emiDetails) => {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>EMI Reminder</title>
       </head>
-      <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7fa;">
-        <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f7fa; padding: 40px 20px;">
+      <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #FFF5E6 0%, #FFE8CC 100%);">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #FFF5E6 0%, #FFE8CC 100%); padding: 40px 20px;">
           <tr>
             <td align="center">
-              <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
+              <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 40px rgba(255, 140, 0, 0.15);">
                 
                 <!-- Logo Section -->
                 <tr>
@@ -37,115 +38,149 @@ const generateEmiReminderEmail = (userData, planData, emiDetails) => {
 
                 <!-- Header with gradient -->
                 <tr>
-                  <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px; text-align: center;">
-                    <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 600; letter-spacing: -0.5px;">
-                      EMI Payment Reminder
+                  <td style="background: linear-gradient(135deg, #FF8C00 0%, #FFA500 50%, #FFB347 100%); padding: 40px 30px; text-align: center;">
+                    <div style="background: rgba(255, 255, 255, 0.25); border-radius: 50%; width: 80px; height: 80px; margin: 0 auto 20px; display: inline-flex; align-items: center; justify-content: center;">
+                      <span style="font-size: 48px;">⏰</span>
+                    </div>
+                    <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700; text-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+                      Payment Due Tomorrow
                     </h1>
-                    <p style="margin: 10px 0 0 0; color: rgba(255,255,255,0.9); font-size: 16px;">
-                      Your payment is due tomorrow
+                    <p style="margin: 10px 0 0 0; color: #ffffff; font-size: 16px; font-weight: 500; text-shadow: 0 1px 4px rgba(0,0,0,0.15);">
+                      Don't miss your EMI deadline
                     </p>
                   </td>
                 </tr>
 
                 <!-- Content -->
                 <tr>
-                  <td style="padding: 40px 30px;">
+                  <td style="padding: 30px 30px 20px;">
                     
                     <!-- Greeting -->
-                    <p style="margin: 0 0 24px 0; color: #2d3748; font-size: 16px; line-height: 1.6;">
-                      Dear <strong>${name}</strong>,
+                    <p style="margin: 0; color: #1a1a1a; font-size: 18px; line-height: 1.6; font-weight: 500;">
+                      Dear <strong style="color: #FF8C00;">${name}</strong>,
                     </p>
-
-                    <!-- Alert Box -->
-                    <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 16px 20px; border-radius: 8px; margin-bottom: 30px;">
-                      <p style="margin: 0; color: #856404; font-size: 15px; line-height: 1.6;">
-                        <strong>⚠️ Reminder:</strong> Your EMI payment for the workshop you enrolled in is due <strong>tomorrow</strong>.
-                      </p>
-                    </div>
-
-                    <!-- Workshop Details Card -->
-                    <div style="background-color: #f8f9fa; border-radius: 12px; padding: 24px; margin-bottom: 30px;">
-                      <h2 style="margin: 0 0 20px 0; color: #1a202c; font-size: 20px; font-weight: 600;">
-                        Workshop Details
-                      </h2>
-                      
-                      <table width="100%" cellpadding="8" cellspacing="0">
-                        <tr>
-                          <td style="color: #718096; font-size: 14px; padding: 8px 0;">Workshop Name:</td>
-                          <td style="color: #2d3748; font-size: 14px; font-weight: 600; text-align: right; padding: 8px 0;">${planName}</td>
-                        </tr>
-                        <tr>
-                          <td style="color: #718096; font-size: 14px; padding: 8px 0;">Duration:</td>
-                          <td style="color: #2d3748; font-size: 14px; font-weight: 600; text-align: right; padding: 8px 0;">${duration}</td>
-                        </tr>
-                        <tr>
-                          <td style="color: #718096; font-size: 14px; padding: 8px 0;">Age Group:</td>
-                          <td style="color: #2d3748; font-size: 14px; font-weight: 600; text-align: right; padding: 8px 0;">${age}</td>
-                        </tr>
-                      </table>
-                    </div>
-
-                    <!-- Payment Details Card -->
-                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; padding: 24px; margin-bottom: 30px; color: #ffffff;">
-                      <h2 style="margin: 0 0 20px 0; font-size: 20px; font-weight: 600;">
-                        Payment Information
-                      </h2>
-                      
-                      <table width="100%" cellpadding="8" cellspacing="0">
-                        <tr>
-                          <td style="color: rgba(255,255,255,0.9); font-size: 14px; padding: 8px 0;">EMI Amount:</td>
-                          <td style="color: #ffffff; font-size: 18px; font-weight: 700; text-align: right; padding: 8px 0;">₹${emiAmount.toLocaleString(
-                            "en-IN"
-                          )}</td>
-                        </tr>
-                        <tr>
-                          <td style="color: rgba(255,255,255,0.9); font-size: 14px; padding: 8px 0;">Due Date:</td>
-                          <td style="color: #ffffff; font-size: 14px; font-weight: 600; text-align: right; padding: 8px 0;">${formattedDate}</td>
-                        </tr>
-                        <tr>
-                          <td style="color: rgba(255,255,255,0.9); font-size: 14px; padding: 8px 0;">Progress:</td>
-                          <td style="color: #ffffff; font-size: 14px; font-weight: 600; text-align: right; padding: 8px 0;">${paidMonths} of ${totalMonths} months paid</td>
-                        </tr>
-                        <tr>
-                          <td style="color: rgba(255,255,255,0.9); font-size: 14px; padding: 8px 0;">Remaining:</td>
-                          <td style="color: #ffffff; font-size: 14px; font-weight: 600; text-align: right; padding: 8px 0;">${remainingMonths} months</td>
-                        </tr>
-                      </table>
-                    </div>
-
-                    <!-- CTA Button -->
-                    <div style="text-align: center; margin-bottom: 30px;">
-                      <a href="https://mentoons.com/payment" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #ffffff; text-decoration: none; padding: 16px 48px; border-radius: 8px; font-size: 16px; font-weight: 600; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);">
-                        Pay Now
-                      </a>
-                    </div>
-
-                    <!-- Important Note -->
-                    <div style="background-color: #e6f7ff; border-left: 4px solid #1890ff; padding: 16px 20px; border-radius: 8px; margin-bottom: 24px;">
-                      <p style="margin: 0; color: #0050b3; font-size: 14px; line-height: 1.6;">
-                        <strong>💡 Important:</strong> To maintain uninterrupted access to your workshop, please ensure timely payment. Late payments may affect your enrollment status.
-                      </p>
-                    </div>
-
-                    <!-- Closing -->
-                    <p style="margin: 0 0 8px 0; color: #2d3748; font-size: 15px; line-height: 1.6;">
-                      Thank you for choosing Mentoons!
-                    </p>
-                    <p style="margin: 0; color: #2d3748; font-size: 15px; line-height: 1.6;">
-                      Best regards,<br>
-                      <strong>The Mentoons Team</strong>
+                    <p style="margin: 15px 0 0; color: #333333; font-size: 15px; line-height: 1.7;">
+                      This is a friendly reminder that your EMI payment for the workshop you enrolled in is due tomorrow. Please ensure timely payment to continue enjoying uninterrupted access.
                     </p>
 
                   </td>
                 </tr>
 
+                <!-- Alert Box -->
+                <tr>
+                  <td style="padding: 0 30px 20px;">
+                    <div style="background: linear-gradient(135deg, #FFF4E6 0%, #FFE8CC 100%); border-left: 5px solid #FF8C00; padding: 20px; border-radius: 8px;">
+                      <p style="margin: 0; color: #C2410C; font-size: 15px; font-weight: 700; display: flex; align-items: center;">
+                        <span style="font-size: 22px; margin-right: 12px;">⚠️</span>
+                        <span>Action Required: Payment due in 24 hours</span>
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Workshop Details Card -->
+                <tr>
+                  <td style="padding: 0 30px 20px;">
+                    <div style="background: linear-gradient(135deg, #FFFAF0 0%, #FFF5E6 100%); border-radius: 12px; padding: 25px; border: 2px solid #FFD699;">
+                      <h2 style="margin: 0 0 20px; color: #E67700; font-size: 19px; font-weight: 700; display: flex; align-items: center;">
+                        <span style="font-size: 26px; margin-right: 12px;">📚</span>
+                        Workshop Details
+                      </h2>
+                      
+                      <table width="100%" cellpadding="10" cellspacing="0">
+                        <tr>
+                          <td style="color: #4a4a4a; font-size: 15px; padding: 10px 0; font-weight: 500;">Workshop Name:</td>
+                          <td style="color: #1a1a1a; font-size: 15px; font-weight: 700; text-align: right; padding: 10px 0;">${planName}</td>
+                        </tr>
+                        <tr style="border-top: 1px solid #FFE8CC;">
+                          <td style="color: #4a4a4a; font-size: 15px; padding: 10px 0; font-weight: 500;">Duration:</td>
+                          <td style="color: #1a1a1a; font-size: 15px; font-weight: 700; text-align: right; padding: 10px 0;">${duration}</td>
+                        </tr>
+                        <tr style="border-top: 1px solid #FFE8CC;">
+                          <td style="color: #4a4a4a; font-size: 15px; padding: 10px 0; font-weight: 500;">Age Group:</td>
+                          <td style="color: #1a1a1a; font-size: 15px; font-weight: 700; text-align: right; padding: 10px 0;">${age}</td>
+                        </tr>
+                      </table>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Payment Details Card -->
+                <tr>
+                  <td style="padding: 0 30px 20px;">
+                    <div style="background: linear-gradient(135deg, #FF8C00 0%, #FFA500 100%); border-radius: 12px; padding: 28px; color: #ffffff;">
+                      <h2 style="margin: 0 0 20px; font-size: 19px; font-weight: 700; display: flex; align-items: center; color: #ffffff; text-shadow: 0 1px 3px rgba(0,0,0,0.2);">
+                        <span style="font-size: 26px; margin-right: 12px;">💰</span>
+                        Payment Information
+                      </h2>
+                      
+                      <table width="100%" cellpadding="10" cellspacing="0">
+                        <tr>
+                          <td style="font-size: 15px; padding: 10px 0; color: #ffffff; font-weight: 500;">EMI Amount:</td>
+                          <td style="color: #ffffff; font-size: 24px; font-weight: 700; text-align: right; padding: 10px 0; text-shadow: 0 2px 4px rgba(0,0,0,0.15);">₹${emiAmount.toLocaleString("en-IN")}</td>
+                        </tr>
+                        <tr style="border-top: 1px solid rgba(255,255,255,0.3);">
+                          <td style="font-size: 15px; padding: 10px 0; color: #ffffff; font-weight: 500;">Due Date:</td>
+                          <td style="color: #ffffff; font-size: 15px; font-weight: 700; text-align: right; padding: 10px 0;">${formattedDate}</td>
+                        </tr>
+                      </table>
+                      
+                      <!-- Progress Bar -->
+                      <div style="margin-top: 25px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                          <span style="font-size: 14px; color: #ffffff; font-weight: 500;">Payment Progress</span>
+                          <span style="font-size: 14px; font-weight: 700; color: #ffffff;">${paidMonths} of ${totalMonths} months</span>
+                        </div>
+                        <div style="background: rgba(255, 255, 255, 0.25); border-radius: 12px; height: 14px; overflow: hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);">
+                          <div style="background: #ffffff; width: ${progressPercentage}%; height: 100%; border-radius: 12px; box-shadow: 0 0 12px rgba(255, 255, 255, 0.6);"></div>
+                        </div>
+                        <p style="margin: 10px 0 0; font-size: 14px; color: #ffffff; font-weight: 500;">${remainingMonths} months remaining</p>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- CTA Button -->
+                <tr>
+                  <td style="padding: 0 30px 30px; text-align: center;">
+                    <a href="https://mentoons.com/payment" style="display: inline-block; background: linear-gradient(135deg, #FF8C00 0%, #FFA500 100%); color: #ffffff; text-decoration: none; padding: 18px 55px; border-radius: 30px; font-size: 17px; font-weight: 700; box-shadow: 0 6px 20px rgba(255, 140, 0, 0.35); text-shadow: 0 1px 2px rgba(0,0,0,0.2);">
+                      💳 Pay Now
+                    </a>
+                  </td>
+                </tr>
+
+                <!-- Important Note -->
+                <tr>
+                  <td style="padding: 0 30px 30px;">
+                    <div style="background: #FFF9F0; border-left: 4px solid #FFB347; padding: 22px; border-radius: 10px; border: 2px dashed #FFB347;">
+                      <p style="margin: 0; color: #B45309; font-size: 15px; line-height: 1.7; font-weight: 500; display: flex; align-items: flex-start;">
+                        <span style="font-size: 20px; margin-right: 12px; flex-shrink: 0;">💡</span>
+                        <span><strong style="color: #92400E; font-weight: 700;">Important:</strong> To maintain uninterrupted access to your workshop, please ensure timely payment. Late payments may affect your enrollment status.</span>
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- Closing -->
+                <tr>
+                  <td style="padding: 0 30px 30px;">
+                    <p style="margin: 0; color: #333333; font-size: 15px; line-height: 1.6; font-weight: 500;">
+                      Thank you for choosing Mentoons!
+                    </p>
+                    <p style="margin: 12px 0 0; color: #4a4a4a; font-size: 15px; font-weight: 600;">
+                      Best regards,<br>
+                      <span style="color: #FF8C00; font-weight: 700;">The Mentoons Team</span>
+                    </p>
+                  </td>
+                </tr>
+
                 <!-- Footer -->
                 <tr>
-                  <td style="background-color: #f8f9fa; padding: 30px; text-align: center; border-top: 1px solid #e2e8f0;">
-                    <p style="margin: 0 0 12px 0; color: #718096; font-size: 13px;">
-                      Need help? Contact us at <a href="mailto:info@mentoons.com" style="color: #667eea; text-decoration: none;">info@mentoons.com</a>
+                  <td style="background: linear-gradient(135deg, #FFF5E6 0%, #FFE8CC 100%); padding: 30px; text-align: center; border-top: 3px solid #FFB347;">
+                    <p style="margin: 0 0 10px; color: #4a4a4a; font-size: 14px; font-weight: 500;">
+                      Need help? Contact us at <a href="mailto:info@mentoons.com" style="color: #E67700; text-decoration: none; font-weight: 700;">info@mentoons.com</a>
                     </p>
-                    <p style="margin: 0; color: #a0aec0; font-size: 12px;">
+                    <p style="margin: 0; color: #666666; font-size: 12px; font-weight: 500;">
                       © ${new Date().getFullYear()} Mentoons. All rights reserved.
                     </p>
                   </td>
