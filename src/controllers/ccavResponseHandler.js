@@ -1,7 +1,3 @@
-const http = require("http");
-const fs = require("fs");
-const ccav = require("../utils/ccavutil.js");
-const qs = require("querystring");
 const dotenv = require("dotenv");
 const Order = require("../models/Order");
 const User = require("../models/user.js");
@@ -19,69 +15,54 @@ const { sendEmail } = require("../services/emailService.js");
 const Employee = require("../models/employee.js");
 const Cart = require("../models/cart.js");
 const SessionModel = require("../models/session.js");
+const { parseCcavenueResponse } = require("../utils/workshop/emi.js");
+const { paymentStatus } = require("./workshop/emi.js");
 
 const postRes = async (request, response) => {
   const userId = request.query?.userId;
 
-  let rawString = "";
-  if (Buffer.isBuffer(request.body)) {
-    rawString = request.body.toString();
-  } else if (typeof request.body === "object") {
-    rawString = qs.stringify(request.body);
-  } else {
-    rawString = request.body;
-  }
-
-  const parsedData = qs.parse(rawString);
-  console.log("Parsed request data:", parsedData);
-
-  const ccavEncResponse = parsedData.encResp,
-    workingKey = `${process.env.CCAVENUE_WORKING_KEY}`;
-  console.log("Starting CCAvenue response processing.");
+  const responseObject = parseCcavenueResponse(
+    request.body,
+    process.env.CCAVENUE_WORKING_KEY,
+  );
 
   try {
-    const decryptedResponse = ccav.decrypt(ccavEncResponse, workingKey);
-    console.log("Decrypted Response:", decryptedResponse);
-
-    const responseObject = decryptedResponse.split("&").reduce((acc, pair) => {
-      const [key, value] = pair.split("=");
-      acc[key] = decodeURIComponent(value || "");
-      return acc;
-    }, {});
-
-    console.log("CCAvenue Response:", responseObject);
     const subscriptionType = responseObject.merchant_param3 || null;
     const orderType = responseObject.order_type || "UNKNOWN";
     const quizType =
       responseObject.merchant_param1?.split(" (")[0].toLowerCase() || "";
     const difficulty = responseObject.merchant_param2?.split(",")[0] || "";
 
-    // Prepare redirect URL
     let redirectUrl;
+
+    const isWorkshop = responseObject.order_type === "WORKSHOP";
+
+    if (isWorkshop) {
+      return paymentStatus(request, response);
+    }
+
     if (orderType === "QUIZ_PURCHASE") {
-      // Redirect to the quiz page to continue where the user stopped
       redirectUrl = new URL(
-        `${process.env.FRONTEND_URL}/quiz/${quizType}/${difficulty}`
+        `${process.env.FRONTEND_URL}/quiz/${quizType}/${difficulty}`,
       );
     } else {
-      // Default redirect for other order types
       redirectUrl = new URL(`${process.env.FRONTEND_URL}/payment-status`);
     }
 
     redirectUrl.searchParams.append(
       "status",
-      responseObject.order_status || "UNKNOWN"
+      responseObject.order_status || "UNKNOWN",
     );
     redirectUrl.searchParams.append("orderId", responseObject.order_id || "");
     redirectUrl.searchParams.append(
       "trackingId",
-      responseObject.tracking_id || ""
+      responseObject.tracking_id || "",
     );
 
     if (subscriptionType) {
       redirectUrl.searchParams.append(
         "subscription",
-        subscriptionType.toLowerCase()
+        subscriptionType.toLowerCase(),
       );
     }
 
@@ -117,19 +98,15 @@ const postRes = async (request, response) => {
               updatedAt: new Date(),
               paymentResponse: JSON.stringify(responseObject),
             },
-            { new: true }
+            { new: true },
           );
           await order.populate("user");
 
           if (responseObject.merchant_param4) {
-            console.log("user id in order:", order.user._id);
-            console.log("psychologistId:", responseObject.merchant_param4);
-            console.log("userId:", order.user._id);
-
             const psychologistId = new mongoose.Types.ObjectId(
-              responseObject.merchant_param4
+              responseObject.merchant_param4,
             );
-            const updatedSession = await SessionModel.findOneAndUpdate(
+            await SessionModel.findOneAndUpdate(
               {
                 psychologistId: psychologistId,
                 user: order.user._id,
@@ -140,21 +117,14 @@ const postRes = async (request, response) => {
               },
               {
                 new: true,
-              }
+              },
             );
-
-            console.log("Updated Session:", updatedSession);
           }
-
-          console.log("Order update result:", order);
 
           if (order.order_type !== "consultancy_purchase") {
             await order.populate("items.product");
             await order.populate("products");
           }
-          console.log(
-            `Order ${responseObject.order_id} updated with status: ${orderStatus}`
-          );
 
           const type = subscriptionType?.toLowerCase() || "";
 
@@ -167,7 +137,7 @@ const postRes = async (request, response) => {
                 userId: order.user._id,
                 status: "completed",
               },
-              { new: true }
+              { new: true },
             );
             console.log("Cart found and deleted:", cart);
             if (cart) {
@@ -185,15 +155,10 @@ const postRes = async (request, response) => {
           ) {
             try {
               if (type === "platinum" || type === "prime") {
-                console.log(
-                  "Membership subscription detected:",
-                  subscriptionType
-                );
-
                 const validUntil = new Date();
                 validUntil.setFullYear(validUntil.getFullYear() + 1);
 
-                const updatedUser = await User.findOneAndUpdate(
+                await User.findOneAndUpdate(
                   { clerkId: userId },
                   {
                     "subscription.plan": subscriptionType.toLowerCase(),
@@ -201,10 +166,8 @@ const postRes = async (request, response) => {
                     "subscription.startDate": new Date(),
                     "subscription.validUntil": validUntil,
                   },
-                  { new: true }
+                  { new: true },
                 );
-
-                console.log("User subscription updated:", updatedUser);
 
                 const subscriptionData = {
                   plan: type,
@@ -216,11 +179,7 @@ const postRes = async (request, response) => {
                   publicMetadata: { subscriptionData },
                 });
 
-                const updatedUserInClerk = await clerk.users.getUser(userId);
-                console.log(
-                  "Updated Clerk User Metadata:",
-                  updatedUserInClerk.publicMetadata
-                );
+                await clerk.users.getUser(userId);
               }
               switch (order.order_type) {
                 case "product_purchase":
@@ -230,15 +189,8 @@ const postRes = async (request, response) => {
                     subject: "Thank you for your purchase",
                     html: ProductEmailTemplate(order),
                   };
-                  const productEmailResponse = await sendEmail(productMailInfo);
-                  console.log(
-                    "email response ======================>",
-                    productEmailResponse
-                  );
-                  if (productEmailResponse.success) {
-                    console.log("EmailServiceResponse", productEmailResponse);
-                    console.log(`Product access email sent to ${order.email}`);
-                  }
+                  await sendEmail(productMailInfo);
+
                   break;
                 case "subscription_purchase":
                   const subscriptionMailInfo = {
@@ -247,15 +199,8 @@ const postRes = async (request, response) => {
                     subject: "Thank you for purchasing Mentoons Subscription",
                     html: SubscriptionEmailTemplate(order),
                   };
-                  const subscriptionEmailResponse = await sendEmail(
-                    subscriptionMailInfo
-                  );
-                  if (subscriptionEmailResponse.success) {
-                    console.log(
-                      "Subscription email response ",
-                      subscriptionEmailResponse
-                    );
-                  }
+                  const subscriptionEmailResponse =
+                    await sendEmail(subscriptionMailInfo);
                   break;
                 case "consultancy_purchase":
                   const consultancyMailInfo = {
@@ -264,15 +209,8 @@ const postRes = async (request, response) => {
                     subject: "🎉 You're In! Consultation Confirmed 🎉",
                     html: ConsultanyBookingemailTemplate(order),
                   };
-                  const consultancyEmailResponse = await sendEmail(
-                    consultancyMailInfo
-                  );
-                  if (consultancyEmailResponse.success) {
-                    console.log(
-                      "Consultancy email response",
-                      consultancyEmailResponse
-                    );
-                  }
+                  const consultancyEmailResponse =
+                    await sendEmail(consultancyMailInfo);
                   break;
                 default:
                   break;
@@ -282,7 +220,7 @@ const postRes = async (request, response) => {
             }
           } else {
             console.log(
-              "Unable to send email: Missing order details or user email"
+              "Unable to send email: Missing order details or user email",
             );
           }
         } catch (dbError) {
@@ -291,10 +229,6 @@ const postRes = async (request, response) => {
       }
     }
 
-    // Log the complete URL information
-    console.log("Redirect URL object:", redirectUrl);
-    console.log("Redirect URL string:", redirectUrl.toString());
-    console.log("URL search parameters:");
     redirectUrl.searchParams.forEach((value, key) => {
       console.log(`  ${key}: ${value}`);
     });
@@ -304,14 +238,12 @@ const postRes = async (request, response) => {
     });
     response.end();
   } catch (error) {
-    console.error("CCAvenue response error:", error);
-
     // Redirect to frontend with error
     const redirectUrl = new URL(`${process.env.FRONTEND_URL}/payment-status`);
     redirectUrl.searchParams.append("status", "ERROR");
     redirectUrl.searchParams.append(
       "message",
-      "Failed to process payment response"
+      "Failed to process payment response",
     );
 
     response.writeHeader(302, {

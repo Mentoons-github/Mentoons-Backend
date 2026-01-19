@@ -365,7 +365,6 @@ const paymentStatus = asyncHandler(async (req, res) => {
     console.log("UserPlan marked as completed:", userPlan);
   }
 
-  /* ------------------ Update Payment Status ------------------ */
   const finalPaymentStatus =
     responseObject.order_status?.toLowerCase() === "success"
       ? "SUCCESS"
@@ -373,15 +372,11 @@ const paymentStatus = asyncHandler(async (req, res) => {
       ? "PENDING"
       : "ABORTED";
 
-  console.log("Final Payment Status:", finalPaymentStatus);
-
+  
   await Payment.findByIdAndUpdate(payment._id, {
     $set: { status: finalPaymentStatus },
   });
 
-  console.log("Payment status updated in DB");
-
-  /* ------------------ Redirect ------------------ */
   const redirectUrl = new URL(`${process.env.FRONTEND_URL}/payment-status`);
   redirectUrl.searchParams.append(
     "status",
@@ -389,9 +384,6 @@ const paymentStatus = asyncHandler(async (req, res) => {
   );
   redirectUrl.searchParams.append("paymentType", payment.paymentType);
   redirectUrl.searchParams.append("transactionId", payment.transactionId);
-
-  console.log("Redirecting user to:", redirectUrl.toString());
-  console.log("===== CCAvenue Payment Status Callback END =====");
 
   return res.redirect(redirectUrl.toString());
 });
