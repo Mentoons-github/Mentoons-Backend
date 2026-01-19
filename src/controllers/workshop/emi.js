@@ -3,7 +3,7 @@ const Payment = require("../../models/workshop/payment");
 const Plans = require("../../models/workshop/plan");
 const UserPlan = require("../../models/workshop/userPlan");
 const asyncHandler = require("../../utils/asyncHandler");
-const { errorResponse } = require("../../utils/responseHelper");
+const { errorResponse, successResponse } = require("../../utils/responseHelper");
 const { v4: uuidv4 } = require("uuid");
 const {
   parseCcavenueResponse,
