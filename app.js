@@ -9,6 +9,7 @@ const corsConfig = require("./src/config/cors.js");
 
 require("./src/cron/sessionNotifer.js");
 require("./src/cron/salaryCron.js");
+require("./src/cron/emi");
 
 const bodyParser = require("body-parser");
 const dotenv = require("dotenv");

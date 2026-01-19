@@ -214,7 +214,6 @@ const paymentStatus = asyncHandler(async (req, res, responseObject) => {
   console.log("Working Key Loaded:", !!workingKey);
 
   console.log("Raw CCAvenue Body:", req.body);
-  console.log("Parsed CCAvenue Response:", responseObject);
 
   const isSuccess = responseObject.order_status?.toLowerCase() === "success";
   console.log("Is Payment Success:", isSuccess);

@@ -7,7 +7,7 @@ const { sendEmail } = require("../services/emailService");
 const { generateEmiPaymentEmail } = require("../utils/templates/emi/emiPay");
 
 cron.schedule(
-  "0 9 * * *",
+  "59 16 * * *",
   async () => {
     try {
       const today = new Date();
@@ -76,5 +76,5 @@ cron.schedule(
   },
   {
     timezone: "Asia/Kolkata",
-  }
+  },
 );
