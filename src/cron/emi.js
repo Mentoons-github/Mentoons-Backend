@@ -7,9 +7,10 @@ const { sendEmail } = require("../services/emailService");
 const { generateEmiPaymentEmail } = require("../utils/templates/emi/emiPay");
 
 cron.schedule(
-  "1 17 * * *",
+  "11 17 * * *",
   async () => {
     try {
+      console.log("cron started working");
       const today = new Date();
       const tomorrow = new Date(today);
       tomorrow.setDate(today.getDate() + 1);
@@ -26,6 +27,7 @@ cron.schedule(
       const endOfToday = new Date();
       endOfToday.setHours(23, 59, 59, 999);
 
+      console.log("reaching due date");
       const reachingDueDate = await UserPlan.find({
         "emiDetails.status": "active",
         "emiDetails.nextDueDate": {
@@ -36,6 +38,9 @@ cron.schedule(
         .populate("userId")
         .populate("planId");
 
+      console.log("due date data got :", reachingDueDate);
+
+      console.log("reached due date");
       const reachedDueDate = await UserPlan.find({
         "emiDetails.nextDueDate": {
           $gte: startOfToday,
@@ -45,6 +50,9 @@ cron.schedule(
         .populate("userId")
         .populate("planId");
 
+      console.log("reached due date :", reachedDueDate);
+
+      console.log("sending mail");
       for (const i of reachingDueDate) {
         try {
           await sendEmail({
@@ -53,7 +61,10 @@ cron.schedule(
             subject: "Upcoming EMI Payment Reminder",
             ...generateEmiReminderEmail(i.userId, i.planId, i.emiDetails),
           });
+
+          console.log("mail send successfully");
         } catch (err) {
+          console.log("failed to send mail");
           console.error(`Failed reminder email for user ${i.userId._id}`, err);
         }
       }
