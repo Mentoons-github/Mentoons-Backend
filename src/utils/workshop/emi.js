@@ -22,6 +22,7 @@ const getCcavenueParamString = (payment, planId, user, userPlanId) => {
     merchant_param2: planId,
     merchant_param3: userPlanId,
     merchant_param4: payment._id,
+    merchant_param5: "WORKSHOP",
   };
 
   return Object.keys(ccavenueParams)
