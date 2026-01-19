@@ -55,7 +55,7 @@ const payFirstDownPayment = asyncHandler(async (req, res) => {
     return errorResponse(
       res,
       400,
-      "You already have an ongoing plan. Please complete it before enrolling again."
+      "You already have an ongoing plan. Please complete it before enrolling again.",
     );
   }
 
@@ -149,7 +149,7 @@ const payFirstDownPayment = asyncHandler(async (req, res) => {
       payment,
       plan.planId,
       user,
-      userPlan._id
+      userPlan._id,
     );
 
     req.ccavenueParams = paramString;
@@ -198,7 +198,7 @@ const payMonthlyEmi = asyncHandler(async (req, res) => {
     payment,
     userPlan.planId,
     user,
-    userPlan._id
+    userPlan._id,
   );
 
   console.log(paramString);
@@ -207,15 +207,13 @@ const payMonthlyEmi = asyncHandler(async (req, res) => {
   ccavRequestHandler.postReq(req, res);
 });
 
-const paymentStatus = asyncHandler(async (req, res) => {
+const paymentStatus = asyncHandler(async (req, res, responseObject) => {
   console.log("===== CCAvenue Payment Status Callback START =====");
 
   const workingKey = process.env.CCAVENUE_WORKING_KEY;
   console.log("Working Key Loaded:", !!workingKey);
 
   console.log("Raw CCAvenue Body:", req.body);
-
-  const responseObject = parseCcavenueResponse(req.body, workingKey);
   console.log("Parsed CCAvenue Response:", responseObject);
 
   const isSuccess = responseObject.order_status?.toLowerCase() === "success";
@@ -241,7 +239,7 @@ const paymentStatus = asyncHandler(async (req, res) => {
   if (payment.status === "SUCCESS") {
     console.log("⚠️ Payment already marked SUCCESS, redirecting");
     return res.redirect(
-      `${process.env.FRONTEND_URL}/payment-status?status=SUCCESS`
+      `${process.env.FRONTEND_URL}/payment-status?status=SUCCESS`,
     );
   }
 
@@ -292,7 +290,7 @@ const paymentStatus = asyncHandler(async (req, res) => {
     console.log("✅ Down Payment SUCCESS");
 
     const { emiStatus, accessStatus } = mapEmiStatus(
-      responseObject.order_status
+      responseObject.order_status,
     );
 
     console.log("Mapped EMI Status:", { emiStatus, accessStatus });
@@ -307,7 +305,7 @@ const paymentStatus = asyncHandler(async (req, res) => {
           "emiDetails.nextDueDate": getNextDueDate(),
         },
       },
-      { new: true }
+      { new: true },
     );
 
     console.log("UserPlan updated after DOWN_PAYMENT:", userPlan);
@@ -328,7 +326,7 @@ const paymentStatus = asyncHandler(async (req, res) => {
           accessStatus: "active",
         },
       },
-      { new: true }
+      { new: true },
     );
 
     console.log("UserPlan updated after EMI:", userPlan);
@@ -345,7 +343,7 @@ const paymentStatus = asyncHandler(async (req, res) => {
           accessStatus: "active",
         },
       },
-      { new: true }
+      { new: true },
     );
 
     console.log("UserPlan updated after FULL_PAYMENT:", userPlan);
@@ -369,10 +367,9 @@ const paymentStatus = asyncHandler(async (req, res) => {
     responseObject.order_status?.toLowerCase() === "success"
       ? "SUCCESS"
       : responseObject.order_status?.toLowerCase() === "pending"
-      ? "PENDING"
-      : "ABORTED";
+        ? "PENDING"
+        : "ABORTED";
 
-  
   await Payment.findByIdAndUpdate(payment._id, {
     $set: { status: finalPaymentStatus },
   });
@@ -380,7 +377,7 @@ const paymentStatus = asyncHandler(async (req, res) => {
   const redirectUrl = new URL(`${process.env.FRONTEND_URL}/payment-status`);
   redirectUrl.searchParams.append(
     "status",
-    responseObject.order_status || "UNKNOWN"
+    responseObject.order_status || "UNKNOWN",
   );
   redirectUrl.searchParams.append("paymentType", payment.paymentType);
   redirectUrl.searchParams.append("transactionId", payment.transactionId);
@@ -421,7 +418,7 @@ const activeEmi = asyncHandler(async (req, res) => {
   }
 
   const pendingEmis = userEMI.filter(
-    (plan) => plan.emiDetails.paidMonths < plan.emiDetails.totalMonths
+    (plan) => plan.emiDetails.paidMonths < plan.emiDetails.totalMonths,
   );
 
   console.log("Pending EMI After Month Check:", pendingEmis.length);
