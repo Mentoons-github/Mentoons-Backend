@@ -7,7 +7,7 @@ const { sendEmail } = require("../services/emailService");
 const { generateEmiPaymentEmail } = require("../utils/templates/emi/emiPay");
 
 cron.schedule(
-  "59 16 * * *",
+  "1 17 * * *",
   async () => {
     try {
       const today = new Date();
