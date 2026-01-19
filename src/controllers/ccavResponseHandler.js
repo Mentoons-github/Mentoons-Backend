@@ -38,7 +38,7 @@ const postRes = async (request, response) => {
 
     let redirectUrl;
 
-    const isWorkshop = responseObject.order_type === "WORKSHOP";
+    const isWorkshop = responseObject.merchant_param5 === "WORKSHOP";
 
     console.log(isWorkshop);
 
