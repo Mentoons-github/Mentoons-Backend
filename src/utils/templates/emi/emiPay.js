@@ -138,7 +138,7 @@ const generateEmiPaymentEmail = (userData, planData, emiDetails) => {
 
                     <!-- CTA Button - More prominent -->
                     <div style="text-align: center; margin-bottom: 30px;">
-                      <a href="https://mentoons.com/emi-payment" style="display: inline-block; background: linear-gradient(135deg, #ff6b00 0%, #ff8c00 100%); color: #ffffff; text-decoration: none; padding: 18px 60px; border-radius: 10px; font-size: 18px; font-weight: 700; box-shadow: 0 6px 20px rgba(255,107,0,0.4); text-transform: uppercase; letter-spacing: 0.5px; border: 3px solid #fff;">
+                      <a href="https://mentoons.com/emi" style="display: inline-block; background: linear-gradient(135deg, #ff6b00 0%, #ff8c00 100%); color: #ffffff; text-decoration: none; padding: 18px 60px; border-radius: 10px; font-size: 18px; font-weight: 700; box-shadow: 0 6px 20px rgba(255,107,0,0.4); text-transform: uppercase; letter-spacing: 0.5px; border: 3px solid #fff;">
                         🔒 Pay Now Securely
                       </a>
                       <p style="margin: 16px 0 0 0; color: #718096; font-size: 13px;">

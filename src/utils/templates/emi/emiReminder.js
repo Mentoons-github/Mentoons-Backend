@@ -143,7 +143,7 @@ const generateEmiReminderEmail = (userData, planData, emiDetails) => {
                 <!-- CTA Button -->
                 <tr>
                   <td style="padding: 0 30px 30px; text-align: center;">
-                    <a href="https://mentoons.com/payment" style="display: inline-block; background: linear-gradient(135deg, #FF8C00 0%, #FFA500 100%); color: #ffffff; text-decoration: none; padding: 18px 55px; border-radius: 30px; font-size: 17px; font-weight: 700; box-shadow: 0 6px 20px rgba(255, 140, 0, 0.35); text-shadow: 0 1px 2px rgba(0,0,0,0.2);">
+                    <a href="https://mentoons.com/emi" style="display: inline-block; background: linear-gradient(135deg, #FF8C00 0%, #FFA500 100%); color: #ffffff; text-decoration: none; padding: 18px 55px; border-radius: 30px; font-size: 17px; font-weight: 700; box-shadow: 0 6px 20px rgba(255, 140, 0, 0.35); text-shadow: 0 1px 2px rgba(0,0,0,0.2);">
                       💳 Pay Now
                     </a>
                   </td>
