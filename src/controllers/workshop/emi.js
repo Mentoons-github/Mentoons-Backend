@@ -424,26 +424,26 @@ const activeEmi = asyncHandler(async (req, res) => {
   const userId = req.user.dbUser._id;
   console.log("User ID:", userId.toString());
 
-  const today = new Date();
-  console.log("Current Date:", today.toISOString());
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
 
-  console.log("Query Conditions:");
-  console.log({
-    userId,
-    "emiDetails.status": "active",
-    "emiDetails.paidDownPayment": true,
-    "emiDetails.paidMonths": "< totalMonths",
-    "emiDetails.nextDueDate <= today": today,
-  });
+  const endOfToday = new Date();
+  endOfToday.setHours(23, 59, 59, 999);
+
+  console.log("Start Of Today:", startOfToday.toISOString());
+  console.log("End Of Today:", endOfToday.toISOString());
 
   const userEMI = await UserPlan.find({
     userId,
     "emiDetails.status": "active",
     "emiDetails.paidDownPayment": true,
-    "emiDetails.nextDueDate": { $lte: today },
+    "emiDetails.nextDueDate": {
+      $gte: startOfToday,
+      $lte: endOfToday,
+    },
   });
 
-  console.log("Raw EMI Records Found:", userEMI?.length || 0);
+  console.log("Raw EMI Records Found:", userEMI.length);
 
   if (!userEMI || userEMI.length === 0) {
     console.log("❌ No pending EMI found for user:", userId.toString());
@@ -458,17 +458,17 @@ const activeEmi = asyncHandler(async (req, res) => {
 
   pendingEmis.forEach((plan, index) => {
     console.log(`EMI #${index + 1}`, {
-      userPlanId: plan._id,
+      userPlanId: plan._id.toString(),
       paidMonths: plan.emiDetails.paidMonths,
       totalMonths: plan.emiDetails.totalMonths,
       nextDueDate: plan.emiDetails.nextDueDate,
-      amount: plan.emiDetails.monthlyAmount,
+      monthlyAmount: plan.emiDetails.monthlyAmount,
     });
   });
 
   console.log("===== Fetch Active EMI END =====");
 
-  return successResponse(res, 200, "Pending emi found", pendingEmis);
+  return successResponse(res, 200, "Pending EMI found", pendingEmis);
 });
 
 const getEmiStatistics = asyncHandler(async (req, res) => {
