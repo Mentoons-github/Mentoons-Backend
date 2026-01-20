@@ -20,7 +20,7 @@ const { verifyAdmin } = require("../middlewares/admin/adminAuth");
 const { getAllPlans } = require("../controllers/workshop/plan");
 const { conditionalAuth } = require("../middlewares/auth.middleware");
 const {
-  payFirstDownPayment,
+  createInitialPayment,
   payMonthlyEmi,
   activeEmi,
   getEmiStatistics,
@@ -36,7 +36,7 @@ router.post("/v2/add-workshopv2", addWorkshopV2);
 
 //plans and EMI
 router.get("/plans", getAllPlans);
-router.post("/pay-downpayment", conditionalAuth, payFirstDownPayment);
+router.post("/pay-downpayment", conditionalAuth, createInitialPayment);
 router.post("/pay-emi", conditionalAuth, payMonthlyEmi);
 router.get("/active-emi", conditionalAuth, activeEmi);
 router.get("/emi/statistics", conditionalAuth, getEmiStatistics);

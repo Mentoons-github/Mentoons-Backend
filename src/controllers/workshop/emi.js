@@ -3,17 +3,18 @@ const Payment = require("../../models/workshop/payment");
 const Plans = require("../../models/workshop/plan");
 const UserPlan = require("../../models/workshop/userPlan");
 const asyncHandler = require("../../utils/asyncHandler");
-const { errorResponse, successResponse } = require("../../utils/responseHelper");
+const {
+  errorResponse,
+  successResponse,
+} = require("../../utils/responseHelper");
 const { v4: uuidv4 } = require("uuid");
 const {
-  parseCcavenueResponse,
   getCcavenueParamString,
   mapEmiStatus,
   getNextDueDate,
 } = require("../../utils/workshop/emi");
 
-//use conditional auth
-const payFirstDownPayment = asyncHandler(async (req, res) => {
+const createInitialPayment = asyncHandler(async (req, res) => {
   console.log("=== payFirstDownPayment called ===");
 
   const {
@@ -23,135 +24,151 @@ const payFirstDownPayment = asyncHandler(async (req, res) => {
     bplApplied,
     bplCardFile,
   } = req.body.paymentDetails;
-
   const user = req.user;
 
-  if (!planData?.planId) {
-    console.log("Missing planId");
-    return errorResponse(res, 400, "Plan ID is required");
-  }
-
-  if (!paymentType || !["EMI", "FULL"].includes(paymentType)) {
-    console.log("Invalid payment type:", paymentType);
+  if (!planData?.planId) return errorResponse(res, 400, "Plan ID is required");
+  if (!["EMI", "FULL"].includes(paymentType))
     return errorResponse(res, 400, "Invalid payment type");
-  }
 
   const plan = await Plans.findOne({ planId: planData.planId });
+  if (!plan) return errorResponse(res, 404, "No plan found");
 
-  if (!plan) {
-    console.log("No plan found with planId:", planData.planId);
-    return errorResponse(res, 404, "No plan found");
-  }
-
-  const existingPayment = await UserPlan.findOne({
+  const existingPlan = await UserPlan.findOne({
     userId: user.dbUser._id,
     planId: plan._id,
-    "emiDetails.status": { $in: ["active", "initiated"] },
   });
-  console.log("Existing payment:", existingPayment);
-
-  if (existingPayment) {
-    console.log("User already has ongoing plan");
-    return errorResponse(
-      res,
-      400,
-      "You already have an ongoing plan. Please complete it before enrolling again.",
-    );
-  }
 
   let userPlan;
   let paymentAmount;
   let paymentPurpose;
 
-  try {
-    if (paymentType === "EMI") {
-      if (!plan.emi?.enabled) {
-        return errorResponse(res, 400, "EMI is not available for this plan");
+  const isEMI = paymentType === "EMI";
+
+  if (existingPlan) {
+    if (existingPlan.paymentType === "EMI") {
+      const status = existingPlan.emiDetails?.status;
+
+      if (status === "initiated") {
+        userPlan = existingPlan;
+        paymentAmount = existingPlan.emiDetails.downPayment;
+        paymentPurpose = "DOWN_PAYMENT";
+      } else if (["active", "suspended"].includes(status)) {
+        return errorResponse(
+          res,
+          400,
+          "You already have an ongoing EMI plan. Please complete it first.",
+        );
+      }
+    } else if (existingPlan.paymentType === "FULL") {
+      if (existingPlan.accessStatus === "initiated") {
+        userPlan = existingPlan;
+        paymentAmount = existingPlan.totalAmount;
+        paymentPurpose = "FULL";
+      } else if (existingPlan.accessStatus === "active") {
+        return errorResponse(
+          res,
+          400,
+          "You already have an active full payment plan.",
+        );
+      } else if (existingPlan.accessStatus === "suspended") {
+        return errorResponse(
+          res,
+          400,
+          "Your plan is suspended. Contact support.",
+        );
+      }
+    }
+  }
+
+  if (!userPlan) {
+    try {
+      if (isEMI) {
+        if (!plan.emi?.enabled)
+          return errorResponse(res, 400, "EMI not available");
+
+        userPlan = await UserPlan.create({
+          userId: user.dbUser._id,
+          planId: plan._id,
+          selectedMode: mode,
+          paymentType: "EMI",
+          totalAmount: plan.price.introductory,
+          bplApplied: bplApplied || false,
+          bplCardFile: bplCardFile || null,
+          emiDetails: {
+            status: "initiated",
+            downPayment: plan.emi.downPayment,
+            totalMonths: plan.emi.durationMonths,
+            paidDownPayment: false,
+            emiAmount: plan.emi.monthlyAmount,
+            paidMonths: 0,
+            nextDueDate: null,
+          },
+          accessStatus: "initiated",
+        });
+
+        paymentAmount = plan.emi.downPayment;
+        paymentPurpose = "DOWN_PAYMENT";
+      } else {
+        userPlan = await UserPlan.create({
+          userId: user.dbUser._id,
+          planId: plan._id,
+          selectedMode: mode,
+          paymentType: "FULL",
+          totalAmount: plan.price.introductory,
+          bplApplied: bplApplied || false,
+          bplCardFile: bplCardFile || null,
+          accessStatus: "initiated",
+        });
+
+        paymentAmount = plan.price.introductory;
+        paymentPurpose = "FULL";
       }
 
-      userPlan = await UserPlan.create({
-        userId: user.dbUser._id,
-        planId: plan._id,
-        selectedMode: mode,
-        paymentType: "EMI",
-        totalAmount: plan.price.introductory,
-        bplApplied: bplApplied || false,
-        bplCardFile: bplCardFile || null,
-        emiDetails: {
-          status: "initiated",
-          downPayment: plan.emi.downPayment,
-          totalMonths: plan.emi.durationMonths,
-          paidDownPayment: false,
-          emiAmount: plan.emi.monthlyAmount,
-          paidMonths: 0,
-          nextDueDate: null,
-        },
-        accessStatus: "suspended",
-      });
-
-      paymentAmount = plan.emi.downPayment;
-      paymentPurpose = "DOWN_PAYMENT";
+      console.log(`${paymentType} UserPlan created:`, userPlan._id);
+    } catch (err) {
+      console.error("Error creating UserPlan:", err);
+      return errorResponse(res, 500, "Failed to create user plan");
     }
-
-    if (paymentType === "FULL") {
-      console.log("Creating FULL UserPlan");
-
-      userPlan = await UserPlan.create({
-        userId: user.dbUser._id,
-        planId: plan._id,
-        selectedMode,
-        paymentType: "FULL",
-        totalAmount: plan.price.introductory,
-        bplApplied: bplApplied || false,
-        bplCardFile: bplCardFile || null,
-        accessStatus: "suspended",
-      });
-
-      console.log("FULL UserPlan created:", userPlan?._id);
-
-      paymentAmount = plan.price.introductory;
-      paymentPurpose = "FULL";
-    }
-  } catch (err) {
-    console.error("Error creating UserPlan:", err);
-    return errorResponse(res, 500, "Failed to create user plan");
   }
 
-  if (!userPlan?._id) {
-    console.log("userPlan is invalid after creation:", userPlan);
+  if (!userPlan?._id)
     return errorResponse(res, 500, "User plan creation returned invalid data");
-  }
 
   let payment;
   try {
-    console.log("Creating Payment record");
-
-    payment = await Payment.create({
-      amount: paymentAmount,
-      gateway: "ccAvenue",
-      paymentType: paymentPurpose,
-      planId: plan._id,
-      userId: user.dbUser._id,
-      status: "PENDING",
-      transactionId: uuidv4(),
+    payment = await Payment.findOne({
       userPlanId: userPlan._id,
+      status: "PENDING",
+      paymentType: paymentPurpose,
     });
 
-    console.log("Payment created:", payment?._id);
+    if (!payment) {
+      payment = await Payment.create({
+        amount: paymentAmount,
+        gateway: "ccAvenue",
+        paymentType: paymentPurpose,
+        planId: plan._id,
+        userId: user.dbUser._id,
+        status: "PENDING",
+        transactionId: uuidv4(),
+        userPlanId: userPlan._id,
+      });
+      console.log("Payment created:", payment._id);
+    } else {
+      console.log("Pending payment exists:", payment._id);
+    }
   } catch (err) {
-    console.error("Error creating Payment:", err);
+    console.error("Error creating payment:", err);
     return errorResponse(res, 500, "Failed to create payment");
   }
 
   try {
-    console.log("Generating CCAvenue param string");
     const paramString = getCcavenueParamString(
       payment,
       plan.planId,
       user,
       userPlan._id,
     );
-
     req.ccavenueParams = paramString;
     console.log("CCAvenue param string generated successfully");
 
@@ -163,7 +180,8 @@ const payFirstDownPayment = asyncHandler(async (req, res) => {
 });
 
 const payMonthlyEmi = asyncHandler(async (req, res) => {
-  const userPlanId = req.body;
+  const { userPlanId } = req.body;
+  console.log(userPlanId);
   const user = req.user;
 
   const userPlan = await UserPlan.findById(userPlanId);
@@ -172,7 +190,7 @@ const payMonthlyEmi = asyncHandler(async (req, res) => {
   }
 
   if (!userPlan.emiDetails.paidDownPayment) {
-    return errorResponse(res, 403, "Please pay down payment first");
+    return errorResponse(res, 400, "Please pay down payment first");
   }
 
   if (userPlan.emiDetails.status != "active") {
@@ -183,16 +201,32 @@ const payMonthlyEmi = asyncHandler(async (req, res) => {
     return errorResponse(res, 403, "You have already completed the EMI");
   }
 
-  const payment = await Payment.create({
-    amount: userPlan.emiDetails.emiAmount,
-    gateway: "ccAvenue",
-    paymentType: "EMI",
-    planId: userPlan.planId,
-    userId: user.dbUser._id,
-    status: "PENDING",
-    transactionId: uuidv4(),
+  let payment;
+
+  payment = await Payment.findOne({
     userPlanId: userPlan._id,
+    status: "PENDING",
+    paymentType: "EMI",
   });
+
+  if (!payment) {
+    console.log("creating a new payment");
+
+    payment = await Payment.create({
+      amount: userPlan.emiDetails.emiAmount,
+      gateway: "ccAvenue",
+      paymentType: "EMI",
+      planId: userPlan.planId,
+      userId: user.dbUser._id,
+      status: "PENDING",
+      transactionId: uuidv4(),
+      userPlanId: userPlan._id,
+    });
+
+    console.log("payment created");
+  }
+
+  console.log("using the existing payment");
 
   const paramString = getCcavenueParamString(
     payment,
@@ -434,7 +468,7 @@ const activeEmi = asyncHandler(async (req, res) => {
 
   console.log("===== Fetch Active EMI END =====");
 
-  return successResponse(res, 200, pendingEmis);
+  return successResponse(res, 200, "Pending emi found", pendingEmis);
 });
 
 const getEmiStatistics = asyncHandler(async (req, res) => {
@@ -479,11 +513,11 @@ const getEmiStatistics = asyncHandler(async (req, res) => {
 
   console.log("Final statistics to return:", stats);
 
-  return successResponse(res, 200, stats);
+  return successResponse(res, 200, "Stats fetched successfully", stats);
 });
 
 module.exports = {
-  payFirstDownPayment,
+  createInitialPayment,
   paymentStatus,
   payMonthlyEmi,
   getEmiStatistics,

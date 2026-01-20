@@ -57,18 +57,18 @@ const userPlanSchema = new mongoose.Schema(
       nextDueDate: Date,
       status: {
         type: String,
-        enum: ["active", "completed", "defaulted", "initiated"],
+        enum: ["active", "completed", "defaulted", "initiated", "aborted"],
         default: "active",
       },
     },
 
     accessStatus: {
       type: String,
-      enum: ["active", "suspended", "expired"],
-      default: "active",
+      enum: ["active", "suspended", "expired", "initiated"],
+      default: "initiated",
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 module.exports = mongoose.model("UserPlan", userPlanSchema);
