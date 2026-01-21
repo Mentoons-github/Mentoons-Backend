@@ -11,7 +11,14 @@ const getAllPlans = asyncHandler(async (req, res) => {
     return errorResponse(res, 404, "No Plans found");
   }
 
-  return successResponse(res, 200, plans);
+  const orderedPlans = plans.sort((a, b) => {
+    const aDuration = parseInt(a.duration);
+    const bDuration = parseInt(b.duration);
+
+    return aDuration - bDuration;
+  });
+
+  return successResponse(res, 200, "Data retrieved successfully", orderedPlans);
 });
 
 const addEditPlan = asyncHandler(async (req, res) => {
@@ -58,7 +65,6 @@ const fetchPlanById = asyncHandler(async (req, res) => {
 
   return successResponse(res, 200, plan);
 });
-
 
 module.exports = {
   getAllPlans,

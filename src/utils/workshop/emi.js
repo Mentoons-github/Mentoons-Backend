@@ -3,13 +3,14 @@ const ccav = require("../../utils/ccavutil.js");
 
 const getCcavenueParamString = (payment, planId, user, userPlanId) => {
   const redirect_cancel_url = `https://api.mentoons.com/api/v1/payment/ccavenue-response?userId=${encodeURIComponent(
-    user.id
+    user.id,
   )}`;
 
   const ccavenueParams = {
     merchant_id: process.env.CCAVENUE_MERCHANT_ID,
     order_id: payment.transactionId,
     currency: "INR",
+    order_type: "WORKSHOP",
     amount: payment.amount.toString(),
     redirect_url: redirect_cancel_url,
     cancel_url: redirect_cancel_url,
@@ -21,6 +22,7 @@ const getCcavenueParamString = (payment, planId, user, userPlanId) => {
     merchant_param2: planId,
     merchant_param3: userPlanId,
     merchant_param4: payment._id,
+    merchant_param5: "WORKSHOP",
   };
 
   return Object.keys(ccavenueParams)
