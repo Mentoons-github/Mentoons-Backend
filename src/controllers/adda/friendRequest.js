@@ -144,19 +144,18 @@ const sendFriendRequest = asyncHandler(async (req, res) => {
     `You have received a friend request from ${sender.name}.`,
     senderId,
     request._id,
-    "FriendRequest"
+    "FriendRequest",
   );
 
   return successResponse(res, 200, "Friend request sent successfully");
 });
-
 
 const acceptFriendRequest = asyncHandler(async (req, res) => {
   const { requestId } = req.params;
 
   try {
     const request = await FriendRequest.findById(requestId).populate(
-      "receiverId senderId"
+      "receiverId senderId",
     );
 
     if (!request) {
@@ -201,7 +200,7 @@ const acceptFriendRequest = asyncHandler(async (req, res) => {
     await feed.findOneAndUpdate(
       { user: sender._id },
       { $addToSet: { followingUsers: receiver._id } },
-      { upsert: true }
+      { upsert: true },
     );
 
     await deleteNotificationHelper(sender._id, receiver._id, "friend_request");
@@ -212,8 +211,11 @@ const acceptFriendRequest = asyncHandler(async (req, res) => {
       `${receiver.name} accepted your friend request.`,
       receiver._id,
       request._id,
-      "FriendRequest"
+      "FriendRequest",
     );
+
+    console.log(receiver, "receiver");
+    console.log(sender, "sender");
 
     return successResponse(res, 200, "Friend request accepted successfully");
   } catch (err) {
@@ -221,12 +223,13 @@ const acceptFriendRequest = asyncHandler(async (req, res) => {
   }
 });
 
-
 const rejectFriendRequest = asyncHandler(async (req, res) => {
   const { requestId } = req.params;
 
   try {
-    const request = await FriendRequest.findById({ _id: requestId }).populate("receiverId");
+    const request = await FriendRequest.findById({ _id: requestId }).populate(
+      "receiverId",
+    );
     if (!request) return errorResponse(res, 404, "No request found");
 
     request.status = "rejected";
@@ -238,7 +241,7 @@ const rejectFriendRequest = asyncHandler(async (req, res) => {
     await deleteNotificationHelper(
       request.senderId._id,
       request.receiverId._id,
-      "friend_request"
+      "friend_request",
     );
 
     await createNotification(
@@ -247,7 +250,7 @@ const rejectFriendRequest = asyncHandler(async (req, res) => {
       notificationMessage,
       request.receiverId._id,
       request._id,
-      "FriendRequest"
+      "FriendRequest",
     );
 
     return successResponse(res, 200, "Friend request rejected successfully");
@@ -303,7 +306,7 @@ const getAllFriends = asyncHandler(async (req, res) => {
 
     const friends = await User.find(
       { _id: { $in: mutualIds }, role: { $nin: ["EMPLOYEE", "ADMIN"] } },
-      { name: 1, picture: 1, following: 1, followers: 1 }
+      { name: 1, picture: 1, following: 1, followers: 1 },
     )
       .skip(skip)
       .limit(limitNum);
@@ -381,7 +384,7 @@ const getNotifications = asyncHandler(async (req, res) => {
       res,
       200,
       "Notifications fetched successfully",
-      userNotifications
+      userNotifications,
     );
   } catch (err) {
     console.log(err);
@@ -448,7 +451,7 @@ const markReadNotification = asyncHandler(async (req, res) => {
     // Use updateOne directly with the ObjectId
     const result = await Notification.updateOne(
       { _id: objectId },
-      { $set: { isRead: true } }
+      { $set: { isRead: true } },
     );
 
     console.log("Update result:", result);
@@ -469,62 +472,54 @@ const unfriend = asyncHandler(async (req, res) => {
   const { friendId } = req.params;
 
   try {
-    const checkFriendRequest = await FriendRequest.findOne({
-      $or: [
-        {
-          senderId: userId,
-          receiverId: friendId,
-          status: { $in: ["accepted", "one_way"] },
-        },
-        {
-          senderId: friendId,
-          receiverId: userId,
-          status: { $in: ["accepted", "one_way"] },
-        },
-      ],
+    // find existing accepted connection
+    const friendRequest = await FriendRequest.findOne({
+      $or: [{ senderId: userId, receiverId: friendId, status: "accepted" }],
     });
 
-    if (!checkFriendRequest) {
-      return errorResponse(res, 404, "No friend request found");
+    if (!friendRequest) {
+      return errorResponse(res, 404, "No friendship found");
     }
 
-    if (checkFriendRequest.status === "one_way") {
-      await FriendRequest.deleteOne({ _id: checkFriendRequest._id });
-    } else {
-      const isUserSender =
-        checkFriendRequest.senderId.toString() === userId.toString();
+    // delete friendship
+    await FriendRequest.deleteOne({ _id: friendRequest._id });
 
-      await FriendRequest.findByIdAndUpdate(checkFriendRequest._id, {
-        status: "one_way",
-        senderId: isUserSender ? friendId : userId,
-        receiverId: isUserSender ? userId : friendId,
-      });
-    }
-
+    // remove follow data from both users + feeds
     await Promise.all([
       User.findByIdAndUpdate(userId, {
-        $pull: { followers: friendId },
+        $pull: { following: friendId },
       }),
+
+      User.findByIdAndUpdate(friendId, {
+        $pull: { followers: userId },
+      }),
+
       feed.findByIdAndUpdate(userId, {
         $pull: { followingUsers: friendId },
       }),
+
+      feed.findByIdAndUpdate(friendId, {
+        $pull: { followingUsers: userId },
+      }),
     ]);
 
+    // subscription count update
     const [user, friend] = await Promise.all([
       User.findById(userId),
       User.findById(friendId),
     ]);
 
-    if (user.subscription?.plan === "free") {
+    if (user?.subscription?.plan === "free") {
       await decrementFreeSubscriptionCounts(userId, "following");
     }
-    if (friend.subscription?.plan === "free") {
+
+    if (friend?.subscription?.plan === "free") {
       await decrementFreeSubscriptionCounts(friendId, "follower");
     }
 
-    return successResponse(res, 200, "Unfriend/Unfollow successful");
+    return successResponse(res, 200, "Unfollow successful");
   } catch (err) {
-    console.log("Error found:", err);
+    console.error("Unfollow error:", err);
     return errorResponse(res, 500, "Internal server error");
   }
 });
@@ -544,6 +539,9 @@ const checkFriendStatus = asyncHandler(async (req, res) => {
       receiverId: userId,
     });
 
+    console.log(sentRequest, "sentrequesttt");
+    console.log(receivedRequest, "receive");
+
     if (!sentRequest && !receivedRequest) {
       return successResponse(res, 200, "No friend relationship found", {
         status: "none",
@@ -551,11 +549,27 @@ const checkFriendStatus = asyncHandler(async (req, res) => {
       });
     }
 
+    // successResponse(res, 200, "Friend request status found", {
+    //   sender: {
+    //     status: sentRequest.status,
+    //     isRequester: sentRequest ? true : false,
+    //     requestId: sentRequest._id,
+    //   },
+
+    //   receiver: {
+    //     status: receivedRequest.status,
+    //     isRequester: receivedRequest ? true : false,
+    //     requestId: receivedRequest._id,
+    //   },
+    // });
+
     if (sentRequest) {
       return successResponse(res, 200, "Friend request status found", {
         status: sentRequest.status,
         isRequester: true,
         requestId: sentRequest._id,
+        receiveRequestStatus: receivedRequest?.status,
+        receiveRequestId: receivedRequest?._id,
       });
     }
 
@@ -589,7 +603,7 @@ const cancelFriendRequest = asyncHandler(async (req, res) => {
         status: "pending",
       },
       { $set: { status: "cancelled" } },
-      { new: true }
+      { new: true },
     );
     await deleteNotificationHelper(friendId, userId, "friend_request");
 
@@ -599,7 +613,7 @@ const cancelFriendRequest = asyncHandler(async (req, res) => {
       `${user.name} has cancelled the friend request.`,
       userId,
       updatedRequest._id.toString(),
-      "FriendRequest"
+      "FriendRequest",
     );
 
     if (!updatedRequest) {
@@ -635,7 +649,7 @@ const getFollowBackUsers = asyncHandler(async (req, res) => {
     }).select("receiverId");
 
     const alreadyOrPendingFollowIds = new Set(
-      existingFollowBacks.map((req) => req.receiverId.toString())
+      existingFollowBacks.map((req) => req.receiverId.toString()),
     );
 
     const rejectedRequests = await FriendRequest.find({
@@ -645,23 +659,23 @@ const getFollowBackUsers = asyncHandler(async (req, res) => {
     }).select("receiverId");
 
     const rejectedIds = new Set(
-      rejectedRequests.map((req) => req.receiverId.toString())
+      rejectedRequests.map((req) => req.receiverId.toString()),
     );
 
     const followBackUserIds = followerIds.filter(
-      (id) => !alreadyOrPendingFollowIds.has(id) && !rejectedIds.has(id)
+      (id) => !alreadyOrPendingFollowIds.has(id) && !rejectedIds.has(id),
     );
 
     const followBackUsers = await User.find(
       { _id: { $in: followBackUserIds } },
-      { name: 1, picture: 1 }
+      { name: 1, picture: 1 },
     );
 
     successResponse(
       res,
       200,
       "Users available to follow back fetched successfully",
-      followBackUsers
+      followBackUsers,
     );
   } catch (err) {
     console.error("Error fetching follow-back users:", err);
@@ -712,7 +726,7 @@ const declineFollowBack = asyncHandler(async (req, res) => {
       `${decliner.name} has declined your follow request.`,
       userId,
       request._id,
-      "FriendRequest"
+      "FriendRequest",
     );
 
     return successResponse(res, 200, "Follow back declined successfully.");
@@ -732,7 +746,7 @@ const followBackUser = asyncHandler(async (req, res) => {
 
   try {
     const sender = await User.findById(senderId).select(
-      "subscription subscriptionLimits followers following name"
+      "subscription subscriptionLimits followers following name",
     );
 
     if (!sender) {
@@ -777,21 +791,21 @@ const followBackUser = asyncHandler(async (req, res) => {
     const updatedSender = await User.findByIdAndUpdate(
       senderId,
       { $addToSet: { following: receiverId } },
-      { new: true }
+      { new: true },
     );
     console.log("Updated sender (following added):", updatedSender);
 
     const updatedReceiver = await User.findByIdAndUpdate(
       receiverId,
       { $addToSet: { followers: senderId } },
-      { new: true }
+      { new: true },
     );
     console.log("Updated receiver (followers added):", updatedReceiver);
 
     const updatedFeed = await feed.findOneAndUpdate(
       { user: senderId },
       { $addToSet: { followingUsers: receiverId } },
-      { upsert: true, new: true }
+      { upsert: true, new: true },
     );
     console.log("Updated sender feed (followingUsers):", updatedFeed);
 
@@ -805,7 +819,7 @@ const followBackUser = asyncHandler(async (req, res) => {
       `${sender.name} has followed you back.`,
       senderId,
       newRequest._id,
-      "FriendRequest"
+      "FriendRequest",
     );
     console.log("Follow back notification sent");
 

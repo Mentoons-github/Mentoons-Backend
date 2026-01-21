@@ -313,7 +313,7 @@ module.exports = {
 
   saveWorkshop: async (data) => {
     try {
-      const { categoryName, subtitle, workshops } = data;
+      const { categoryName, subtitle, workshops, description } = data;
 
       if (!categoryName) {
         throw new Error("Category name is required");
@@ -323,15 +323,23 @@ module.exports = {
         throw new Error("Subtitle is required");
       }
 
+      if (!description) {
+        throw new Error("Description is required");
+      }
+
       if (!workshops || !Array.isArray(workshops) || workshops.length === 0) {
         throw new Error("At least one workshop is required");
       }
 
       for (const workshop of workshops) {
-        const { workshopName, whyChooseUs, ageGroups } = workshop;
+        const { workshopName, whyChooseUs, ageGroups, overview } = workshop;
 
         if (!workshopName) {
           throw new Error("Workshop name is required");
+        }
+
+        if (!overview) {
+          throw new Error("Workshop overview is required");
         }
 
         if (
@@ -422,6 +430,7 @@ module.exports = {
         const newCategory = await Workshop.create({
           categoryName,
           subtitle,
+          description,
           workshops,
         });
         return { category: newCategory };

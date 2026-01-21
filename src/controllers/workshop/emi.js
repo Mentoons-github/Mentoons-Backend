@@ -7,6 +7,11 @@ const {
   errorResponse,
   successResponse,
 } = require("../../utils/responseHelper");
+const uuidv4 = require("uuid");
+const {
+  errorResponse,
+  successResponse,
+} = require("../../utils/responseHelper");
 const { v4: uuidv4 } = require("uuid");
 const {
   getCcavenueParamString,
@@ -554,9 +559,21 @@ const completedPayment = asyncHandler(async (req, res) => {
   );
 });
 
+const downloadInvoice = asyncHandler(async (req, res) => {
+  const { transactionId } = req.params;
+  const invoice = await Payment.findOne({ transactionId }).populate(
+    "userPlanId",
+  );
+  if (!invoice) {
+    return errorResponse(res, 404, "No invoice found");
+  }
+  return successResponse(res, 200, "Invoice details fetched", invoice);
+});
+
 module.exports = {
   createInitialPayment,
   paymentStatus,
+  downloadInvoice,
   payMonthlyEmi,
   getEmiStatistics,
   activeEmi,
