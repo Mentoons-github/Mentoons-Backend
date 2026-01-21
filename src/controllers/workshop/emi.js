@@ -429,47 +429,40 @@ const activeEmi = asyncHandler(async (req, res) => {
   const userId = req.user.dbUser._id;
   console.log("User ID:", userId.toString());
 
-  const startOfToday = new Date();
-  startOfToday.setHours(0, 0, 0, 0);
-
+  // End of today (to include overdue + today)
   const endOfToday = new Date();
   endOfToday.setHours(23, 59, 59, 999);
 
-  console.log("Start Of Today:", startOfToday.toISOString());
   console.log("End Of Today:", endOfToday.toISOString());
 
+  // Find EMI which is due today OR overdue
   const userEMI = await UserPlan.find({
     userId,
     "emiDetails.status": "active",
     "emiDetails.paidDownPayment": true,
-    "emiDetails.nextDueDate": {
-      $gte: startOfToday,
-      $lte: endOfToday,
+    "emiDetails.nextDueDate": { $lte: endOfToday },
+    $expr: {
+      $lt: ["$emiDetails.paidMonths", "$emiDetails.totalMonths"],
     },
   });
 
   console.log("Raw EMI Records Found:", userEMI.length);
 
   if (!userEMI || userEMI.length === 0) {
-    console.log("❌ No pending EMI found for user:", userId.toString());
-    return errorResponse(res, 404, "No pending EMI left");
+    console.log("❌ No pending EMI found");
+    return errorResponse(res, 404, "No pending EMI");
   }
 
-  const pendingEmis = userEMI.filter(
-    (plan) => plan.emiDetails.paidMonths < plan.emiDetails.totalMonths,
-  );
-
-  console.log("Pending EMI After Month Check:", pendingEmis.length);
-
-  pendingEmis.forEach((plan, index) => {
-    console.log(`EMI #${index + 1}`, {
-      userPlanId: plan._id.toString(),
-      paidMonths: plan.emiDetails.paidMonths,
-      totalMonths: plan.emiDetails.totalMonths,
-      nextDueDate: plan.emiDetails.nextDueDate,
-      monthlyAmount: plan.emiDetails.monthlyAmount,
-    });
-  });
+  // Map only required data for frontend
+  const pendingEmis = userEMI.map((plan) => ({
+    userPlanId: plan._id,
+    planId: plan.planId,
+    paidMonths: plan.emiDetails.paidMonths,
+    totalMonths: plan.emiDetails.totalMonths,
+    monthlyAmount: plan.emiDetails.emiAmount,
+    nextDueDate: plan.emiDetails.nextDueDate,
+    isOverdue: plan.emiDetails.nextDueDate < new Date(),
+  }));
 
   console.log("===== Fetch Active EMI END =====");
 
@@ -478,33 +471,23 @@ const activeEmi = asyncHandler(async (req, res) => {
 
 const getEmiStatistics = asyncHandler(async (req, res) => {
   const userId = req.user.dbUser._id;
-  console.log("Fetching EMI statistics for user:", userId);
 
   const activePlans = await UserPlan.find({
     userId,
     "emiDetails.status": "active",
     "emiDetails.paidDownPayment": true,
   });
-  console.log("Active EMI plans found:", activePlans.length);
 
   if (!activePlans || activePlans.length === 0) {
-    console.log("No active EMI plans found for this user.");
     return errorResponse(res, 404, "No active EMI plans found");
   }
 
   const plan = activePlans[0];
-  console.log("Selected plan:", plan._id);
-
   const emiDetails = plan.emiDetails;
-  console.log("EMI Details:", emiDetails);
 
   const totalEmiAmount = emiDetails.totalMonths * emiDetails.emiAmount;
   const paidAmount = emiDetails.paidMonths * emiDetails.emiAmount;
   const remainingAmount = totalEmiAmount - paidAmount;
-
-  console.log("Calculated totalEmiAmount:", totalEmiAmount);
-  console.log("Calculated paidAmount:", paidAmount);
-  console.log("Calculated remainingAmount:", remainingAmount);
 
   const stats = {
     totalEmiAmount,
@@ -516,26 +499,83 @@ const getEmiStatistics = asyncHandler(async (req, res) => {
     nextDueDate: emiDetails.nextDueDate || null,
   };
 
-  console.log("Final statistics to return:", stats);
-
   return successResponse(res, 200, "Stats fetched successfully", stats);
+});
+
+const completedPayment = asyncHandler(async (req, res) => {
+  console.log("===== Fetch Completed Payments START =====");
+
+  const userId = req.user.dbUser._id;
+  console.log("User ID:", userId.toString());
+
+  const payments = await Payment.find({
+    userId,
+    status: "SUCCESS",
+  })
+    .populate("planId", "planName price")
+    .populate("userPlanId", "paymentType emiDetails accessStatus")
+    .sort({ createdAt: -1 });
+
+  if (!payments || payments.length === 0) {
+    console.log("❌ No completed payments found");
+    return errorResponse(res, 404, "No completed payments found");
+  }
+
+  const formattedPayments = payments.map((payment) => {
+    const userPlan = payment.userPlanId;
+
+    return {
+      paymentId: payment._id,
+      transactionId: payment.transactionId,
+      paymentType: payment.paymentType,
+      amount: payment.amount,
+      planId: payment.planId?._id,
+      planName: payment.planId?.planName,
+      paymentStatus: payment.status,
+      paidAt: payment.createdAt,
+
+      emiDetails:
+        userPlan?.paymentType === "EMI"
+          ? {
+              totalMonths: userPlan.emiDetails.totalMonths,
+              paidMonths: userPlan.emiDetails.paidMonths,
+              emiAmount: userPlan.emiDetails.emiAmount,
+              nextDueDate: userPlan.emiDetails.nextDueDate,
+              emiStatus: userPlan.emiDetails.status,
+            }
+          : null,
+    };
+  });
+
+  console.log(`✅ Completed Payments Found: ${formattedPayments.length}`);
+
+  console.log("===== Fetch Completed Payments END =====");
+
+  return successResponse(
+    res,
+    200,
+    "Completed payments fetched successfully",
+    formattedPayments,
+  );
 });
 
 const downloadInvoice = asyncHandler(async (req, res) => {
   const { transactionId } = req.params;
-  const invoice = await Payment.findOne({ transactionId }).populate("userPlanId");
+  const invoice = await Payment.findOne({ transactionId }).populate(
+    "userPlanId",
+  );
   if (!invoice) {
     return errorResponse(res, 404, "No invoice found");
   }
-  return successResponse(res, 200, "Invoice details fetched" ,invoice);
+  return successResponse(res, 200, "Invoice details fetched", invoice);
 });
 
 module.exports = {
   createInitialPayment,
   paymentStatus,
-  monthlyEmi,
   downloadInvoice,
   payMonthlyEmi,
   getEmiStatistics,
   activeEmi,
+  completedPayment,
 };

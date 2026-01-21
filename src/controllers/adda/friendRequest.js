@@ -377,12 +377,9 @@ const requestSuggestions = asyncHandler(async (req, res) => {
 
 const getNotifications = asyncHandler(async (req, res) => {
   const userId = req.user;
-  console.log("userId : ", userId);
-
+  
   try {
     const userNotifications = await fetchNotifications(userId);
-
-    console.log("user notifications :", userNotifications);
     return successResponse(
       res,
       200,
