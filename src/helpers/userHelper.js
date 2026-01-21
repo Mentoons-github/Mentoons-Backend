@@ -18,7 +18,7 @@ module.exports = {
       {
         upsert: true,
         new: true,
-      }
+      },
     );
     return newUser;
   },
@@ -42,7 +42,7 @@ module.exports = {
       },
       {
         new: true,
-      }
+      },
     );
     return updatedUser;
   },
@@ -88,7 +88,7 @@ module.exports = {
         body: JSON.stringify({
           public_metadata: { role: role },
         }),
-      }
+      },
     );
     return modifiedUser;
   },
@@ -222,8 +222,58 @@ module.exports = {
             dateOfBirth: 1,
             joinedDate: 1,
             lastActive: 1,
-            followers: 1,
-            following: 1,
+
+            followers: {
+              $cond: [
+                { $eq: ["$role", "USER"] },
+                {
+                  $map: {
+                    input: {
+                      $filter: {
+                        input: "$followers",
+                        as: "f",
+                        cond: { $eq: ["$$f.role", "USER"] },
+                      },
+                    },
+                    as: "f",
+                    in: {
+                      _id: "$$f._id",
+                      name: "$$f.name",
+                      picture: "$$f.picture",
+                      role: "$$f.role",
+                    },
+                  },
+                },
+                [],
+              ],
+            },
+
+            // ✅ FOLLOWING
+            following: {
+              $cond: [
+                { $eq: ["$role", "USER"] },
+                {
+                  $map: {
+                    input: {
+                      $filter: {
+                        input: "$following",
+                        as: "f",
+                        cond: { $eq: ["$$f.role", "USER"] },
+                      },
+                    },
+                    as: "f",
+                    in: {
+                      _id: "$$f._id",
+                      name: "$$f.name",
+                      picture: "$$f.picture",
+                      role: "$$f.role",
+                    },
+                  },
+                },
+                [],
+              ],
+            },
+
             friends: 1,
             socialLinks: 1,
             subscription: 1,
@@ -238,6 +288,7 @@ module.exports = {
           },
         },
       ]);
+
       if (!user) {
         console.error(`User with ID ${userId} not found.`);
         throw new Error("User not found");
@@ -323,7 +374,7 @@ module.exports = {
         for (const link of socialLinks) {
           if (!link.label || !link.url) {
             console.log(
-              "Validation error: Each social link must have a label and URL"
+              "Validation error: Each social link must have a label and URL",
             );
             throw new Error("Each social link must have a label and URL");
           }
@@ -331,7 +382,7 @@ module.exports = {
             new URL(link.url);
           } catch {
             console.log(
-              `Validation error: Invalid URL format for social link: ${link.url}`
+              `Validation error: Invalid URL format for social link: ${link.url}`,
             );
             throw new Error(`Invalid URL format for social link: ${link.url}`);
           }
@@ -364,7 +415,7 @@ module.exports = {
             lastActive: new Date(),
           },
         },
-        { new: true }
+        { new: true },
       );
 
       if (!updatedUser) {
@@ -441,7 +492,7 @@ module.exports = {
     sortField = "createdAt",
     sortOrder = "desc",
     page = 1,
-    limit = 10
+    limit = 10,
   ) => {
     try {
       const user = await User.findOne({ clerkId: userId });
@@ -571,7 +622,7 @@ module.exports = {
           },
         },
       },
-      { new: true }
+      { new: true },
     );
     return user;
   },

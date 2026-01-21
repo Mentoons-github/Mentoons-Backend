@@ -3,7 +3,10 @@ const Payment = require("../../models/workshop/payment");
 const Plans = require("../../models/workshop/plan");
 const UserPlan = require("../../models/workshop/userPlan");
 const asyncHandler = require("../../utils/asyncHandler");
-const { errorResponse } = require("../../utils/responseHelper");
+const {
+  errorResponse,
+  successResponse,
+} = require("../../utils/responseHelper");
 const uuidv4 = require("uuid");
 const {
   parseCcavenueResponse,
@@ -176,8 +179,18 @@ const paymentStatus = asyncHandler(async (req, res) => {
   return res.redirectUrl(redirectUrl.toString());
 });
 
+const downloadInvoice = asyncHandler(async (req, res) => {
+  const { transactionId } = req.params;
+  const invoice = await Payment.findOne({ transactionId }).populate("userPlanId");
+  if (!invoice) {
+    return errorResponse(res, 404, "No invoice found");
+  }
+  return successResponse(res, 200, "Invoice details fetched" ,invoice);
+});
+
 module.exports = {
   payFirstDownPayment,
   paymentStatus,
   monthlyEmi,
+  downloadInvoice,
 };

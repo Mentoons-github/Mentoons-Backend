@@ -60,18 +60,18 @@ module.exports = {
 
     const accessToken = Auth.createAccessToken(
       { phoneNumber },
-      process.env.ACCESS_TOKEN_SECRET
+      process.env.ACCESS_TOKEN_SECRET,
     );
     const refreshToken = Auth.createRefreshToken(
       { phoneNumber },
-      process.env.REFRESH_TOKEN_SECRET
+      process.env.REFRESH_TOKEN_SECRET,
     );
 
     return successResponse(
       res,
       200,
       messageHelper.SUCCESSFULLY_REGISTERED_USER,
-      { result, accessToken, refreshToken }
+      { result, accessToken, refreshToken },
     );
   }),
 
@@ -90,11 +90,11 @@ module.exports = {
 
     const accessToken = Auth.createAccessToken(
       { phoneNumber },
-      process.env.ACCESS_TOKEN_SECRET
+      process.env.ACCESS_TOKEN_SECRET,
     );
     const refreshToken = Auth.createRefreshToken(
       { phoneNumber },
-      process.env.REFRESH_TOKEN_SECRET
+      process.env.REFRESH_TOKEN_SECRET,
     );
 
     return successResponse(res, 200, messageHelper.SUCCESSFULLY_LOGGED_USER, {
@@ -121,7 +121,7 @@ module.exports = {
       res,
       200,
       messageHelper.SUCCESSFULLY_LOGOUT_USER,
-      result
+      result,
     );
   }),
 
@@ -134,11 +134,11 @@ module.exports = {
     try {
       const decoded = Auth.verifyToken(
         refreshToken,
-        process.env.REFRESH_TOKEN_SECRET
+        process.env.REFRESH_TOKEN_SECRET,
       );
       const accessToken = Auth.createAccessToken(
         { phoneNumber: decoded.phoneNumber },
-        process.env.ACCESS_TOKEN_SECRET
+        process.env.ACCESS_TOKEN_SECRET,
       );
       return successResponse(res, 200, messageHelper.TOKEN_REFRESHED, {
         accessToken,
@@ -164,7 +164,7 @@ module.exports = {
       existingUser,
       name,
       email,
-      city
+      city,
     );
 
     if (!premiumResult.success) {
@@ -187,7 +187,7 @@ module.exports = {
     const modifiedUser = await userHelper.changeRole(
       superAdminUserId,
       user_id,
-      role
+      role,
     );
     if (!modifiedUser) {
       return errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR);
@@ -196,7 +196,7 @@ module.exports = {
       res,
       200,
       "Successfully changed user role.",
-      modifiedUser
+      modifiedUser,
     );
   }),
 
@@ -218,9 +218,8 @@ module.exports = {
       filter: filter || {},
     };
 
-    const { users, totalCount, totalPages } = await userHelper.getAllUser(
-      queryOptions
-    );
+    const { users, totalCount, totalPages } =
+      await userHelper.getAllUser(queryOptions);
 
     if (!users) {
       return errorResponse(res, 500, messageHelper.INTERNAL_SERVER_ERROR);
@@ -245,6 +244,8 @@ module.exports = {
     }
     return successResponse(res, 200, "Successfully fetched user", user);
   }),
+
+
   DeleteUserClerkController: asyncHandler(async (req, res) => {
     const { userId } = req.params;
     const clerkSecretKey = process.env.CLERK_SECRET_KEY;
@@ -270,7 +271,7 @@ module.exports = {
       sortField,
       sortOrder,
       page,
-      limit
+      limit,
     );
     if (!calls) {
       return errorResponse(res, 400, messageHelper.BAD_REQUEST);
@@ -279,10 +280,10 @@ module.exports = {
       res,
       200,
       "Successfully fetched allocated calls",
-      calls
+      calls,
     );
   }),
-  
+
   updateProfileController: asyncHandler(async (req, res) => {
     const userId = req.user.dbUser._id;
     console.log("req.body :", req.body);
@@ -298,20 +299,20 @@ module.exports = {
     try {
       const updatedProfile = await userHelper.updateProfile(
         userId,
-        profileData
+        profileData,
       );
       return successResponse(
         res,
         200,
         "Profile updated successfully",
-        updatedProfile
+        updatedProfile,
       );
     } catch (error) {
       console.log(error);
       return errorResponse(
         res,
         500,
-        error.message || "Failed to update profile"
+        error.message || "Failed to update profile",
       );
     }
   }),
@@ -329,13 +330,13 @@ module.exports = {
         res,
         200,
         `Successfully ${result.action} user`,
-        result
+        result,
       );
     } catch (error) {
       return errorResponse(
         res,
         500,
-        error.message || "Failed to toggle follow status"
+        error.message || "Failed to toggle follow status",
       );
     }
   }),
@@ -352,13 +353,13 @@ module.exports = {
         res,
         200,
         "User stats retrieved successfully",
-        stats
+        stats,
       );
     } catch (error) {
       return errorResponse(
         res,
         500,
-        error.message || "Failed to retrieve user stats"
+        error.message || "Failed to retrieve user stats",
       );
     }
   }),
@@ -386,7 +387,10 @@ module.exports = {
     }
 
     const [friendUser, currentUser] = await Promise.all([
-      User.findById(friendId),
+      User.findById(friendId)
+        .populate("followers", "_id role")
+        .populate("following", "_id role")
+        .lean(),
       User.findById(userId),
     ]);
 
@@ -395,6 +399,15 @@ module.exports = {
     }
 
     const isFriend = currentUser.followers.includes(friendId);
+
+    friendUser.followers = friendUser.followers
+      .filter((u) => u.role === "USER")
+      .map((u) => u._id);
+
+    friendUser.following = friendUser.following
+      .filter((u) => u.role === "USER")
+      .map((u) => u._id);
+
 
     return successResponse(res, 200, "Successfully fetched user", {
       user: friendUser,
@@ -418,7 +431,7 @@ module.exports = {
 
       if (currentUserId) {
         const currentUser = await User.findById(currentUserId).select(
-          "following followers"
+          "following followers",
         );
         if (!currentUser) {
           console.error(`User not found for ID: ${currentUserId}`);
@@ -487,7 +500,7 @@ module.exports = {
           console.log(
             `Friend request status: ${requestStatus || "none"}, requestId: ${
               requestId || "none"
-            }`
+            }`,
           );
 
           let status = "connect";
@@ -509,7 +522,7 @@ module.exports = {
             status,
             requestId: requestStatus === "pending" ? requestId : undefined,
           };
-        })
+        }),
       );
 
       successResponse(res, 200, "Users fetched successfully", {
@@ -541,7 +554,7 @@ module.exports = {
     }
 
     const friends = await User.find({ _id: { $in: userIds } }).select(
-      "_id name picture"
+      "_id name picture role clerkId followers following",
     );
 
     return res.status(200).json({ data: friends });
@@ -584,7 +597,7 @@ module.exports = {
     await Feed.findOneAndUpdate(
       { user: requesterId },
       { $addToSet: { blockedUsers: targetUserId } },
-      { upsert: true }
+      { upsert: true },
     );
 
     if (conversationId) {
@@ -598,7 +611,7 @@ module.exports = {
     }
 
     console.log(
-      `✅ ${targetUser.username || targetUserId} blocked by ${requesterId}`
+      `✅ ${targetUser.username || targetUserId} blocked by ${requesterId}`,
     );
 
     res.status(200).json({
@@ -639,13 +652,13 @@ module.exports = {
     }
 
     requester.blockedUsers = requester.blockedUsers.filter(
-      (id) => id.toString() !== targetUserId.toString()
+      (id) => id.toString() !== targetUserId.toString(),
     );
     await requester.save();
 
     await Feed.findOneAndUpdate(
       { user: requesterId },
-      { $pull: { blockedUsers: targetUserId } }
+      { $pull: { blockedUsers: targetUserId } },
     );
 
     if (conversationId) {
@@ -659,7 +672,7 @@ module.exports = {
     }
 
     console.log(
-      `✅ ${targetUser.username || targetUserId} unblocked by ${requesterId}`
+      `✅ ${targetUser.username || targetUserId} unblocked by ${requesterId}`,
     );
 
     res.status(200).json({
@@ -677,14 +690,14 @@ module.exports = {
 
     const updatedUser = await userHelper.updateSubscriptionLimits(
       userId,
-      subscriptionLimits
+      subscriptionLimits,
     );
     console.log(updatedUser, "updatedUser");
     return successResponse(
       res,
       200,
       "Subscription limits updated successfully",
-      updatedUser
+      updatedUser,
     );
   }),
 

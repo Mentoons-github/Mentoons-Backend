@@ -17,6 +17,7 @@ const {
 const adminAuthMiddleware = require("../middlewares/adminAuthMiddleware");
 const verifyToken = require("../middlewares/addaMiddleware");
 const { verifyAdmin } = require("../middlewares/admin/adminAuth");
+const { downloadInvoice } = require("../controllers/workshop/emi");
 
 const router = express.Router();
 
@@ -26,10 +27,8 @@ router.get("/all", getAllWorkshops);
 router.get("/v2/workshopv2", getAllWorkshopV2);
 router.post("/v2/add-workshopv2", addWorkshopV2);
 
-
 //plans
-router.get("/plans")
-
+router.get("/plans");
 
 router.route("/submit-form").post(verifyToken, submitWorkshopForm);
 router.route("/").get(verifyAdmin, getWorkshopEnquiries);
@@ -62,6 +61,7 @@ router.delete(
   deleteWorkshop
 );
 
+router.get("/invoice/:transactionId", verifyToken, downloadInvoice);
 // router.route("/submit-call-request").post(submitCallRequest);
 // router.route("/call-requests").get(getAllCallRequests);
 
