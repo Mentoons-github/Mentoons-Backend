@@ -224,7 +224,7 @@ module.exports = {
     const { workshopId } = req.params;
     const updateContent = req.body;
 
-    const { categoryName, subtitle, workshops } = updateContent;
+    const { categoryName, subtitle, workshops, description } = updateContent;
 
     if (!categoryName) {
       return res.status(400).json({
@@ -240,6 +240,13 @@ module.exports = {
       });
     }
 
+    if (!description) {
+      return res.status(400).json({
+        success: false,
+        message: "Description is required",
+      });
+    }
+
     if (!workshops || !Array.isArray(workshops) || workshops.length === 0) {
       return res.status(400).json({
         success: false,
@@ -248,12 +255,19 @@ module.exports = {
     }
 
     for (const workshop of workshops) {
-      const { workshopName, whyChooseUs, ageGroups } = workshop;
+      const { workshopName, whyChooseUs, ageGroups, overview } = workshop;
 
       if (!workshopName) {
         return res.status(400).json({
           success: false,
           message: "Workshop name is required",
+        });
+      }
+
+      if (!overview) {
+        return res.status(400).json({
+          success: false,
+          message: "Workshop overview is required",
         });
       }
 
@@ -345,7 +359,7 @@ module.exports = {
 
     const workshop = await Workshop.findByIdAndUpdate(
       workshopId,
-      { $set: { categoryName, subtitle, workshops } },
+      { $set: { categoryName, subtitle, workshops, description } },
       { new: true, runValidators: true }
     );
 
