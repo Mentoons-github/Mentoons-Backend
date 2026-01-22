@@ -7,11 +7,7 @@ const {
   errorResponse,
   successResponse,
 } = require("../../utils/responseHelper");
-const uuidv4 = require("uuid");
-const {
-  errorResponse,
-  successResponse,
-} = require("../../utils/responseHelper");
+
 const { v4: uuidv4 } = require("uuid");
 const {
   getCcavenueParamString,
@@ -533,7 +529,7 @@ const downloadInvoice = asyncHandler(async (req, res) => {
 module.exports = {
   createInitialPayment,
   paymentStatus,
-  monthlyEmi,
+  // monthlyEmi,
   downloadInvoice,
   payMonthlyEmi,
   getEmiStatistics,
