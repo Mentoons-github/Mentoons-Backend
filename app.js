@@ -21,6 +21,7 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 2000;
 
+app.use(conditionalClerkMiddleware);
 app.post(
   "/api/v1/webhook/clerk",
   async (req, res, next) => {
@@ -32,7 +33,6 @@ app.post(
   ensureUserExists,
   clerkWebhook,
 );
-app.use(conditionalClerkMiddleware);
 app.use(cors(corsConfig));
 
 app.use(bodyParser.json());
