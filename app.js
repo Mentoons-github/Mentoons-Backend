@@ -27,7 +27,7 @@ app.use(conditionalClerkMiddleware);
 app.use(cors(corsConfig));
 app.use(bodyParser.json());
 
-app.post("/api/v1/webhook/clerk", ensureUserExists, clerkWebhook);
+app.post("/api/v1/webhook/clerk", clerkWebhook);
 
 app.use(morgan("dev"));
 app.use(express.json());
