@@ -48,10 +48,7 @@ const employeeRouter = require("../routes/employee/empoyee.routes");
 const meetupRoutes = require("../routes/adda/meetup.routes.js");
 const quizRoutes = require("../routes/adda/quiz.routes.js");
 const contestRoutes = require("../routes/adda/contest.routes.js");
-// const ensureUserExists = require("../middlewares/ensureUserExists");
-// const clerkWebhook = require("../controllers/webhook/clerkWebhook.controller.js");
 
-// router.post("/webhook/clerk", ensureUserExists, clerkWebhook);
 
 router.use("/adda", addaRouter);
 router.use("/influencer-requests", influencerJobRequestRoutes);
