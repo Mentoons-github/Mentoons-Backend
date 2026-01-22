@@ -15,10 +15,23 @@ const bodyParser = require("body-parser");
 const dotenv = require("dotenv");
 
 const { socketSetup } = require("./src/socket/socket.js");
+const ensureUserExists = require("./src/middlewares/ensureUserExists.js");
+const clerkWebhook = require("./src/controllers/webhook/clerkWebhook.controller.js");
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 2000;
 
+app.post(
+  "/api/v1/webhook/clerk",
+  async (req, res, next) => {
+    console.log(
+      "reached webhook=============================================================================================>",
+    );
+    next();
+  },
+  ensureUserExists,
+  clerkWebhook,
+);
 app.use(conditionalClerkMiddleware);
 app.use(cors(corsConfig));
 
