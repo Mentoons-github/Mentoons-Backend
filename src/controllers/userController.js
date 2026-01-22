@@ -389,11 +389,11 @@ module.exports = {
     const isFriend = currentUser.followers.includes(friendId);
 
     friendUser.followers = friendUser.followers
-      .filter((u) => u.role === "USER")
+      // .filter((u) => u.role === "USER")
       .map((u) => u._id);
 
     friendUser.following = friendUser.following
-      .filter((u) => u.role === "USER")
+      // .filter((u) => u.role === "USER")
       .map((u) => u._id);
 
 

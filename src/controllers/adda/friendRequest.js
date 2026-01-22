@@ -278,7 +278,7 @@ const getAllFriends = asyncHandler(async (req, res) => {
 
     const user = await User.findOne({
       _id: userId,
-      role: { $nin: ["EMPLOYEE", "ADMIN"] },
+      // role: { $nin: ["EMPLOYEE", "ADMIN"] },
     }).select("followers following");
 
     if (!user) {
@@ -305,7 +305,10 @@ const getAllFriends = asyncHandler(async (req, res) => {
     const totalPages = Math.ceil(totalCount / limitNum);
 
     const friends = await User.find(
-      { _id: { $in: mutualIds }, role: { $nin: ["EMPLOYEE", "ADMIN"] } },
+      {
+        _id: { $in: mutualIds },
+        //  role: { $nin: ["EMPLOYEE", "ADMIN"] }
+      },
       { name: 1, picture: 1, following: 1, followers: 1 },
     )
       .skip(skip)
@@ -377,7 +380,7 @@ const requestSuggestions = asyncHandler(async (req, res) => {
 
 const getNotifications = asyncHandler(async (req, res) => {
   const userId = req.user;
-  
+
   try {
     const userNotifications = await fetchNotifications(userId);
     return successResponse(
