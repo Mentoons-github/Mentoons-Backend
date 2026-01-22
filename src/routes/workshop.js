@@ -25,6 +25,7 @@ const {
   payMonthlyEmi,
   activeEmi,
   getEmiStatistics,
+  completedPayment,
 } = require("../controllers/workshop/emi");
 
 const router = express.Router();
@@ -43,6 +44,7 @@ router.post("/pay-downpayment", conditionalAuth, createInitialPayment);
 router.post("/pay-emi", conditionalAuth, payMonthlyEmi);
 router.get("/active-emi", conditionalAuth, activeEmi);
 router.get("/emi/statistics", conditionalAuth, getEmiStatistics);
+router.get("/completed-emi", conditionalAuth, completedPayment);
 
 router.route("/submit-form").post(verifyToken, submitWorkshopForm);
 router.route("/").get(verifyAdmin, getWorkshopEnquiries);
