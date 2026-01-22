@@ -2,6 +2,8 @@ const User = require("../models/user");
 const { clerkClient, getAuth } = require("@clerk/express");
 
 const ensureUserExists = async (req, res, next) => {
+
+  console.log("reached user exists =======================>s")
   if (req.path === "/api/v1/payment/ccavenue-response") {
     return next();
   }

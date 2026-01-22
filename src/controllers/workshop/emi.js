@@ -3,12 +3,11 @@ const Payment = require("../../models/workshop/payment");
 const Plans = require("../../models/workshop/plan");
 const UserPlan = require("../../models/workshop/userPlan");
 const asyncHandler = require("../../utils/asyncHandler");
+const uuidv4 = require("uuid");
 const {
   errorResponse,
   successResponse,
 } = require("../../utils/responseHelper");
-
-const { v4: uuidv4 } = require("uuid");
 const {
   getCcavenueParamString,
   mapEmiStatus,
@@ -557,9 +556,12 @@ const completedPayment = asyncHandler(async (req, res) => {
 
 const downloadInvoice = asyncHandler(async (req, res) => {
   const { transactionId } = req.params;
+
   const invoice = await Payment.findOne({ transactionId }).populate(
     "userPlanId",
   );
+
+  console.log(invoice);
   if (!invoice) {
     return errorResponse(res, 404, "No invoice found");
   }
