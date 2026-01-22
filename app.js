@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
 const dotenv = require("dotenv");
+const bodyParser = require("body-parser");
 
 const dbConnection = require("./src/config/dbConfig");
 const errorHandler = require("./src/middlewares/errorHandler");
@@ -10,6 +11,7 @@ const corsConfig = require("./src/config/cors.js");
 
 const conditionalClerkMiddleware = require("./src/middlewares/clerkConditionalMiddleware.js");
 const clerkWebhook = require("./src/controllers/webhook/clerkWebhook.controller.js");
+const ensureUserExists = require("./src/middlewares/ensureUserExists.js");
 
 const { socketSetup } = require("./src/socket/socket.js");
 
@@ -21,17 +23,14 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 2000;
 
-app.post(
-  "/api/v1/webhook/clerk",
-  express.raw({ type: "application/json" }),
-  clerkWebhook,
-);
-
 app.use(conditionalClerkMiddleware);
-
 app.use(cors(corsConfig));
+app.use(bodyParser.json());
+
+app.post("/api/v1/webhook/clerk", ensureUserExists, clerkWebhook);
+
 app.use(morgan("dev"));
-app.use(express.json()); 
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 app.set("views", __dirname + "/public");
