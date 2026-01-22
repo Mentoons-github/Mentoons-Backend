@@ -11,6 +11,7 @@ const corsConfig = require("./src/config/cors.js");
 
 const conditionalClerkMiddleware = require("./src/middlewares/clerkConditionalMiddleware.js");
 const clerkWebhook = require("./src/controllers/webhook/clerkWebhook.controller.js");
+const ensureUserExists = require("./src/middlewares/ensureUserExists.js");
 
 const { socketSetup } = require("./src/socket/socket.js");
 
@@ -26,7 +27,7 @@ app.use(conditionalClerkMiddleware);
 app.use(cors(corsConfig));
 app.use(bodyParser.json());
 
-app.post("/api/v1/webhook/clerk", clerkWebhook);
+app.post("/api/v1/webhook/clerk", ensureUserExists, clerkWebhook);
 
 app.use(morgan("dev"));
 app.use(express.json());
