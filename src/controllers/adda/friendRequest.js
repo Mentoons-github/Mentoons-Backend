@@ -351,7 +351,7 @@ const requestSuggestions = asyncHandler(async (req, res) => {
       _id: {
         $nin: Array.from(excludeId),
       },
-      role: { $nin: ["EMPLOYEE", "ADMIN"] },
+      // role: { $nin: ["EMPLOYEE", "ADMIN"] },
     };
 
     if (searchTerm) {
@@ -541,9 +541,6 @@ const checkFriendStatus = asyncHandler(async (req, res) => {
       senderId: friendId,
       receiverId: userId,
     });
-
-    console.log(sentRequest, "sentrequesttt");
-    console.log(receivedRequest, "receive");
 
     if (!sentRequest && !receivedRequest) {
       return successResponse(res, 200, "No friend relationship found", {

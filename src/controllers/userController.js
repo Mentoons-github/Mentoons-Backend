@@ -241,7 +241,6 @@ module.exports = {
     return successResponse(res, 200, "Successfully fetched user", user);
   }),
 
-
   DeleteUserClerkController: asyncHandler(async (req, res) => {
     const { userId } = req.params;
     const clerkSecretKey = process.env.CLERK_SECRET_KEY;
@@ -396,7 +395,6 @@ module.exports = {
       // .filter((u) => u.role === "USER")
       .map((u) => u._id);
 
-
     return successResponse(res, 200, "Successfully fetched user", {
       user: friendUser,
       isFriend,
@@ -514,6 +512,8 @@ module.exports = {
   }),
 
   getFriends: asyncHandler(async (req, res) => {
+    const currentUserID = req.user.dbUser._id;
+
     let { userIds } = req.body;
 
     if (!userIds) {
@@ -528,11 +528,33 @@ module.exports = {
       return res.status(400).json({ message: "userIds cannot be empty" });
     }
 
+    const map = await Promise.all(
+      userIds.map(async (id) => {
+        const sentRequest = await FriendRequest.findOne({
+          senderId: currentUserID,
+          receiverId: id,
+        });
+
+        const receivedRequest = await FriendRequest.findOne({
+          senderId: id,
+          receiverId: currentUserID,
+        });
+
+        return { id, sentRequest, receivedRequest };
+      }),
+    );
+
+    const filteredRequests = map.filter(
+      (ele) => ele.sentRequest !== null || ele.receivedRequest !== null,
+    );
+
     const friends = await User.find({ _id: { $in: userIds } }).select(
       "_id name picture role clerkId followers following",
     );
 
-    return res.status(200).json({ data: friends });
+    return res
+      .status(200)
+      .json({ data: friends, freindRequests: filteredRequests });
   }),
 
   blockUser: asyncHandler(async (req, res) => {
