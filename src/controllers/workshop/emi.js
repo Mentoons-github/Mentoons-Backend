@@ -557,9 +557,9 @@ const completedPayment = asyncHandler(async (req, res) => {
 const downloadInvoice = asyncHandler(async (req, res) => {
   const { transactionId } = req.params;
 
-  const invoice = await Payment.findOne({ transactionId }).populate(
-    "userPlanId",
-  );
+  const invoice = await Payment.findOne({ transactionId })
+    .populate("userPlanId")
+    .populate("userId");
 
   console.log(invoice);
   if (!invoice) {
