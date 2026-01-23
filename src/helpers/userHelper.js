@@ -175,7 +175,12 @@ module.exports = {
   getUser: async (userId) => {
     try {
       const [user] = await User.aggregate([
-        { $match: { _id: userId, role: { $nin: ["EMPLOYEE", "ADMIN"] } } },
+        {
+          $match: {
+            _id: userId,
+            //  role: { $nin: ["EMPLOYEE", "ADMIN"] }
+          },
+        },
         {
           $lookup: {
             from: "requestcalls",
@@ -224,54 +229,29 @@ module.exports = {
             lastActive: 1,
 
             followers: {
-              $cond: [
-                { $eq: ["$role", "USER"] },
-                {
-                  $map: {
-                    input: {
-                      $filter: {
-                        input: "$followers",
-                        as: "f",
-                        cond: { $eq: ["$$f.role", "USER"] },
-                      },
-                    },
-                    as: "f",
-                    in: {
-                      _id: "$$f._id",
-                      name: "$$f.name",
-                      picture: "$$f.picture",
-                      role: "$$f.role",
-                    },
-                  },
+              $map: {
+                input: "$followers",
+                as: "f",
+                in: {
+                  _id: "$$f._id",
+                  name: "$$f.name",
+                  picture: "$$f.picture",
+                  role: "$$f.role",
                 },
-                [],
-              ],
+              },
             },
 
-            // ✅ FOLLOWING
             following: {
-              $cond: [
-                { $eq: ["$role", "USER"] },
-                {
-                  $map: {
-                    input: {
-                      $filter: {
-                        input: "$following",
-                        as: "f",
-                        cond: { $eq: ["$$f.role", "USER"] },
-                      },
-                    },
-                    as: "f",
-                    in: {
-                      _id: "$$f._id",
-                      name: "$$f.name",
-                      picture: "$$f.picture",
-                      role: "$$f.role",
-                    },
-                  },
+              $map: {
+                input: "$following",
+                as: "f",
+                in: {
+                  _id: "$$f._id",
+                  name: "$$f.name",
+                  picture: "$$f.picture",
+                  role: "$$f.role",
                 },
-                [],
-              ],
+              },
             },
 
             friends: 1,
