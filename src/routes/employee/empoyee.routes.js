@@ -10,6 +10,7 @@ const {
   getMe,
   employeeLogin,
 } = require("../../controllers/employee/employee");
+const incentiveRoute = require("../../routes/employee/incentive.routes");
 const {
   fetchTasks,
   assignTask,
@@ -39,7 +40,7 @@ router.get("/me", verifyRole(["EMPLOYEE"]), getMe);
 router.get(
   "/birthday",
   verifyRole(["ADMIN", "EMPLOYEE"]),
-  getEmployeesCelebrations
+  getEmployeesCelebrations,
 );
 
 //Profile
@@ -53,13 +54,13 @@ router.get("/task-assignments", verifyRole(["ADMIN", "EMPLOYEE"]), fetchTasks);
 router.post(
   "/task-assignments/:taskId/submit",
   verifyRole(["EMPLOYEE"]),
-  submitTask
+  submitTask,
 );
 router.delete("/task-assignments/:taskId", verifyAdmin, deleteTask);
 router.patch(
   "/task-assignments/:id/status",
   verifyRole(["ADMIN", "EMPLOYEE"]),
-  updateTaskStatus
+  updateTaskStatus,
 );
 router.delete("/task-assignments/:taskId/image/:imageId", removeImage);
 router.patch("/task-assignments/extend/:id", verifyAdmin, extendTask);
@@ -68,5 +69,6 @@ router.patch("/task-assignments/extend/:id", verifyAdmin, extendTask);
 router.route("/").get(getEmployees).post(createEmployee);
 router.get("/:id", getEmployeeById);
 router.post("/login/:employeeId", employeeLogin);
+router.use("/incentive", incentiveRoute);
 
 module.exports = router;

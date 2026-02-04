@@ -21,13 +21,10 @@ const { paymentStatus } = require("./workshop/emi.js");
 const postRes = async (request, response) => {
   const userId = request.query?.userId;
 
-  console.log("reached payment response");
-
   const responseObject = parseCcavenueResponse(
     request.body,
     process.env.CCAVENUE_WORKING_KEY,
   );
-  console.log("response object received :", responseObject);
 
   try {
     const subscriptionType = responseObject.merchant_param3 || null;
@@ -43,7 +40,6 @@ const postRes = async (request, response) => {
     console.log(isWorkshop);
 
     if (isWorkshop) {
-      console.log("workshop payment");
       return paymentStatus(request, response, responseObject);
     }
 
