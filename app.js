@@ -17,6 +17,7 @@ const { socketSetup } = require("./src/socket/socket.js");
 require("./src/cron/sessionNotifer.js");
 require("./src/cron/salaryCron.js");
 require("./src/cron/emi");
+require("./src/cron/workshopBatch.js");
 
 dotenv.config();
 const app = express();
