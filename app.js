@@ -11,7 +11,6 @@ const corsConfig = require("./src/config/cors.js");
 
 const conditionalClerkMiddleware = require("./src/middlewares/clerkConditionalMiddleware.js");
 const clerkWebhook = require("./src/controllers/webhook/clerkWebhook.controller.js");
-const ensureUserExists = require("./src/middlewares/ensureUserExists.js");
 
 const { socketSetup } = require("./src/socket/socket.js");
 
