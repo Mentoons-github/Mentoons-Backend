@@ -5,6 +5,7 @@ const {
   fetchSingleDataCaptureDetails,
   addReviewOnDataCapture,
   editDataCapture,
+  addScoringSystem,
 } = require("../../controllers/employee/dataCaptureController.js");
 const { verifyRole } = require("../../middlewares/admin/adminAuth.js");
 
@@ -16,12 +17,17 @@ router.get("/fetch", verifyRole(["EMPLOYEE"]), fetchDataCaptureDetails);
 router.get(
   "/fetch-single/:dataCaptureId",
   verifyRole(["EMPLOYEE"]),
-  fetchSingleDataCaptureDetails
+  fetchSingleDataCaptureDetails,
 );
 router.put(
   "/add-review/:dataCaptureId",
   verifyRole(["EMPLOYEE"]),
-  addReviewOnDataCapture
+  addReviewOnDataCapture,
+);
+router.put(
+  "/add-score/:dataCaptureId",
+  verifyRole(["EMPLOYEE"]),
+  addScoringSystem,
 );
 
 module.exports = router;
