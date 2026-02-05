@@ -1,6 +1,8 @@
 const Batch = require("../../models/workshop/workshopBatch");
 const Employee = require("../../models/employee/employee");
 const getNextWorkshopStartDate = require("../../utils/workshop/batch");
+const Incentive = require("../../models/employee/incentive");
+const { assignIncentive } = require("./incentive.service");
 
 const assignBatchToUser = async (plan, userId) => {
   let batch = await Batch.findOne({
@@ -40,6 +42,8 @@ const assignBatchToUser = async (plan, userId) => {
 
     batch.psychologist = psychologists[0]._id;
   }
+
+  await assignIncentive(psychologists[0]._id, "WORKSHOP_BATCH", batch._id);
 
   await Batch.updateOne(
     { _id: batch._id, $expr: { $lt: [{ $size: "$students" }, 10] } },

@@ -6,26 +6,75 @@ const {
 } = require("../../utils/responseHelper");
 
 const getEmployeeIncentives = asyncHandler(async (req, res) => {
-  const userId = req.user.dbUser._id;
+  const userId = req.user._id;
+
   const page = Math.max(parseInt(req.query.page || 1), 1);
   const limit = Math.min(parseInt(req.query.limit || 6), 10);
-
   const skip = (page - 1) * limit;
 
-  const [incentive, total] = await Promise.all([
-    Incentive.find({ employee: userId })
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit),
-    Incentive.countDocuments({ employee: userId }),
+  const { search, sort } = req.query;
+  let filter = { employee: userId };
+
+  if (search) {
+    const regex = new RegExp(search, "i");
+    filter = {
+      ...filter,
+      $or: [
+        { sourceType: regex },
+        { _id: regex },
+      ],
+    };
+  }
+
+  let sortOption = {};
+  switch (sort) {
+    case "amount_asc":
+      sortOption = { incentiveAmount: 1 };
+      break;
+    case "amount_desc":
+      sortOption = { incentiveAmount: -1 };
+      break;
+    case "date_asc":
+      sortOption = { createdAt: 1 };
+      break;
+    case "date_desc":
+      sortOption = { createdAt: -1 };
+      break;
+    case "status_pending":
+      sortOption = { status: 1 };
+      break;
+    default:
+      sortOption = { createdAt: -1 };
+  }
+
+  const [incentives, total] = await Promise.all([
+    Incentive.find(filter).sort(sortOption).skip(skip).limit(limit),
+    Incentive.countDocuments(filter),
   ]);
+
+  const populatedIncentives = await Promise.all(
+    incentives.map(async (inc) => {
+      let sourceDetails = null;
+
+      if (inc.sourceType === "WORKSHOP_BATCH") {
+        sourceDetails = await Workshop.findById(inc.sourceId);
+      } else if (inc.sourceType === "SESSION") {
+        sourceDetails = await Session.findById(inc.sourceId);
+      }
+
+      return {
+        ...inc.toObject(),
+        sourceDetails,
+      };
+    }),
+  );
 
   return successResponse(res, 200, "Employee incentives fetched", {
     page,
     limit,
     total,
     totalPages: Math.ceil(total / limit),
-    data: incentive,
+    data: populatedIncentives,
   });
 });
 

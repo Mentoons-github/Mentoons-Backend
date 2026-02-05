@@ -23,6 +23,7 @@ const completeExpiredBatches = async () => {
     batch.status = "completed";
     await batch.save();
 
+    //fix it that update the final payment status but now its only the starting payment has been completed
     await assignIncentive(batch.psychologist, "WORKSHOP_BATCH", batch._id);
   }
 
