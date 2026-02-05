@@ -29,7 +29,7 @@ const verifyAdmin = async (req, res, next) => {
       return errorResponse(
         res,
         404,
-        "User not found in the database. Please register first."
+        "User not found in the database. Please register first.",
       );
     }
 
@@ -67,11 +67,13 @@ const verifyRole = (allowedRoles = []) => {
 
       const userRole = clerkUser.publicMetadata?.role;
 
+      console.log("userRole :", userRole);
+
       if (!allowedRoles.includes(userRole)) {
         return errorResponse(
           res,
           403,
-          `Access denied. Allowed roles: ${allowedRoles.join(", ")}.`
+          `Access denied. Allowed roles: ${allowedRoles.join(", ")}.`,
         );
       }
 
@@ -81,7 +83,7 @@ const verifyRole = (allowedRoles = []) => {
         return errorResponse(
           res,
           404,
-          "User not found in the database. Please register first."
+          "User not found in the database. Please register first.",
         );
       }
 
@@ -92,6 +94,7 @@ const verifyRole = (allowedRoles = []) => {
 
       next();
     } catch (err) {
+      console.log(err);
       return errorResponse(res, 401, "Invalid or expired token.");
     }
   };

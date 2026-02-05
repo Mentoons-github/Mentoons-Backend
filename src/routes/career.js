@@ -10,12 +10,14 @@ const {
   getAppliedJobs,
   getAppliedJobById,
   deleteJobApplication,
+  getJobBySlug,
 } = require("../controllers/career");
 
 router.route("/jobs").post(addJob).get(getJobs);
 router.route("/jobs/:id").get(getJobById).put(editJob).delete(deleteJob);
 router.route("/jobs/apply/:id").post(applyJob);
 router.route("/applied").get(getAppliedJobs);
+router.get("/jobs/slug/:slug", getJobBySlug);
 router
   .route("/applied/:id")
   .get(getAppliedJobById)

@@ -51,8 +51,13 @@ const jobSchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
+    slug: {
+      type: String,
+      required: true,
+      unique: true,
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const Job = mongoose.model("Job", jobSchema);

@@ -8,6 +8,7 @@ const {
   getAppliedJobs,
   getAppliedJobById,
   deleteApplication,
+  getSlugJob,
 } = require("../helpers/careerHelper");
 const { sendEmail } = require("../services/emailService");
 const asyncHandler = require("../utils/asyncHandler");
@@ -28,7 +29,7 @@ module.exports = {
         requirements,
         whatWeOffer,
       } = req.body;
-      console.log("data from :", req.body);
+
       if (!jobTitle || !jobDescription || !skillsRequired || !thumbnail) {
         console.log(req.body);
         return errorResponse(res, 400, messageHelper.BAD_REQUEST);
@@ -51,16 +52,11 @@ module.exports = {
   getJobs: asyncHandler(async (req, res, next) => {
     {
       const { page, limit, search } = req.query;
-
-      console.log("reached get jobs controller", page, limit, search);
-
       const { jobs, currentPage, totalPages, totalJobs } = await getJobs(
         page,
         limit,
-        search
+        search,
       );
-
-      console.log("jobs got :", jobs.length);
       if (!jobs) {
         return errorResponse(res, 404, messageHelper.JOB_NOT_FOUND);
       }
@@ -81,6 +77,16 @@ module.exports = {
       }
       return successResponse(res, 200, messageHelper.JOB_FETCHED, job);
     }
+  }),
+
+  getJobBySlug: asyncHandler(async (req, res) => {
+    const slug = req.params.slug;
+
+    const job = await getSlugJob(slug);
+    if (!job) {
+      return errorResponse(res, 404, messageHelper.JOB_NOT_FOUND);
+    }
+    return successResponse(res, 200, messageHelper.JOB_FETCHED, job);
   }),
 
   editJob: asyncHandler(async (req, res, next) => {
@@ -136,15 +142,8 @@ module.exports = {
   }),
 
   applyJob: asyncHandler(async (req, res, next) => {
-    const {
-      name,
-      email,
-      phone,
-      gender,
-      portfolioLink,
-      coverNote,
-      resume,
-    } = req.body;
+    const { name, email, phone, gender, portfolioLink, coverNote, resume } =
+      req.body;
     const jobId = req.params.id;
 
     if (
@@ -170,7 +169,7 @@ module.exports = {
       gender,
       portfolioLink,
       coverNote,
-      resume
+      resume,
     );
 
     if (!job) {
@@ -239,7 +238,7 @@ module.exports = {
       page,
       limit,
       parseInt(sortOrder) || -1,
-      sortField || "createdAt"
+      sortField || "createdAt",
     );
 
     if (!jobs || jobs.jobs.length === 0) {
@@ -273,7 +272,7 @@ module.exports = {
       res,
       200,
       messageHelper.JOB_APPLICATION_DELETED,
-      job
+      job,
     );
   }),
 };

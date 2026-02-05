@@ -31,6 +31,8 @@ const {
 
 const router = express.Router();
 
+router.use("/incentive", incentiveRoute);
+
 //Salary
 router.get("/salary", verifyRole(["EMPLOYEE", "ADMIN"]), getSalary);
 router.get("/salary/export", verifyRole(["EMPLOYEE", "ADMIN"]), exportSalary);
@@ -69,6 +71,5 @@ router.patch("/task-assignments/extend/:id", verifyAdmin, extendTask);
 router.route("/").get(getEmployees).post(createEmployee);
 router.get("/:id", getEmployeeById);
 router.post("/login/:employeeId", employeeLogin);
-router.use("/incentive", incentiveRoute);
 
 module.exports = router;

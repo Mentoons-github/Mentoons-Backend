@@ -11,6 +11,7 @@ const incentiveLedger = new mongoose.Schema(
     sourceType: {
       type: String,
       enum: ["WORKSHOP_BATCH", "SESSION"],
+      required: true,
     },
 
     sourceId: {
@@ -18,14 +19,32 @@ const incentiveLedger = new mongoose.Schema(
       required: true,
     },
 
-    incentiveAmount: {
+    totalIncentiveAmount: {
       type: Number,
       required: true,
     },
 
+    initialPaymentAmount: {
+      type: Number,
+      required: true,
+    },
+
+    finalPaymentAmount: {
+      type: Number,
+    },
+
     status: {
       type: String,
-      enum: ["PENDING", "PAID"],
+      enum: ["PENDING", "PARTIAL", "PAID"],
+      default: "PENDING",
+    },
+
+    initialPaymentDate: {
+      type: Date,
+    },
+
+    finalPaymentDate: {
+      type: Date,
     },
   },
   { timestamps: true },
