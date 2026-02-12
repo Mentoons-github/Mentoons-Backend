@@ -56,6 +56,11 @@ const jobSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
+    applicationSource: {
+      type: [String],
+      enum: ["INTERNAL", "AFFILIATE", "COLLABORATE"],
+      default: ["INTERNAL"],
+    },
   },
   { timestamps: true },
 );
