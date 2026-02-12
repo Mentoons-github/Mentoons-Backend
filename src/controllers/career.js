@@ -28,6 +28,7 @@ module.exports = {
         responsibilities,
         requirements,
         whatWeOffer,
+        applicationSource = ["INTERNAL"],
       } = req.body;
 
       if (!jobTitle || !jobDescription || !skillsRequired || !thumbnail) {
@@ -44,6 +45,7 @@ module.exports = {
         responsibilities: responsibilities || [],
         requirements: requirements || [],
         whatWeOffer: whatWeOffer || [],
+        applicationSource,
       });
       return successResponse(res, 200, messageHelper.JOB_CREATED, job);
     }
@@ -51,11 +53,12 @@ module.exports = {
 
   getJobs: asyncHandler(async (req, res, next) => {
     {
-      const { page, limit, search } = req.query;
+      const { page, limit, search, source } = req.query;
       const { jobs, currentPage, totalPages, totalJobs } = await getJobs(
         page,
         limit,
         search,
+        source,
       );
       if (!jobs) {
         return errorResponse(res, 404, messageHelper.JOB_NOT_FOUND);
@@ -142,8 +145,16 @@ module.exports = {
   }),
 
   applyJob: asyncHandler(async (req, res, next) => {
-    const { name, email, phone, gender, portfolioLink, coverNote, resume } =
-      req.body;
+    const {
+      name,
+      email,
+      phone,
+      gender,
+      portfolioLink,
+      coverNote,
+      resume,
+      source,
+    } = req.body;
     const jobId = req.params.id;
 
     if (
@@ -170,6 +181,7 @@ module.exports = {
       portfolioLink,
       coverNote,
       resume,
+      source,
     );
 
     if (!job) {

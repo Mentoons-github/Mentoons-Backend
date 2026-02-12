@@ -13,6 +13,7 @@ const addJob = async ({
   responsibilities = [],
   requirements = [],
   whatWeOffer = [],
+  applicationSource,
 }) => {
   try {
     const slug = jobTitle
@@ -32,6 +33,7 @@ const addJob = async ({
       requirements,
       whatWeOffer,
       slug,
+      applicationSource,
     });
 
     return job;
@@ -39,23 +41,31 @@ const addJob = async ({
     throw error;
   }
 };
-const getJobs = async (page = 1, limit = 10, search = "") => {
+const getJobs = async (page = 1, limit = 10, search = "", source) => {
   try {
     const pageNum = Math.max(1, Number(page) || 1);
     const limitNum = Math.max(1, Number(limit) || 10);
     const skip = (pageNum - 1) * limitNum;
     const searchRegex = new RegExp(search, "i");
 
+    const matchCondition = {
+      $or: [
+        { jobTitle: { $regex: searchRegex } },
+        { jobDescription: { $regex: searchRegex } },
+        { skillsRequired: { $in: [searchRegex] } },
+        { location: { $regex: searchRegex } },
+      ],
+    };
+
+    if (source) {
+      matchCondition.applicationSource = {
+        $in: [source],
+      };
+    }
+
     const jobs = await Job.aggregate([
       {
-        $match: {
-          $or: [
-            { jobTitle: { $regex: searchRegex } },
-            { jobDescription: { $regex: searchRegex } },
-            { skillsRequired: { $in: [searchRegex] } },
-            { location: { $regex: searchRegex } },
-          ],
-        },
+        $match: matchCondition,
       },
       {
         $project: {
@@ -72,6 +82,7 @@ const getJobs = async (page = 1, limit = 10, search = "") => {
           whatWeOffer: 1,
           createdAt: 1,
           updatedAt: 1,
+          slug: 1,
           applicationCount: { $size: { $ifNull: ["$applications", []] } },
         },
       },
@@ -80,22 +91,7 @@ const getJobs = async (page = 1, limit = 10, search = "") => {
       { $limit: limitNum },
     ]);
 
-    const totalJobs = await Job.countDocuments({
-      $or: [
-        { jobTitle: { $regex: searchRegex } },
-        { jobDescription: { $regex: searchRegex } },
-        { skillsRequired: { $in: [searchRegex] } },
-        { location: { $regex: searchRegex } },
-      ],
-    });
-
-    console.log("Fetched jobs:", {
-      jobCount: jobs.length,
-      jobIds: jobs.map((job) => job._id),
-      currentPage: pageNum,
-      totalPages: Math.ceil(totalJobs / limitNum),
-      totalJobs,
-    });
+    const totalJobs = await Job.countDocuments(matchCondition);
 
     return {
       jobs,
@@ -194,6 +190,7 @@ const applyJob = async (
   portfolioLink,
   coverNote,
   resume,
+  source,
 ) => {
   try {
     const jobListing = await Job.findById(jobId);
@@ -210,6 +207,7 @@ const applyJob = async (
       portfolioLink,
       coverNote,
       resume,
+      applicationSource: source,
     });
     jobListing.applications.push(application._id);
     await jobListing.save();
