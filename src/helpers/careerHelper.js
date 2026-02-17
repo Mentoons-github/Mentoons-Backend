@@ -59,7 +59,7 @@ const getJobs = async (page = 1, limit = 10, search = "", source) => {
 
     if (source) {
       matchCondition.applicationSource = {
-        $in: [source],
+        $in: [source.toUpperCase()],
       };
     }
 
