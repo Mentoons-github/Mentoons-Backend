@@ -55,19 +55,22 @@ router.post("/follow/:targetUserId", conditionalAuth, toggleFollowController);
 router.get("/stats/:userId?", conditionalAuth, getUserStatsController);
 router.get("/other-user/:userId", conditionalAuth, getOtherUserController);
 
+router.post("/block", conditionalAuth, blockUser);
+router.post("/unblock", conditionalAuth, unblockUser);
+
 router.get("/friend/:friendId", conditionalAuth, getUserProfile);
 
 //search
 router.get("/search-friend", conditionalAuth, searchFriend);
 
-//block and unblock
+//block and unblock by admin
 router.patch("/block-unblock/:userId", verifyAdmin, blockUnBlockUser);
 
 //update subscription limits
 router.patch(
   "/update-subscription-limits/:userId",
   conditionalAuth,
-  updateSubscriptionLimits
+  updateSubscriptionLimits,
 );
 
 router.get("/subscription-status", verifyToken, checkSubscriptionStatus);
