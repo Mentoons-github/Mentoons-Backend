@@ -8,6 +8,7 @@ const {
   getAppliedJobs,
   getAppliedJobById,
   deleteApplication,
+  getSlugJob,
 } = require("../helpers/careerHelper");
 const { sendEmail } = require("../services/emailService");
 const asyncHandler = require("../utils/asyncHandler");
@@ -27,8 +28,9 @@ module.exports = {
         responsibilities,
         requirements,
         whatWeOffer,
+        applicationSource = ["INTERNAL"],
       } = req.body;
-      console.log("data from :", req.body);
+
       if (!jobTitle || !jobDescription || !skillsRequired || !thumbnail) {
         console.log(req.body);
         return errorResponse(res, 400, messageHelper.BAD_REQUEST);
@@ -43,6 +45,7 @@ module.exports = {
         responsibilities: responsibilities || [],
         requirements: requirements || [],
         whatWeOffer: whatWeOffer || [],
+        applicationSource,
       });
       return successResponse(res, 200, messageHelper.JOB_CREATED, job);
     }
@@ -50,17 +53,13 @@ module.exports = {
 
   getJobs: asyncHandler(async (req, res, next) => {
     {
-      const { page, limit, search } = req.query;
-
-      console.log("reached get jobs controller", page, limit, search);
-
+      const { page, limit, search, source } = req.query;
       const { jobs, currentPage, totalPages, totalJobs } = await getJobs(
         page,
         limit,
-        search
+        search,
+        source,
       );
-
-      console.log("jobs got :", jobs.length);
       if (!jobs) {
         return errorResponse(res, 404, messageHelper.JOB_NOT_FOUND);
       }
@@ -81,6 +80,16 @@ module.exports = {
       }
       return successResponse(res, 200, messageHelper.JOB_FETCHED, job);
     }
+  }),
+
+  getJobBySlug: asyncHandler(async (req, res) => {
+    const slug = req.params.slug;
+
+    const job = await getSlugJob(slug);
+    if (!job) {
+      return errorResponse(res, 404, messageHelper.JOB_NOT_FOUND);
+    }
+    return successResponse(res, 200, messageHelper.JOB_FETCHED, job);
   }),
 
   editJob: asyncHandler(async (req, res, next) => {
@@ -144,6 +153,7 @@ module.exports = {
       portfolioLink,
       coverNote,
       resume,
+      source,
     } = req.body;
     const jobId = req.params.id;
 
@@ -170,7 +180,8 @@ module.exports = {
       gender,
       portfolioLink,
       coverNote,
-      resume
+      resume,
+      source,
     );
 
     if (!job) {
@@ -239,7 +250,7 @@ module.exports = {
       page,
       limit,
       parseInt(sortOrder) || -1,
-      sortField || "createdAt"
+      sortField || "createdAt",
     );
 
     if (!jobs || jobs.jobs.length === 0) {
@@ -273,7 +284,7 @@ module.exports = {
       res,
       200,
       messageHelper.JOB_APPLICATION_DELETED,
-      job
+      job,
     );
   }),
 };

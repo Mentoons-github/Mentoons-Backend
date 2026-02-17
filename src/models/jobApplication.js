@@ -1,39 +1,47 @@
-const mongoose = require('mongoose');
-const jobApplicationSchema = new mongoose.Schema({
+const mongoose = require("mongoose");
+const jobApplicationSchema = new mongoose.Schema(
+  {
     name: {
-        type: String,
-        required: [true, 'Please add a name']
+      type: String,
+      required: [true, "Please add a name"],
     },
     email: {
-        type: String,
-        required: [true, 'Please add an email']
+      type: String,
+      required: [true, "Please add an email"],
     },
     phone: {
-        type: String,
-        required: [true, 'Please add a phone number']
+      type: String,
+      required: [true, "Please add a phone number"],
     },
     portfolioLink: {
-        type: String,
-        required: [true, 'Please add a Portfolio Link']
+      type: String,
+      required: [true, "Please add a Portfolio Link"],
     },
     gender: {
-        type: String,
-        required: [true, 'Please add a gender']
+      type: String,
+      required: [true, "Please add a gender"],
     },
     coverNote: {
-        type: String,
-        required: [true, 'Please add a cover note']
+      type: String,
+      required: [true, "Please add a cover note"],
     },
     jobId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Job',
-        required: [true, 'Please add a job id']
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Job",
+      required: [true, "Please add a job id"],
     },
     resume: {
-        type: String,
-        required: [true, 'Please add a resume']
+      type: String,
+      required: [true, "Please add a resume"],
     },
-}, { timestamps: true });
+    applicationSource: {
+      type: String,
+      enum: ["INTERNAL", "AFFILIATE", "COLLABORATE"],
+      default: "INTERNAL",
+    },
+  },
+  { timestamps: true },
+);
 
-const JobApplication = mongoose.model('JobApplication', jobApplicationSchema);
+const JobApplication = mongoose.model("JobApplication", jobApplicationSchema);
 module.exports = JobApplication;

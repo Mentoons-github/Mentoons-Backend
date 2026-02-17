@@ -49,6 +49,7 @@ const meetupRoutes = require("../routes/adda/meetup.routes.js");
 const quizRoutes = require("../routes/adda/quiz.routes.js");
 const contestRoutes = require("../routes/adda/contest.routes.js");
 const workshopBatchRoutes = require("../routes/workshopBatch.routes.js");
+const feedbackRoutes = require("./adda/userFeedback.routes.js");
 
 router.use("/adda", addaRouter);
 router.use("/influencer-requests", influencerJobRequestRoutes);
@@ -98,5 +99,6 @@ router.use("/contest", contestRoutes);
 router.use("/game", gameRoutes);
 router.use("/data-capture", dataCaptureRoutes);
 router.use("/workshop-batch", workshopBatchRoutes);
+router.use("/user-feedback", feedbackRoutes);
 
 module.exports = router;

@@ -51,8 +51,18 @@ const jobSchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
+    slug: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    applicationSource: {
+      type: [String],
+      enum: ["INTERNAL", "AFFILIATE", "COLLABORATE"],
+      default: ["INTERNAL"],
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const Job = mongoose.model("Job", jobSchema);

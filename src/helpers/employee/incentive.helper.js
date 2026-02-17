@@ -37,3 +37,5 @@ const workshopIncentive = (sourceDetails) => {
 
   return amount;
 };
+
+module.exports = { calculateIncentiveAmount };
