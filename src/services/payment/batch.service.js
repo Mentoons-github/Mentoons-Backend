@@ -6,7 +6,7 @@ const assignBatchToUser = async (plan, userId) => {
   let batch = await Batch.findOne({
     workshopId: plan._id,
     $expr: { $lt: [{ $size: "$students" }, 10] },
-    status: "ongoing",
+    status: "draft",
   }).sort({ startDate: 1 });
 
   if (!batch || !batch.psychologist) {
@@ -24,21 +24,21 @@ const assignBatchToUser = async (plan, userId) => {
       { $match: { taskCount: { $lt: 10 } } },
     ]);
 
-    if (!psychologists.length) throw new Error("NO_PSYCHOLOGIST_AVAILABLE");
+    // if (!psychologists.length) throw new Error("NO_PSYCHOLOGIST_AVAILABLE");
 
     if (!batch) {
       return Batch.create({
         workshopId: plan._id,
         title: `Workshop Batch - ${plan.name}`,
-        psychologist: psychologists[0]._id,
+        // psychologist: psychologists[0]._id,
         students: [userId],
         maxStudents: 10,
-        status: "upcoming",
+        status: "draft",
         startDate: getNextWorkshopStartDate(),
       });
     }
 
-    batch.psychologist = psychologists[0]._id;
+    // batch.psychologist = psychologists[0]._id;
   }
 
   await Batch.updateOne(
