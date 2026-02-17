@@ -14,7 +14,8 @@ const workshopBatchSchema = new mongoose.Schema({
   psychologist: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Employee",
-    required: true,
+    // required: true,
+    default: null,
     index: true,
   },
   maxStudents: {
@@ -24,17 +25,25 @@ const workshopBatchSchema = new mongoose.Schema({
   students: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      ref: "WorkshopStudents",
     },
   ],
   status: {
     type: String,
-    enum: ["ongoing" | "upcoming" | "completed"],
-    default: "upcoming",
+    enum: ["draft", "upcoming", "ongoing", "completed"],
+    default: "draft",
+  },
+  currentSession: {
+    type: Number,
+    default: 0,
+  },
+  isCompleted: {
+    type: Boolean,
+    default: false,
   },
   startDate: {
     type: Date,
-    default: () => new Date(),
+    default: null,
   },
   endDate: {
     type: Date,

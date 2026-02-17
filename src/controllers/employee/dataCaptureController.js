@@ -22,7 +22,7 @@ const createDataCapture = asyncHandler(async (req, res) => {
     res,
     201,
     "Data capture created successfully",
-    dataCapture
+    dataCapture,
   );
 });
 
@@ -49,13 +49,13 @@ const editDataCapture = asyncHandler(async (req, res) => {
       goalsAndExpectations: dataCaptureData.goalsAndExpectations,
       therapistInitialObservation: dataCaptureData.therapistInitialObservation,
     },
-    { new: true }
+    { new: true },
   );
   return successResponse(
     res,
     201,
     "Data capture edit successfull",
-    dataCapture
+    dataCapture,
   );
 });
 
@@ -144,7 +144,7 @@ const fetchSingleDataCaptureDetails = asyncHandler(async (req, res) => {
     res,
     200,
     "Data capture fetched successfully",
-    dataCaptureDetails
+    dataCaptureDetails,
   );
 });
 
@@ -154,8 +154,6 @@ const addReviewOnDataCapture = asyncHandler(async (req, res) => {
   const userId = req.user._id;
   const reviewData = req.body;
 
-  console.log(reviewData, "reviewwww");
-
   const employee = await Employee.findOne({ user: userId });
   if (!employee) {
     return errorResponse(res, 404, "Employee not found");
@@ -163,14 +161,38 @@ const addReviewOnDataCapture = asyncHandler(async (req, res) => {
   const review = await DataCapture.findByIdAndUpdate(
     dataCaptureId,
     { reviewMechanism: reviewData },
-    { new: true }
+    { new: true },
   );
 
   return successResponse(
     res,
     201,
     "Review successfully added on data capture details",
-    review
+    review,
+  );
+});
+
+//add scoring system
+const addScoringSystem = asyncHandler(async (req, res) => {
+  const { dataCaptureId } = req.params;
+  const userId = req.user._id;
+  const scoringData = req.body;
+
+  const employee = await Employee.findOne({ user: userId });
+  if (!employee) {
+    return errorResponse(res, 404, "Employee not found");
+  }
+  const score = await DataCapture.findByIdAndUpdate(
+    dataCaptureId,
+    { scoringSystem: scoringData },
+    { new: true },
+  );
+
+  return successResponse(
+    res,
+    201,
+    "Scoring successfully added on data capture details",
+    score,
   );
 });
 
@@ -180,4 +202,5 @@ module.exports = {
   fetchSingleDataCaptureDetails,
   addReviewOnDataCapture,
   editDataCapture,
+  addScoringSystem,
 };

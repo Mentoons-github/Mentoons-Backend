@@ -557,9 +557,10 @@ module.exports = {
       .json({ data: friends, freindRequests: filteredRequests });
   }),
 
+  //block a user
   blockUser: asyncHandler(async (req, res) => {
     const { userId: targetUserId, conversationId } = req.body;
-    const requesterId = req.user;
+    const requesterId = req.user.dbUser._id;
 
     if (!targetUserId) {
       res.status(400);
@@ -611,13 +612,14 @@ module.exports = {
 
     res.status(200).json({
       success: true,
-      message: `Blocked user ${targetUser.username || targetUserId}`,
+      message: `Successfully blocked ${targetUser.name || targetUserId}`,
     });
   }),
 
+  //unblock a user
   unblockUser: asyncHandler(async (req, res) => {
     const { userId: targetUserId, conversationId } = req.body;
-    const requesterId = req.user;
+    const requesterId = req.user.dbUser._id;
 
     if (!targetUserId) {
       res.status(400);
@@ -664,13 +666,9 @@ module.exports = {
       }
     }
 
-    console.log(
-      `✅ ${targetUser.username || targetUserId} unblocked by ${requesterId}`,
-    );
-
     res.status(200).json({
       success: true,
-      message: `Unblocked user ${targetUser.username || targetUserId}`,
+      message: `Successfully unblocked ${targetUser.name || targetUserId}`,
     });
   }),
 

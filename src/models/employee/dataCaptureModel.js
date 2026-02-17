@@ -174,8 +174,66 @@ const dataCaptureSchema = new mongoose.Schema(
       },
       default: null,
     },
+
+    scoringSystem: {
+      type: {
+        workshop: { type: String, required: true },
+        totalPoint: { type: Number, required: true },
+        maxPoint: { type: Number, required: true },
+        date: {
+          type: Date,
+          default: Date.now,
+          required: true,
+        },
+        categories: {
+          type: [
+            {
+              heading: { type: String, required: true },
+
+              point: { type: Number, required: true },
+              maxPoint: { type: Number, required: true },
+
+              // CASE 1: With sub
+              // sub: {
+              //   type: [
+              //     {
+              //       heading: { type: String, required: true },
+              //       point: { type: Number, required: true },
+              //       maxPoint: { type: Number, required: true },
+
+              //       questions: {
+              //         type: [
+              //           {
+              //             question: { type: String, required: true },
+              //             point: { type: Number, required: true },
+              //             maxPoint: { type: Number, required: true },
+              //           },
+              //         ],
+              //       },
+              //     },
+              //   ],
+              //   default: undefined,
+              // },
+
+              // CASE 2: Without sub (DIRECT questions)
+              questions: {
+                type: [
+                  {
+                    question: { type: String, required: true },
+                    point: { type: Number, required: true },
+                    maxPoint: { type: Number, required: true },
+                  },
+                ],
+                default: undefined,
+              },
+            },
+          ],
+        },
+      },
+      default: null,
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const DataCapture = mongoose.model("DataCapture", dataCaptureSchema);

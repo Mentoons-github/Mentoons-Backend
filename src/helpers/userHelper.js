@@ -149,14 +149,13 @@ module.exports = {
             subscription: 1,
             assignedCalls: 1,
             isBlocked: 1,
+            blockedUsers: 1,
           },
         },
         { $sort: { [sortField]: sortOrder === "asc" ? 1 : -1 } },
         { $skip: skip },
         { $limit: Number(limit) },
       ]);
-
-      console.log(allUsers, "allUsers");
 
       const totalCount = await User.countDocuments(matchConditions);
 
@@ -265,6 +264,7 @@ module.exports = {
             phoneNumber: 1,
             occupation: 1,
             subscriptionLimits: 1,
+            blockedUsers:1
           },
         },
       ]);
