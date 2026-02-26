@@ -5,7 +5,7 @@ const UserPlan = require("../../models/workshop/userPlan");
 const asyncHandler = require("../../utils/asyncHandler");
 const Batch = require("../../models/workshop/workshopBatch");
 const Task = require("../../models/employee/task");
-const uuidv4 = require("uuid");
+const { v4: uuidv4 } = require("uuid");
 const {
   errorResponse,
   successResponse,
@@ -313,18 +313,12 @@ const paymentStatus = asyncHandler(async (req, res, responseObject) => {
 });
 
 const activeEmi = asyncHandler(async (req, res) => {
-  console.log("===== Fetch Active EMI START =====");
-
   const userId = req.user.dbUser._id;
-  console.log("User ID:", userId.toString());
-
-  // End of today (to include overdue + today)
   const endOfToday = new Date();
   endOfToday.setHours(23, 59, 59, 999);
 
   console.log("End Of Today:", endOfToday.toISOString());
 
-  // Find EMI which is due today OR overdue
   const userEMI = await UserPlan.find({
     userId,
     "emiDetails.status": "active",
@@ -335,14 +329,11 @@ const activeEmi = asyncHandler(async (req, res) => {
     },
   });
 
-  console.log("Raw EMI Records Found:", userEMI.length);
-
   if (!userEMI || userEMI.length === 0) {
     console.log("❌ No pending EMI found");
     return errorResponse(res, 404, "No pending EMI");
   }
 
-  // Map only required data for frontend
   const pendingEmis = userEMI.map((plan) => ({
     userPlanId: plan._id,
     planId: plan.planId,
@@ -453,7 +444,8 @@ const downloadInvoice = asyncHandler(async (req, res) => {
 
   const invoice = await Payment.findOne({ transactionId })
     .populate("userPlanId")
-    .populate("userId");
+    .populate("userId")
+    .populate("planId");
 
   console.log(invoice);
   if (!invoice) {
