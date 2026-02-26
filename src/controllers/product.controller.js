@@ -13,9 +13,45 @@ const asyncHandler = require("../utils/asyncHandler.js");
 // GET /api/products
 const getProducts = async (req, res, next) => {
   const user = req.user;
+
+  if (req.query.getFilters === "true") {
+    try {
+      const [types, ageCategories, membershipTypes, priceState] =
+        await Promise.all([
+          Product.distinct("type"),
+          Product.distinct("ageCategory"),
+          Product.distinct("product_type"),
+          Product.aggregate([
+            {
+              $group: {
+                _id: null,
+                minPrice: { $min: "$price" },
+                maxPrice: { $max: "$price" },
+              },
+            },
+          ]),
+        ]);
+
+      const { minPrice, maxPrice } = priceState[0] || {};
+
+      return res.json({
+        types,
+        ageCategories,
+        membershipTypes,
+        price: {
+          minPrice,
+          maxPrice,
+        },
+      });
+    } catch (err) {
+      return res.status(500).json({ message: "Failed to fetch filters" });
+    }
+  }
+
   try {
     const {
       search,
+      category,
       sortBy = "createdAt",
       order = "desc",
       page = "1",
@@ -23,6 +59,9 @@ const getProducts = async (req, res, next) => {
       type = "",
       cardType = "",
       ageCategory = "",
+      membership = "",
+      minPrice,
+      maxPrice,
     } = req.query;
 
     const pageNumber = parseInt(page, 10);
@@ -31,6 +70,7 @@ const getProducts = async (req, res, next) => {
     const sortOrder = order === "asc" ? 1 : -1;
 
     const queryFilter = {};
+
     if (search) {
       queryFilter.$or = [
         { title: { $regex: search, $options: "i" } },
@@ -38,7 +78,27 @@ const getProducts = async (req, res, next) => {
       ];
     }
 
+    if (category) {
+      queryFilter.type = category;
+    }
+
     if (ageCategory) queryFilter.ageCategory = ageCategory;
+
+    if (membership) {
+      queryFilter.product_type = membership;
+    }
+
+    if (minPrice || maxPrice) {
+      queryFilter.price = {};
+      if (minPrice) {
+        const min = Number(minPrice);
+        if (!isNaN(min)) queryFilter.price.$gte = min;
+      }
+      if (maxPrice) {
+        const max = Number(maxPrice);
+        if (!isNaN(max)) queryFilter.price.$lte = max;
+      }
+    }
 
     if (type === "mentoons_coloring_book") {
       queryFilter.type = "mentoons books";
@@ -73,9 +133,18 @@ const getProducts = async (req, res, next) => {
       delete matchStage.cardType;
     }
 
+    const allowedSortFields = ["createdAt", "title", "price", "ageCategory"];
+
+    let sortStage = {};
+
+    if (allowedSortFields.includes(sortBy)) {
+      sortStage = { [sortBy]: sortOrder };
+    } else {
+      sortStage = { createdAt: sortOrder };
+    }
+
     const pipeline = [
       { $match: matchStage },
-      // only add $project when user is NOT logged in
       ...(user ? [] : [{ $project: { orignalProductSrc: 0 } }]),
       {
         $addFields: {
@@ -91,7 +160,7 @@ const getProducts = async (req, res, next) => {
           },
         },
       },
-      { $sort: { productTypeOrder: 1, [sortBy]: sortOrder } },
+      { $sort: sortStage },
       { $skip: skip },
       { $limit: limitNumber },
     ];
@@ -142,27 +211,27 @@ const createProduct = async (req, res, next) => {
     const videoUrls = Array.isArray(productData.videos)
       ? productData.videos.map((url) => ({ videoUrl: url }))
       : productData.videos
-      ? [{ videoUrl: productData.videos }]
-      : [];
+        ? [{ videoUrl: productData.videos }]
+        : [];
 
     // Process images
     const imageUrls = Array.isArray(productData.productImages)
       ? productData.productImages.map((img) =>
           typeof img === "string"
             ? { imageUrl: img }
-            : { imageUrl: img?.url || img?.imageUrl }
+            : { imageUrl: img?.url || img?.imageUrl },
         )
       : productData.productImages
-      ? [
-          {
-            imageUrl:
-              typeof productData.productImages === "string"
-                ? productData.productImages
-                : productData.productImages?.url ||
-                  productData.productImages?.imageUrl,
-          },
-        ]
-      : [];
+        ? [
+            {
+              imageUrl:
+                typeof productData.productImages === "string"
+                  ? productData.productImages
+                  : productData.productImages?.url ||
+                    productData.productImages?.imageUrl,
+            },
+          ]
+        : [];
 
     // Build final product data
     const data = {
@@ -324,8 +393,8 @@ const globalSearch = async (req, res) => {
         Object.entries(collectionKeywords)
           .filter(([key]) => normalizedSearch.includes(key))
           .flatMap(([, collections]) =>
-            Array.isArray(collections) ? collections : [collections]
-          )
+            Array.isArray(collections) ? collections : [collections],
+          ),
       ),
     ];
 
@@ -444,7 +513,7 @@ const globalSearch = async (req, res) => {
               ...user.toObject(),
               followStatus,
             };
-          })
+          }),
         );
       } else {
         enhancedUsers = matchedUsers.map((user) => ({
@@ -491,7 +560,7 @@ const deleteProductImage = asyncHandler(async (req, res) => {
   }
 
   const image = product.productImages.find(
-    (img) => img.imageUrl._id.toString() === imageId
+    (img) => img.imageUrl._id.toString() === imageId,
   );
   if (!image) {
     return res.status(404).json({
@@ -501,7 +570,7 @@ const deleteProductImage = asyncHandler(async (req, res) => {
   }
 
   product.productImages = product.productImages.filter(
-    (img) => img.imageUrl._id.toString() !== imageId
+    (img) => img.imageUrl._id.toString() !== imageId,
   );
 
   await product.save();
@@ -529,7 +598,7 @@ const deleteProductFile = asyncHandler(async (req, res) => {
     { $set: { orignalProductSrc: "" } },
     {
       new: true,
-    }
+    },
   );
 
   if (!product) {

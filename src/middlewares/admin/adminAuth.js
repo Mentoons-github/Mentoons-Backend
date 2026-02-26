@@ -47,7 +47,6 @@ const verifyAdmin = async (req, res, next) => {
 const verifyRole = (allowedRoles = []) => {
   return async (req, res, next) => {
     const token = req.headers.authorization?.split(" ")[1];
-
     if (!token) {
       return errorResponse(res, 401, "Authorization token is required.");
     }
