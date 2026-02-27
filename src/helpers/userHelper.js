@@ -120,6 +120,7 @@ module.exports = {
         {
           $match: matchConditions,
         },
+        { $sort: { [sortField]: sortOrder === "asc" ? 1 : -1 } },
         {
           $lookup: {
             from: "requestcalls",
@@ -152,7 +153,6 @@ module.exports = {
             blockedUsers: 1,
           },
         },
-        { $sort: { [sortField]: sortOrder === "asc" ? 1 : -1 } },
         { $skip: skip },
         { $limit: Number(limit) },
       ]);
@@ -264,7 +264,7 @@ module.exports = {
             phoneNumber: 1,
             occupation: 1,
             subscriptionLimits: 1,
-            blockedUsers:1
+            blockedUsers: 1,
           },
         },
       ]);

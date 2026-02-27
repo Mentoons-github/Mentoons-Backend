@@ -27,6 +27,13 @@ const {
   getEmiStatistics,
   completedPayment,
 } = require("../controllers/workshop/emi");
+const {
+  bplVerificationFormsubmit,
+  checkApplied,
+  getAllBplApplication,
+  updateApplicationStatus,
+  deleteBplApplication,
+} = require("../controllers/workshop/bplVerificationController");
 
 const router = express.Router();
 
@@ -52,29 +59,43 @@ router.route("/:workshopId").get(verifyAdmin, getWorkshopEnquiriesById);
 router.post(
   "/add-workshop",
   adminAuthMiddleware.adminAuthMiddleware,
-  addWorkshop
+  addWorkshop,
 );
 
 router.get(
   "/workshop-data/:workshopId",
   adminAuthMiddleware.adminAuthMiddleware,
-  getWorkshopById
+  getWorkshopById,
 );
 router.put(
   "/edit/:workshopId",
   adminAuthMiddleware.adminAuthMiddleware,
-  editWorkshop
+  editWorkshop,
 );
 router.delete(
   "/:workshopId/image/:ageRange",
   adminAuthMiddleware.adminAuthMiddleware,
-  deleteWorkshopImage
+  deleteWorkshopImage,
 );
 
 router.delete(
   "/:workshopId",
   adminAuthMiddleware.adminAuthMiddleware,
-  deleteWorkshop
+  deleteWorkshop,
+);
+
+router.post("/bpl-verification", verifyToken, bplVerificationFormsubmit);
+router.get("/bpl-verification/check-applied", verifyToken, checkApplied);
+router.get("/bpl-verification/getAll", verifyAdmin, getAllBplApplication);
+router.put(
+  "/bpl-verification/update-status",
+  verifyAdmin,
+  updateApplicationStatus,
+);
+router.delete(
+  "/bpl-verification/delete/:applicationId",
+  verifyAdmin,
+  deleteBplApplication,
 );
 
 router.get("/invoice/:transactionId", verifyToken, downloadInvoice);

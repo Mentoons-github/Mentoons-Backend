@@ -41,7 +41,7 @@ const addJob = async ({
     throw error;
   }
 };
-const getJobs = async (page = 1, limit = 10, search = "", source) => {
+const getJobs = async (page = 1, limit = 10, search = "", source, sort) => {
   try {
     const pageNum = Math.max(1, Number(page) || 1);
     const limitNum = Math.max(1, Number(limit) || 10);
@@ -67,6 +67,7 @@ const getJobs = async (page = 1, limit = 10, search = "", source) => {
       {
         $match: matchCondition,
       },
+      { $sort: { createdAt: sort === "desc" ? -1 : 1 } },
       {
         $project: {
           jobTitle: 1,
@@ -86,7 +87,6 @@ const getJobs = async (page = 1, limit = 10, search = "", source) => {
           applicationCount: { $size: { $ifNull: ["$applications", []] } },
         },
       },
-      { $sort: { createdAt: -1 } },
       { $skip: skip },
       { $limit: limitNum },
     ]);
