@@ -10,6 +10,7 @@ const {
   deleteApplication,
   getSlugJob,
 } = require("../helpers/careerHelper");
+const JobApplication = require("../models/jobApplication");
 const { sendEmail } = require("../services/emailService");
 const asyncHandler = require("../utils/asyncHandler");
 const messageHelper = require("../utils/messageHelper");
@@ -287,5 +288,119 @@ module.exports = {
       messageHelper.JOB_APPLICATION_DELETED,
       job,
     );
+  }),
+
+  sendApplicationToAdmin: asyncHandler(async (req, res) => {
+    const jobId = req.params.id;
+
+    const application = await JobApplication.findById(jobId).populate("jobId");
+    if (!application) {
+      return errorResponse(res, 404, "No job application found");
+    }
+
+    const jobDetails = application.jobId;
+
+    const adminMailOptions = {
+      from: process.env.EMAIL_USER,
+      to: process.env.SUPER_ADMIN_EMAIL,
+      subject: `🚀 New Job Application - ${jobDetails.jobTitle}`,
+      html: `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: auto; background: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .header { background-color: #4F46E5; padding: 25px; text-align: center; }
+        .header h1 { color: white; margin: 0; font-size: 22px; }
+        .header p { color: #c7d2fe; margin: 5px 0 0; font-size: 14px; }
+        .body { padding: 30px; }
+        .badge { display: inline-block; background: #EEF2FF; color: #4F46E5; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: bold; margin-bottom: 20px; }
+        .section-title { font-size: 13px; color: #9CA3AF; text-transform: uppercase; letter-spacing: 1px; margin: 20px 0 8px; }
+        .info-card { background: #F9FAFB; border-radius: 8px; padding: 15px 20px; margin-bottom: 10px; }
+        .info-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #E5E7EB; }
+        .info-row:last-child { border-bottom: none; }
+        .info-label { color: #6B7280; font-size: 14px; }
+        .info-value { color: #111827; font-size: 14px; font-weight: 600; }
+        .cover-note { background: #FFFBEB; border-left: 4px solid #F59E0B; padding: 15px; border-radius: 0 8px 8px 0; font-size: 14px; color: #374151; line-height: 1.6; }
+        .btn { display: inline-block; background: #4F46E5; color: white; padding: 12px 25px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 14px; margin: 5px; }
+        .btn-outline { background: white; color: #4F46E5; border: 2px solid #4F46E5; }
+        .footer { background: #F9FAFB; padding: 20px; text-align: center; font-size: 12px; color: #9CA3AF; }
+        .source-tag { background: #D1FAE5; color: #065F46; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+
+        <!-- Header -->
+        <div class="header">
+          <h1>📬 New Application Just Dropped!</h1>
+          <p>${application.name} wants to join the Mentoons team</p>
+        </div>
+
+        <!-- Body -->
+        <div class="body">
+          <span class="badge">🎯 ${jobDetails.jobTitle}</span>
+
+          <!-- Applicant Info -->
+          <div class="section-title">👤 Applicant Details</div>
+          <div class="info-card">
+            <div class="info-row">
+              <span class="info-label">Full Name</span>
+              <span class="info-value">${application.name}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Email</span>
+              <span class="info-value">${application.email}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Phone</span>
+              <span class="info-value">${application.phone}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Gender</span>
+              <span class="info-value">${application.gender}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Applied Via</span>
+              <span class="info-value"><span class="source-tag">${application.applicationSource}</span></span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Applied On</span>
+              <span class="info-value">${new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}</span>
+            </div>
+          </div>
+
+          <!-- Cover Note -->
+          <div class="section-title">💬 Cover Note</div>
+          <div class="cover-note">
+            "${application.coverNote ?? "No Cover note"}"
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="section-title">⚡ Quick Actions</div>
+          <div style="text-align: center; margin-top: 10px;">
+            <a href="${application.portfolioLink}" class="btn" target="_blank">🌐 View Portfolio</a>
+            <a href="${application.resume}" class="btn btn-outline" target="_blank">📄 Download Resume</a>
+          </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+          <p>This is an automated notification from <strong>Mentoons Hiring System</strong></p>
+          <p>© ${new Date().getFullYear()} Mentoons.</p>
+        </div>
+
+      </div>
+    </body>
+    </html>
+  `,
+    };
+
+    await sendEmail(adminMailOptions);
+
+    return successResponse(res, 200, "Job Application send to Super Admin");
   }),
 };

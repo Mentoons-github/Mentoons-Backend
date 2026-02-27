@@ -205,6 +205,7 @@ module.exports = {
       limit = 10,
       filter,
     } = req.query;
+
     const queryOptions = {
       search,
       sortField,

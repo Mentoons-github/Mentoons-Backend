@@ -116,6 +116,11 @@ module.exports = {
       if (filter.role && filter.role !== "") {
         matchConditions.role = filter.role;
       }
+
+      let mongoSortValue = -1;
+      if (sortOrder === "asc" || sortOrder === 1) mongoSortValue = 1;
+      else if (sortOrder === "desc" || sortOrder === -1) mongoSortValue = -1;
+
       const allUsers = await User.aggregate([
         {
           $match: matchConditions,
@@ -128,6 +133,9 @@ module.exports = {
             foreignField: "_id",
             as: "assignedCalls",
           },
+        },
+        {
+          $sort: { [sortField]: mongoSortValue },
         },
         {
           $project: {
@@ -165,8 +173,6 @@ module.exports = {
         totalPages: Math.ceil(totalCount / limit),
       };
     } catch (error) {
-      console.error("Error in getAllUser:", error.message);
-      console.error("Stack trace:", error.stack);
       throw new Error(`Error fetching users from database: ${error.message}`);
     }
   },
