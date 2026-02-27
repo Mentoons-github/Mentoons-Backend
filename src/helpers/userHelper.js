@@ -125,6 +125,7 @@ module.exports = {
         {
           $match: matchConditions,
         },
+        { $sort: { [sortField]: sortOrder === "asc" ? 1 : -1 } },
         {
           $lookup: {
             from: "requestcalls",

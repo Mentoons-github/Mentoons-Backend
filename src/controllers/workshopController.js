@@ -57,9 +57,13 @@ module.exports = {
   }),
 
   getWorkshopEnquiries: asyncHandler(async (req, res, next) => {
-    const { search, page, limit } = req.query;
-    const EnquiryData = await getWorkshopEnquiriesFromDB(search, page, limit);
-    console.log(EnquiryData, "oooooo");
+    const { search, page, limit, sort } = req.query;
+    const EnquiryData = await getWorkshopEnquiriesFromDB(
+      search,
+      page,
+      limit,
+      sort,
+    );
     if (!EnquiryData) {
       return errorResponse(res, 500, messageHelper.SOMETHING_WENT_WRONG);
     }
@@ -67,7 +71,7 @@ module.exports = {
       res,
       200,
       messageHelper.ENQUIRY_DATA_FETCHED,
-      EnquiryData
+      EnquiryData,
     );
   }),
 
@@ -81,7 +85,7 @@ module.exports = {
       res,
       200,
       messageHelper.ENQUIRY_DATA_FETCHED,
-      EnquiryData
+      EnquiryData,
     );
   }),
 
@@ -98,7 +102,7 @@ module.exports = {
       res,
       200,
       messageHelper.CALL_SUBMITTED,
-      callRequestData
+      callRequestData,
     );
   }),
 
@@ -112,7 +116,7 @@ module.exports = {
       res,
       200,
       messageHelper.CALL_DATA_FETCHED,
-      callRequestData
+      callRequestData,
     );
   }),
 
@@ -126,7 +130,7 @@ module.exports = {
       res,
       200,
       messageHelper.CALL_DATA_FETCHED,
-      callRequestData
+      callRequestData,
     );
   }),
 
@@ -141,7 +145,7 @@ module.exports = {
       res,
       200,
       messageHelper.CALL_STATUS_UPDATED,
-      callRequestData
+      callRequestData,
     );
   }),
   assignCallsToUser: asyncHandler(async (req, res, next) => {
@@ -151,7 +155,7 @@ module.exports = {
     const assignedCalls = await assignCallsToUserFromDB(
       userId,
       callId,
-      superAdminId
+      superAdminId,
     );
     if (!assignedCalls) {
       return errorResponse(res, 404, messageHelper.CALL_REQUEST_NOT_FOUND);
@@ -160,7 +164,7 @@ module.exports = {
       res,
       200,
       messageHelper.CALL_ALLOCATED,
-      assignedCalls
+      assignedCalls,
     );
   }),
   reallocateCallFromUser: asyncHandler(async (req, res, next) => {
@@ -170,7 +174,7 @@ module.exports = {
     const reallocatedCall = await reallocateCallFromDB(
       callId,
       userId,
-      superAdminId
+      superAdminId,
     );
     if (!reallocatedCall) {
       return errorResponse(res, 404, messageHelper.CALL_REQUEST_NOT_FOUND);
@@ -179,7 +183,7 @@ module.exports = {
       res,
       200,
       messageHelper.CALL_REALLOCATED,
-      reallocatedCall
+      reallocatedCall,
     );
   }),
 
@@ -191,7 +195,7 @@ module.exports = {
         res,
         201,
         "Workshop created successfully",
-        workshop
+        workshop,
       );
     } catch (error) {
       return res.status(400).json({
@@ -360,7 +364,7 @@ module.exports = {
     const workshop = await Workshop.findByIdAndUpdate(
       workshopId,
       { $set: { categoryName, subtitle, workshops, description } },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     if (!workshop) {
@@ -383,7 +387,7 @@ module.exports = {
     const updatedWorkshop = await Workshop.findOneAndUpdate(
       { _id: workshopId, "ageGroups.ageRange": ageRange },
       { $set: { "ageGroups.$.image": null } },
-      { new: true }
+      { new: true },
     );
 
     if (!updatedWorkshop) {
@@ -426,7 +430,7 @@ module.exports = {
           res,
           200,
           "All workshops fetched successfully",
-          workshops
+          workshops,
         );
       }
 
@@ -516,8 +520,6 @@ module.exports = {
     return res.status(200).json({ message: "Workshop deleted successfully" });
   }),
 
- 
-
   //workshopV2
   getAllWorkshopV2: asyncHandler(async (req, res) => {
     const workshops = await WorkshopV2.find({ isActive: true }).lean();
@@ -531,7 +533,7 @@ module.exports = {
       res,
       200,
       "WorkshopV2 fetched successfully",
-      workshops
+      workshops,
     );
   }),
 
@@ -557,7 +559,7 @@ module.exports = {
       res,
       201,
       "WorkshopV2 created successfully",
-      workshop
+      workshop,
     );
   }),
 };

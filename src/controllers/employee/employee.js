@@ -62,11 +62,30 @@ const getEmployees = asyncHandler(async (req, res) => {
   const page = Number(req.query.page) || 1;
   const limit = Number(req.query.limit) || 10;
   const search = req.query.search || "";
+  const sort = req.query.sort || "desc";
+  const from = req.query.from || "";
 
   const skip = (page - 1) * limit;
   const searchRegex = new RegExp(search, "i");
 
-  let pipeline = [
+  const matchConditions = {
+    $or: [
+      { "userInfo.name": { $regex: searchRegex } },
+      { "userInfo.email": { $regex: searchRegex } },
+      { department: { $regex: searchRegex } },
+      { "userInfo.role": { $regex: searchRegex } },
+      { "userInfo.phoneNumber": { $regex: searchRegex } },
+      { "place.city": { $regex: searchRegex } },
+      { "place.state": { $regex: searchRegex } },
+      { "place.country": { $regex: searchRegex } },
+    ],
+  };
+
+  if (from === "psychologist") {
+    matchConditions.department = "psychologist";
+  }
+
+  const employees = await Employee.aggregate([
     {
       $lookup: {
         from: "users",
@@ -75,56 +94,35 @@ const getEmployees = asyncHandler(async (req, res) => {
         as: "userInfo",
       },
     },
-  ];
-  let result = await Employee.aggregate(pipeline);
+    { $unwind: "$userInfo" },
 
-  pipeline.push({ $unwind: "$userInfo" });
-  result = await Employee.aggregate(pipeline);
+    { $match: matchConditions },
 
-  pipeline.push({
-    $match: {
-      $or: [
-        { "userInfo.name": { $regex: searchRegex } },
-        { "userInfo.email": { $regex: searchRegex } },
-        { department: { $regex: searchRegex } },
-        { "userInfo.role": { $regex: searchRegex } },
-        { "userInfo.phoneNumber": { $regex: searchRegex } },
-        { "place.city": { $regex: searchRegex } },
-        { "place.state": { $regex: searchRegex } },
-        { "place.country": { $regex: searchRegex } },
-      ],
+    // 🔥 SORT BEFORE PROJECT
+    { $sort: { joinDate: sort === "desc" ? -1 : 1 } },
+
+    { $skip: skip },
+    { $limit: limit },
+
+    {
+      $project: {
+        _id: 1,
+        department: 1,
+        salary: 1,
+        isActive: 1,
+        joinDate: 1,
+        place: 1,
+        profilePicture: 1,
+        profileEditRequest: 1,
+        active: 1,
+        "userInfo.name": 1,
+        "userInfo.email": 1,
+        "userInfo.role": 1,
+        "userInfo.phoneNumber": 1,
+        "userInfo.dateOfBirth": 1,
+      },
     },
-  });
-  result = await Employee.aggregate(pipeline);
-
-  pipeline.push({
-    $project: {
-      _id: 1,
-      department: 1,
-      salary: 1,
-      isActive: 1,
-      joinDate: 1,
-      place: 1,
-      profilePicture: 1,
-      profileEditRequest: 1,
-      active: 1,
-      "userInfo.name": 1,
-      "userInfo.email": 1,
-      "userInfo.role": 1,
-      "userInfo.phoneNumber": 1,
-      "userInfo.dateOfBirth": 1,
-    },
-  });
-  result = await Employee.aggregate(pipeline);
-
-  pipeline.push({ $sort: { createdAt: -1 } });
-  result = await Employee.aggregate(pipeline);
-
-  pipeline.push({ $skip: skip });
-  result = await Employee.aggregate(pipeline);
-
-  pipeline.push({ $limit: limit });
-  const employees = await Employee.aggregate(pipeline);
+  ]);
 
   if (!employees || employees.length === 0) {
     return errorResponse(res, 404, messageHelper.EMPLOYEE_NOT_FOUND);
@@ -170,7 +168,7 @@ const getEmployeeById = async (req, res) => {
 
     const employee = await Employee.findById(id).populate(
       "user",
-      "name email role phoneNumber picture"
+      "name email role phoneNumber picture",
     );
 
     if (!employee) {
@@ -217,7 +215,7 @@ const employeeLogin = asyncHandler(async (req, res) => {
   }
   const employee = await Employee.findById(employeeId).populate(
     "user",
-    "name email role phoneNumber picture"
+    "name email role phoneNumber picture",
   );
 
   if (!employee) {
@@ -245,7 +243,7 @@ const getEmployeeProfile = async (req, res) => {
 
     const employeeDoc = await Employee.findOne({ user: user._id }).populate(
       "user",
-      "-password -__v -createdAt -updatedAt"
+      "-password -__v -createdAt -updatedAt",
     );
     if (!employeeDoc) {
       return res.status(404).json({ message: "Employee not found" });
@@ -364,17 +362,17 @@ const editEmployee = async (req, res) => {
             ...(dob !== undefined && { dateOfBirth: dob }),
           },
         },
-        { new: true, runValidators: true }
+        { new: true, runValidators: true },
       ).select("name email role picture gender phoneNumber dateOfBirth");
     }
 
     const updatedEmployee = await Employee.findOneAndUpdate(
       { user: userId },
       { $set: { profileEditRequest: null } },
-      { new: true }
+      { new: true },
     ).populate(
       "user",
-      "name email role picture gender phoneNumber dateOfBirth"
+      "name email role picture gender phoneNumber dateOfBirth",
     );
 
     if (!updatedEmployee) {
@@ -415,7 +413,7 @@ const requestProfileEdit = async (req, res) => {
 
     const employee = await Employee.findOne({ user: employeeId }).populate(
       "user",
-      "_id name"
+      "_id name",
     );
     if (!employee) {
       return res.status(404).json({ message: "Employee not found" });
@@ -459,7 +457,7 @@ const getEmployeesCelebrations = async (req, res) => {
   try {
     const employees = await Employee.find().populate(
       "user",
-      "name email role picture gender phoneNumber dateOfBirth"
+      "name email role picture gender phoneNumber dateOfBirth",
     );
 
     if (!employees.length) {
@@ -480,7 +478,7 @@ const getEmployeesCelebrations = async (req, res) => {
         const birthdayThisYear = new Date(
           currentYear,
           dob.getMonth(),
-          dob.getDate()
+          dob.getDate(),
         );
 
         if (birthdayThisYear.getFullYear() === currentYear) {
@@ -544,7 +542,7 @@ const getMe = async (req, res) => {
     const userId = req.user._id;
     const employee = await Employee.findOne({ user: userId }).populate(
       "user",
-      "name email profilePicture"
+      "name email profilePicture",
     );
 
     if (!employee) {

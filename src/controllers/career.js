@@ -54,12 +54,13 @@ module.exports = {
 
   getJobs: asyncHandler(async (req, res, next) => {
     {
-      const { page, limit, search, source } = req.query;
+      const { page, limit, search, source, sort } = req.query;
       const { jobs, currentPage, totalPages, totalJobs } = await getJobs(
         page,
         limit,
         search,
         source,
+        sort
       );
       if (!jobs) {
         return errorResponse(res, 404, messageHelper.JOB_NOT_FOUND);

@@ -42,7 +42,12 @@ module.exports = {
     }
   },
 
-  getWorkshopEnquiriesFromDB: async (search, page = 1, limit = 10) => {
+  getWorkshopEnquiriesFromDB: async (
+    search,
+    page = 1,
+    limit = 10,
+    sort = "desc",
+  ) => {
     try {
       const skip = (page - 1) * limit;
       const searchRegex = new RegExp(search, "i");
@@ -55,6 +60,7 @@ module.exports = {
             ],
           },
         },
+        { $sort: { createdAt: sort === "desc" ? -1 : 1 } },
         {
           $project: {
             firstname: 1,
@@ -65,7 +71,6 @@ module.exports = {
             workshop: 1,
           },
         },
-        { $sort: { createdAt: -1 } },
         { $skip: skip },
         { $limit: Number(limit) },
       ]);
@@ -218,7 +223,7 @@ module.exports = {
       const callRequestData = await requestCall.findByIdAndUpdate(
         id,
         { status },
-        { new: true }
+        { new: true },
       );
       return callRequestData;
     } catch (error) {
@@ -252,12 +257,12 @@ module.exports = {
       const updatedCall = await requestCall.findByIdAndUpdate(
         callId,
         { assignedTo: userId },
-        { new: true }
+        { new: true },
       );
       const updatedUser = await User.findByIdAndUpdate(
         userId,
         { $push: { assignedCalls: callId } },
-        { new: true }
+        { new: true },
       );
       return { updatedUser, updatedCall };
     } catch (error) {
@@ -297,12 +302,12 @@ module.exports = {
       const updatedCall = await requestCall.findByIdAndUpdate(
         callId,
         { assignedTo: userId },
-        { new: true }
+        { new: true },
       );
       const updatedUser = await User.findByIdAndUpdate(
         userId,
         { $push: { assignedCalls: callId } },
-        { new: true }
+        { new: true },
       );
 
       return { updatedUser, updatedCall };
@@ -348,21 +353,21 @@ module.exports = {
           whyChooseUs.length === 0
         ) {
           throw new Error(
-            `At least one 'Why Choose Us' item is required for workshop ${workshopName}`
+            `At least one 'Why Choose Us' item is required for workshop ${workshopName}`,
           );
         }
 
         for (const item of whyChooseUs) {
           if (!item.heading || !item.description) {
             throw new Error(
-              `Each 'Why Choose Us' item in workshop ${workshopName} must have a heading and description`
+              `Each 'Why Choose Us' item in workshop ${workshopName} must have a heading and description`,
             );
           }
         }
 
         if (!ageGroups || !Array.isArray(ageGroups) || ageGroups.length === 0) {
           throw new Error(
-            `At least one age group is required for workshop ${workshopName}`
+            `At least one age group is required for workshop ${workshopName}`,
           );
         }
 
@@ -372,13 +377,13 @@ module.exports = {
             !["6-12", "13-19", "20+"].includes(group.ageRange)
           ) {
             throw new Error(
-              `Invalid age range for workshop ${workshopName}: must be one of '6-12', '13-19', or '20+'`
+              `Invalid age range for workshop ${workshopName}: must be one of '6-12', '13-19', or '20+'`,
             );
           }
 
           if (!group.serviceOverview) {
             throw new Error(
-              `Service overview is required for age group ${group.ageRange} in workshop ${workshopName}`
+              `Service overview is required for age group ${group.ageRange} in workshop ${workshopName}`,
             );
           }
 
@@ -388,21 +393,21 @@ module.exports = {
             group.benefits.length === 0
           ) {
             throw new Error(
-              `At least one benefit is required for age group ${group.ageRange} in workshop ${workshopName}`
+              `At least one benefit is required for age group ${group.ageRange} in workshop ${workshopName}`,
             );
           }
 
           for (const benefit of group.benefits) {
             if (!benefit.title || !benefit.description) {
               throw new Error(
-                `Each benefit in age group ${group.ageRange} of workshop ${workshopName} must have a title and description`
+                `Each benefit in age group ${group.ageRange} of workshop ${workshopName} must have a title and description`,
               );
             }
           }
 
           if (!group.image) {
             throw new Error(
-              `Image is required for age group ${group.ageRange} in workshop ${workshopName}`
+              `Image is required for age group ${group.ageRange} in workshop ${workshopName}`,
             );
           }
         }
@@ -413,11 +418,11 @@ module.exports = {
       if (category) {
         for (const workshop of workshops) {
           const existingWorkshop = category.workshops.find(
-            (w) => w.workshopName === workshop.workshopName
+            (w) => w.workshopName === workshop.workshopName,
           );
           if (existingWorkshop) {
             throw new Error(
-              `Workshop with name '${workshop.workshopName}' already exists in category '${categoryName}'`
+              `Workshop with name '${workshop.workshopName}' already exists in category '${categoryName}'`,
             );
           }
         }
