@@ -11,6 +11,7 @@ module.exports = {
     "https://mentoons-website-4wmixkbtq-mentoons-projects.vercel.app",
     "https://mentoons-website-981v3d0hh-mentoons-projects.vercel.app",
     "https://mentoons-website-hl6g0xz8u-mentoons-projects.vercel.app",
+    "https://mentoons-website-hk5cny5sg-mentoons-projects.vercel.app",
     "https://mentoons-website-nine.vercel.app",
     "https://mentormahesh.com",
   ],
