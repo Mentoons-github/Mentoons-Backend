@@ -3,6 +3,8 @@ const User = require("../models/user");
 const Chat = require("../models/adda/message");
 const { clerk } = require("../middlewares/auth.middleware");
 const Conversations = require("../models/adda/conversation");
+const Group = require("../models/adda/groups");
+const GroupMessage = require("../models/adda/GroupMessageSchema");
 
 let io;
 
@@ -34,7 +36,7 @@ const socketSetup = (server) => {
       const user = await User.findOneAndUpdate(
         { clerkId },
         { $addToSet: { socketIds: socket.id } },
-        { new: true }
+        { new: true },
       );
 
       if (!user) return next(new Error("User not found in DB"));
@@ -50,11 +52,10 @@ const socketSetup = (server) => {
     console.log(`Socket connected: ${socket.id}, user: ${socket.userId}`);
 
     socket.emit("mongo_user_id", { userId: socket.userId });
-    
+
     // Broadcast online status after connection
     await updateUserOnlineStatus(socket.userId, socket.id, true);
     await broadCastOnlineUsersToAll();
-
 
     const undeliveredMessages = await Chat.find({
       receiverId: socket.userId,
@@ -73,15 +74,52 @@ const socketSetup = (server) => {
     if (undeliveredMessages.length > 0) {
       await Chat.updateMany(
         { receiverId: socket.userId, isDelivered: false },
-        { $set: { isDelivered: true } }
+        { $set: { isDelivered: true } },
       );
     }
+
+    socket.on("join_group", (groupId) => {
+      socket.join(groupId);
+    });
 
     // Send message
     socket.on(
       "send_message",
-      async ({ receiverId, message, fileType, isForwarded = false }) => {
+      async ({
+        receiverId,
+        groupId,
+        message,
+        fileType,
+        isForwarded = false,
+      }) => {
         try {
+          if (groupId) {
+            const group = await Group.findById(groupId).populate("members");
+
+            console.log(groupId, "groupId");
+            console.log(group, "goupsss");
+
+            const chat = await GroupMessage.create({
+              groupId,
+              senderId: socket.userId,
+              message,
+            });
+
+            const sender = await User.findById(socket.userId).select(
+              "_id name picture",
+            );
+
+            io.to(groupId).emit("receive_group_message", {
+              _id: chat._id,
+              groupId,
+              senderId: sender,
+              message,
+              createdAt: chat.createdAt,
+            });
+
+            return;
+          }
+
           console.log("Message received:", message);
           const receiverIds = Array.isArray(receiverId)
             ? receiverId
@@ -114,7 +152,6 @@ const socketSetup = (server) => {
             if (receiverUser && receiverUser.socketIds.length > 0) {
               isDelivered = true;
             }
-
 
             const chat = await Chat.create({
               conversationId: conversation._id,
@@ -169,11 +206,10 @@ const socketSetup = (server) => {
               isForwarded,
             });
           }
-
         } catch (err) {
           console.error("Error sending message:", err);
         }
-      }
+      },
     );
 
     // Typing indicators
@@ -202,7 +238,7 @@ const socketSetup = (server) => {
       // Update unread messages for this user
       await Chat.updateMany(
         { conversationId, receiverId: userId, isRead: { $ne: true } },
-        { $set: { isRead: true } }
+        { $set: { isRead: true } },
       );
 
       const newUnreadCount = await Chat.countDocuments({
@@ -220,7 +256,7 @@ const socketSetup = (server) => {
         await conversation.save();
 
         const otherMemberIds = conversation.members.filter(
-          (id) => id.toString() !== userId.toString()
+          (id) => id.toString() !== userId.toString(),
         );
 
         for (const senderId of otherMemberIds) {
@@ -235,8 +271,10 @@ const socketSetup = (server) => {
     });
 
     socket.on("disconnect", async (reason) => {
-      console.log(`User disconnected: ${socket.id}, userId: ${socket.userId}, reason: ${reason}`);
-      
+      console.log(
+        `User disconnected: ${socket.id}, userId: ${socket.userId}, reason: ${reason}`,
+      );
+
       try {
         await updateUserOnlineStatus(socket.userId, socket.id, false);
         setTimeout(async () => {
@@ -248,8 +286,10 @@ const socketSetup = (server) => {
     });
 
     socket.on("disconnecting", async (reason) => {
-      console.log(`User disconnecting: ${socket.id}, userId: ${socket.userId}, reason: ${reason}`);
-      
+      console.log(
+        `User disconnecting: ${socket.id}, userId: ${socket.userId}, reason: ${reason}`,
+      );
+
       try {
         await updateUserOnlineStatus(socket.userId, socket.id, false);
       } catch (error) {
@@ -267,21 +307,23 @@ const updateUserOnlineStatus = async (userId, socketId, isConnecting) => {
       await User.findByIdAndUpdate(
         userId,
         { $addToSet: { socketIds: socketId } },
-        { new: true }
+        { new: true },
       );
       console.log(`Added socket ${socketId} for user ${userId}`);
     } else {
       const user = await User.findById(userId);
       if (user) {
-        const updatedSocketIds = user.socketIds.filter(id => id !== socketId);
-        
+        const updatedSocketIds = user.socketIds.filter((id) => id !== socketId);
+
         await User.findByIdAndUpdate(
           userId,
           { $set: { socketIds: updatedSocketIds } },
-          { new: true }
+          { new: true },
         );
-        
-        console.log(`Removed socket ${socketId} for user ${userId}. Remaining sockets: ${updatedSocketIds.length}`);
+
+        console.log(
+          `Removed socket ${socketId} for user ${userId}. Remaining sockets: ${updatedSocketIds.length}`,
+        );
       }
     }
   } catch (error) {
@@ -293,22 +335,22 @@ const updateUserOnlineStatus = async (userId, socketId, isConnecting) => {
 const cleanupStaleConnections = async () => {
   try {
     const users = await User.find({ socketIds: { $exists: true, $ne: [] } });
-    
+
     for (const user of users) {
       const activeSocketIds = [];
-      
+
       for (const socketId of user.socketIds) {
         const socket = io.sockets.sockets.get(socketId);
         if (socket && socket.connected) {
           activeSocketIds.push(socketId);
         }
       }
-      
+
       if (activeSocketIds.length !== user.socketIds.length) {
         await User.findByIdAndUpdate(
           user._id,
           { $set: { socketIds: activeSocketIds } },
-          { new: true }
+          { new: true },
         );
         console.log(`Cleaned up stale connections for user ${user._id}`);
       }
@@ -324,15 +366,17 @@ setInterval(cleanupStaleConnections, 5 * 60 * 1000);
 const broadCastOnlineUsersToAll = async () => {
   try {
     await cleanupStaleConnections();
-    
+
     const onlineUsers = await User.find({
-      socketIds: { $exists: true, $ne: [] }
+      socketIds: { $exists: true, $ne: [] },
     }).select("_id socketIds");
 
-    console.log(`Broadcasting online users to all: ${onlineUsers.length} users online`);
+    console.log(
+      `Broadcasting online users to all: ${onlineUsers.length} users online`,
+    );
 
     const connectedSockets = await io.fetchSockets();
-    
+
     for (const socket of connectedSockets) {
       if (socket.userId) {
         await broadCastOnlineUsersToSpecificUser(socket.id, socket.userId);

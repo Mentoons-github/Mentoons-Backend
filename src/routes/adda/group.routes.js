@@ -9,16 +9,20 @@ const {
   votePoll,
   closePoll,
   fetchGroupById,
+  joinGroups,
 } = require("../../controllers/adda/groupController");
+const verifyToken = require("../../middlewares/addaMiddleware");
 
 // -------------------- GROUP ROUTES --------------------
-router.get("/", fetchGroups);
+router.get("/", verifyToken, fetchGroups);
 
-router.get("/:groupId/members", fetchMembers);
+router.get("/:groupId/members", verifyToken, fetchMembers);
 
-router.get("/:groupId/messages", fetchGroupMessages);
+router.get("/:groupId/messages", verifyToken, fetchGroupMessages);
 
 router.get("/:groupId", fetchGroupById);
+
+router.put("/:groupId/join", verifyToken, joinGroups);
 
 // -------------------- POLL ROUTES --------------------
 router.get("/:groupId/polls", fetchPolls);
