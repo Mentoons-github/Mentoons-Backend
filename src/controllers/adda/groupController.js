@@ -1,13 +1,24 @@
+const FriendRequest = require("../../models/adda/friendRequest");
+const GroupMessage = require("../../models/adda/GroupMessageSchema");
 const Group = require("../../models/adda/groups");
 const asyncHandler = require("../../utils/asyncHandler");
 
 const fetchGroups = asyncHandler(async (req, res) => {
-  const groups = await Group.find().populate(
-    "members",
-    "_id name profileImage"
-  );
+  const userId = req.user;
+  const joinedGroups = await Group.find({ members: userId })
+    .sort({ createdAt: -1 })
+    .populate("members", "_id name picture");
 
-  if (!groups || groups.length === 0) {
+  const suggestedGroups = await Group.find({
+    members: { $ne: userId },
+  })
+    .sort({ createdAt: -1 })
+    .populate("members", "_id name picture");
+
+  if (
+    (!joinedGroups || joinedGroups.length === 0) &&
+    (!suggestedGroups || suggestedGroups.length === 0)
+  ) {
     return res.status(404).json({
       success: false,
       message: "No groups found",
@@ -16,15 +27,16 @@ const fetchGroups = asyncHandler(async (req, res) => {
 
   return res.status(200).json({
     success: true,
-    data: groups,
+    data: {
+      joinedGroups,
+      suggestedGroups,
+    },
     message: "Groups fetched successfully",
   });
 });
 
 const fetchGroupById = asyncHandler(async (req, res) => {
   const { groupId } = req.params;
-
-  console.log(groupId);
 
   if (!groupId) {
     return res.status(404).json({
@@ -33,7 +45,10 @@ const fetchGroupById = asyncHandler(async (req, res) => {
     });
   }
 
-  const group = await Group.findById(groupId);
+  const group = await Group.findById(groupId).populate(
+    "members",
+    "name picture _id",
+  );
 
   return res.status(200).json({
     success: true,
@@ -44,12 +59,12 @@ const fetchGroupById = asyncHandler(async (req, res) => {
 
 const fetchMembers = asyncHandler(async (req, res) => {
   const { groupId } = req.params;
+  const currentUserID = req.user;
 
   const group = await Group.findById(groupId, { members: 1 }).populate(
     "members",
-    "name profileImage"
+    "name picture _id",
   );
-
   if (!group || group.members.length === 0) {
     return res.status(404).json({
       success: false,
@@ -57,9 +72,32 @@ const fetchMembers = asyncHandler(async (req, res) => {
     });
   }
 
+  const members = group.members;
+
+  const requests = await Promise.all(
+    members.map(async (member) => {
+      const sentRequest = await FriendRequest.findOne({
+        senderId: currentUserID,
+        receiverId: member._id,
+      });
+
+      const receivedRequest = await FriendRequest.findOne({
+        senderId: member._id,
+        receiverId: currentUserID,
+      });
+
+      return {
+        id: member._id,
+        sentRequest,
+        receivedRequest,
+      };
+    }),
+  );
+
   return res.status(200).json({
     success: true,
-    data: group.members,
+    data: members,
+    friendRequests: requests,
     message: "Members fetched successfully",
   });
 });
@@ -67,10 +105,34 @@ const fetchMembers = asyncHandler(async (req, res) => {
 const fetchGroupMessages = asyncHandler(async (req, res) => {
   const { groupId } = req.params;
 
-  const group = await Group.findById(groupId, { messages: 1 }).populate(
-    "messages.sender",
-    "name profileImage"
-  );
+  const messages = await GroupMessage.find({ groupId })
+    .populate("senderId", "name picture")
+    .sort({ createdAt: 1 });
+
+  return res.status(200).json({
+    success: true,
+    data: messages,
+    message: "Messages fetched successfully",
+  });
+});
+
+//join groups
+const joinGroups = asyncHandler(async (req, res) => {
+  const { groupId } = req.params;
+  const userId = req.user;
+
+  if (!groupId) {
+    return res.status(400).json({
+      success: false,
+      message: "GroupId is required",
+    });
+  }
+
+  const group = await Group.findByIdAndUpdate(
+    groupId,
+    { $addToSet: { members: userId } },
+    { new: true },
+  ).populate("members", "name picture");
 
   if (!group) {
     return res.status(404).json({
@@ -81,8 +143,8 @@ const fetchGroupMessages = asyncHandler(async (req, res) => {
 
   return res.status(200).json({
     success: true,
-    data: group.message,
-    message: "Messages fetched successfully",
+    data: group,
+    message: "Successfully joined to the group ",
   });
 });
 
@@ -193,7 +255,7 @@ const votePoll = asyncHandler(async (req, res) => {
 
   if (!poll.allowMultipleVotes) {
     const alreadyVoted = poll.options.some((opt) =>
-      opt.voters.includes(voterId)
+      opt.voters.includes(voterId),
     );
     if (alreadyVoted) {
       return res.status(400).json({ message: "You have already voted" });
@@ -227,7 +289,7 @@ const fetchPolls = asyncHandler(async (req, res) => {
   }
 
   const activePolls = groups.polls.filter(
-    (poll) => poll.expiresAt > new Date() && poll.isActive === true
+    (poll) => poll.expiresAt > new Date() && poll.isActive === true,
   );
 
   return res.status(200).json({
@@ -261,4 +323,5 @@ module.exports = {
   createPoll,
   votePoll,
   closePoll,
+  joinGroups,
 };

@@ -1,15 +1,5 @@
 const mongoose = require("mongoose");
 
-const messagesSchema = new mongoose.Schema(
-  {
-    senderId: { type: String, required: true },
-    senderName: { type: String, required: true },
-    profilePicture: { type: String, required: true },
-    text: { type: String, required: true },
-  },
-  { timestamps: true }
-);
-
 const pollSchema = new mongoose.Schema(
   {
     title: { type: String, required: true },
@@ -33,7 +23,7 @@ const pollSchema = new mongoose.Schema(
       default: "immediately",
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const groupSchema = new mongoose.Schema(
@@ -43,14 +33,12 @@ const groupSchema = new mongoose.Schema(
       subTitle: { type: String, required: true },
       description: { type: String, required: true },
     },
-    members: [
-      { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    ],
+    members: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     polls: [pollSchema],
-    message: [messagesSchema],
+    message: [{ type: mongoose.Schema.Types.ObjectId, ref: "GroupMessages" }],
     profileImage: { type: String, required: true },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const Group = mongoose.model("Group", groupSchema);
