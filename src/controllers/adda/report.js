@@ -1,4 +1,6 @@
 const Conversations = require("../../models/adda/conversation");
+const GroupMessage = require("../../models/adda/GroupMessageSchema");
+const Group = require("../../models/adda/groups");
 const reportAndAbuse = require("../../models/adda/reportAndAbuse");
 const Report = require("../../models/adda/reportAndAbuse");
 const Feed = require("../../models/feed");
@@ -19,7 +21,7 @@ const reportUserPost = async (req, res) => {
       return errorResponse(
         res,
         400,
-        "Report reason, post ID, and user ID are required."
+        "Report reason, post ID, and user ID are required.",
       );
     }
 
@@ -68,7 +70,7 @@ const reportUserPost = async (req, res) => {
     await Feed.findOneAndUpdate(
       { user: userId },
       { $addToSet: { hiddenPosts: postId } },
-      { upsert: true }
+      { upsert: true },
     );
     console.log("Feed updated successfully for user:", { userId });
 
@@ -87,77 +89,85 @@ const reportUserPost = async (req, res) => {
 };
 
 const reportConversation = async (req, res) => {
-  const { conversationId, reason } = req.body;
+  const { contentId, reason, type, reportedUser } = req.body;
   const userId = req.user;
 
-  console.log("🛑 Conversation report initiated:", {
+  console.log("🛑 Report initiated:", {
     userId,
-    conversationId,
+    contentId,
     reason,
+    type,
+    reportedUser,
   });
 
   try {
-    // Validate inputs
-    if (!reason || !conversationId) {
-      console.error("Missing required fields:", { reason, conversationId });
-      return errorResponse(
-        res,
-        400,
-        "Report reason and conversation ID are required."
-      );
+    // ✅ 1. Basic validation
+    if (!reason || !contentId || !type || !reportedUser) {
+      return errorResponse(res, 400, "Missing required fields.");
     }
 
-    // Check if the conversation exists and the user is a participant
-    const conversation = await Conversations.findById(conversationId);
-    if (!conversation || !conversation.members.includes(userId)) {
-      return errorResponse(
-        res,
-        404,
-        "Conversation not found or access denied."
-      );
+    let conversationId = null;
+    let groupMessageId = null;
+
+    if (type === "conversation") {
+      const conversation = await Conversations.findById(contentId);
+
+      if (!conversation) {
+        return errorResponse(res, 404, "Conversation not found.");
+      }
+
+      if (!conversation.members.includes(userId)) {
+        return errorResponse(res, 403, "Access denied.");
+      }
+
+      conversationId = contentId;
+    } else if (type === "groupMessage") {
+      const message = await GroupMessage.findById(contentId);
+
+      if (!message) {
+        return errorResponse(res, 404, "Message not found.");
+      }
+
+      const group = await Group.findById(message.groupId);
+
+      if (!group || !group.members.includes(userId)) {
+        return errorResponse(res, 403, "Access denied.");
+      }
+
+      groupMessageId = contentId;
+    } else {
+      return errorResponse(res, 400, "Invalid report type.");
     }
 
-    // Check for duplicate report
-    const alreadyReported = await Report.findOne({
+    // ✅ 3. Duplicate check (SAFE)
+    const query = {
       reporter: userId,
-      conversationId,
-    });
+      ...(conversationId && { conversationId }),
+      ...(groupMessageId && { groupMessageId }),
+    };
+
+    const alreadyReported = await Report.findOne(query);
 
     if (alreadyReported) {
-      console.warn("Duplicate conversation report:", {
-        reporter: userId,
-        conversationId,
-      });
-      return errorResponse(
-        res,
-        409,
-        "You have already reported this conversation."
-      );
+      return errorResponse(res, 409, "Already reported.");
     }
 
-    // Create the report without reportedUser
-    const report = new reportAndAbuse({
+    // ✅ 4. Save report (ONLY valid field stored)
+    const report = new Report({
       reporter: userId,
-      conversationId,
       reason,
+      conversationId,
+      groupMessageId,
+      reportedUser,
     });
 
     await report.save();
-    console.log("✅ Conversation reported and saved:", {
-      reportId: report._id,
-    });
 
-    console.log("🔕 Conversation hidden in feed for user:", { userId });
+    console.log("✅ Report saved:", report._id);
 
-    return successResponse(res, 200, "Conversation reported successfully.");
+    return successResponse(res, 200, "Reported successfully.");
   } catch (err) {
-    console.error("❌ Error reporting conversation:", {
-      error: err.message,
-      stack: err.stack,
-      userId,
-      conversationId,
-      reason,
-    });
+    console.error("❌ Error reporting:", err);
     return errorResponse(res, 500, "Internal Server Error");
   }
 };

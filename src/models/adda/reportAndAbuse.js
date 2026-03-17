@@ -13,6 +13,11 @@ const reportSchema = new mongoose.Schema({
     default: null,
   },
   postId: { type: mongoose.Schema.Types.ObjectId, ref: "Post" },
+  groupMessageId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "GroupMessage",
+    default: null,
+  },
   conversationId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Conversation",
