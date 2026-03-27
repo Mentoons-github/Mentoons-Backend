@@ -20,6 +20,7 @@ const addaConditionalAuth = async (req, res, next) => {
     }
 
     const user = await clerk.users.getUser(session.sub);
+
     if (!user) {
       console.log("User not found");
       return next();
@@ -37,6 +38,7 @@ const addaConditionalAuth = async (req, res, next) => {
       dbUser: DBUser,
       email: user.emailAddresses[0]?.emailAddress,
       firstName: user.firstName,
+      role: user.publicMetadata.role,
       lastName: user.lastName,
       imageUrl: user.imageUrl,
       membership: user.publicMetadata.membership || "FREE",

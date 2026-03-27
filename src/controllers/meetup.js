@@ -94,6 +94,9 @@ const allMeetups = asyncHandler(async (req, res) => {
     isOnline,
   } = req.query;
 
+  const role = req.user?.role?.toLowerCase();
+  console.log("user role", role);
+
   page = parseInt(page, 10);
   limit = parseInt(limit, 10);
 
@@ -109,6 +112,11 @@ const allMeetups = asyncHandler(async (req, res) => {
 
   if (isOnline !== undefined) {
     query.isOnline = isOnline === "true";
+  }
+
+  if (role != "admin") {
+    console.log("is not admin admin");
+    query.dateTime = { $gte: new Date() };
   }
 
   const total = await Meetup.countDocuments(query);

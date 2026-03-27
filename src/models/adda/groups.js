@@ -11,7 +11,11 @@ const pollSchema = new mongoose.Schema(
         voters: [{ type: String }],
       },
     ],
-    createdBy: { type: String, required: true },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     expiresAt: { type: Date, required: true },
     isActive: { type: Boolean, default: true },
     category: { type: String },
@@ -37,6 +41,21 @@ const groupSchema = new mongoose.Schema(
     polls: [pollSchema],
     message: [{ type: mongoose.Schema.Types.ObjectId, ref: "GroupMessages" }],
     profileImage: { type: String, required: true },
+    groupCreationStatus: {
+      type: String,
+      default: "pending",
+      enum: ["pending", "approved", "rejected"],
+    },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      refPath: "createdByRole",
+    },
+    createdByRole: {
+      type: String,
+      required: true,
+      enum: ["User", "Admin"],
+    },
   },
   { timestamps: true },
 );
