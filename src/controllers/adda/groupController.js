@@ -1,16 +1,38 @@
 const FriendRequest = require("../../models/adda/friendRequest");
 const GroupMessage = require("../../models/adda/GroupMessageSchema");
 const Group = require("../../models/adda/groups");
+const User = require("../../models/user");
 const asyncHandler = require("../../utils/asyncHandler");
 
 const fetchGroups = asyncHandler(async (req, res) => {
-  const userId = req.user;
-  const joinedGroups = await Group.find({ members: userId })
+  const { dbUser, role } = req.user;
+  console;
+  const userId = dbUser._id;
+
+  let joinedGroups = [];
+  let suggestedGroups = [];
+
+  if (role?.toLowerCase() === "admin") {
+    const allGroups = await Group.find({})
+      .sort({ createdAt: -1 })
+      .populate("members", "_id name picture");
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        allGroups,
+      },
+      message: "All groups fetched (Admin)",
+    });
+  }
+
+  joinedGroups = await Group.find({ members: userId })
     .sort({ createdAt: -1 })
     .populate("members", "_id name picture");
 
-  const suggestedGroups = await Group.find({
+  suggestedGroups = await Group.find({
     members: { $ne: userId },
+    groupCreationStatus: "approved",
   })
     .sort({ createdAt: -1 })
     .populate("members", "_id name picture");
@@ -45,10 +67,15 @@ const fetchGroupById = asyncHandler(async (req, res) => {
     });
   }
 
-  const group = await Group.findById(groupId).populate(
-    "members",
-    "name picture _id",
-  );
+  const group = await Group.findById(groupId)
+    .populate({
+      path: "polls.createdBy",
+      select: "name picture _id",
+    })
+    .populate({
+      path: "members",
+      select: "name picture _id",
+    });
 
   return res.status(200).json({
     success: true,
@@ -148,6 +175,86 @@ const joinGroups = asyncHandler(async (req, res) => {
   });
 });
 
+const validPrivacy = ["public", "private"];
+
+const createCommunityGroups = asyncHandler(async (req, res) => {
+  const { groupName, description, image, parentGroup, tags, privacy } =
+    req.body.data;
+
+  const { role, dbUser: user } = req.user;
+
+  const normalize = (str) => str.toLowerCase().replace(/\s+/g, "").trim();
+  const errors = {};
+
+  const validParentGroup = [
+    "technology",
+    "sports",
+    "arts&culture",
+    "education",
+    "business",
+    "health&wellness",
+  ];
+
+  if (!groupName || groupName.trim() === "")
+    errors.groupName = "Please enter a valid groupName";
+
+  if (!description || description.trim() === "")
+    errors.description = "Please enter description";
+
+  if (!image) errors.image = "No image found";
+
+  if (!parentGroup || !validParentGroup.includes(normalize(parentGroup)))
+    errors.parentGroup = "Please select a valid parent group";
+
+  if (!tags || !Array.isArray(tags) || tags.length === 0) {
+    errors.tags = "Please provide at least one tag";
+  } else {
+    const invalidTags = tags.filter((tag) => !tag || tag.trim() === "");
+
+    if (invalidTags.length > 0) {
+      errors.tags = "Tags cannot be empty";
+    }
+
+    if (tags.length > 10) {
+      errors.tags = "Maximum 10 tags allowed";
+    }
+  }
+
+  if (!privacy || !validPrivacy.includes(privacy.toLowerCase())) {
+    errors.privacy = "Privacy must be either 'public' or 'private'";
+  }
+
+  if (Object.keys(errors).length > 0) {
+    return res.status(400).json(errors);
+  }
+
+  const formattedRole = role
+    ? role.toLowerCase() === "admin"
+      ? "Admin"
+      : "User"
+    : "User";
+
+  await Group.create({
+    createdBy: user._id,
+    createdByRole: formattedRole,
+    profileImage: image,
+    name: groupName,
+    details: {
+      subTitle: groupName,
+      description,
+    },
+    members: formattedRole === "User" ? [user._id] : [],
+    groupCreationStatus: formattedRole === "Admin" ? "approved" : "pending",
+  });
+
+  return res.status(200).json({
+    message:
+      formattedRole === "Admin"
+        ? "Community group created successfully"
+        : "Community group created, waiting for admin approval",
+  });
+});
+
 const createPoll = asyncHandler(async (req, res) => {
   const {
     title,
@@ -160,6 +267,8 @@ const createPoll = asyncHandler(async (req, res) => {
     allowMultipleVotes,
     viewResults,
   } = req.body;
+
+  console.log(createdBy);
 
   if (!title || title.trim().length < 3) {
     return res.status(400).json({
@@ -186,7 +295,9 @@ const createPoll = asyncHandler(async (req, res) => {
     }
   }
 
-  if (!createdBy) {
+  const user = await User.findOne({ clerkId: createdBy });
+
+  if (!user) {
     return res.status(400).json({ message: "CreatedBy is required" });
   }
 
@@ -219,7 +330,7 @@ const createPoll = asyncHandler(async (req, res) => {
     title,
     description,
     options,
-    createdBy,
+    createdBy: user._id,
     expiresAt,
     category,
     isAnonymous,
@@ -236,51 +347,57 @@ const createPoll = asyncHandler(async (req, res) => {
 });
 
 const votePoll = asyncHandler(async (req, res) => {
-  const { groupId, pollId, optionIndex } = req.params;
-  const { voterId } = req.body;
+  const { groupId, pollId } = req.params;
+  const { voterId, optionId } = req.body;
 
   if (!voterId) {
     return res.status(400).json({ message: "Voter ID is required" });
   }
 
-  const group = await Group.findById(groupId);
-  if (!group) {
-    return res.status(404).json({ message: "Group not found" });
+  const result = await Group.updateOne(
+    {
+      _id: groupId,
+      "polls._id": pollId,
+      "polls.options._id": optionId,
+      "polls.options.voters": { $ne: voterId },
+    },
+    {
+      $inc: {
+        "polls.$[poll].options.$[opt].votes": 1,
+      },
+      $addToSet: {
+        "polls.$[poll].options.$[opt].voters": voterId,
+      },
+    },
+    {
+      arrayFilters: [{ "poll._id": pollId }, { "opt._id": optionId }],
+    },
+  );
+
+  if (result.modifiedCount === 0) {
+    return res.status(400).json({
+      message: "Already voted or invalid data",
+    });
   }
 
-  const poll = group.polls.id(pollId);
-  if (!poll) {
-    return res.status(404).json({ message: "Poll not found" });
-  }
-
-  if (!poll.allowMultipleVotes) {
-    const alreadyVoted = poll.options.some((opt) =>
-      opt.voters.includes(voterId),
-    );
-    if (alreadyVoted) {
-      return res.status(400).json({ message: "You have already voted" });
-    }
-  }
-
-  if (!poll.options[optionIndex]) {
-    return res.status(400).json({ message: "Invalid option index" });
-  }
-
-  poll.options[optionIndex].votes += 1;
-  poll.options[optionIndex].voters.push(voterId);
-
-  await group.save();
+  const updatedGroup = await Group.findById(groupId);
+  const updatedPoll = updatedGroup.polls.id(pollId);
 
   res.status(200).json({
     message: "Vote recorded successfully",
-    poll,
+    poll: Array.isArray(updatedPoll) ? updatedPoll : [updatedPoll],
   });
 });
 
 const fetchPolls = asyncHandler(async (req, res) => {
   const groupId = req.params;
 
-  const groups = await Group.findById(groupId, { polls: -1 });
+  const groups = await Group.findById(groupId).populate(
+    "polls.createdBy",
+    "name email picture",
+  );
+
+  console.log("group data :", groups);
 
   if (!groups && groups.length === 0) {
     return res.status(400).json({
@@ -314,6 +431,67 @@ const closePoll = asyncHandler(async (req, res) => {
   res.status(200).json({ message: "Poll closed successfully", poll });
 });
 
+const approveGroup = asyncHandler(async (req, res) => {
+  const { groupId } = req.params;
+
+  const group = await Group.findByIdAndUpdate(
+    groupId,
+    { groupCreationStatus: "approved" },
+    { new: true },
+  );
+
+  if (!group) {
+    return res.status(404).json({
+      success: false,
+      message: "Group not found",
+    });
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: "Group approved successfully",
+    data: group,
+  });
+});
+
+const rejectGroup = asyncHandler(async (req, res) => {
+  const { groupId } = req.params;
+
+  const group = await Group.findByIdAndUpdate(groupId, {
+    $set: { groupCreationStatus: "rejected" },
+  });
+
+  if (!group) {
+    return res.status(404).json({
+      success: false,
+      message: "Group not found",
+    });
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: "Group rejected successfully",
+  });
+});
+
+const deleteGroup = asyncHandler(async (req, res) => {
+  const { groupId } = req.params;
+
+  const group = await Group.findByIdAndDelete(groupId);
+
+  if (!group) {
+    return res.status(404).json({
+      success: false,
+      message: "Group not found",
+    });
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: "Group deleted successfully",
+  });
+});
+
 module.exports = {
   fetchGroups,
   fetchMembers,
@@ -324,4 +502,8 @@ module.exports = {
   votePoll,
   closePoll,
   joinGroups,
+  createCommunityGroups,
+  approveGroup,
+  rejectGroup,
+  deleteGroup,
 };

@@ -9,10 +9,13 @@ const {
   deleteMeetup,
 } = require("../../controllers/meetup");
 const { verifyAdmin } = require("../../middlewares/admin/adminAuth");
+const {
+  addaConditionalAuth,
+} = require("../../middlewares/adda/conditionalAuth");
 
 const router = express.Router();
 
-router.get("/", allMeetups);
+router.get("/", addaConditionalAuth, allMeetups);
 router.get("/:id", fetchMeetupById);
 
 router.use(adminAuthMiddleware.adminAuthMiddleware);

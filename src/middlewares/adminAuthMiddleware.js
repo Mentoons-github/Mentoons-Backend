@@ -8,17 +8,13 @@ module.exports = {
   adminAuthMiddleware: async (req, res, next) => {
     const { check } = req.query;
     try {
-      console.log("[Middleware] Starting adminAuthMiddleware...");
-
       const authHeader = req.headers.authorization;
       if (!authHeader) {
-        console.log("[Middleware] Authorization header missing");
         return errorResponse(res, 401, "Authorization header is missing");
       }
 
       const token = authHeader.split(" ")[1];
       if (!token) {
-        console.log("[Middleware] Token missing");
         return errorResponse(res, 401, "Token is missing");
       }
 
@@ -27,9 +23,7 @@ module.exports = {
         payload = await verifyToken(token, {
           secretKey: process.env.CLERK_SECRET_KEY,
         });
-        console.log("[Middleware] Token verified:", payload.sub);
       } catch (err) {
-        console.log("[Middleware] Clerk token verification failed:", err);
         return errorResponse(res, 401, "Invalid or expired Clerk token");
       }
 
@@ -37,28 +31,23 @@ module.exports = {
 
       let user = await User.findOne({ clerkId: clerkUserId });
       if (!user) {
-        console.log("[Middleware] No user found with Clerk ID:", clerkUserId);
         return errorResponse(res, 401, "User not found");
       }
 
-      console.log("[Middleware] User found:", user.role);
 
-      if (!["ADMIN", "SUPERADMIN"].includes(user.role)) {
-        console.log("[Middleware] User lacks admin/superadmin permissions");
+      if (!["ADMIN", "SUPERADMIN"].includes(user.role.toUpperCase())) {
         return errorResponse(
           res,
           403,
-          "Access denied: Insufficient permissions"
+          "Access denied: Insufficient permissions",
         );
       }
 
       if (check === "true") {
-        console.log("[Middleware] Returning user role check response");
         return successResponse(res, 200, { role: user.role, success: true });
       }
 
       req.user = user;
-      console.log("[Middleware] Proceeding to next middleware/route");
       next();
     } catch (error) {
       console.error("[Middleware] Admin Auth Middleware Error:", error);
@@ -74,7 +63,7 @@ module.exports = {
 
       if (!authHeader) {
         console.log(
-          "[Middleware] No authorization header provided, proceeding"
+          "[Middleware] No authorization header provided, proceeding",
         );
         if (check === "true") {
           return successResponse(res, 200, { role: null, success: true });
@@ -137,6 +126,8 @@ module.exports = {
           success: true,
         });
       }
+
+      req.user.role = user.role;
 
       console.log("[Middleware] Proceeding to next middleware/route");
       next();
