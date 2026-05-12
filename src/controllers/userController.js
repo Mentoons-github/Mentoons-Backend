@@ -283,6 +283,7 @@ module.exports = {
   updateProfileController: asyncHandler(async (req, res) => {
     const userId = req.user.dbUser._id;
     const profileData = req.body;
+   
     if (!userId) {
       return errorResponse(res, 400, "User ID is required");
     }
@@ -292,6 +293,7 @@ module.exports = {
         userId,
         profileData,
       );
+
       return successResponse(
         res,
         200,
@@ -299,6 +301,7 @@ module.exports = {
         updatedProfile,
       );
     } catch (error) {
+      console.log(error);
       return errorResponse(
         res,
         500,

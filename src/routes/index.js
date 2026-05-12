@@ -50,6 +50,7 @@ const quizRoutes = require("../routes/adda/quiz.routes.js");
 const contestRoutes = require("../routes/adda/contest.routes.js");
 const workshopBatchRoutes = require("../routes/workshopBatch.routes.js");
 const feedbackRoutes = require("./adda/userFeedback.routes.js");
+const badgeRoutes = require("./adda/badge.routes.js");
 
 router.use("/adda", addaRouter);
 router.use("/influencer-requests", influencerJobRequestRoutes);
@@ -58,6 +59,7 @@ router.use("/whatsapp", whatsappRoutes);
 router.use("/products", productRoutes);
 router.use("/otp", otpRoutes);
 // app.use("/quiz", quizRoutes);
+router.use("/badge", badgeRoutes);
 router.use("/workshop", workshopRoutes);
 router.use("/user", userRoutes);
 router.use("/admin", adminRoutes);

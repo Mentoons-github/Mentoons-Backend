@@ -41,6 +41,22 @@ const groupSchema = new mongoose.Schema(
     polls: [pollSchema],
     message: [{ type: mongoose.Schema.Types.ObjectId, ref: "GroupMessages" }],
     profileImage: { type: String, required: true },
+    category: {
+      type: String,
+      enum: [
+        "technology",
+        "sports",
+        "arts&culture",
+        "education",
+        "business",
+        "health&wellness",
+      ],
+    },
+    visibility: {
+      type: String,
+      enum: ["private", "public"],
+      default: "public",
+    },
     groupCreationStatus: {
       type: String,
       default: "pending",

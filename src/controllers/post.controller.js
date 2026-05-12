@@ -1,14 +1,9 @@
 const Post = require("../models/post");
-const mongoose = require("mongoose");
 const User = require("../models/user");
 const { Clerk } = require("@clerk/clerk-sdk-node");
-const clerk = new Clerk({ secretKey: process.env.CLERK_SECRET_KEY });
+const { assignBadge } = require("../services/adda/badge.service");
+const Badge = require("../models/adda/badge");
 
-/**
- * Create a new post
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- */
 const createPost = async (req, res) => {
   try {
     const {
@@ -23,10 +18,6 @@ const createPost = async (req, res) => {
       visibility,
     } = req.body;
 
-    console.log(
-      "req.body =========================================================================================>:",
-      req.body
-    );
     const user = await User.findOne({ clerkId: req.user.dbUser.clerkId });
 
     if (!user) {
@@ -35,6 +26,15 @@ const createPost = async (req, res) => {
         message: "User not found",
       });
     }
+
+    const postCount = await Post.countDocuments({ user: user._id });
+
+    const mostLikeCount = await Post.countDocuments({
+      user: user._id,
+      $expr: {
+        $gt: [{ $size: { $ifNull: ["$likes", []] } }, 100],
+      },
+    });
 
     const newPost = new Post({
       user: user._id,
@@ -51,11 +51,64 @@ const createPost = async (req, res) => {
 
     const savedPost = await newPost.save();
 
+    let earnedBadges = [];
+
+    if (postCount + 1 >= 25) {
+      const badge = await Badge.findOne({
+        "criteria.action": "post_count",
+        "criteria.value": 25,
+      });
+
+      if (badge) {
+        await assignBadge(user._id, badge._id);
+
+        earnedBadges.push({
+          _id: badge._id,
+          name: badge.name,
+          animation: badge.animation,
+        });
+      }
+    }
+
+    if (mostLikeCount > 0) {
+      const badge = await Badge.findOne({
+        "criteria.action": "like_count",
+        "criteria.value": 100,
+      });
+
+      if (badge) {
+        await assignBadge(user._id, badge._id);
+
+        earnedBadges.push({
+          _id: badge._id,
+          name: badge.name,
+          animation: badge.animation,
+        });
+      }
+    }
+    //uncomment it only for debugging
+    // if (postCount === 0) {
+    const badge = await Badge.findOne({
+      "criteria.action": "post_created",
+    });
+
+    if (badge) {
+      await assignBadge(user._id, badge._id);
+
+      earnedBadges.push({
+        _id: badge._id,
+        name: badge.name,
+        animation: badge.animation,
+      });
+    }
+    // }
+
     await savedPost.populate("user", "email picture name");
 
     res.status(201).json({
       success: true,
       data: savedPost,
+      badge: earnedBadges,
       message: "Post created successfully",
     });
   } catch (error) {
@@ -153,13 +206,14 @@ const getPostById = async (req, res) => {
       .populate("user")
       .populate({
         path: "comments",
-        populate: { path: "user" }
+        populate: { path: "user" },
       });
 
     if (!post) {
-      return res.status(404).json({ success: false, message: "Post not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Post not found" });
     }
-
 
     const postOwnerId = post.user._id;
 
@@ -176,7 +230,6 @@ const getPostById = async (req, res) => {
         success: false,
         message: "You do not have permission to view this post",
       });
-
     }
     console.log("passing the data");
 
@@ -184,7 +237,7 @@ const getPostById = async (req, res) => {
       if (!viewerId) {
         return res.status(403).json({
           success: false,
-          message: "This post is private. Login required."
+          message: "This post is private. Login required.",
         });
       }
 
@@ -193,12 +246,12 @@ const getPostById = async (req, res) => {
       }
 
       const owner = await User.findById(postOwnerId);
-      const isFollower = owner.followers.some(f => f.equals(viewerId));
+      const isFollower = owner.followers.some((f) => f.equals(viewerId));
 
       if (!isFollower) {
         return res.status(403).json({
           success: false,
-          message: "This post is private."
+          message: "This post is private.",
         });
       }
 
@@ -207,16 +260,14 @@ const getPostById = async (req, res) => {
 
     // Default fallback
     return res.status(200).json({ success: true, data: post });
-
   } catch (error) {
     console.log(error);
     res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };
-
 
 /**
  * Update a post

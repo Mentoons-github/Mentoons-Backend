@@ -6,6 +6,7 @@ const { errorResponse, successResponse } = require("../utils/responseHelper");
 
 module.exports = {
   adminAuthMiddleware: async (req, res, next) => {
+    console.log("reached admin auth");
     const { check } = req.query;
     try {
       const authHeader = req.headers.authorization;
@@ -34,6 +35,7 @@ module.exports = {
         return errorResponse(res, 401, "User not found");
       }
 
+      console.log(user.role);
 
       if (!["ADMIN", "SUPERADMIN"].includes(user.role.toUpperCase())) {
         return errorResponse(
@@ -46,6 +48,8 @@ module.exports = {
       if (check === "true") {
         return successResponse(res, 200, { role: user.role, success: true });
       }
+
+      console.log("fixing");
 
       req.user = user;
       next();

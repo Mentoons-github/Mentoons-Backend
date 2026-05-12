@@ -31,6 +31,7 @@ const uploadFileController = asyncHandler(async (req, res) => {
     "application/pdf",
     "video/mp4",
     "audio/mpeg",
+    "application/json",
   ];
 
   if (req.file.size > MAX_FILE_SIZE) {
@@ -38,7 +39,7 @@ const uploadFileController = asyncHandler(async (req, res) => {
     return errorResponse(
       res,
       400,
-      `File too large. Maximum size is ${MAX_FILE_SIZE / (1024 * 1024)}MB`
+      `File too large. Maximum size is ${MAX_FILE_SIZE / (1024 * 1024)}MB`,
     );
   }
 
@@ -78,7 +79,7 @@ const uploadFileController = asyncHandler(async (req, res) => {
       fileBuffer,
       "OpinionJournal",
       mimetype,
-      originalname
+      originalname,
     );
 
     console.log("✅ Upload Success:", uploadResult);
@@ -94,7 +95,7 @@ const uploadFileController = asyncHandler(async (req, res) => {
       res,
       200,
       messageHelper.FILE_UPLOAD_SUCCESS,
-      responsePayload
+      responsePayload,
     );
   } catch (error) {
     console.error("🔥 File upload FAILED:", error);
@@ -137,7 +138,7 @@ const uploadFileMentorMahesh = asyncHandler(async (req, res) => {
     return errorResponse(
       res,
       400,
-      `File too large. Maximum size is ${MAX_FILE_SIZE / (1024 * 1024)}MB`
+      `File too large. Maximum size is ${MAX_FILE_SIZE / (1024 * 1024)}MB`,
     );
   }
 
@@ -174,7 +175,7 @@ const uploadFileMentorMahesh = asyncHandler(async (req, res) => {
       fileBuffer,
       "resumes",
       mimetype,
-      originalname
+      originalname,
     );
 
     console.log("✅ Upload Success:", uploadResult);
@@ -190,7 +191,7 @@ const uploadFileMentorMahesh = asyncHandler(async (req, res) => {
       res,
       200,
       messageHelper.FILE_UPLOAD_SUCCESS,
-      responsePayload
+      responsePayload,
     );
   } catch (error) {
     console.error("🔥 File upload FAILED:", error);

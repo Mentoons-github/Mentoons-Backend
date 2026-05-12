@@ -153,9 +153,7 @@ const deleteQuiz = asyncHandler(async (req, res) => {
 });
 
 const getAllCategories = asyncHandler(async (req, res) => {
-  console.log("reached quiz category");
   const quizzes = await Quiz.find();
-  console.log(quizzes);
   if (quizzes.length === 0) {
     return res.status(404).json({ message: "No quiz found" });
   }
@@ -164,8 +162,6 @@ const getAllCategories = asyncHandler(async (req, res) => {
     category: quiz.category,
     _id: quiz._id,
   }));
-
-  console.log(categories);
 
   return res.status(200).json({ categories });
 });

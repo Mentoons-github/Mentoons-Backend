@@ -45,6 +45,18 @@ const UserSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    badges: [
+      {
+        badge: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Badge",
+        },
+        earnedAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
     occupation: {
       type: String,
       default: "",
@@ -223,7 +235,7 @@ const UserSchema = new mongoose.Schema(
       default: false,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Auto-update subscription status middleware
@@ -242,7 +254,7 @@ UserSchema.pre("find", async function () {
         "subscription.status": "cancelled",
         "subscription.plan": "free",
       },
-    }
+    },
   );
 });
 
@@ -260,7 +272,7 @@ UserSchema.pre("findOne", async function () {
         "subscription.status": "cancelled",
         "subscription.plan": "free",
       },
-    }
+    },
   );
 });
 

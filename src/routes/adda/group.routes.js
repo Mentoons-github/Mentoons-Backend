@@ -14,6 +14,7 @@ const {
   approveGroup,
   rejectGroup,
   deleteGroup,
+  editCommunity,
 } = require("../../controllers/adda/groupController");
 const verifyToken = require("../../middlewares/addaMiddleware");
 const { conditionalAuth } = require("../../middlewares/auth.middleware");
@@ -31,6 +32,12 @@ router.get("/:groupId", fetchGroupById);
 router.put("/:groupId/join", verifyToken, joinGroups);
 
 router.post("/create", conditionalAuth, createCommunityGroups);
+
+router.post(
+  "/edit/:id",
+  adminAuthMiddleware.adminAuthMiddleware,
+  editCommunity,
+);
 
 // -------------------- ADMIN GROUP MANAGEMENT ROUTES --------------------
 router.put(
