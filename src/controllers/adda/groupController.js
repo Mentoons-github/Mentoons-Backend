@@ -1,3 +1,4 @@
+const { createNotification } = require("../../helpers/adda/createNotification");
 const FriendRequest = require("../../models/adda/friendRequest");
 const GroupMessage = require("../../models/adda/GroupMessageSchema");
 const Group = require("../../models/adda/groups");
@@ -6,45 +7,57 @@ const asyncHandler = require("../../utils/asyncHandler");
 
 const fetchGroups = asyncHandler(async (req, res) => {
   const { dbUser, role } = req.user;
-  console;
   const userId = dbUser._id;
+  const { search } = req.query;
+
+  const searchFilter = search
+    ? {
+        $or: [
+          { name: { $regex: search, $options: "i" } },
+          { "details.subTitle": { $regex: search, $options: "i" } },
+          { "details.description": { $regex: search, $options: "i" } },
+        ],
+      }
+    : {};
 
   let joinedGroups = [];
   let suggestedGroups = [];
+  let allGroups = [];
 
   if (role?.toLowerCase() === "admin") {
-    const allGroups = await Group.find({})
+    allGroups = await Group.find(searchFilter)
       .sort({ createdAt: -1 })
       .populate("members", "_id name picture");
 
-    return res.status(200).json({
-      success: true,
-      data: {
-        allGroups,
-      },
-      message: "All groups fetched (Admin)",
-    });
-  }
+    joinedGroups = await Group.find({
+      members: userId,
+      ...searchFilter,
+    })
+      .sort({ createdAt: -1 })
+      .populate("members", "_id name picture");
 
-  joinedGroups = await Group.find({ members: userId })
-    .sort({ createdAt: -1 })
-    .populate("members", "_id name picture");
+    suggestedGroups = await Group.find({
+      members: { $ne: userId },
+      groupCreationStatus: "approved",
+      ...searchFilter,
+    })
+      .sort({ createdAt: -1 })
+      .populate("members", "_id name picture");
+  } else {
+    joinedGroups = await Group.find({
+      members: userId,
+      ...searchFilter,
+    })
+      .sort({ createdAt: -1 })
+      .populate("members", "_id name picture");
 
-  suggestedGroups = await Group.find({
-    members: { $ne: userId },
-    groupCreationStatus: "approved",
-  })
-    .sort({ createdAt: -1 })
-    .populate("members", "_id name picture");
-
-  if (
-    (!joinedGroups || joinedGroups.length === 0) &&
-    (!suggestedGroups || suggestedGroups.length === 0)
-  ) {
-    return res.status(404).json({
-      success: false,
-      message: "No groups found",
-    });
+    suggestedGroups = await Group.find({
+      members: { $ne: userId },
+      groupCreationStatus: "approved",
+      ...searchFilter,
+    })
+      .sort({ createdAt: -1 })
+      .populate("members", "_id name picture");
   }
 
   return res.status(200).json({
@@ -52,8 +65,12 @@ const fetchGroups = asyncHandler(async (req, res) => {
     data: {
       joinedGroups,
       suggestedGroups,
+      allGroups,
     },
-    message: "Groups fetched successfully",
+    message:
+      role?.toLowerCase() === "admin"
+        ? "All groups fetched successfully (Admin)"
+        : "Groups fetched successfully",
   });
 });
 
@@ -181,7 +198,7 @@ const createCommunityGroups = asyncHandler(async (req, res) => {
   const { groupName, description, image, parentGroup, tags, privacy } =
     req.body.data;
 
-  const { role, dbUser: user } = req.user;
+  const { role, dbUser: user, firstName } = req.user;
 
   const normalize = (str) => str.toLowerCase().replace(/\s+/g, "").trim();
   const errors = {};
@@ -206,19 +223,19 @@ const createCommunityGroups = asyncHandler(async (req, res) => {
   if (!parentGroup || !validParentGroup.includes(normalize(parentGroup)))
     errors.parentGroup = "Please select a valid parent group";
 
-  if (!tags || !Array.isArray(tags) || tags.length === 0) {
-    errors.tags = "Please provide at least one tag";
-  } else {
-    const invalidTags = tags.filter((tag) => !tag || tag.trim() === "");
+  // if (!tags || !Array.isArray(tags) || tags.length === 0) {
+  //   errors.tags = "Please provide at least one tag";
+  // } else {
+  //   const invalidTags = tags.filter((tag) => !tag || tag.trim() === "");
 
-    if (invalidTags.length > 0) {
-      errors.tags = "Tags cannot be empty";
-    }
+  //   if (invalidTags.length > 0) {
+  //     errors.tags = "Tags cannot be empty";
+  //   }
 
-    if (tags.length > 10) {
-      errors.tags = "Maximum 10 tags allowed";
-    }
-  }
+  //   if (tags.length > 10) {
+  //     errors.tags = "Maximum 10 tags allowed";
+  //   }
+  // }
 
   if (!privacy || !validPrivacy.includes(privacy.toLowerCase())) {
     errors.privacy = "Privacy must be either 'public' or 'private'";
@@ -234,11 +251,12 @@ const createCommunityGroups = asyncHandler(async (req, res) => {
       : "User"
     : "User";
 
-  await Group.create({
+  const group = await Group.create({
     createdBy: user._id,
     createdByRole: formattedRole,
     profileImage: image,
     name: groupName,
+    category: parentGroup,
     details: {
       subTitle: groupName,
       description,
@@ -247,11 +265,54 @@ const createCommunityGroups = asyncHandler(async (req, res) => {
     groupCreationStatus: formattedRole === "Admin" ? "approved" : "pending",
   });
 
+  if (formattedRole !== " Admin") {
+    const admins = await User.find({ role: "ADMIN" });
+    const message = `${firstName} has asked permission to create their own community`;
+    for (let admin of admins) {
+      await createNotification(
+        admin._id,
+        "community_creation",
+        message,
+        user._id,
+        group._id,
+        "Group",
+      );
+    }
+  }
+
   return res.status(200).json({
     message:
       formattedRole === "Admin"
         ? "Community group created successfully"
         : "Community group created, waiting for admin approval",
+  });
+});
+
+const editCommunity = asyncHandler(async (req, res) => {
+  const body = req.body;
+  const { id } = req.params;
+
+  const updateData = {
+    name: body.groupName,
+    category: body.parentGroup,
+    visibility: body.privacy,
+    profileImage: body.image,
+    "details.subTitle": body.subTitle,
+    "details.description": body.description,
+  };
+
+  const group = await Group.findByIdAndUpdate(id, updateData, {
+    new: true,
+    runValidators: true,
+  });
+
+  if (!group) {
+    return res.status(404).json({ message: "Group not found" });
+  }
+
+  return res.status(200).json({
+    message: "Group updated successfully",
+    group,
   });
 });
 
@@ -432,12 +493,23 @@ const closePoll = asyncHandler(async (req, res) => {
 });
 
 const approveGroup = asyncHandler(async (req, res) => {
+  const { _id } = req.user;
   const { groupId } = req.params;
 
   const group = await Group.findByIdAndUpdate(
     groupId,
     { groupCreationStatus: "approved" },
     { new: true },
+  );
+
+  const message = "Your group creation request has been approved by the admin.";
+  await createNotification(
+    group.createdBy,
+    "community_creation_reject",
+    message,
+    _id,
+    group._id,
+    "Group",
   );
 
   if (!group) {
@@ -455,11 +527,20 @@ const approveGroup = asyncHandler(async (req, res) => {
 });
 
 const rejectGroup = asyncHandler(async (req, res) => {
+  const { _id } = req.user;
   const { groupId } = req.params;
 
-  const group = await Group.findByIdAndUpdate(groupId, {
-    $set: { groupCreationStatus: "rejected" },
-  });
+  const group = await Group.findByIdAndDelete(groupId);
+
+  const message = "Your group creation request has been rejected by the admin.";
+  await createNotification(
+    group.createdBy,
+    "community_creation_reject",
+    message,
+    _id,
+    group._id,
+    "Group",
+  );
 
   if (!group) {
     return res.status(404).json({
@@ -506,4 +587,5 @@ module.exports = {
   approveGroup,
   rejectGroup,
   deleteGroup,
+  editCommunity,
 };

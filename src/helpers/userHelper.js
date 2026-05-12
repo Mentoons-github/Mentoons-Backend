@@ -307,7 +307,6 @@ module.exports = {
         privacySettings,
       } = profileData;
 
-      // Only validate fields that are provided in profileData
       const mandatoryFields = [
         { key: "name", value: name, message: "Name is required" },
         { key: "email", value: email, message: "Email is required" },
@@ -325,7 +324,6 @@ module.exports = {
         { key: "gender", value: gender, message: "Gender is required" },
       ];
 
-      // Validate only if the field is provided
       for (const field of mandatoryFields) {
         if (
           field.value !== undefined &&
@@ -359,19 +357,31 @@ module.exports = {
         }
         for (const link of socialLinks) {
           if (!link.label || !link.url) {
-            console.log(
-              "Validation error: Each social link must have a label and URL",
-            );
             throw new Error("Each social link must have a label and URL");
           }
-          try {
-            new URL(link.url);
-          } catch {
-            console.log(
-              `Validation error: Invalid URL format for social link: ${link.url}`,
-            );
-            throw new Error(`Invalid URL format for social link: ${link.url}`);
+
+          let url = link.url.trim();
+
+          if (!/^https?:\/\//i.test(url)) {
+            url = "https://" + url;
           }
+
+          let parsedUrl;
+          try {
+            parsedUrl = new URL(url);
+          } catch {
+            throw new Error(`Invalid URL format: ${link.url}`);
+          }
+
+          if (!["http:", "https:"].includes(parsedUrl.protocol)) {
+            throw new Error("Only HTTP/HTTPS URLs are allowed");
+          }
+
+          if (!parsedUrl.hostname.includes(".")) {
+            throw new Error("Invalid domain in URL");
+          }
+
+          link.url = parsedUrl.href;
         }
       }
 

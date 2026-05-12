@@ -10,6 +10,7 @@ const FILE_TYPE_MAP = {
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     "text/plain",
     "application/rtf",
+    "application/json",
   ],
   videos: ["video/mp4", "video/mpeg", "video/quicktime"],
   audio: [

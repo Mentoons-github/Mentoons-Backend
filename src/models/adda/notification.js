@@ -45,6 +45,9 @@ const notificationSchema = new mongoose.Schema(
         "task_assigned",
         "task_submitted",
         "task_extended",
+        "community_creation",
+        "community_creation_approved",
+        "community_creation_reject"
       ],
     },
     message: {
@@ -67,6 +70,7 @@ const notificationSchema = new mongoose.Schema(
         "Employee",
         "LeaveRequest",
         "Task",
+        "Group",
       ],
     },
     isRead: {
@@ -78,7 +82,7 @@ const notificationSchema = new mongoose.Schema(
       default: Date.now,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const Notification = mongoose.model("Notification", notificationSchema);
