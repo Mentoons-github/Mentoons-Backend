@@ -67,34 +67,38 @@ const getUserBadges = asyncHandler(async (req, res) => {
   const { role, dbUser } = req.user;
   const userId = dbUser._id;
 
-  console.log("badge reached");
-  console.log(role);
+  const user = await User.findById(userId)
+    .select("badges")
+    .populate("badges.badge");
 
-  let badges;
-
-  if (role.toLowerCase() === "admin") {
-    badges = await Badge.find();
-
-    return res.status(200).json({
-      badges,
-    });
-  } else {
-    const user = await User.findById(userId)
-      .select("badges")
-      .populate("badges.badge");
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    return res.status(200).json({
-      badges: user.badges,
-    });
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
   }
+
+  const badges = user.badges.map((item) => ({
+    ...item.badge.toObject(),
+    earnedAt: item.earnedAt,
+  }));
+  console.log(badges.map(({ animation, ...rest }) => rest));
+
+  return res.status(200).json({
+    badges: badges,
+  });
+});
+
+const getAllBadges = asyncHandler(async (req, res) => {
+  const badges = await Badge.find();
+  if (!badges) {
+    return res.status(404).json({ message: "No badge found" });
+  }
+  return res.status(200).json({
+    badges,
+  });
 });
 
 module.exports = {
   badgeCreation,
   deleteBadge,
   getUserBadges,
+  getAllBadges,
 };
