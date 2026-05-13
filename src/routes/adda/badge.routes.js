@@ -4,6 +4,7 @@ const {
   badgeCreation,
   deleteBadge,
   getUserBadges,
+  getAllBadges,
 } = require("../../controllers/adda/badge");
 const { conditionalAuth } = require("../../middlewares/auth.middleware");
 const router = express.Router();
@@ -11,6 +12,8 @@ const router = express.Router();
 router.get("/", conditionalAuth, getUserBadges);
 
 router.use(adminAuthMiddleware.adminAuthMiddleware);
+
+router.get("/all", getAllBadges);
 
 router.post("/add", badgeCreation);
 
