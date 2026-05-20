@@ -705,9 +705,6 @@ const followBackUser = asyncHandler(async (req, res) => {
       return errorResponse(res, 404, "User not found");
     }
 
-    await incrementFreeSubscriptionCounts(sender._id, "following");
-    await incrementFreeSubscriptionCounts(receiverId, "follower");
-
     const accessCheck = checkFriendRequestAccess(sender);
     if (!accessCheck.allowed) {
       return errorResponse(res, 403, accessCheck.message, {
@@ -726,45 +723,36 @@ const followBackUser = asyncHandler(async (req, res) => {
     }
 
     if (existing && existing.status === "pending") {
-      return errorResponse(res, 400, "Request already sent");
+      return errorResponse(res, 400, "Follow request already sent");
     }
 
-    const newRequest = await FriendRequest.create({
-      senderId,
-      receiverId,
-      status: "accepted",
-    });
+    if (existing) {
+      existing.status = "pending";
+      await existing.save();
+    } else {
+      await FriendRequest.create({
+        senderId,
+        receiverId,
+        status: "pending",
+      });
+    }
 
-    await User.findByIdAndUpdate(
-      senderId,
-      { $addToSet: { following: receiverId } },
-      { new: true },
-    );
-
-    await User.findByIdAndUpdate(
-      receiverId,
-      { $addToSet: { followers: senderId } },
-      { new: true },
-    );
-
-    await feed.findOneAndUpdate(
-      { user: senderId },
-      { $addToSet: { followingUsers: receiverId } },
-      { upsert: true, new: true },
-    );
-
-    await deleteNotificationHelper(receiverId, senderId, "friend_request");
+    const newRequest = await FriendRequest.findOne({ senderId, receiverId });
 
     await createNotification(
       receiverId,
-      "follow_back",
-      `${sender.name} has followed you back.`,
+      "friend_request",
+      `${sender.name} wants to follow you back.`,
       senderId,
       newRequest._id,
       "FriendRequest",
     );
 
-    return successResponse(res, 200, "Follow back completed successfully");
+    return successResponse(
+      res,
+      200,
+      "Follow back request sent — waiting for approval",
+    );
   } catch (err) {
     console.log("Error in followBackUser:", err);
     return errorResponse(res, 500, "Failed to follow back user");
