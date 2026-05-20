@@ -33,6 +33,7 @@ const notificationSchema = new mongoose.Schema(
         "event_invite",
         "birthday",
         "new_follower",
+        "follow_back",
         "story_viewed",
         "post_reported",
         "post_approved",
@@ -47,7 +48,7 @@ const notificationSchema = new mongoose.Schema(
         "task_extended",
         "community_creation",
         "community_creation_approved",
-        "community_creation_reject"
+        "community_creation_reject",
       ],
     },
     message: {
