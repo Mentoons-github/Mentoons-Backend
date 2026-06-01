@@ -30,6 +30,7 @@ const EmployeesSchema = new mongoose.Schema(
         "psychologist",
         "freelance",
         "sales",
+        "mentor",
       ],
     },
     jobRole: {

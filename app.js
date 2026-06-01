@@ -13,6 +13,7 @@ const conditionalClerkMiddleware = require("./src/middlewares/clerkConditionalMi
 const clerkWebhook = require("./src/controllers/webhook/clerkWebhook.controller.js");
 
 const { socketSetup } = require("./src/socket/socket.js");
+const { startDailyTaskCron } = require("./src/cron/taskAssignment.js");
 
 require("./src/cron/sessionNotifer.js");
 require("./src/cron/salaryCron.js");
@@ -51,6 +52,7 @@ app.use("*", (req, res) => {
 });
 
 dbConnection();
+startDailyTaskCron();
 
 const server = app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
