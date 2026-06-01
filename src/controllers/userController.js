@@ -206,13 +206,18 @@ module.exports = {
       filter,
     } = req.query;
 
+    console.log(filter);
+
     const queryOptions = {
       search,
       sortField,
       sortOrder,
       page: parseInt(page),
       limit: parseInt(limit),
-      filter: filter || {},
+      filter: {
+        ...(filter || {}),
+        $or: [{ role: "USER" }, { role: { $exists: false } }, { role: null }],
+      },
     };
 
     const { users, totalCount, totalPages } =
@@ -283,7 +288,7 @@ module.exports = {
   updateProfileController: asyncHandler(async (req, res) => {
     const userId = req.user.dbUser._id;
     const profileData = req.body;
-   
+
     if (!userId) {
       return errorResponse(res, 400, "User ID is required");
     }
@@ -564,6 +569,7 @@ module.exports = {
   //block a user
   blockUser: asyncHandler(async (req, res) => {
     const { userId: targetUserId, conversationId } = req.body;
+    console.log(req.body);
     const requesterId = req.user.dbUser._id;
 
     if (!targetUserId) {
@@ -718,34 +724,70 @@ module.exports = {
 
   blockUnBlockUser: asyncHandler(async (req, res) => {
     const { userId } = req.params;
+
     const user = await User.findById(userId);
+
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
     }
 
     const newStatus = !(user.isBlocked ?? false);
 
     try {
-      const clerkUser = await clerkClient.users.getUser(user.clerkId);
-      const updatedMetadata = {
-        ...clerkUser.publicMetadata,
-        blocked: newStatus,
-      };
+      if (!user.clerkId) {
+        user.isBlocked = newStatus;
+        await user.save();
+
+        return res.status(200).json({
+          success: true,
+          message: `User ${newStatus ? "blocked" : "unblocked"} locally only`,
+        });
+      }
+
+      let clerkUser;
+
+      try {
+        clerkUser = await clerkClient.users.getUser(user.clerkId);
+      } catch (clerkError) {
+        console.log("Clerk user not found");
+
+        user.clerkId = null;
+
+        user.isBlocked = newStatus;
+        await user.save();
+
+        return res.status(200).json({
+          success: true,
+          message: `User ${
+            newStatus ? "blocked" : "unblocked"
+          } locally (Clerk user missing)`,
+        });
+      }
 
       await clerkClient.users.updateUser(user.clerkId, {
-        publicMetadata: updatedMetadata,
+        publicMetadata: {
+          ...clerkUser.publicMetadata,
+          blocked: newStatus,
+        },
       });
 
       user.isBlocked = newStatus;
       await user.save();
 
-      res.status(200).json({
-        message: `User is ${newStatus ? "blocked" : "unblocked"} successfully`,
+      return res.status(200).json({
         success: true,
+        message: `User ${newStatus ? "blocked" : "unblocked"} successfully`,
       });
     } catch (error) {
-      console.error("❌ Clerk sync failed:", error);
-      res.status(500).json({ message: "Failed to update block status" });
+      console.error(error);
+
+      return res.status(500).json({
+        success: false,
+        message: "Failed to update block status",
+      });
     }
   }),
 };

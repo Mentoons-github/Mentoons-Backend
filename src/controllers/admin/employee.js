@@ -45,7 +45,7 @@ const createInvitation = asyncHandler(async (req, res) => {
     return res.status(400).json({
       success: false,
       message: `Invalid employment type. Must be one of: ${validEmploymentTypes.join(
-        ", "
+        ", ",
       )}`,
     });
   }
@@ -117,7 +117,7 @@ const createInvitation = asyncHandler(async (req, res) => {
         firstName,
         lastName,
         password: tempPassword,
-        skipPasswordRequirement: true,
+        // skipPasswordRequirement: true,
       };
 
       try {
@@ -146,7 +146,7 @@ const createInvitation = asyncHandler(async (req, res) => {
             clerkId: clerkUser.id,
           },
         ],
-        { session }
+        { session },
       );
       dbUser = newUser;
       console.log("Local user created:", dbUser._id);
@@ -174,7 +174,7 @@ const createInvitation = asyncHandler(async (req, res) => {
           employmentType,
         },
       ],
-      { session }
+      { session },
     );
 
     console.log("Employee created:", employee._id);
@@ -184,7 +184,7 @@ const createInvitation = asyncHandler(async (req, res) => {
       name,
       process.env.FRONTEND_URL || "http://localhost:3000",
       passwordSetupKey,
-      employee._id
+      employee._id,
     );
 
     const mailOptions = {
@@ -204,34 +204,30 @@ const createInvitation = asyncHandler(async (req, res) => {
     });
   } catch (error) {
     await session.abortTransaction();
-    console.log("Transaction aborted due to error");
 
-    console.log(error);
-    if (error.code === 11000) {
+    console.log("FULL ERROR:", error);
+
+    // Mongo duplicate
+    if (error?.code === 11000) {
       const field = Object.keys(error.keyPattern || {})[0];
+
       return res.status(400).json({
         success: false,
-        message: `Duplicate entry: The ${field} value already exists.`,
+        message: `${field} already exists`,
       });
     }
 
-    if (createdClerkUser && clerkUser) {
-      try {
-        await clerkClient.users.deleteUser(clerkUser.id);
-        console.log("Rolled back Clerk user creation");
-      } catch (deleteError) {
-        console.error(
-          "Failed to delete Clerk user during rollback:",
-          deleteError
-        );
-      }
+    // Clerk errors
+    if (error?.errors?.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: error.errors[0].message,
+      });
     }
 
-    console.error("Error creating employee or sending email:", error);
     return res.status(500).json({
       success: false,
-      message: "Internal server error",
-      error: error.message,
+      message: error.message || "Internal server error",
     });
   } finally {
     session.endSession();
@@ -256,7 +252,7 @@ const setPassword = asyncHandler(async (req, res) => {
   }
 
   const employee = await Employee.findOne({ passwordSetupKey: key }).populate(
-    "user"
+    "user",
   );
 
   if (!employee) {
