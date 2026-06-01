@@ -5,6 +5,9 @@ const fs = require("fs");
 const path = require("path");
 const mongoose = require("mongoose");
 const { createNotification } = require("../../helpers/adda/createNotification");
+const { DAILY_TASK_TITLES } = require("../../constants/employee/employee");
+
+const ADMIN_USER_ID = process.env.ADMIN_USER_ID;
 
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
@@ -179,7 +182,7 @@ const fetchTasks = async (req, res) => {
           assignedTo: assignedToData,
           assignedBy: assignedByData,
         });
-      })
+      }),
     );
 
     res.status(200).json({
@@ -271,7 +274,7 @@ const assignTask = async (req, res) => {
     // 👤 Get assignedBy and assignedTo user details
     const assignedByUser = await User.findById(req.user._id).select("_id name");
     const assignedToUser = await User.findById(employee.user).select(
-      "_id name"
+      "_id name",
     );
 
     console.log("👤 Assigned by:", assignedByUser?.name || "Unknown");
@@ -285,7 +288,7 @@ const assignTask = async (req, res) => {
       `${assignedByUser.name} has assigned you a task: "${title}"`,
       req.user._id,
       savedTask._id.toString(),
-      "Task"
+      "Task",
     );
     console.log("✅ Notification created successfully");
 
@@ -393,14 +396,14 @@ const submitTask = async (req, res) => {
     const updatedTask = await task.save();
 
     const assignedByUser = await User.findById(task.assignedBy).select(
-      "_id name"
+      "_id name",
     );
 
     const employee = await Employee.findById(task.assignedTo);
     let assignedToUserData = null;
     if (employee && employee.user) {
       const assignedToUser = await User.findById(employee.user).select(
-        "_id name"
+        "_id name",
       );
       assignedToUserData = {
         _id: employee._id.toString(),
@@ -418,7 +421,7 @@ const submitTask = async (req, res) => {
         `${submittingUser.name} has submitted the task: "${task.title}"`,
         employee.user,
         task._id.toString(),
-        "Task"
+        "Task",
       );
     }
 
@@ -507,7 +510,7 @@ const updateTaskStatus = async (req, res) => {
 
     // Fetch assignedBy user
     const assignedByUser = await User.findById(updatedTask.assignedBy).select(
-      "_id name"
+      "_id name",
     );
 
     // Fetch assignedTo employee and their user
@@ -515,7 +518,7 @@ const updateTaskStatus = async (req, res) => {
     let assignedToUserData = null;
     if (employee && employee.user) {
       const assignedToUser = await User.findById(employee.user).select(
-        "_id name"
+        "_id name",
       );
       assignedToUserData = {
         _id: employee._id.toString(),
@@ -572,7 +575,7 @@ const removeImage = async (req, res) => {
     }
 
     const imageIndex = task.submittedImages.findIndex(
-      (img) => img._id.toString() === imageId
+      (img) => img._id.toString() === imageId,
     );
     if (imageIndex === -1) {
       return res.status(404).json({ message: "Image not found" });
@@ -633,7 +636,7 @@ const getEmployees = async (req, res) => {
 
     const total = await Employee.countDocuments(query);
     const frontendEmployees = employees.map((employee) =>
-      mapEmployeeToFrontend(employee, employee.user)
+      mapEmployeeToFrontend(employee, employee.user),
     );
 
     res.status(200).json({
@@ -714,7 +717,7 @@ const createEmployee = async (req, res) => {
 
     const savedEmployee = await employee.save();
     const populatedEmployee = await Employee.findById(
-      savedEmployee._id
+      savedEmployee._id,
     ).populate("user", "name");
     res
       .status(201)
@@ -762,14 +765,14 @@ const extendTask = async (req, res) => {
     const updatedTask = await task.save();
 
     const assignedByUser = await User.findById(updatedTask.assignedBy).select(
-      "_id name"
+      "_id name",
     );
     const employee = await Employee.findById(updatedTask.assignedTo);
     let assignedToUserData = null;
 
     if (employee && employee.user) {
       const assignedToUser = await User.findById(employee.user).select(
-        "_id name"
+        "_id name",
       );
       assignedToUserData = {
         _id: employee._id.toString(),
@@ -786,7 +789,7 @@ const extendTask = async (req, res) => {
         }" has been extended to ${newDeadlineDate.toISOString()}`,
         assignedByUser ? assignedByUser._id : null,
         task._id.toString(),
-        "Task"
+        "Task",
       );
     }
 
@@ -819,6 +822,95 @@ const extendTask = async (req, res) => {
   }
 };
 
+const getTaskTitleForToday = () => {
+  const start = new Date("2024-01-01");
+  const today = new Date();
+  const daysDiff = Math.floor((today - start) / (1000 * 60 * 60 * 24));
+  return DAILY_TASK_TITLES[daysDiff % DAILY_TASK_TITLES.length];
+};
+
+const assignDailyTasksToAllEmployees = async () => {
+  try {
+    console.log("🕗 Running daily task assignment cron...");
+
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
+      console.log("📅 Today is Saturday or Sunday. Skipping task assignment.");
+      return;
+    }
+
+    const deadline = new Date();
+    deadline.setHours(23, 59, 59, 999);
+
+    const employees = await Employee.find({ active: true }).populate(
+      "user",
+      "_id name",
+    );
+
+    if (!employees || employees.length === 0) {
+      console.log("⚠️ No active employees found.");
+      return;
+    }
+
+    console.log(`👥 Found ${employees.length} active employees.`);
+
+    const taskTitle = getTaskTitleForToday();
+    const taskDescription =
+      "This is your daily task. Please complete it before end of day.";
+
+    const results = await Promise.allSettled(
+      employees.map(async (employee) => {
+        if (!employee.user) {
+          console.warn(
+            `⚠️ Employee ${employee._id} has no linked user. Skipping.`,
+          );
+          return;
+        }
+
+        const task = new Task({
+          title: taskTitle,
+          description: taskDescription,
+          deadline,
+          assignedTo: employee._id,
+          assignedBy: ADMIN_USER_ID,
+          status: "pending",
+          priority: "medium",
+          attachments: [],
+        });
+
+        const savedTask = await task.save();
+
+        await createNotification(
+          employee.user._id,
+          "task_assigned",
+          `You have been assigned a daily task: "${taskTitle}"`,
+          ADMIN_USER_ID,
+          savedTask._id.toString(),
+          "Task",
+        );
+
+        console.log(
+          `✅ Task assigned to ${employee.user.name} (${employee._id})`,
+        );
+      }),
+    );
+
+    const failed = results.filter((r) => r.status === "rejected");
+    if (failed.length > 0) {
+      console.error(
+        `❌ ${failed.length} task assignments failed:`,
+        failed.map((f) => f.reason),
+      );
+    }
+
+    console.log("🎯 Daily task assignment completed.");
+  } catch (error) {
+    console.error("💥 Error in daily task cron job:", error);
+  }
+};
+
 module.exports = {
   fetchTasks,
   assignTask,
@@ -830,4 +922,5 @@ module.exports = {
   getEmployeeById,
   createEmployee,
   extendTask,
+  assignDailyTasksToAllEmployees,
 };
