@@ -114,6 +114,7 @@ const getProducts = async (req, res, next) => {
       "story re-teller card",
       "silent stories",
       "conversation story cards",
+      "toonland",
     ];
 
     let matchStage = { ...queryFilter };
@@ -235,6 +236,7 @@ const createProduct = async (req, res, next) => {
 
     // Build final product data
     const data = {
+      mrp: productData.mrp,
       title:
         productData.productTitle || productData.title || "Untitled Product",
       description:

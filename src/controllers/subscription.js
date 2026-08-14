@@ -2,8 +2,8 @@ const User = require("../models/user");
 
 const limits = {
   free: { comics: 5, audioComics: 5, podcasts: 5 },
-  prime: { comics: 10, audioComics: 15, podcasts: 10 },
-  platinum: { comics: 20, audioComics: 30, podcasts: 18 },
+  prime: { comics: 5, audioComics: 10, podcasts: 5 },
+  platinum: { comics: 10, audioComics: 15, podcasts: 8 },
 };
 
 const checkAccess = (user, type, itemId) => {

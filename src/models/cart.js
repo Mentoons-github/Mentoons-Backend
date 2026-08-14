@@ -76,7 +76,7 @@ const CartSchema = new mongoose.Schema(
       default: 0,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 // Method to calculate total price and item count
@@ -84,11 +84,11 @@ CartSchema.pre("save", function (next) {
   if (this.items && this.items.length > 0) {
     this.totalItemCount = this.items.reduce(
       (total, item) => total + item.quantity,
-      0
+      0,
     );
     this.totalPrice = this.items.reduce(
       (total, item) => total + item.price * item.quantity,
-      0
+      0,
     );
 
     // Apply discount if coupon is applied
@@ -100,7 +100,7 @@ CartSchema.pre("save", function (next) {
       } else {
         this.discountedPrice = Math.max(
           0,
-          this.totalPrice - this.appliedCoupon.discountAmount
+          this.totalPrice - this.appliedCoupon.discountAmount,
         );
       }
     } else {

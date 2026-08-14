@@ -6,11 +6,18 @@ const ProductSchema = new mongoose.Schema(
   {
     title: { type: String, required: true },
     description: { type: String },
+    mrp: {
+      type: Number,
+      get: (v) =>
+        v === undefined || v === null ? v : parseFloat(v.toFixed(2)),
+      set: (v) => (v === undefined || v === null ? v : parseFloat(v)),
+    },
     price: {
       type: Number,
       required: true,
-      get: (v) => parseFloat(v.toFixed(2)),
-      set: (v) => parseFloat(v),
+      get: (v) =>
+        v === undefined || v === null ? v : parseFloat(v.toFixed(2)),
+      set: (v) => (v === undefined || v === null ? v : parseFloat(v)),
     },
     orignalProductSrc: {
       type: String,
@@ -54,7 +61,7 @@ const ProductSchema = new mongoose.Schema(
     discriminatorKey: "type",
     toJSON: { getters: true },
     toObject: { getters: true },
-  }
+  },
 );
 
 const Product =
@@ -86,7 +93,7 @@ const AudioComicSchema = new mongoose.Schema({
 });
 const AudioComic = Product.discriminator(
   ProductType.AUDIO_COMIC,
-  AudioComicSchema
+  AudioComicSchema,
 );
 
 const PodcastSchema = new mongoose.Schema({
@@ -152,7 +159,7 @@ const AssessmentSchema = new mongoose.Schema({
 });
 const Assessment = Product.discriminator(
   ProductType.ASSESSMENT,
-  AssessmentSchema
+  AssessmentSchema,
 );
 
 const MentoonsCardSchema = new mongoose.Schema({
@@ -184,7 +191,7 @@ const MentoonsCardSchema = new mongoose.Schema({
 });
 const MentoonsCard = Product.discriminator(
   ProductType.MENTOONS_CARDS,
-  MentoonsCardSchema
+  MentoonsCardSchema,
 );
 
 const MerchandiseSchema = new mongoose.Schema({
@@ -204,7 +211,7 @@ const MerchandiseSchema = new mongoose.Schema({
 
 const Merchandise = Product.discriminator(
   ProductType.MERCHANDISE,
-  MerchandiseSchema
+  MerchandiseSchema,
 );
 
 const MentoonsBookSchema = new mongoose.Schema({
@@ -223,8 +230,17 @@ const MentoonsBookSchema = new mongoose.Schema({
 
 const MentoonsBook = Product.discriminator(
   ProductType.MENTOONS_BOOKS,
-  MentoonsBookSchema
+  MentoonsBookSchema,
 );
+
+const ToonlandSchema = new mongoose.Schema({
+  thumbnails: { type: [String], default: [] },
+  pages: { type: Number, required: true },
+  size: { type: String },
+  offerPrice: { type: Number, required: true },
+  data: { type: String },
+});
+const Toonland = Product.discriminator(ProductType.TOONLAND, ToonlandSchema);
 
 module.exports = {
   Assessment,
@@ -236,4 +252,5 @@ module.exports = {
   Merchandise,
   MentoonsCard,
   MentoonsBook,
+  Toonland,
 };

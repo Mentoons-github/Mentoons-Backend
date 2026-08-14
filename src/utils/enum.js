@@ -14,6 +14,7 @@ const ProductType = {
   MERCHANDISE: "merchandise",
   MENTOONS_CARDS: "mentoons cards",
   MENTOONS_BOOKS: "mentoons books",
+  TOONLAND: "toonland",
   //Any other product type
 };
 

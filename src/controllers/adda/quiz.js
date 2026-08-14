@@ -1,4 +1,5 @@
 const Quiz = require("../../models/adda/quiz");
+const { uploadFile } = require("../../services/FileUpload");
 const asyncHandler = require("../../utils/asyncHandler");
 
 const getQuizzes = asyncHandler(async (req, res) => {
@@ -56,16 +57,69 @@ const getQuizById = asyncHandler(async (req, res) => {
   });
 });
 
+const groupFilesByField = (files = []) =>
+  files.reduce((acc, file) => {
+    if (!acc[file.fieldname]) acc[file.fieldname] = [];
+    acc[file.fieldname].push(file);
+    return acc;
+  }, {});
+
 const uploadQuiz = asyncHandler(async (req, res) => {
-  const { category, questionsAndOptions, results } = req.body;
-  console.log("results: ", results);
+  const { category } = req.body;
+  const quizType = req.body.quizType === "knowledge" ? "knowledge" : "score";
 
   if (!category) {
     return res.status(404).json({ message: "No category found" });
   }
 
+  let questionsAndOptions;
+  let results;
+
+  try {
+    questionsAndOptions = JSON.parse(req.body.questionsAndOptions || "[]");
+  } catch (err) {
+    return res
+      .status(400)
+      .json({ message: "Invalid questionsAndOptions format" });
+  }
+
+  try {
+    results = req.body.results ? JSON.parse(req.body.results) : [];
+  } catch (err) {
+    return res.status(400).json({ message: "Invalid results format" });
+  }
+
   if (!questionsAndOptions || questionsAndOptions.length === 0) {
     return res.status(404).json({ message: "No questions and options found" });
+  }
+
+  const groupedFiles = groupFilesByField(req.files);
+  const imageFiles = groupedFiles.images || [];
+  const iconFiles = groupedFiles.icons || [];
+
+  for (let i = 0; i < questionsAndOptions.length; i++) {
+    const imageFile = imageFiles[i];
+    const iconFile = iconFiles[i];
+
+    if (imageFile) {
+      const uploadedImage = await uploadFile(
+        imageFile.buffer,
+        "QuizImages",
+        imageFile.mimetype,
+        imageFile.originalname,
+      );
+      questionsAndOptions[i].image = uploadedImage.url;
+    }
+
+    if (iconFile) {
+      const uploadedIcon = await uploadFile(
+        iconFile.buffer,
+        "QuizIcons",
+        iconFile.mimetype,
+        iconFile.originalname,
+      );
+      questionsAndOptions[i].icon = uploadedIcon.url;
+    }
   }
 
   let quiz = await Quiz.findOne({ category });
@@ -73,7 +127,7 @@ const uploadQuiz = asyncHandler(async (req, res) => {
   if (quiz) {
     quiz.questions.push(...questionsAndOptions);
 
-    if (results) quiz.results = results;
+    if (results && results.length > 0) quiz.results = results;
 
     await quiz.save();
     return res.status(200).json({
@@ -83,6 +137,7 @@ const uploadQuiz = asyncHandler(async (req, res) => {
   } else {
     quiz = new Quiz({
       category,
+      quizType,
       questions: questionsAndOptions,
       results: results || [],
     });
@@ -132,7 +187,7 @@ const deleteQuestion = asyncHandler(async (req, res) => {
         questions: { _id: questionId },
       },
     },
-    { new: true }
+    { new: true },
   );
 
   return res.status(200).json({
@@ -177,7 +232,7 @@ const submitQuiz = asyncHandler(async (req, res) => {
   const totalScore = answers.reduce((sum, ans) => sum + ans.score, 0);
 
   const result = quiz.results.find(
-    (r) => totalScore >= r.minScore && totalScore <= r.maxScore
+    (r) => totalScore >= r.minScore && totalScore <= r.maxScore,
   );
 
   return res.status(200).json({

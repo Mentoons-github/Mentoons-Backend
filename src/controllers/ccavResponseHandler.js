@@ -18,6 +18,8 @@ const SessionModel = require("../models/session.js");
 const { parseCcavenueResponse } = require("../utils/workshop/emi.js");
 const { paymentStatus } = require("./workshop/emi.js");
 
+const APP_SCHEME = "mentoons";
+
 const postRes = async (request, response) => {
   const userId = request.query?.userId;
 
@@ -27,6 +29,7 @@ const postRes = async (request, response) => {
   );
 
   try {
+    const platform = (responseObject.merchant_param5 || "web").toLowerCase();
     const subscriptionType = responseObject.merchant_param3 || null;
     const orderType = responseObject.order_type || "UNKNOWN";
     const quizType =
@@ -35,7 +38,8 @@ const postRes = async (request, response) => {
 
     let redirectUrl;
 
-    const isWorkshop = responseObject.merchant_param5 === "WORKSHOP";
+    const isWorkshop = platform === "workshop";
+    const isApp = platform === "app";
 
     console.log(isWorkshop);
 
@@ -43,12 +47,21 @@ const postRes = async (request, response) => {
       return paymentStatus(request, response, responseObject);
     }
 
-    if (orderType === "QUIZ_PURCHASE") {
-      redirectUrl = new URL(
-        `${process.env.FRONTEND_URL}/quiz/${quizType}/${difficulty}`,
-      );
+    // Build base redirect URL depending on platform
+    if (isApp) {
+      if (orderType === "QUIZ_PURCHASE") {
+        redirectUrl = new URL(`${APP_SCHEME}://quiz/${quizType}/${difficulty}`);
+      } else {
+        redirectUrl = new URL(`${APP_SCHEME}://payment-status`);
+      }
     } else {
-      redirectUrl = new URL(`${process.env.FRONTEND_URL}/payment-status`);
+      if (orderType === "QUIZ_PURCHASE") {
+        redirectUrl = new URL(
+          `${process.env.FRONTEND_URL}/quiz/${quizType}/${difficulty}`,
+        );
+      } else {
+        redirectUrl = new URL(`${process.env.FRONTEND_URL}/payment-status`);
+      }
     }
 
     redirectUrl.searchParams.append(
@@ -68,7 +81,6 @@ const postRes = async (request, response) => {
       );
     }
 
-    // Set payment status message
     if (responseObject.order_status === "Success") {
       redirectUrl.searchParams.append("message", "Payment Successful");
     } else if (responseObject.order_status === "Aborted") {
@@ -79,13 +91,10 @@ const postRes = async (request, response) => {
       redirectUrl.searchParams.append("message", "Payment Status Unknown");
     }
 
-    // Handle QUIZ_PURCHASE specifically
     if (orderType === "QUIZ_PURCHASE") {
       console.log("Handling QUIZ_PURCHASE response");
-      // Skip email sending and database operations for quiz purchases
       console.log(`Redirecting to quiz page: ${redirectUrl.toString()}`);
     } else {
-      // Handle other order types (existing logic)
       if (responseObject.order_id) {
         try {
           const orderStatus =
@@ -108,6 +117,9 @@ const postRes = async (request, response) => {
             const psychologistId = new mongoose.Types.ObjectId(
               responseObject.merchant_param4,
             );
+
+            const sessionDuration = order?.items?.[0]?.duration || "1 Hour";
+
             await SessionModel.findOneAndUpdate(
               {
                 psychologistId: psychologistId,
@@ -116,6 +128,7 @@ const postRes = async (request, response) => {
               },
               {
                 status: orderStatus.toLowerCase(),
+                duration: sessionDuration,
               },
               {
                 new: true,
@@ -192,7 +205,6 @@ const postRes = async (request, response) => {
                     html: ProductEmailTemplate(order),
                   };
                   await sendEmail(productMailInfo);
-
                   break;
                 case "subscription_purchase":
                   const subscriptionMailInfo = {
@@ -201,8 +213,7 @@ const postRes = async (request, response) => {
                     subject: "Thank you for purchasing Mentoons Subscription",
                     html: SubscriptionEmailTemplate(order),
                   };
-                  const subscriptionEmailResponse =
-                    await sendEmail(subscriptionMailInfo);
+                  await sendEmail(subscriptionMailInfo);
                   break;
                 case "consultancy_purchase":
                   const consultancyMailInfo = {
@@ -211,8 +222,7 @@ const postRes = async (request, response) => {
                     subject: "🎉 You're In! Consultation Confirmed 🎉",
                     html: ConsultanyBookingemailTemplate(order),
                   };
-                  const consultancyEmailResponse =
-                    await sendEmail(consultancyMailInfo);
+                  await sendEmail(consultancyMailInfo);
                   break;
                 default:
                   break;
@@ -240,7 +250,6 @@ const postRes = async (request, response) => {
     });
     response.end();
   } catch (error) {
-    // Redirect to frontend with error
     const redirectUrl = new URL(`${process.env.FRONTEND_URL}/payment-status`);
     redirectUrl.searchParams.append("status", "ERROR");
     redirectUrl.searchParams.append(
