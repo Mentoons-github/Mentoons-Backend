@@ -9,6 +9,11 @@ const sessionSchema = new mongoose.Schema(
     email: { type: String, required: true },
     date: { type: Date, required: true },
     time: { type: String, required: true },
+    duration: {
+      type: String,
+      enum: ["30 Minutes", "1 Hour"],
+      default: "1 Hour",
+    },
     psychologistId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Employee",
@@ -32,7 +37,7 @@ const sessionSchema = new mongoose.Schema(
       default: null,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const SessionModel = mongoose.model("SessionCalls", sessionSchema);

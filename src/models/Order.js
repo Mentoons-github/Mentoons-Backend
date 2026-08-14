@@ -22,7 +22,21 @@ const orderItemSchema = new mongoose.Schema({
   productType: {
     type: String,
     required: true,
-    enum: ["cards", "book", "session"],
+    enum: ["cards", "book", "session", "toonland"],
+  },
+
+  source: {
+    type: String,
+    enum: ["mentoons", "toonland"],
+    default: "mentoons",
+  },
+
+  productImage: {
+    type: String,
+  },
+
+  fileUrl: {
+    type: String,
   },
   date: {
     type: String,
@@ -46,7 +60,7 @@ const addressSchema = new mongoose.Schema(
     country: String,
     postalCode: String,
   },
-  { _id: false }
+  { _id: false },
 );
 
 const paymentDetailsSchema = new mongoose.Schema(
@@ -72,7 +86,7 @@ const paymentDetailsSchema = new mongoose.Schema(
     paymentDate: Date,
     gatewayResponse: Object,
   },
-  { _id: false }
+  { _id: false },
 );
 
 const orderSchema = new mongoose.Schema(
@@ -106,7 +120,7 @@ const orderSchema = new mongoose.Schema(
     },
     orderStatus: {
       type: String,
-      enum: ["Success", "Aborted", "cancelled"],
+      enum: ["Success", "Aborted", "cancelled", "pending"],
       default: "pending",
     },
     totalAmount: {
@@ -179,6 +193,11 @@ const orderSchema = new mongoose.Schema(
     paymentResponse: {
       type: String,
     },
+    platform: {
+      type: String,
+      enum: ["mobile", "web"],
+      default: "web",
+    },
     createdAt: {
       type: Date,
       default: Date.now,
@@ -189,10 +208,9 @@ const orderSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
-// Calculate total amount before saving
 orderSchema.pre("save", function (next) {
   if (this.items && this.items.length > 0) {
     this.totalAmount = this.items.reduce((total, item) => {
@@ -202,17 +220,15 @@ orderSchema.pre("save", function (next) {
   next();
 });
 
-// Method to update order status
 orderSchema.methods.updateStatus = async function (status) {
   this.orderStatus = status;
   return await this.save();
 };
 
-// Method to update payment status
 orderSchema.methods.updatePaymentStatus = async function (
   status,
   transactionId = null,
-  gatewayResponse = null
+  gatewayResponse = null,
 ) {
   if (!this.paymentDetails) {
     this.paymentDetails = {};
@@ -222,7 +238,6 @@ orderSchema.methods.updatePaymentStatus = async function (
   if (gatewayResponse) this.paymentDetails.gatewayResponse = gatewayResponse;
   if (status === "completed") this.paymentDetails.paymentDate = new Date();
 
-  // Update order status based on payment status
   if (status === "completed") this.orderStatus = "processing";
   if (status === "failed") this.orderStatus = "failed";
   if (status === "refunded") this.orderStatus = "refunded";
@@ -230,7 +245,6 @@ orderSchema.methods.updatePaymentStatus = async function (
   return await this.save();
 };
 
-// Method to add item to order
 orderSchema.methods.addItem = function (item) {
   this.items.push(item);
   return this;

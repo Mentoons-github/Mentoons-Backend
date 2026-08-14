@@ -46,7 +46,11 @@ const mapEmployeeToFrontend = (employee, user) => ({
 
 const fetchTasks = async (req, res) => {
   try {
+    console.log("=== FETCH TASKS API CALLED ===");
+
     const { clerkRole, _id: userId } = req.user;
+    console.log("User:", { userId, clerkRole });
+
     const {
       employeeId,
       date,
@@ -58,18 +62,28 @@ const fetchTasks = async (req, res) => {
       limit = 10,
     } = req.query;
 
+    console.log("Query Params:", req.query);
+
     let query = {};
 
     if (clerkRole === "EMPLOYEE") {
+      console.log("EMPLOYEE ROLE DETECTED");
+
       const employee = await Employee.findOne({ user: userId });
+      console.log("Employee Found:", employee?._id);
+
       if (!employee) {
+        console.log("Employee record not found");
         return res.status(404).json({
           success: false,
           message: "Employee record not found for this user",
         });
       }
+
       query = { assignedTo: employee._id };
+      console.log("Employee Query:", query);
     } else if (employeeId && isValidObjectId(employeeId)) {
+      console.log("ADMIN FILTERING BY EMPLOYEE ID:", employeeId);
       query.assignedTo = employeeId;
     }
 
@@ -78,12 +92,18 @@ const fetchTasks = async (req, res) => {
       ["pending", "in-progress", "completed", "overdue"].includes(status)
     ) {
       query.status = status;
+      console.log("Status Filter Applied:", status);
     }
 
     if (searchTerm) {
+      console.log("Search Term:", searchTerm);
+
       const users = await User.find({
         name: { $regex: searchTerm, $options: "i" },
       }).select("_id");
+
+      console.log("Matching Users:", users.length);
+
       const employees = await Employee.find({
         $or: [
           { user: { $in: users.map((u) => u._id) } },
@@ -91,6 +111,9 @@ const fetchTasks = async (req, res) => {
           { jobRole: { $regex: searchTerm, $options: "i" } },
         ],
       }).select("_id");
+
+      console.log("Matching Employees:", employees.length);
+
       query.$or = [
         { title: { $regex: searchTerm, $options: "i" } },
         { assignedTo: { $in: employees.map((e) => e._id) } },
@@ -98,15 +121,25 @@ const fetchTasks = async (req, res) => {
     }
 
     if (date) {
+      console.log("Date Filter:", date);
+
       const filterDate = new Date(date);
+
       if (!isNaN(filterDate.getTime())) {
         const startOfDay = new Date(filterDate.setHours(0, 0, 0, 0));
         const endOfDay = new Date(filterDate.setHours(23, 59, 59, 999));
+
         query.deadline = {
           $gte: startOfDay,
           $lte: endOfDay,
         };
+
+        console.log("Date Range:", {
+          startOfDay,
+          endOfDay,
+        });
       } else {
+        console.log("Invalid Date Format");
         return res.status(400).json({
           success: false,
           message: "Invalid date format",
@@ -114,52 +147,63 @@ const fetchTasks = async (req, res) => {
       }
     }
 
+    console.log("Final Mongo Query:", JSON.stringify(query, null, 2));
+
     let sort = {};
+
     if (sortBy && ["createdAt", "submittedAt"].includes(sortBy)) {
       const order = sortOrder === "desc" ? -1 : 1;
       sort[sortBy] = order;
-    } else if (sortBy) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid sortBy value. Must be 'createdAt' or 'submittedAt'",
-      });
+
+      console.log("Sort Applied:", sort);
     }
 
     const pageNum = page ? Math.max(1, parseInt(page, 10)) : 1;
     const limitNum = parseInt(limit, 10) || 10;
     const skip = (pageNum - 1) * limitNum;
 
+    console.log("Pagination:", {
+      pageNum,
+      limitNum,
+      skip,
+    });
+
     const totalTasks = await Task.countDocuments(query);
+
+    console.log("Total Tasks Found:", totalTasks);
+
     const tasks = await Task.find(query)
       .populate("assignedBy", "name")
       .sort(sort)
       .skip(skip)
       .limit(limitNum);
 
-    if (!tasks || tasks.length === 0) {
-      return res.status(200).json({
-        success: true,
-        data: [],
-        pagination: {
-          page: pageNum,
-          limit: limitNum,
-          total: 0,
-          totalPages: 0,
-        },
-        message: "No tasks found",
-      });
+    console.log("Tasks Returned:", tasks.length);
+
+    if (tasks.length > 0) {
+      console.log(
+        "Task IDs:",
+        tasks.map((task) => task._id.toString()),
+      );
     }
 
     const frontendTasks = await Promise.all(
       tasks.map(async (task) => {
+        console.log("Processing Task:", task._id);
+
         const taskObj = task.toObject();
 
         let assignedToData = null;
+
         if (taskObj.assignedTo) {
           const employee = await Employee.findById(taskObj.assignedTo);
+          console.log(`Employee for task ${task._id}:`, employee?._id);
+
           let user = null;
+
           if (employee?.user) {
             user = await User.findById(employee.user).select("_id name");
+            console.log(`User for task ${task._id}:`, user?.name);
           }
 
           assignedToData = {
@@ -170,20 +214,21 @@ const fetchTasks = async (req, res) => {
           };
         }
 
-        const assignedByData = taskObj.assignedBy
-          ? {
-              _id: taskObj.assignedBy._id.toString(),
-              name: taskObj.assignedBy.name || "Unknown",
-            }
-          : null;
-
         return mapTaskToFrontend({
           ...taskObj,
           assignedTo: assignedToData,
-          assignedBy: assignedByData,
+          assignedBy: taskObj.assignedBy
+            ? {
+                _id: taskObj.assignedBy._id.toString(),
+                name: taskObj.assignedBy.name || "Unknown",
+              }
+            : null,
         });
       }),
     );
+
+    console.log("Frontend Tasks Count:", frontendTasks.length);
+    console.log("=== FETCH TASKS SUCCESS ===");
 
     res.status(200).json({
       success: true,
@@ -196,7 +241,10 @@ const fetchTasks = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Error fetching tasks:", error);
+    console.error("=== FETCH TASKS ERROR ===");
+    console.error(error);
+    console.error(error.stack);
+
     res.status(500).json({
       success: false,
       message: "Failed to fetch tasks",

@@ -20,7 +20,8 @@ const initiatePayment = async (req, res) => {
       lastName,
     } = req.body;
 
-    // Validate required fields
+    const platform = req.body.platform === "mobile" ? "mobile" : "web";
+
     if (!amount || !productInfo || !email || !orderId) {
       return res.status(400).json({
         status: "error",
@@ -49,7 +50,6 @@ const initiatePayment = async (req, res) => {
     let assignedPsychologistId = "";
 
     if (order_type === "consultancy_purchase") {
-      // Handle consultancy purchase (unchanged)
       const consultancyItem = Array.isArray(items) ? items[0] : items;
       const sessionDate = new Date(consultancyItem.date);
       const sessionTime = consultancyItem.time;
@@ -57,7 +57,7 @@ const initiatePayment = async (req, res) => {
       const availablePsychologist = await findAvailablePsychologist(
         consultancyItem.date,
         consultancyItem.time,
-        consultancyItem.state
+        consultancyItem.state,
       );
 
       if (!availablePsychologist) {
@@ -71,6 +71,8 @@ const initiatePayment = async (req, res) => {
 
       assignedPsychologistId = availablePsychologist._id.toString();
 
+      const sessionDuration = consultancyItem.duration || "1 Hour";
+
       const createdSession = await SessionModel.create({
         psychologistId: assignedPsychologistId,
         user: user._id,
@@ -81,22 +83,20 @@ const initiatePayment = async (req, res) => {
         phone,
         name: req.body.customerName,
         description: consultancyItem?.description || "",
+        duration: sessionDuration,
       });
 
       productId = [createdSession._id.toString()];
     } else if (order_type === "QUIZ_PURCHASE") {
-      // For quiz purchases, use the product ID directly from items without database validation
       productId = Array.isArray(items)
         ? items.map((item) => item.product)
         : [items.product];
     } else {
-      // For other order types, assume products are ObjectIds (unchanged)
       productId = Array.isArray(items)
         ? items.map((products) => products.product)
         : [items.product];
     }
 
-    // For QUIZ_PURCHASE, skip database storage and proceed directly to CCAvenue
     let order;
     if (order_type !== "QUIZ_PURCHASE") {
       const orderData = {
@@ -111,6 +111,7 @@ const initiatePayment = async (req, res) => {
         order_type,
         status: "PENDING",
         createdAt: new Date(),
+        platform,
       };
 
       if (order_type !== "consultancy_purchase") {
@@ -123,9 +124,8 @@ const initiatePayment = async (req, res) => {
       });
     }
 
-    // Prepare CCAvenue parameters
     const redirect_cancel_url = `https://api.mentoons.com/api/v1/payment/ccavenue-response?userId=${encodeURIComponent(
-      user.clerkId
+      user.clerkId,
     )}`;
 
     const ccavenueParams = {
@@ -144,9 +144,10 @@ const initiatePayment = async (req, res) => {
       ...(Array.isArray(items) && items.length > 0
         ? { merchant_param3: items[0].productName || "" }
         : typeof items === "object" && items !== null
-        ? { merchant_param3: items.productName || "" }
-        : {}),
+          ? { merchant_param3: items.productName || "" }
+          : {}),
       merchant_param4: assignedPsychologistId || "",
+      merchant_param5: platform,
     };
 
     const paramString = Object.keys(ccavenueParams)
