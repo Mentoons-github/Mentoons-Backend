@@ -218,9 +218,12 @@ const sendCandidateEmailByRecipients = async (req, res) => {
     }
 
     const candidateDocs = await CandidateModel.find({ email: { $in: to } });
-    const candidateByEmail = new Map(
-      candidateDocs.map((c) => [c.email.toLowerCase(), c]),
-    );
+    const candidatesByEmail = new Map();
+    for (const doc of candidateDocs) {
+      const key = doc.email.toLowerCase();
+      if (!candidatesByEmail.has(key)) candidatesByEmail.set(key, []);
+      candidatesByEmail.get(key).push(doc);
+    }
 
     const results = [];
     const sentTo = [];
@@ -240,9 +243,10 @@ const sendCandidateEmailByRecipients = async (req, res) => {
       const sent = await sendEmail(mailOptions);
       results.push({ email: recipientEmail, sent });
 
-      const candidateDoc = candidateByEmail.get(recipientEmail.toLowerCase());
+      const matchingCandidates =
+        candidatesByEmail.get(recipientEmail.toLowerCase()) || [];
 
-      if (candidateDoc) {
+      for (const candidateDoc of matchingCandidates) {
         emailLogs.push({
           candidate: candidateDoc._id,
           email: recipientEmail.toLowerCase(),
@@ -294,18 +298,22 @@ const sendCandidateEmailByRecipients = async (req, res) => {
 };
 
 const getCandidateEmailHistory = asyncHandler(async (req, res) => {
-  const { email } = req.query;
+  const { email, candidateId } = req.query;
 
-  if (!email || !email.trim()) {
+  if (!candidateId && (!email || !email.trim())) {
     return res.status(400).json({
       success: false,
-      message: "Email is required",
+      message: "Email or candidateId is required",
     });
   }
 
-  const emails = await CandidateEmailModel.find({
-    email: email.trim().toLowerCase(),
-  }).sort({ createdAt: -1 });
+  const query = candidateId
+    ? { candidate: candidateId }
+    : { email: email.trim().toLowerCase() };
+
+  const emails = await CandidateEmailModel.find(query).sort({
+    createdAt: -1,
+  });
 
   return successResponse(res, 200, "Candidate email history fetched", {
     emails,
@@ -327,6 +335,8 @@ const emailInbox = asyncHandler(async (req, res) => {
     const regex = new RegExp(search.trim(), "i");
     preMatch.$or = [{ name: regex }, { email: regex }, { jobTitle: regex }];
   }
+
+  const sortBeforeGroupStage = { $sort: { updatedAt: -1, _id: -1 } };
 
   const groupStage = {
     $group: {
@@ -365,6 +375,7 @@ const emailInbox = asyncHandler(async (req, res) => {
 
   const basePipeline = [
     { $match: preMatch },
+    sortBeforeGroupStage,
     groupStage,
     normalizeStage,
     ...(Object.keys(postMatch).length > 0 ? [{ $match: postMatch }] : []),
