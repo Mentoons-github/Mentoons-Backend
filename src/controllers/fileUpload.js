@@ -55,10 +55,10 @@ const uploadFileController = asyncHandler(async (req, res) => {
     console.log("🔐 Auth upload detected. Checking user...");
     userId = req.auth?.userId;
 
-    if (!userId) {
-      console.log("❌ Auth missing when required for regular upload");
-      return errorResponse(res, 401, "Unauthorized upload");
-    }
+    // if (!userId) {
+    //   console.log("❌ Auth missing when required for regular upload");
+    //   return errorResponse(res, 401, "Unauthorized upload");
+    // }
 
     console.log("👤 Upload by user:", userId);
   } else {

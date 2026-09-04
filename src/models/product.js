@@ -170,6 +170,9 @@ const MentoonsCardSchema = new mongoose.Schema({
       required: true,
     },
     accentColor: { type: String },
+    language: { type: String, default: "en" },
+    printLength: { type: String }, 
+    launchDate: { type: Date }, // NEW
     addressedIssues: [
       {
         title: { type: String, required: true },
