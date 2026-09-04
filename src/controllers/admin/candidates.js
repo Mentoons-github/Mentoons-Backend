@@ -1,9 +1,10 @@
 const { CandidateModel } = require("../../models/admin/candidates");
-const { sendEmail } = require("../../services/emailService");
+const JobApplication = require("../../models/jobApplication");
 const { uploadFile } = require("../../services/FileUpload");
 const asyncHandler = require("../../utils/asyncHandler");
 const { CandidateEmailModel } = require("../../models/admin/candidateEmails");
 const { successResponse } = require("../../utils/responseHelper");
+const { sendEmail } = require("../../services/sesEmail.service");
 
 const allExternalCandidates = asyncHandler(async (req, res) => {
   const page = parseInt(req.query.page) || 1;
@@ -120,19 +121,46 @@ const allExternalCandidates = asyncHandler(async (req, res) => {
   return successResponse(res, 200, "Candidates fetched successfully", data);
 });
 
-const SERVER_BASE_URL = process.env.SERVER_BASE_URL || "http://localhost:4000";
+const COMPANY_NAME = "Mentoons";
+const COMPANY_ADDRESS =
+  "399, 2nd Cross Rd, opposite the Paul hotel, HBCS Colony, Amarjyoti Layout, Domlur, Bengaluru, Karnataka 560071";
+const COMPANY_WEBSITE = "https://mentoons.com/";
+const COMPANY_EMAIL = "info@mentoons.com";
+const COMPANY_PHONE = "+91 78928 58593";
+const COMPANY_LOGO_URL =
+  "https://mentoons-website.s3.ap-northeast-1.amazonaws.com/logo/ec9141ccd046aff5a1ffb4fe60f79316.png";
 
-const buildUnsubscribeFooter = (email) => {
-  const unsubscribeLink = `${SERVER_BASE_URL}/candidate/unsubscribe?email=${encodeURIComponent(
-    email,
-  )}`;
+const RECIPIENT_MODELS = {
+  candidate: CandidateModel,
+  jobApplication: JobApplication,
+};
+
+const buildUnsubscribeFooter = (recipientEmail, recipientType) => {
+  const unsubscribeUrl = `${process.env.SERVER_BASE_URL.replace(/\/$/, "")}/candidate/unsubscribe?email=${encodeURIComponent(
+    recipientEmail,
+  )}&recipientType=${encodeURIComponent(recipientType)}`;
+
   return `
-    <p style="margin-top:24px;padding-top:12px;border-top:1px solid #e5e7eb;font-size:11px;color:#9ca3af;">
-      Don't want to receive these emails?
-      <a href="${unsubscribeLink}" style="color:#9ca3af;text-decoration:underline;" target="_blank" rel="noopener noreferrer">
-        Unsubscribe here
-      </a>
-    </p>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:32px;border-top:1px solid #e5e7eb;">
+      <tr>
+        <td style="padding-top:16px;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6;color:#6b7280;">
+          <img src="${COMPANY_LOGO_URL}" alt="${COMPANY_NAME}" width="120" style="display:block;margin:0 0 12px 0;max-width:120px;height:auto;" />
+          <p style="margin:0 0 4px 0;font-weight:bold;color:#374151;">${COMPANY_NAME}</p>
+          <p style="margin:0 0 4px 0;">${COMPANY_ADDRESS}</p>
+          <p style="margin:0 0 4px 0;">
+            <a href="${COMPANY_WEBSITE}" target="_blank" rel="noopener noreferrer" style="color:#6b7280;text-decoration:underline;">${COMPANY_WEBSITE}</a>
+            &nbsp;|&nbsp;
+            <a href="mailto:${COMPANY_EMAIL}" style="color:#6b7280;text-decoration:underline;">${COMPANY_EMAIL}</a>
+            &nbsp;|&nbsp;
+            ${COMPANY_PHONE}
+          </p>
+          <p style="margin:8px 0 0 0;">
+            You're receiving this email from ${COMPANY_NAME}.
+            <a href="${unsubscribeUrl}" target="_blank" rel="noopener noreferrer" style="color:#6b7280;text-decoration:underline;">Unsubscribe</a>
+          </p>
+        </td>
+      </tr>
+    </table>
   `;
 };
 
@@ -142,6 +170,22 @@ const sendCandidateEmailByRecipients = async (req, res) => {
       .concat(req.body["to[]"] || req.body.to || [])
       .filter(Boolean);
     const { subject, body, linkUrl } = req.body;
+
+    const recipientType =
+      req.body.recipientType === "jobApplication"
+        ? "jobApplication"
+        : "candidate";
+    const RecipientModel = RECIPIENT_MODELS[recipientType];
+
+    const isTestMode =
+      process.env.EMAIL_TEST_MODE === "true" || req.body.testMode === true;
+    const TEST_EMAIL = "devanps313@gmail.com";
+
+    const attachmentsPlaced = req.body.attachmentsPlaced === "true";
+
+    const attachmentIds = []
+      .concat(req.body["attachmentIds[]"] || req.body.attachmentIds || [])
+      .filter(Boolean);
 
     if (requestedTo.length === 0) {
       return res.status(400).json({
@@ -156,7 +200,7 @@ const sendCandidateEmailByRecipients = async (req, res) => {
         .json({ success: false, message: "Email body is required" });
     }
 
-    const unsubscribed = await CandidateModel.find({
+    const unsubscribed = await RecipientModel.find({
       email: { $in: requestedTo },
       unsubscribed: true,
     }).distinct("email");
@@ -175,13 +219,16 @@ const sendCandidateEmailByRecipients = async (req, res) => {
 
     const uploadedAttachments = [];
     if (req.files && req.files.length > 0) {
-      for (const file of req.files) {
+      for (let i = 0; i < req.files.length; i++) {
+        const file = req.files[i];
         const uploaded = await uploadFile(
           file.buffer,
           "candidate-emails",
           file.mimetype,
           file.originalname,
         );
+
+        uploaded.attachmentId = attachmentIds[i];
         uploadedAttachments.push(uploaded);
       }
     }
@@ -195,10 +242,17 @@ const sendCandidateEmailByRecipients = async (req, res) => {
 
     const trimmedLinkUrl = linkUrl?.trim();
 
+    const unplacedImageAttachments = imageAttachments.filter(
+      (a) => !attachmentsPlaced || !a.attachmentId,
+    );
+    const unplacedFileAttachments = fileAttachments.filter(
+      (a) => !attachmentsPlaced || !a.attachmentId,
+    );
+
     let attachmentsHtml = "";
 
-    if (imageAttachments.length > 0) {
-      attachmentsHtml += imageAttachments
+    if (unplacedImageAttachments.length > 0) {
+      attachmentsHtml += unplacedImageAttachments
         .map((a) => {
           const img = `<img src="${a.url}" alt="${a.originalName}" style="max-width:100%;border-radius:4px;" />`;
           return trimmedLinkUrl
@@ -208,8 +262,8 @@ const sendCandidateEmailByRecipients = async (req, res) => {
         .join("");
     }
 
-    if (fileAttachments.length > 0) {
-      attachmentsHtml += `<p><br></p><p><strong>Attachments:</strong></p><ul>${fileAttachments
+    if (unplacedFileAttachments.length > 0) {
+      attachmentsHtml += `<p><br></p><p><strong>Attachments:</strong></p><ul>${unplacedFileAttachments
         .map(
           (a) =>
             `<li><a href="${a.url}" target="_blank" rel="noopener noreferrer">${a.originalName}</a></li>`,
@@ -217,9 +271,44 @@ const sendCandidateEmailByRecipients = async (req, res) => {
         .join("")}</ul>`;
     }
 
-    const candidateDocs = await CandidateModel.find({ email: { $in: to } });
+    let processedBody = body;
+
+    if (uploadedAttachments.length > 0) {
+      for (const uploaded of uploadedAttachments) {
+        if (!uploaded.attachmentId) continue;
+
+        const wrapperRegex = new RegExp(
+          `(<span[^>]*data-attachment-id="${uploaded.attachmentId}"[^>]*>)([\\s\\S]*?)(<\\/span>)`,
+          "g",
+        );
+
+        processedBody = processedBody.replace(
+          wrapperRegex,
+          (match, openTag, inner, closeTag) => {
+            let newInner = inner;
+            if (uploaded.mimetype.startsWith("image/")) {
+              newInner = newInner.replace(
+                /(<img[^>]*src=")[^"]*(")/,
+                `$1${uploaded.url}$2`,
+              );
+            } else {
+              newInner = newInner.replace(
+                /(<a[^>]*href=")[^"]*(")/,
+                `$1${uploaded.url}$2`,
+              );
+            }
+            return `${openTag}${newInner}${closeTag}`;
+          },
+        );
+      }
+    }
+
+    const recipientDocs =
+      recipientType === "candidate"
+        ? await CandidateModel.find({ email: { $in: to } })
+        : [];
     const candidatesByEmail = new Map();
-    for (const doc of candidateDocs) {
+    for (const doc of recipientDocs) {
       const key = doc.email.toLowerCase();
       if (!candidatesByEmail.has(key)) candidatesByEmail.set(key, []);
       candidatesByEmail.get(key).push(doc);
@@ -230,36 +319,63 @@ const sendCandidateEmailByRecipients = async (req, res) => {
     const emailLogs = [];
 
     for (const recipientEmail of to) {
-      const finalHtml =
-        body + attachmentsHtml + buildUnsubscribeFooter(recipientEmail);
+      const footer = buildUnsubscribeFooter(recipientEmail, recipientType);
+      const finalHtml = attachmentsPlaced
+        ? processedBody + attachmentsHtml + footer
+        : body + attachmentsHtml + footer;
+
+      const actualRecipient = isTestMode ? TEST_EMAIL : recipientEmail;
+      const testSubjectPrefix = isTestMode
+        ? `[TEST → was: ${recipientEmail}] `
+        : "";
 
       const mailOptions = {
         from: '"Mentoons HR Team" <hr@mentoons.com>',
-        to: recipientEmail,
-        subject: subject?.trim() || "Message from Mentoons",
+        to: actualRecipient,
+        subject: `${testSubjectPrefix}${subject?.trim() || "Message from Mentoons"}`,
         html: finalHtml,
       };
 
-      const sent = await sendEmail(mailOptions);
-      results.push({ email: recipientEmail, sent });
+      const sendResult = await sendEmail(mailOptions);
+      const wasSent = Boolean(sendResult && sendResult.success);
 
-      const matchingCandidates =
-        candidatesByEmail.get(recipientEmail.toLowerCase()) || [];
-
-      for (const candidateDoc of matchingCandidates) {
-        emailLogs.push({
-          candidate: candidateDoc._id,
-          email: recipientEmail.toLowerCase(),
-          subject: subject?.trim() || "Message from Mentoons",
-          body: finalHtml,
-          linkUrl: trimmedLinkUrl || undefined,
-          attachments: uploadedAttachments,
-          sentBy: req.admin?._id,
-          status: sent ? "sent" : "failed",
-        });
+      if (!wasSent) {
+        console.error(
+          `Failed to send ${recipientType} email to ${actualRecipient}${
+            isTestMode ? ` (test mode, real target: ${recipientEmail})` : ""
+          }:`,
+          sendResult?.error,
+        );
       }
 
-      if (sent) sentTo.push(recipientEmail);
+      results.push({
+        email: recipientEmail,
+        deliveredTo: actualRecipient,
+        sent: wasSent,
+        messageId: sendResult?.messageId,
+        error: wasSent ? undefined : sendResult?.error,
+      });
+
+      if (recipientType === "candidate") {
+        const matchingCandidates =
+          candidatesByEmail.get(recipientEmail.toLowerCase()) || [];
+
+        for (const candidateDoc of matchingCandidates) {
+          emailLogs.push({
+            candidate: candidateDoc._id,
+            email: recipientEmail.toLowerCase(),
+            subject: subject?.trim() || "Message from Mentoons",
+            body: finalHtml,
+            linkUrl: trimmedLinkUrl || undefined,
+            attachments: uploadedAttachments,
+            sentBy: req.admin?._id,
+            status: wasSent ? "sent" : "failed",
+            testMode: isTestMode || undefined,
+          });
+        }
+      }
+
+      if (wasSent) sentTo.push(recipientEmail);
     }
 
     if (emailLogs.length > 0) {
@@ -267,30 +383,36 @@ const sendCandidateEmailByRecipients = async (req, res) => {
     }
 
     if (sentTo.length === 0) {
-      return res
-        .status(500)
-        .json({ success: false, message: "Failed to send email" });
+      return res.status(500).json({
+        success: false,
+        message: "Failed to send email",
+        results,
+        skipped,
+      });
     }
 
-    await CandidateModel.updateMany(
-      { email: { $in: sentTo } },
-      {
-        $set: { emailed: true, lastEmailedAt: new Date() },
-        $inc: { emailCount: 1 },
-      },
-    );
+    if (!isTestMode) {
+      await RecipientModel.updateMany(
+        { email: { $in: sentTo } },
+        {
+          $set: { emailed: true, lastEmailedAt: new Date() },
+          $inc: { emailCount: 1 },
+        },
+      );
+    }
 
     return res.status(200).json({
       success: true,
+      testMode: isTestMode || undefined,
       message: `${sentTo.length} sent, ${results.length - sentTo.length} failed${
         skipped.length ? `, ${skipped.length} skipped (unsubscribed)` : ""
-      }`,
+      }${isTestMode ? " (TEST MODE — all delivered to " + TEST_EMAIL + ")" : ""}`,
       attachments: uploadedAttachments,
       skipped,
       results,
     });
   } catch (error) {
-    console.error("Error sending candidate email:", error);
+    console.error("Error sending email:", error);
     return res
       .status(500)
       .json({ success: false, message: "Something went wrong" });
@@ -415,14 +537,18 @@ const emailInbox = asyncHandler(async (req, res) => {
 
 const unsubscribeCandidate = async (req, res) => {
   try {
-    const { email } = req.query;
+    const { email, recipientType } = req.query;
 
     if (!email || typeof email !== "string") {
       return res.status(400).send("<p>Missing email address.</p>");
     }
 
-    await CandidateModel.updateMany(
-      { email: email.trim() },
+    const normalizedEmail = email.trim().toLowerCase();
+    const RecipientModel =
+      recipientType === "jobApplication" ? JobApplication : CandidateModel;
+
+    await RecipientModel.updateMany(
+      { email: normalizedEmail },
       { $set: { unsubscribed: true, unsubscribedAt: new Date() } },
     );
 
@@ -436,7 +562,7 @@ const unsubscribeCandidate = async (req, res) => {
       </html>
     `);
   } catch (error) {
-    console.error("Error unsubscribing candidate:", error);
+    console.error("Error unsubscribing:", error);
     return res
       .status(500)
       .send("<p>Something went wrong. Please try again later.</p>");

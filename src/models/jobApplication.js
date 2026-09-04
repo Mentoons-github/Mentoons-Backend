@@ -39,6 +39,11 @@ const jobApplicationSchema = new mongoose.Schema(
       enum: ["INTERNAL", "AFFILIATE", "COLLABORATE"],
       default: "INTERNAL",
     },
+    emailed: { type: Boolean, default: false, index: true },
+    lastEmailedAt: { type: Date },
+    emailCount: { type: Number, default: 0 },
+    unsubscribed: { type: Boolean, default: false, index: true },
+    unsubscribedAt: { type: Date },
   },
   { timestamps: true },
 );
