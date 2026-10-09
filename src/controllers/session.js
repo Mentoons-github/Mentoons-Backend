@@ -2,6 +2,11 @@ const moment = require("moment");
 const Employee = require("../models/employee");
 const SessionModel = require("../models/session");
 const User = require("../models/user");
+const {
+  generateDaySlots,
+  isPsychologistAvailable,
+  findAvailablePsychologistForSlot,
+} = require("../utils/session/sessionAvailability");
 
 const getUserSession = async (req, res) => {
   try {
@@ -44,7 +49,6 @@ const findAvailablePsychologist = async (date, time, state, sessionID) => {
     const psychologists = await Employee.find({ role: "psychologist" });
 
     for (const psychologist of psychologists) {
-
       const sessionCount = await SessionModel.countDocuments({
         psychologistId: psychologist._id,
         date: sessionDate,
@@ -89,7 +93,7 @@ const availabiltyCheck = async (req, res) => {
       date,
       time,
       state,
-      sessionID
+      sessionID,
     );
 
     if (!availablePsychologist) {
@@ -120,7 +124,7 @@ const availabiltyCheck = async (req, res) => {
           psychologistId: availablePsychologist._id,
         },
         { $set: { date: date, time: time } },
-        { new: true }
+        { new: true },
       ).populate("psychologistId");
 
       if (!updateSession) {
@@ -153,8 +157,82 @@ const availabiltyCheck = async (req, res) => {
   }
 };
 
+const getPsychologists = async (req, res) => {
+  try {
+    const psychologists = await Employee.find({
+      role: "psychologist",
+      isActive: true,
+    }).select("name email phone department place profilePicture");
+
+    return res.status(200).json({
+      success: true,
+      psychologists,
+    });
+  } catch (error) {
+    console.error("Error fetching psychologists:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch psychologists",
+    });
+  }
+};
+
+const getAvailableSlots = async (req, res) => {
+  try {
+    const { date, duration, psychologistId, state } = req.query;
+
+    if (!date) {
+      return res.status(400).json({
+        success: false,
+        message: "Date is required",
+      });
+    }
+
+    const sessionDuration = duration === "30 Minutes" ? "30 Minutes" : "1 Hour";
+    const daySlots = generateDaySlots(sessionDuration);
+
+    const slots = await Promise.all(
+      daySlots.map(async (time) => {
+        let available;
+
+        if (psychologistId) {
+          available = await isPsychologistAvailable({
+            psychologistId,
+            date,
+            time,
+            duration: sessionDuration,
+          });
+        } else {
+          const anyAvailable = await findAvailablePsychologistForSlot({
+            date,
+            time,
+            duration: sessionDuration,
+            state,
+          });
+          available = Boolean(anyAvailable);
+        }
+
+        return { time, available };
+      }),
+    );
+
+    return res.status(200).json({
+      success: true,
+      slots,
+    });
+  } catch (error) {
+    console.error("Error fetching available slots:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch available slots",
+    });
+  }
+};
+
 module.exports = {
   getUserSession,
   availabiltyCheck,
   findAvailablePsychologist,
+  getPsychologists,
+  getAvailableSlots,
 };

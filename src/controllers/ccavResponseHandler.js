@@ -11,6 +11,10 @@ const {
   SubscriptionEmailTemplate,
   ConsultanyBookingemailTemplate,
 } = require("../utils/templates/email-template.js");
+const {
+  GiftRecipientEmailTemplate,
+  GiftSenderEmailTemplate,
+} = require("../utils/templates/gift-email-template.js");
 const { sendEmail } = require("../services/emailService.js");
 const Employee = require("../models/employee.js");
 const Cart = require("../models/cart.js");
@@ -47,7 +51,6 @@ const postRes = async (request, response) => {
       return paymentStatus(request, response, responseObject);
     }
 
-    // Build base redirect URL depending on platform
     if (isApp) {
       if (orderType === "QUIZ_PURCHASE") {
         redirectUrl = new URL(`${APP_SCHEME}://quiz/${quizType}/${difficulty}`);
@@ -198,13 +201,30 @@ const postRes = async (request, response) => {
               }
               switch (order.order_type) {
                 case "product_purchase":
-                  const productMailInfo = {
-                    from: process.env.EMAIL_USER,
-                    to: order.email,
-                    subject: "Thank you for your purchase",
-                    html: ProductEmailTemplate(order),
-                  };
-                  await sendEmail(productMailInfo);
+                  if (order.isGift && order.giftDetails?.recipientEmail) {
+                    const giftRecipientMailInfo = {
+                      from: process.env.EMAIL_USER,
+                      to: order.giftDetails.recipientEmail,
+                      subject: "🎁 You've received a gift from Mentoons!",
+                      html: GiftRecipientEmailTemplate(order),
+                    };
+                    const giftSenderMailInfo = {
+                      from: process.env.EMAIL_USER,
+                      to: order.email,
+                      subject: "Your Mentoons gift is on its way",
+                      html: GiftSenderEmailTemplate(order),
+                    };
+                    await sendEmail(giftRecipientMailInfo);
+                    await sendEmail(giftSenderMailInfo);
+                  } else {
+                    const productMailInfo = {
+                      from: process.env.EMAIL_USER,
+                      to: order.email,
+                      subject: "Thank you for your purchase",
+                      html: ProductEmailTemplate(order),
+                    };
+                    await sendEmail(productMailInfo);
+                  }
                   break;
                 case "subscription_purchase":
                   const subscriptionMailInfo = {
