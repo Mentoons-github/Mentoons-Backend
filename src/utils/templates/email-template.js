@@ -42,8 +42,9 @@ const ProductEmailTemplate = (order) => {
       <h2 style="color: #b45309">Products</h2>
 
       <div>
-        ${order?.products?.map((product) => {
-          return `
+        ${(order?.products || [])
+          .map((product) => {
+            return `
         <div
           style="
             display: flex;
@@ -86,7 +87,8 @@ const ProductEmailTemplate = (order) => {
           </div>
         </div>
         `;
-        })}
+          })
+          .join("")}
       </div>
 
       <p style="color: #b45309; font-weight: bold">
@@ -1345,7 +1347,6 @@ const ConsultanyBookingemailTemplate = (order) => {
 </body>
 </html>`;
 };
-
 
 module.exports = {
   ConsultanyBookingemailTemplate,

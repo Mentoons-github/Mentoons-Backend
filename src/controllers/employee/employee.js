@@ -9,6 +9,8 @@ const {
   errorResponse,
 } = require("../../utils/responseHelper");
 const { default: mongoose } = require("mongoose");
+const { isPsychologistAvailable, findAvailablePsychologistForSlot, generateDaySlots } = require("../../utils/session/sessionAvailability");
+
 
 const createEmployee = asyncHandler(async (req, res) => {
   const employeeData = req.body;
@@ -555,6 +557,78 @@ const getMe = async (req, res) => {
   }
 };
 
+const getPsychologists = async (req, res) => {
+  try {
+    const psychologists = await Employee.find({
+      role: "psychologist",
+      isActive: true,
+    }).select("name email phone department place profilePicture");
+
+    return res.status(200).json({
+      success: true,
+      psychologists,
+    });
+  } catch (error) {
+    console.error("Error fetching psychologists:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch psychologists",
+    });
+  }
+};
+
+const getAvailableSlots = async (req, res) => {
+  try {
+    const { date, duration, psychologistId, state } = req.query;
+
+    if (!date) {
+      return res.status(400).json({
+        success: false,
+        message: "Date is required",
+      });
+    }
+
+    const sessionDuration = duration === "30 Minutes" ? "30 Minutes" : "1 Hour";
+    const daySlots = generateDaySlots(sessionDuration);
+
+    const slots = await Promise.all(
+      daySlots.map(async (time) => {
+        let available;
+
+        if (psychologistId) {
+          available = await isPsychologistAvailable({
+            psychologistId,
+            date,
+            time,
+            duration: sessionDuration,
+          });
+        } else {
+          const anyAvailable = await findAvailablePsychologistForSlot({
+            date,
+            time,
+            duration: sessionDuration,
+            state,
+          });
+          available = Boolean(anyAvailable);
+        }
+
+        return { time, available };
+      }),
+    );
+
+    return res.status(200).json({
+      success: true,
+      slots,
+    });
+  } catch (error) {
+    console.error("Error fetching available slots:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch available slots",
+    });
+  }
+};
+
 module.exports = {
   getMe,
   createEmployee,
@@ -565,4 +639,6 @@ module.exports = {
   requestProfileEdit,
   getEmployeesCelebrations,
   employeeLogin,
+  getPsychologists,
+  getAvailableSlots,
 };

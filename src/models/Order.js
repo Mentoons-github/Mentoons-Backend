@@ -22,7 +22,7 @@ const orderItemSchema = new mongoose.Schema({
   productType: {
     type: String,
     required: true,
-    enum: ["cards", "book", "session", "toonland"],
+    enum: ["cards", "book", "session", "toonland", "combo"], // CHANGED: added "combo"
   },
 
   source: {
@@ -85,6 +85,41 @@ const paymentDetailsSchema = new mongoose.Schema(
     },
     paymentDate: Date,
     gatewayResponse: Object,
+  },
+  { _id: false },
+);
+
+const giftDetailsSchema = new mongoose.Schema(
+  {
+    recipientEmail: {
+      type: String,
+      lowercase: true,
+      trim: true,
+    },
+    senderName: {
+      type: String,
+      trim: true,
+    },
+    message: {
+      type: String,
+      maxlength: 200,
+      default: "",
+    },
+    claimToken: {
+      type: String,
+      index: true,
+      sparse: true,
+      unique: true,
+    },
+    claimed: {
+      type: Boolean,
+      default: false,
+    },
+    claimedAt: Date,
+    claimedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
   },
   { _id: false },
 );
@@ -198,6 +233,11 @@ const orderSchema = new mongoose.Schema(
       enum: ["mobile", "web"],
       default: "web",
     },
+    isGift: {
+      type: Boolean,
+      default: false,
+    },
+    giftDetails: giftDetailsSchema,
     createdAt: {
       type: Date,
       default: Date.now,

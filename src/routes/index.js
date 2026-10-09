@@ -53,6 +53,8 @@ const feedbackRoutes = require("./adda/userFeedback.routes.js");
 const badgeRoutes = require("./adda/badge.routes.js");
 const candidateRoutes = require("./admin/candidate.routes.js");
 const revenueRoutes = require("./admin/revenue.routes.js");
+const assessmentHistoryRoutes = require("./assessment.routes.js");
+const comboRoutes = require("../routes/combo.routes.js");
 
 router.use("/adda", addaRouter);
 router.use("/influencer-requests", influencerJobRequestRoutes);
@@ -106,5 +108,7 @@ router.use("/workshop-batch", workshopBatchRoutes);
 router.use("/user-feedback", feedbackRoutes);
 router.use("/candidate", candidateRoutes);
 router.use("/revenue", revenueRoutes);
+router.use("/assessment-history", assessmentHistoryRoutes);
+router.use("/combo", comboRoutes)
 
 module.exports = router;
