@@ -3,7 +3,7 @@ const path = require("path");
 
 // Comprehensive file type validation
 const FILE_TYPE_MAP = {
-  images: ["image/jpeg", "image/png", "image/gif", "image/webp"],
+  images: ["image/jpeg", "image/png", "image/gif", "image/webp", "image/avif"],
   documents: [
     "application/pdf",
     "application/msword",

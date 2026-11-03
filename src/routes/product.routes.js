@@ -13,32 +13,48 @@ const { addaConditionalAuth } = require("../middlewares/adda/conditionalAuth");
 const adminAuthMiddleware = require("../middlewares/adminAuthMiddleware");
 const { conditionalAuth } = require("../middlewares/auth.middleware");
 const { verifyAdmin } = require("../middlewares/admin/adminAuth");
+const {
+  cacheResponse,
+  invalidateCache,
+} = require("../middlewares/cache.middleware");
+const { REDIS_CACHE } = require("../constants/redis/cachPrefix");
 
 const router = express.Router();
 
-router.get("/", getProducts);
-// POST /api/products -> create a new product
-router.post("/", verifyAdmin, createProduct);
+router.get("/", cacheResponse(REDIS_CACHE.products, 300), getProducts);
 
-// GET /api/products -> list with search, sort, pagination
+router.post(
+  "/",
+  verifyAdmin,
+  invalidateCache(REDIS_CACHE.products),
+  createProduct,
+);
 
 router.get("/search", addaConditionalAuth, globalSearch);
 
-router.get("/all", getAllProducts);
+router.get("/all", cacheResponse(REDIS_CACHE.products, 300), getAllProducts);
 
-// GET /api/products/:id -> fetch a single product by id
-router.get("/:id", getProductById);
+router.get("/:id", cacheResponse(REDIS_CACHE.products, 600), getProductById);
 
-// PUT /api/products/:id -> update a product
-router.put("/:id", verifyAdmin, updateProduct);
+router.put(
+  "/:id",
+  verifyAdmin,
+  invalidateCache(REDIS_CACHE.products),
+  updateProduct,
+);
 
-// DELETE /api/products/:id -> delete a product
-router.delete("/:id", verifyAdmin, deleteProduct);
+router.delete(
+  "/:id",
+  verifyAdmin,
+  invalidateCache(REDIS_CACHE.products),
+  deleteProduct,
+);
 
 router.delete(
   "/image/:imageId",
   adminAuthMiddleware.adminAuthMiddleware,
-  deleteProductImage
+  invalidateCache(REDIS_CACHE.products),
+  deleteProductImage,
 );
 router.delete("/remove-file", adminAuthMiddleware.adminAuthMiddleware);
 

@@ -27,6 +27,7 @@ const uploadFileController = asyncHandler(async (req, res) => {
   const MAX_FILE_SIZE = 200 * 1024 * 1024;
   const ALLOWED_MIME_TYPES = [
     "image/jpeg",
+    "image/avif",
     "image/png",
     "image/gif",
     "application/pdf",

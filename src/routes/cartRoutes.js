@@ -2,22 +2,53 @@ const express = require("express");
 const cartController = require("../controllers/cartController");
 const router = express.Router();
 
+const {
+  cacheResponse,
+  invalidateCache,
+} = require("../middlewares/cache.middleware");
+
+const { REDIS_CACHE } = require("../constants/redis/cachPrefix");
+
 // Add item to cart
-router.post("/add", cartController.addItemToCart);
+router.post(
+  "/add",
+  invalidateCache(REDIS_CACHE.cart),
+  cartController.addItemToCart,
+);
 
 // Get cart by user ID
-router.get("/:userId", cartController.getCart);
+router.get(
+  "/:userId",
+  cacheResponse(REDIS_CACHE.cart, 300),
+  cartController.getCart,
+);
 
 // Remove item from cart
-router.delete("/remove", cartController.removeItemFromCart);
+router.delete(
+  "/remove",
+  invalidateCache(REDIS_CACHE.cart),
+  cartController.removeItemFromCart,
+);
 
-// Update item quantity in cart
-router.patch("/update-quantity", cartController.updateItemQuantity);
+// Update item quantity
+router.patch(
+  "/update-quantity",
+  invalidateCache(REDIS_CACHE.cart),
+  cartController.updateItemQuantity,
+);
 
-// Apply coupon to cart
-router.post("/apply-coupon", cartController.applyCoupon);
+// Apply coupon
+router.post(
+  "/apply-coupon",
+  invalidateCache(REDIS_CACHE.cart),
+  cartController.applyCoupon,
+);
 
-// Remove coupon from cart
-router.post("/remove-coupon", cartController.removeCoupon);
+// Remove coupon
+router.post(
+  "/remove-coupon",
+  invalidateCache(REDIS_CACHE.cart),
+  cartController.removeCoupon,
+);
 
 module.exports = router;

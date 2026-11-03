@@ -234,6 +234,14 @@ const UserSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+
+    // Admin's saved (scanned) signature as a base64 data URL.
+    // Hidden from normal queries. Read it with .select("+signatureImage").
+    signatureImage: {
+      type: String,
+      default: null,
+      select: false,
+    },
   },
   { timestamps: true },
 );

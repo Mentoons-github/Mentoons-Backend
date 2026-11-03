@@ -55,6 +55,7 @@ const candidateRoutes = require("./admin/candidate.routes.js");
 const revenueRoutes = require("./admin/revenue.routes.js");
 const assessmentHistoryRoutes = require("./assessment.routes.js");
 const comboRoutes = require("../routes/combo.routes.js");
+const dailyReportRoutes = require("../routes/employee/dailyReport.routes.js");
 
 router.use("/adda", addaRouter);
 router.use("/influencer-requests", influencerJobRequestRoutes);
@@ -110,5 +111,6 @@ router.use("/candidate", candidateRoutes);
 router.use("/revenue", revenueRoutes);
 router.use("/assessment-history", assessmentHistoryRoutes);
 router.use("/combo", comboRoutes)
+router.use("/daily-report", dailyReportRoutes)
 
 module.exports = router;
