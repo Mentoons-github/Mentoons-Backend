@@ -43,10 +43,10 @@ const dailyReportSchema = new mongoose.Schema(
 
     plan: { type: String, trim: true, default: "" },
 
+    // Set by the admin only (not by the employee)
     didAsDiscussed: {
       type: String,
       enum: ["YES", "NO"],
-      required: [true, "Did as per discussed is required"],
     },
 
     late: { type: Boolean, default: false },

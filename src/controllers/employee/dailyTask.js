@@ -14,6 +14,7 @@ const OFF_DAYS = [0, 6];
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 const SIGNATURE_REGEX = /^data:image\/(png|jpeg|jpg|webp);base64,/;
 const MAX_SIGNATURE_LENGTH = 1_500_000;
+const YES_NO = ["YES", "NO"];
 
 const FRONTEND_URL = (
   process.env.FRONTEND_URL || "https://www.mentoons.com"
@@ -94,8 +95,7 @@ const submitReport = asyncHandler(async (req, res) => {
 
   const { _id: employeeId } = employee;
 
-  const { date, task, notes, tools, complete, reason, plan, didAsDiscussed } =
-    req.body;
+  const { date, task, notes, tools, complete, reason, plan } = req.body;
 
   if (!date || !DATE_REGEX.test(date)) {
     return res
@@ -145,7 +145,6 @@ const submitReport = asyncHandler(async (req, res) => {
   report.complete = complete;
   report.reason = complete === "NO" ? reason : "";
   report.plan = plan || "";
-  report.didAsDiscussed = didAsDiscussed;
   report.submittedAt = new Date();
 
   try {
@@ -312,9 +311,6 @@ const getAllReports = asyncHandler(async (req, res) => {
   });
 });
 
-/* ---------- admin's saved signature (scanned once, reused) ---------- */
-
-// GET /signature/me
 const getMySignature = asyncHandler(async (req, res) => {
   const { _id: adminId } = req.user;
 
@@ -323,7 +319,6 @@ const getMySignature = asyncHandler(async (req, res) => {
   res.status(200).json({ signature: admin?.signatureImage || null });
 });
 
-// PUT /signature/me   body: { signature: "data:image/png;base64,..." }
 const saveMySignature = asyncHandler(async (req, res) => {
   const { _id: adminId } = req.user;
   const { signature } = req.body;
@@ -342,7 +337,6 @@ const saveMySignature = asyncHandler(async (req, res) => {
   res.status(200).json({ message: "Signature saved", signature });
 });
 
-// DELETE /signature/me
 const deleteMySignature = asyncHandler(async (req, res) => {
   const { _id: adminId } = req.user;
 
@@ -351,9 +345,39 @@ const deleteMySignature = asyncHandler(async (req, res) => {
   res.status(200).json({ message: "Saved signature removed" });
 });
 
-/* ---------- sign a report ---------- */
-// body: { useSaved: true }  -> server uses the admin's saved signature
-//   or  { signature: "data:image/..." } -> typed / drawn / one-off upload
+const setDidAsDiscussed = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { value } = req.body;
+
+  if (!isValidObjectId(id)) {
+    return res.status(400).json({ error: "Invalid report ID" });
+  }
+
+  if (!YES_NO.includes(value)) {
+    return res.status(400).json({ error: "Value must be YES or NO" });
+  }
+
+  const report = await DailyReport.findOneAndUpdate(
+    { _id: id, signature: null },
+    { $set: { didAsDiscussed: value } },
+    { new: true, runValidators: true },
+  );
+
+  if (!report) {
+    const exists = await DailyReport.exists({ _id: id });
+    return exists
+      ? res.status(409).json({
+          error: "This report is already signed and can no longer be changed",
+        })
+      : res.status(404).json({ error: "Report not found" });
+  }
+
+  res.status(200).json({
+    message: "Saved",
+    report,
+  });
+});
+
 const signReport = asyncHandler(async (req, res) => {
   const { _id: adminId } = req.user;
 
@@ -387,9 +411,8 @@ const signReport = asyncHandler(async (req, res) => {
     finalSignature = signature;
   }
 
-  // Only signs if it is still unsigned, so two admins cannot sign at once
   const report = await DailyReport.findOneAndUpdate(
-    { _id: id, signature: null },
+    { _id: id, signature: null, didAsDiscussed: { $in: YES_NO } },
     {
       $set: {
         signature: finalSignature,
@@ -398,14 +421,23 @@ const signReport = asyncHandler(async (req, res) => {
         signedAt: new Date(),
       },
     },
-    { new: true },
+    { new: true, runValidators: true },
   );
 
   if (!report) {
-    const exists = await DailyReport.exists({ _id: id });
-    return exists
-      ? res.status(409).json({ error: "This report is already signed" })
-      : res.status(404).json({ error: "Report not found" });
+    const existing = await DailyReport.findById(id)
+      .select("signature didAsDiscussed")
+      .lean();
+
+    if (!existing) {
+      return res.status(404).json({ error: "Report not found" });
+    }
+    if (existing.signature) {
+      return res.status(409).json({ error: "This report is already signed" });
+    }
+    return res.status(400).json({
+      error: 'Please mark "Did as per discussed" (YES or NO) before signing',
+    });
   }
 
   res.status(200).json({
@@ -419,6 +451,7 @@ module.exports = {
   getMyReports,
   getAllReports,
   signReport,
+  setDidAsDiscussed,
   getReportsByDate,
   getMySignature,
   saveMySignature,

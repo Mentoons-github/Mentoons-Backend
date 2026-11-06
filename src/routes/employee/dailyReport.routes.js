@@ -5,6 +5,7 @@ const {
   getMyReports,
   getAllReports,
   signReport,
+  setDidAsDiscussed,
   getReportsByDate,
   getMySignature,
   saveMySignature,
@@ -20,11 +21,11 @@ router.get("/my-reports", verifyRole(["EMPLOYEE"]), getMyReports);
 router.get("/", verifyRole(ADMINS), getAllReports);
 router.get("/by-date", verifyRole(ADMINS), getReportsByDate);
 
-// admin's saved signature
 router.get("/signature/me", verifyRole(ADMINS), getMySignature);
 router.put("/signature/me", verifyRole(ADMINS), saveMySignature);
 router.delete("/signature/me", verifyRole(ADMINS), deleteMySignature);
 
+router.patch("/:id/discussed", verifyRole(ADMINS), setDidAsDiscussed);
 router.patch("/:id/sign", verifyRole(ADMINS), signReport);
 
 module.exports = router;
